@@ -1,0 +1,274 @@
+---
+title: "Oyster_survival_calc"
+author: "Camille Rumberger"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "~/MVP_Oyster_Analysis_Camille/MVP_Oysters_Analysis_Camille")
+
+# load libraries
+library(tidyverse) # for data wrangling
+library(stringr) # for splitting strings
+library(lubridate) # for dates
+library(ggplot2) # for plotting
+library(plotrix) # for std error
+```
+
+## Calculating Oyster Mortality in the Field
+
+This script is to calculate mortality of oysters in the MVP Field Experiment from 2023-2025. 
+
+First I need to read in and merge together relevant data. I will then clean this data up to prepare it for analysis by time point, site, population, and more.
+
+```{r}
+# read in data
+bags <- read.csv("data/ooters_prelim/MVP23-FieldBags - bags.csv")
+mort <- read.csv("data/ooters_prelim/MVP23-FieldBags - mortality.csv")
+expsites <- read.csv("data/ooters_prelim/MVP23-FieldBags - sites.csv")
+spawntrt <- read.csv("data/ooters_prelim/MVP23-FieldBags - spawn_trt2.csv")
+
+# merging bags and mortality
+head(bags)
+colnames(bags) <- c("bags_key", "bag_site", "bags_label", "SpawnTrt_Key")
+head(mort)
+merge1 <- merge(bags, mort, by = c("bags_key"), all = T)
+head(merge1)
+
+# add spawntrt data
+head(merge1)
+head(spawntrt)
+merge2 <- merge(merge1, spawntrt, by = c("SpawnTrt_Key"), all = T)
+head(merge2)
+
+# trim dataset
+merge2_trim <- merge2[,c("bags_key","bag_site","bags_label","SpawnTrt_Key","SpawnTrt_Label",
+                         "latitudeDecimal","longitudeDecimal","mortality_key","mortality_label",
+                         "mortality_timestamp","alive_count","dead_count","alive_returned")]
+
+# split timestamps to get dates - I'll use mortality_timestamp for this
+# dates are 4/29/24 - 5/7/24 for most recent monitoring event
+# quick checks - looks good!
+head(merge2_trim[,c("mortality_timestamp")])
+length(merge2_trim[,c("mortality_timestamp")])
+
+# split timestamp column into two
+datetime_split <- str_split_fixed(merge2_trim[,c("mortality_timestamp")], " ", 2) # split timestamp
+colnames(datetime_split) <- c("mortality_date", "mortality_time") # name columns
+merge3 <- cbind(merge2_trim, datetime_split) # add to full dataset
+
+# take out practice rows
+merge3_rm <- merge3[!merge3$SpawnTrt_Label == "Practice",]
+
+# also put a monitoring event column in here
+merge3_rm$mortality_date <- mdy(merge3_rm$mortality_date)
+merge3_rm$event <- ifelse(as_date(merge3_rm$mortality_date) > as_date("2023-11-16"),
+                                     ifelse(as_date(merge3_rm$mortality_date) > as_date("2024-05-09"), 3, 2),
+                                     1)
+
+# need to set a bag order
+bag_order <- data.frame(bags_label = levels(as.factor(merge3_rm$bags_label)), order = 1:60)
+merge4 <- merge(merge3_rm, bag_order, by = "bags_label")
+
+# check that data makes sense!! alive count should never be greater than alive returned from previous event
+# event 2
+which(merge4[merge4$event == 2,]$alive_count > merge4[merge4$event == 1,]$alive_returned)
+event2 <- merge4[merge4$event == 2,]
+event2[which(merge4[merge4$event == 2,]$alive_count > merge4[merge4$event == 1,]$alive_returned),]$bags_label
+# bags DEBY-3 and LA-3 had more alive in event 2 than in event 1...
+
+# how much more?
+## DEBY-3, 14 more oysters at t2 than t1
+merge4[merge4$event == 2 & merge4$bags_label == "MVP-DEBY-3",]$alive_count - merge4[merge4$event == 1 & merge4$bags_label == "MVP-DEBY-3",]$alive_returned
+## LA-3, 198 more oysters at t2 than t1
+merge4[merge4$event == 2 & merge4$bags_label == "MVP-LA-3",]$alive_count - merge4[merge4$event == 1 & merge4$bags_label == "MVP-LA-3",]$alive_returned
+
+# event 3
+which(merge4[merge4$event == 3,]$alive_count > merge4[merge4$event == 2,]$alive_returned)
+# all good!
+
+# remove the funky bags from analysis
+merge4_rm <- merge4[!merge4$bags_label == "MVP-DEBY-3",]
+merge4_rm <- merge4_rm[!merge4_rm$bags_label == "MVP-LA-3",]
+
+# add pop to df
+merge4_rm$pop <- str_split_fixed(merge4_rm$bags_label, "-", 3)[,2]
+```
+
+
+Data is now ready for analysis. I will calculate survival as a proportion of those surviving from the previous timepoint.
+
+
+```{r}
+# function for survival calculation
+surv_calc_bag <- function(dat, e) {
+  dat_ord = dat[order(dat$order),]
+  O = dat_ord[dat_ord$event == e,]$alive_count
+  if(e - 1 < 1) {
+    D = (dat_ord[dat_ord$event == e,]$alive_count) + (dat_ord[dat_ord$event == e,]$dead_count)
+    S = 1
+  } else {
+    D = dat_ord[dat_ord$event == (e-1),]$alive_returned
+    S = surv_calc_bag(dat_ord, (e-1))$surv
+  }
+  survival = (O/D) * S
+  df = data.frame(bag = dat_ord[dat_ord$event == e,]$bags_label, event = e, surv = survival)
+  return(df)
+}
+
+# calc survival
+e1_surv <- surv_calc_bag(merge4_rm, 1)
+e2_surv <- surv_calc_bag(merge4_rm, 2)
+e3_surv <- surv_calc_bag(merge4_rm, 3)
+
+# long format df
+surv_long <- rbind(e1_surv,e2_surv,e3_surv)
+
+# wide format df
+colnames(e1_surv) <- c("bags_label","event","t1")
+colnames(e2_surv) <- c("bags_label","event","t2")
+colnames(e3_surv) <- c("bags_label","event","t3")
+
+# final survival df
+surv_df <- merge(e1_surv[,c("bags_label","t1")], 
+                 e2_surv[,c("bags_label","t2")], 
+                 by = c("bags_label"))
+surv_df2 <- merge(surv_df, 
+                  e3_surv[,c("bags_label","t3")], 
+                  by = c("bags_label"))
+surv_df2$t0 <- 1
+surv_df2$pop <- str_split_fixed(surv_df2$bags_label, "-", 3)[,2]
+surv_df2$bagnum <- 1:length(levels(as.factor(surv_df2$bags_label)))
+surv_df_mg <- merge(surv_df2, bags, by = c("bags_label"))
+surv_df_ord <- surv_df_mg[,c("pop","bags_label","bagnum","bag_site","SpawnTrt_Key","t0","t1","t2","t3")]
+
+# can now calculate averages across sites and populations
+# overall pop survival
+pop_surv <- surv_df_ord %>% group_by(pop) %>% 
+  summarise(mean_t0 = mean(as.numeric(t0)),
+            sd_t0 = sd(as.numeric(t0)),
+            se_t0 = std.error(as.numeric(t0)),
+            mean_t1 = mean(as.numeric(t1)), 
+            sd_t1 = sd(as.numeric(t1)),
+            se_t1 = std.error(as.numeric(t1)),
+            mean_t2 = mean(as.numeric(t2)), 
+            sd_t2 = sd(as.numeric(t2)),
+            se_t2 = std.error(as.numeric(t2)),
+            mean_t3 = mean(as.numeric(t3)), 
+            sd_t3 = sd(as.numeric(t3)),
+            se_t3 = std.error(as.numeric(t3)),
+            .groups = 'drop')
+pop_surv
+
+# overall site survival
+site_surv <- surv_df_ord %>% group_by(bag_site) %>%
+  summarise(mean_t0 = mean(as.numeric(t0)),
+            sd_t0 = sd(as.numeric(t0)),
+            se_t0 = std.error(as.numeric(t0)),
+            mean_t1 = mean(as.numeric(t1)), 
+            sd_t1 = sd(as.numeric(t1)),
+            se_t1 = std.error(as.numeric(t1)),
+            mean_t2 = mean(as.numeric(t2)), 
+            sd_t2 = sd(as.numeric(t2)),
+            se_t2 = std.error(as.numeric(t2)),
+            mean_t3 = mean(as.numeric(t3)), 
+            sd_t3 = sd(as.numeric(t3)),
+            se_t3 = std.error(as.numeric(t3)),
+            .groups = 'drop')
+site_surv
+
+# by site and pop
+site_pop_surv <- surv_df_ord %>% group_by(bag_site,pop) %>%
+  summarise(mean_t0 = mean(as.numeric(t0)),
+            sd_t0 = sd(as.numeric(t0)),
+            se_t0 = std.error(as.numeric(t0)),
+            mean_t1 = mean(as.numeric(t1)), 
+            sd_t1 = sd(as.numeric(t1)),
+            se_t1 = std.error(as.numeric(t1)),
+            mean_t2 = mean(as.numeric(t2)), 
+            sd_t2 = sd(as.numeric(t2)),
+            se_t2 = std.error(as.numeric(t2)),
+            mean_t3 = mean(as.numeric(t3)), 
+            sd_t3 = sd(as.numeric(t3)),
+            se_t3 = std.error(as.numeric(t3)),
+            .groups = 'drop')
+site_pop_surv
+
+# lets also put this in long format for plotting
+e0 <- as.data.frame(site_pop_surv)[,c("bag_site","pop","mean_t0","sd_t0","se_t0")]
+e0$event <- 0
+e1 <- as.data.frame(site_pop_surv)[,c("bag_site","pop","mean_t1","sd_t1","se_t1")]
+e1$event <- 1
+e2 <- as.data.frame(site_pop_surv)[,c("bag_site","pop","mean_t2","sd_t2","se_t2")]
+e2$event <- 2
+e3 <- as.data.frame(site_pop_surv)[,c("bag_site","pop","mean_t3","sd_t3","se_t3")]
+e3$event <- 3
+colnames(e0) <- colnames(e1) <- colnames(e2) <- colnames(e3) <- c("bag_site","pop","mean_surv","sd","se","event")
+mort_df <- rbind(e0, e1, e2, e3)
+
+# save all these dataframes
+write.csv(mort_df, "results/mortality_long_popsite_022025.csv")
+write.csv(surv_df_ord, "results/mortality_bags_022025.csv")
+```
+
+All of my survival data is calculated, now I want to visualize trends in survival.
+
+```{r}
+# pops df for plotting
+popsdf <- data.frame(pop = c("TX","LA","FL","JR","DEBY","LOLA","NH","ME","LARMIX","SEEDMIX"), 
+                     order = 1:10, 
+#                     cols = c("#6f1926","#de324c","#f4895f","#f8e16f","#95cf92","#369acc",
+#                              "#9656a2","#cbabd1","black","gray"),
+                     cols = c("#332288","#117733","#44AA99","#88CCEE","#DDCC77","#CC6677",
+                              "#AA4499","#882255","black","gray"),
+                     shape = c(21,21,21,21,23,23,21,21,24,24),
+                     label = c("W1-TX","W2-LA","W3-FL","W4-VA","S1-LOLA","S2-DEBY",
+                               "W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"))
+mort_df_full <- merge(mort_df, popsdf, by = c("pop"))
+
+# york river
+york_surv <- ggplot(data = mort_df_full[mort_df_full$bag_site == "YorkRiver",]) + 
+  geom_line(aes(x = event, y = mean_surv, color = fct_reorder(pop,order))) + 
+  scale_color_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
+  geom_point(aes(x = event, y = mean_surv, fill = fct_reorder(pop,order), 
+                 shape = fct_reorder(pop,order)),
+             size = 4) + 
+  scale_shape_manual(name = "Population", label = popsdf$label, values = popsdf$shape)+
+  scale_fill_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
+  #  geom_errorbar(aes(x = event, ymin = mean_surv-se, ymax = mean_surv+se), width = 0.05) + # error bars look terrible
+  ylim(0,1) + 
+  labs(color = "Population") +
+  ylab("Survival") +
+  scale_x_continuous("Monitoring Event", breaks = c(0,1,2,3),
+                     labels = c("Spring '23", "Fall '23", "Spring '24", "Fall '24")) +
+  theme_classic() + 
+  theme(plot.title = element_text(size = 20), 
+        legend.title = element_text(size = 14),
+        legend.justification = "top") +
+  ggtitle("York River: Oyster Survival thru Time")
+york_surv
+
+# lewisetta
+lew_surv <- ggplot(data = mort_df_full[mort_df_full$bag_site == "Lewisetta",]) + 
+  geom_line(aes(x = event, y = mean_surv, color = fct_reorder(pop,order))) + 
+  scale_color_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
+  geom_point(aes(x = event, y = mean_surv, fill = fct_reorder(pop,order), 
+                 shape = fct_reorder(pop,order)),
+             size = 4) + 
+  scale_shape_manual(name = "Population", label = popsdf$label, values = popsdf$shape)+
+  scale_fill_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
+  #  geom_errorbar(aes(x = event, ymin = mean_surv-se, ymax = mean_surv+se), width = 0.05) + # error bars look terrible
+  ylim(0,1) + 
+  labs(color = "Population") +
+  ylab("Survival") +
+  scale_x_continuous("Monitoring Event", breaks = c(0,1,2,3),
+                     labels = c("Spring '23", "Fall '23", "Spring '24", "Fall '24")) +
+  theme_classic() + 
+  theme(plot.title = element_text(size = 20), 
+        legend.title = element_text(size = 14),
+        legend.justification = "top") +
+  ggtitle("Lewisetta: Oyster Survival thru Time")
+lew_surv
+```

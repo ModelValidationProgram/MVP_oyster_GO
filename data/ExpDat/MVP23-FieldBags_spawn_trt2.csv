@@ -1,0 +1,48 @@
+SpawnTrt_Key,SpawnTrt_Label,Tank_naming,Number,Spawning_date,setting_rate,Date_deploy_Lewisetta,Date_deploy_York,predeployment_sample_date,predeployment_age_days,predeployment_storage_buffer,predeployment_falcon_tube_label,predeployment_falcon_tube_numbers,predeployment_freezer_location,Notes,Sample_photo,latitudeDecimal,longitudeDecimal
+80D0CCF6,LA-SisLake,MVP-LA,1,2023-05-09,26.19%,2023-08-03,2023-08-01,2023-07-26,78,95% pure EtOH,"CviMVPe - LA
+
+#ind.
+
+07/27/2023 EtOH",310,Shelf 5 of -80C on the left,https://github.com/ModelValidationProgram/MVP_Chesapeake_VIMS_Exp/wiki/Methods,,29.239925,-90.911362
+B1767257,TX-CapBay,MVP-TX,2,2023-05-09,35.19%,2023-08-03,2023-08-01,2023-07-26,78,95% pure EtOH,"CviMVPe - TX
+
+#ind.
+
+07/27/2023 EtOH",307,Shelf 5 of -80C on the left,https://github.com/ModelValidationProgram/MVP_Chesapeake_VIMS_Exp/wiki/Methods,,28.096,-97.174
+334BC443,ME-HogIs,MVP-ME,3,2023-05-09,27.40%,2023-08-03,2023-08-01,2023-07-26,78,95% pure EtOH,"CviMVPe - ME
+
+#ind.
+
+07/27/2023 EtOH",296,Shelf 5 of -80C on the left,https://github.com/ModelValidationProgram/MVP_Chesapeake_VIMS_Exp/wiki/Methods,,44.0133,-69.541689
+7375C067,NH-GrtBay,MVP-NH,4,2023-05-09,14.93%,2023-08-03,2023-08-01,2023-07-26,78,95% pure EtOH,"CviMVPe - NH
+
+#ind.
+
+07/27/2023 EtOH",310,Shelf 5 of -80C on the left,https://github.com/ModelValidationProgram/MVP_Chesapeake_VIMS_Exp/wiki/Methods,,43.09042,-70.86958
+0066D592,VA-JR-DeepWatSh,MVP-JR,5,2023-05-09,14.40%,2023-08-03,2023-08-01,2023-07-26,78,95% pure EtOH,"CviMVPe - JR
+
+#ind.
+
+07/27/2023 EtOH",308,Shelf 5 of -80C on the left,https://github.com/ModelValidationProgram/MVP_Chesapeake_VIMS_Exp/wiki/Methods,,37.1501163,-76.638923
+AE5E7C9A,FL-KingPlan,MVP-FL,6,2023-05-09,17.80%,2023-08-03,2023-08-01,2023-07-26,78,95% pure EtOH,"CviMVPe - FL
+
+#ind.
+
+07/27/2023 EtOH",315,Shelf 5 of -80C on the left,"https://github.com/ModelValidationProgram/MVP_Chesapeake_VIMS_Exp/wiki/Methods, need to decolonize this naming",,30.44003,-81.43638
+BA103554,LOLA,MVP-LOLA,7,2023-05-09,16.93%,2023-08-03,2023-08-01,2023-07-26,78,95% pure EtOH,"CviMVPe - LOLA
+
+#ind.
+
+07/27/2023 EtOH",285,Shelf 5 of -80C on the left,https://github.com/ModelValidationProgram/MVP_Chesapeake_VIMS_Exp/wiki/Methods,,37.980537,-76.456254
+F30C9334,DEBY,MVP-DEBY,8,2023-05-09,27.27%,2023-08-03,2023-08-01,2023-07-26,78,95% pure EtOH,"CviMVPe - DEBY
+
+#ind.
+
+07/27/2023 EtOH",302,Shelf 5 of -80C on the left,https://github.com/ModelValidationProgram/MVP_Chesapeake_VIMS_Exp/wiki/Methods,,37.24888,-76.49717
+F86F3D8B,Poly-WithOutcross,MVP-LARMIX,9,2023-05-09,35.07%,2023-08-03,2023-08-01,2023-07-26,78,95% pure EtOH,"CviMVPe - LARMIX
+
+#ind.
+
+07/27/2023 EtOH",329,Shelf 5 of -80C on the left,https://github.com/ModelValidationProgram/MVP_Chesapeake_VIMS_Exp/wiki/Methods,,NA,NA
+A45B9C36,Poly-NoOutcross,MVP-SEEDMIX,10,NA,NA,2023-08-03,2023-08-01,NA,NA,NA,NA,NA,NA,Check with Shelley but I think this was created  on Day 78 but it could have been 49?,,NA,NA
+234g324d,Practice,Practice,11,,,2023-08-03,2023-08-01,NA,NA,NA,NA,NA,NA,,,,
