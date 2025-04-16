@@ -1,0 +1,45 @@
+---
+title: "CviMVP_oyster_EnvDatProcess"
+author: "Camille Rumberger"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Environmental Data Processing
+
+This script is to process environmental data for both the seascape and experiment by reducing the variable set to retain uncorrelated variables, standardize data, and convert data to the correct formats for downstream analysis. 
+
+The seascape data comes from...
+
+The experimental data comes from...
+
+## Setup
+
+```{r}
+# set wd
+setwd("~/Documents/Github/MVP_oyster_GO")
+
+# packages
+library(vegan)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(psych)
+library(LEA)
+library(stringr)
+
+# data
+seascapeEnv <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")
+expEnv <- read.csv("data/EnvDat/exp/envr_summary_stats.csv")
+```
+
+
+## Data Pre-processing
+
+```{r}
+
+```

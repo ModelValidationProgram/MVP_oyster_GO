@@ -1,0 +1,167 @@
+---
+title: "CviMVP_LEA_offset"
+author: "Camille Rumberger"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# LEA Genomic offsets
+
+This script is a LEA pipeline for calculating genomic offset. I am using LEA3, which allows for multivariate environmental datasets. I first train the models using LFMM of a large seascape dataset, then calculate offset for a subset of 8 populations from this dataset and 2 selection lines used in a common garden experiment. Offset is calculated from the environment of origin to common garden conditions.
+
+## Setup
+
+```{r}
+# wd
+setwd("~/Documents/GitHub/MVP_oyster_GO")
+
+# packages
+library(LEA) # for offsets
+library(BiocManager) # needed to download specific packages
+library(readxl) # reading xlsx files
+library(ggplot2) # for plotting
+library(vegan) # for env dat processing
+library(dplyr) # for data wrangling
+library(stringr) # for data wrangling
+
+# data
+# env
+seascapeEnv <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv") # keep this but also get list of reduced variables
+expEnv <- read.csv("data/EnvDat/exp/envr_summary_stats.csv")[,-1]
+
+# gen
+# add once i get it from madeline
+geno_mat
+```
+
+
+## Data Prep
+
+```{r}
+# check data
+seascapeEnv
+expEnv
+geno_mat
+
+# Genetic data prep
+# need to convert genotype matrix to lfmm format
+geno2lfmm("INSERT_PATH&FILENAME.csv", force = T)
+
+# read in lfmm object
+geno_lfmm <- read.lfmm("INSERT_PATH&FILENAME.lfmm")
+
+# any missing data?
+sum(geno_lfmm == 9)
+
+# naive imputation, remove once i get fully processed genetic data
+geno_lfmm_imp <- apply(geno_lfmm, 2, function(x) replace(x, x == 9, as.numeric(names(which.max(table(x))))))
+sum((geno_lfmm_imp == 9)) 
+
+# remove non-variable genomic sites
+geno_lfmm_imp_df <- as.data.frame(geno_lfmm_imp)
+geno_lfmm_imp_trim <- Filter(var, geno_lfmm_imp_df)
+geno_lfmm_imp_mat <- as.matrix(geno_lfmm_imp_trim)
+
+# rewrite lfmm files
+write.lfmm(geno_lfmm_imp_mat, "data/GenDat/geno_lfmm_imp_mat.lfmm")
+
+# environmental data prep
+# add this once I have environmental data
+```
+
+
+## Seascape Training
+
+Now that I have prepped and cleaned my data, I will use it to train LFMM models later used to predict genomic offset to some other (in this case experimental) climate. Importantly, I do not need to trim or impute my genomic data, or determine ancestry - Madeline has already done this. The data has been LD thinned, trimmed for MAF, and ancestry analysis has recovered K=2.
+Madeline also compiled the environmental data, which I further processed in the script "CviMVP_oyster_EnvDatProcess."
+
+May decide to train both genotype-based models and allele frequency based models - for now genotype models only.
+
+```{r}
+# read in the new lfmm file
+geno_lfmm_mod <- read.lfmm("data/GenDat/geno_lfmm_imp_mat.lfmm")
+
+# check the data
+geno_lfmm_mod
+seascape_env # these will be .env files, read in with data
+exp_env
+
+# fit model
+mod_lfmm <- lfmm2(input = geno_lfmm_mod,
+                  env = seascape_env, 
+                  K = 2) # using number of MLLs - should I keep K the same for
+
+# perform test
+pv_lfmm <- lfmm2.test(object = mod_lfmm,
+                      input = geno_lfmm_mod,
+                      env = exp_env, 
+                      full = TRUE)
+
+# pvalues
+pv <- pv_lfmm$pvalues
+
+# qvalues
+qv <- qvalue(pv, fdr.level = 0.01)
+
+# candidates
+candidates <- which(qv$significant)
+candidates_pvals <- (pv)[candidates]
+
+# using FDR to filter out false positives
+length(which(qv$qvalues < 0.01)) # how many
+
+# identify which SNPs have FDR less than 1%
+fdr_cands <- colnames(geno_lfmm_mod)[which(qv$qvalues < 0.01)]
+
+# df for candidates
+cand_df <- data.frame(index = colnames(geno_lfmm_mod), pos = 1:length(pv),
+                      pvals = pv, qvals = qv$qvalues)
+
+# manhattan plot - unnecessary but just a quick visualization
+plot(cand_df$pos, -log10(cand_df$pvals), 
+     pch = 19, col = "darkslategray4",
+     main = "Candidate SNPs",
+     xlab = "Position",
+     ylab = "-log10(Pvals)")
+points(cand_df$pos[cand_df$qvals < 0.01], 
+       -log10(cand_df$pvals[cand_df$qvals < 0.01]),
+       pch = 19,
+       col = "hotpink")
+```
+
+
+## Offset Prediction
+
+```{r}
+# check future env data
+exp_env # this will be env file for experimental environmental dat
+
+# calculate genetic gap
+gap_cands_full <- genetic.gap(input = geno_lfmm_mod, 
+                         env = seascape_env, 
+                         pred.env = exp_env, 
+                         scale = F, 
+                         K = 2)
+
+# THESE PARTS NEED TO BE UPDATED FROM EELGRASS SCRIPT VERSION
+# check how well each genetic gap measure correlates with euclidean environmental distance
+Delta <- current_MLL_env - future_MLL_env
+dist_env <- sqrt(rowSums(Delta^2))
+plot(dist_env, gap_cands_MLL$distance,
+     main = "Genetic gap vs Environmental Distance - MLL", 
+     xlab ="Euclidean distance",  ylab ="sqrt(genetic gap)", 
+     cex = .6, col = "darkslategray4", pch = 19)
+
+# Extract genomic offset from genetic gap object
+offsets_full <- gap_cands_full$offset
+
+# summary stats on offsets
+summary(offsets_full)
+
+# offset dfs
+offset_full_df <- cbind(indiv_full_merge, offsets_full)
+```
