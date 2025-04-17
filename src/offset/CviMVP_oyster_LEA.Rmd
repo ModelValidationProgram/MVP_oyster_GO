@@ -163,7 +163,7 @@ offsets <- gap$offset
 summary(offsets)
 
 # offset dfs
-offsets_df <- cbind(XXXXindivsXXXX, offsets) # need to have something of the same structure as indiv_merge from eelgrass pipeline, i.e. has identifiers for all indivs with pop level info, etc - this will be df with exp individuals/pops
+offsets_df <- cbind(XXXXindivsXXXX, offsets) # need to have something of the same structure as indiv_merge, i.e. has identifiers for all indivs with pop level info, etc - this will be df with exp individuals/pops
 ```
 
 ```{r}
