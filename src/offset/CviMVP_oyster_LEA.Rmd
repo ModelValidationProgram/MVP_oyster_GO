@@ -163,25 +163,4 @@ offsets <- gap$offset
 summary(offsets)
 
 # offset dfs
-offsets_df <- cbind(XXXXindivsXXXX, offsets) # need to have something of the same structure as indiv_merge from eelgrass pipeline, i.e. has identifiers for all indivs with pop level info, etc - this will be df with exp individuals/pops
-```
-
-```{r}
-# UPDATE FOR OYSTERS WHEN DATA IS IN
-# can now calculate offset by region, site, etc
-# average offset by site
-# average offset for each population
-offset_site_full <- aggregate(offsets_df$offsets_full, by = list(offset_full_df$Pop), FUN = mean)
-colnames(offset_site_full) <- c("site","offset_full")
-
-# order populations by average offset
-(ordered_site_full <- offset_site_full[order(offset_site_full$offset_full),])
-ordered_site_full$order_full <- 1:39
-
-# put this together into single df to visualize
-offset_sites <- merge(ordered_site_full, ordered_site_MLL, by = "site")
-offset_sites <- offset_sites[c("site","offset_full","offset_MLL","order_full","order_MLL")]
-
-# save this and raw offsets as .csv
-write.csv(offset_full_df, "offset_full_df.csv")
-```
+offsets_df <- cbind(XXXXindivsXXXX, offsets) # need to have something of the same structure as indiv_merge from eelgrass pipeline, i.e. has id
