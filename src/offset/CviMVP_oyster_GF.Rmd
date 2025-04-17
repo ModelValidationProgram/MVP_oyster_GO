@@ -1,0 +1,50 @@
+---
+title: "CviMVP_oyster_GF"
+author: "Camille Rumberger"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# GF Genomic Offsets
+
+This script is a gradientForest pipeline for calculating genomic offset. I am using gradientForest, which build on randomForest to use predictions of genome-wide allele frequency variation along multivariate environmental gradients to quantify the disruption of genotype-environment associations under environmental change. I first train the models using gradientForest on a large seascape dataset, then predict offset for a subset of 8 populations from this dataset and 2 selection lines used in a common garden experiment. Offset is calculated from the environment of origin to common garden conditions.
+
+## Setup
+
+```{r}
+# wd
+setwd("~/Documents/GitHub/MVP_oyster_GO")
+
+# packages
+library(dplyr)
+library(BiocManager) # needed to download specific packages
+library(readxl) # reading xlsx files
+library(raster) # for environmental pixels
+library(ggplot2) # for plotting
+#library(magrittr) # unsure
+#library(geosphere) # unsure
+#library(gdm) # unsure
+#library(foreach) # unsure
+library(parallel) # for parallelizing processes
+library(doParallel) # for parallelizing processes 
+library(gradientForest) # for running gradient forest
+#library(fields) # unsure
+#library(sf) # for spatial files
+
+# data
+# env
+seascapeEnv <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv") # keep this but also get list of reduced variables
+expEnv <- read.csv("data/EnvDat/exp/envr_summary_stats.csv")[,-1]
+
+# gen
+# add once i get it from madeline, for now using exp indivs
+geno_mat
+```
+
+
+## Data Prep
+
