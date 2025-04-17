@@ -20,6 +20,7 @@ This script is a gradientForest pipeline for calculating genomic offset. I am us
 setwd("~/Documents/GitHub/MVP_oyster_GO")
 
 # packages
+library(LEA)
 library(dplyr)
 library(BiocManager) # needed to download specific packages
 library(readxl) # reading xlsx files
@@ -39,12 +40,23 @@ library(gradientForest) # for running gradient forest
 # env
 seascapeEnv <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv") # keep this but also get list of reduced variables
 expEnv <- read.csv("data/EnvDat/exp/envr_summary_stats.csv")[,-1]
+seascape_env <- read.csv()
+exp_env <- read.csv()
 
 # gen
-# add once i get it from madeline, for now using exp indivs
-geno_mat
+# add once i get it from madeline
 ```
 
 
 ## Data Prep
 
+Inspect the environmental and genomic data to ensure it's ready for gradientForest. Note that environmental data was pre-processed in the script "CviMVP_oyster_EnvDatPRocess.Rmd" and genomic data was pre-processed in the script "CviMVP_oyster_GenDatProcess.Rmd".
+
+```{r}
+# check geno data
+dim(geno_mat)
+
+# check env data
+dim(seascape_env)
+dim(exp_env)
+```

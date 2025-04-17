@@ -34,12 +34,80 @@ library(stringr)
 
 # data
 seascapeEnv <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")
-expEnv <- read.csv("data/EnvDat/exp/envr_summary_stats.csv")
+expEnv <- read.csv("data/EnvDat/exp/envr_summary_stats.csv")[,-1]
 ```
 
 
 ## Data Pre-processing
 
-```{r}
+Will start by checking the environmental data structure and processing to retain only  biologically relevant & uncorrelated variables.
 
+```{r}
+# check data
+seascapeEnv
+expEnv
+colnames(seascapeEnv)
+colnames(expEnv)
+
+# check data correlations within each dataset
+# seascape
+pairs.panels(seascapeEnv[,c("Mean_Annual_Salinity_ppt","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","Salinity_st_dev","Mean_Annual_Temperature_C","Mean_max_temperature_C","Mean_min_temperature_C","Temperature_st_dev")])
+pairs.panels(expEnv[,c("Mean_Annual_Salinity_ppt","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","Salinity_st_dev","Mean_Annual_Temperature_C","Mean_max_temperature_C","Mean_min_temperature_C","Temperature_st_dev")])
+
+# remove some of these correlated variables
+# seascape & env keep maxes & mins, remove all else (need the same variables in both sets)
+seascapeEnv_trim <- seascapeEnv[,c("ID_Site","Site_name","Site_ID2","Site_Order","Site_Color","Region","Region_color","Latitude_manual","Longitude_manual","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","Mean_max_temperature_C","Mean_min_temperature_C")]
+expEnv_trim <- expEnv[,c("site_name","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","Mean_max_temperature_C","Mean_min_temperature_C")]
 ```
+
+Everything is looking good! Now I will standardize data to be scaled and centered for downstream analysis.
+
+```{r}
+# quick data inspection
+head(seascapeEnv_trim)
+head(expEnv_trim)
+
+# scale
+std_sea <- scale(seascapeEnv_trim[,10:13])
+std_exp <- scale(expEnv_trim[,2:5])
+colnames(std_sea) <- colnames(std_exp) <-  c("max_sal_scaled","min_sal_scaled","max_temp_scaled","min_temp_scaled")
+
+# attach scaled information back to env dfs
+sea_scaled <- as.data.frame(cbind(seascapeEnv_trim, std_sea))
+exp_scaled <- as.data.frame(cbind(expEnv_trim, std_exp))
+
+# keep track of scaling factors
+sea_scale_env <- attr(std_sea, "scaled:scale")
+sea_center_env <- attr(std_sea, "scaled:center")
+exp_scale_env <- attr(std_exp, "scaled:scale")
+exp_center_env <- attr(std_exp, "scaled:center")
+
+# put those scaling factors into their own df
+scaling <- as.data.frame(rbind(sea_scale_env, sea_center_env, exp_scale_env, exp_center_env))
+scaling$factor_type <- rownames(scaling)
+rownames(scaling) <- NULL
+scaling
+```
+
+Finally I want to make sure now that my environmental data will match my genomic data by having one row in my environmental dataset for each individual in my genomic dataset. To do so, I will need to process the individual data and pair this with my environmental data.
+
+```{r}
+# need ind level data first, process in GenDatProcess
+```
+
+## Formatting for LEA
+
+LEA requires environmental data be formatted as a .env file type.
+
+```{r}
+# prep as matrix
+sea_mat <- as.matrix(sea_scaled[,c("max_sal_scaled","min_sal_scaled","max_temp_scaled","min_temp_scaled")])
+exp_mat <- as.matrix(exp_scaled[,c("max_sal_scaled","min_sal_scaled","max_temp_scaled","min_temp_scaled")])
+
+# and convert to env format
+write.env(sea_mat, "data/EnvDat/sea_scaled.env")
+write.env(exp_mat, "data/EnvDat/exp_scaled.env")
+```
+
+
+## Formatting for RDA & GF
