@@ -36,6 +36,7 @@ library(stringr)
 
 # data
 geno_mat <- read.geno("data/GenDat/geno_file_exp_all.geno")
+exp_inds_rds <- readRDS("data/GenDat/20240922_experimental_indsmatrix.rds")
 ```
 
 
@@ -51,20 +52,30 @@ geno_mat[1:10,1:10]
 # any missing data?
 length(which(geno_mat == 9)) # nope!
 
-# non-variable genomic sites? do later if necessary, this isn't the final iteration of this script anyways
+# non-variable genomic sites
+nonvarsite <- apply(geno_mat, 2, function(x) all(x == x[1]))
+which(nonvarsite == T) # just one non-variable site so not going to bother removing
 ```
 
 
 ## Individual Data
 
 ```{r}
-geno_mat
+dim(geno_mat) # 154 inds, 32847 loci
+dim(exp_inds_rds) # 154 inds (presumably in same order), 55 cols with identifying info incl pop
+
+# inds for rownames
+rownames(geno_mat) <- exp_inds_rds$Label_ind
 ```
 
 
 ## Genomic Data Formatting
 
 ```{r}
+# for LEA need lfmm format data
+geno2lfmm("data/GenDat/geno_file_exp_all.geno")
 
+# for RDA and gf geno matrix should work, will also output geno as .csv
+write.csv(geno_mat, "data/GenDat/geno_file_exp_all.csv")
 ```
 
