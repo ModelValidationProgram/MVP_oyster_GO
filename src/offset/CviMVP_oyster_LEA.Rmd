@@ -32,10 +32,16 @@ library(stringr) # for data wrangling
 # env
 seascapeEnv <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv") # keep this but also get list of reduced variables
 expEnv <- read.csv("data/EnvDat/exp/envr_summary_stats.csv")[,-1]
+expEnv_env <- read.env("data/EnvDat/exp/exp_scaled_expanded_04222025.env")
+expEnvq_env <- read.env("data/EnvDat/exp/expquant_scaled_expanded_04222025.env")
+york_env <- read.env("data/EnvDat/exp/yrkquant_scaled_expanded_04222025.env")
+lew_env <- read.env("data/EnvDat/exp/lewquant_scaled_expanded_04222025.env")
 
 # gen
-# add once i get it from madeline
-geno_mat
+geno_lfmm <- read.lfmm("data/GenDat/geno_file_exp_all.lfmm")
+
+# inds
+indsExp <- readRDS("data/GenDat/20240922_experimental_indsmatrix.rds")
 ```
 
 
@@ -45,16 +51,9 @@ geno_mat
 # check data
 seascapeEnv
 expEnv
-geno_mat
+geno_lfmm
 
-# Genetic data prep
-# need to convert genotype matrix to lfmm format
-geno2lfmm("INSERT_PATH&FILENAME.csv", force = T)
-
-# read in lfmm object
-geno_lfmm <- read.lfmm("INSERT_PATH&FILENAME.lfmm")
-
-# any missing data?
+# any missing data? - this part is largely redundant now with the gendatprocess script, remove this stuff eventually
 sum(geno_lfmm == 9)
 
 # naive imputation, remove once i get fully processed genetic data
@@ -70,7 +69,8 @@ geno_lfmm_imp_mat <- as.matrix(geno_lfmm_imp_trim)
 write.lfmm(geno_lfmm_imp_mat, "data/GenDat/geno_lfmm_imp_mat.lfmm")
 
 # environmental data prep
-# add this once I have environmental data
+expEnv
+expEnv_env
 ```
 
 
@@ -83,28 +83,31 @@ May decide to train both genotype-based models and allele frequency based models
 
 ```{r}
 # read in the new lfmm file
-geno_lfmm_mod <- read.lfmm("data/GenDat/geno_lfmm_imp_mat.lfmm")
+geno_lfmm_mod <- read.lfmm("data/GenDat/geno_file_exp_all.lfmm")
 
 # check the data
 geno_lfmm_mod
-seascape_env # these will be .env files, read in with data
-exp_env
+#seascape_env
+expEnv_env <- read.env("data/EnvDat/exp/expquant_scaled_expanded_04222025.env")
+york_env <- read.env("data/EnvDat/exp/yrkquant_scaled_expanded_04222025.env")
+lew_env <- read.env("data/EnvDat/exp/lewquant_scaled_expanded_04222025.env")
 
 # fit model
 mod_lfmm <- lfmm2(input = geno_lfmm_mod,
-                  env = seascape_env, 
+                  env = expEnv_env, 
                   K = 2) # using number of MLLs - should I keep K the same for
 
 # perform test
 pv_lfmm <- lfmm2.test(object = mod_lfmm,
                       input = geno_lfmm_mod,
-                      env = exp_env, 
+                      env = expEnv_env, 
                       full = TRUE)
 
 # pvalues
 pv <- pv_lfmm$pvalues
 
 # qvalues
+library(qvalue)
 qv <- qvalue(pv, fdr.level = 0.01)
 
 # candidates
@@ -138,12 +141,19 @@ points(cand_df$pos[cand_df$qvals < 0.01],
 
 ```{r}
 # check future env data
-exp_env # this will be env file for experimental environmental dat
+york_env # for predicting to york
+lew_env # for predicting to lew
 
 # calculate genetic gap
-gap <- genetic.gap(input = geno_lfmm_mod, 
-                   env = seascape_env, 
-                   pred.env = exp_env, 
+gap_lew <- genetic.gap(input = geno_lfmm_mod, 
+                   env = expEnv_env, 
+                   pred.env = lew_env, 
+                   scale = F, 
+                   K = 2)
+
+gap_yrk <- genetic.gap(input = geno_lfmm_mod, 
+                   env = expEnv_env, 
+                   pred.env = york_env, 
                    scale = F, 
                    K = 2)
 
@@ -158,30 +168,43 @@ plot(dist_env, gap$distance,
 
 # Extract genomic offset from genetic gap object
 offsets <- gap$offset
+offsets_lew <- gap_lew$offset
+offsets_yrk <- gap_yrk$offset
 
 # summary stats on offsets
 summary(offsets)
+summary(offsets_lew)
+summary(offsets_yrk)
 
 # offset dfs
-offsets_df <- cbind(XXXXindivsXXXX, offsets) # need to have something of the same structure as indiv_merge, i.e. has identifiers for all indivs with pop level info, etc - this will be df with exp individuals/pops
+offsets_df <- cbind(indsExp, offsets_lew, offsets_yrk)
+
+# output results
+write.csv(offsets_df, "results/GO_results/offsets_LEA_allexpinds_04222025.csv")
 ```
+
 
 ```{r}
 # UPDATE FOR OYSTERS WHEN DATA IS IN
 # can now calculate offset by region, site, etc
 # average offset by site
-# average offset for each population
-offset_site_full <- aggregate(offsets_df$offsets_full, by = list(offset_full_df$Pop), FUN = mean)
-colnames(offset_site_full) <- c("site","offset_full")
+offset_lew <- aggregate(offsets_df$offsets_lew, by = list(offsets_df$ID_SiteDate), FUN = mean)
+colnames(offset_lew) <- c("site","offset_lew")
+
+offset_yrk <- aggregate(offsets_df$offsets_yrk, by = list(offsets_df$ID_SiteDate), FUN = mean)
+colnames(offset_yrk) <- c("site","offset_yrk")
 
 # order populations by average offset
-(ordered_site_full <- offset_site_full[order(offset_site_full$offset_full),])
-ordered_site_full$order_full <- 1:39
+(ordered_offset_lew <- offset_lew[order(offset_lew$offset_lew),])
+ordered_offset_lew$order <- 1:8
+
+(ordered_offset_yrk <- offset_yrk[order(offset_yrk$offset_yrk),])
+ordered_offset_yrk$order <- 1:8
 
 # put this together into single df to visualize
-offset_sites <- merge(ordered_site_full, ordered_site_MLL, by = "site")
-offset_sites <- offset_sites[c("site","offset_full","offset_MLL","order_full","order_MLL")]
+offset_sites <- merge(ordered_offset_lew, ordered_offset_yrk, by = "site")
+colnames(offset_sites) <- c("site","offset_lew","order_lew","offset_yrk","order_yrk")
 
 # save this and raw offsets as .csv
-write.csv(offset_full_df, "offset_full_df.csv")
+write.csv(offset_sites, "results/GO_results/offsets_LEA_expSites_04222025.csv")
 ```

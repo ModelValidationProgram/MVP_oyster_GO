@@ -1,0 +1,11 @@
+site_name,download_date,source_description,lat,lon,firstyear,finalyear,Mean_Annual_Temperature_C,Mean_max_temperature_C,Mean_min_temperature_C,temp_quantile_10,temp_quantile_90,Temperature_st_dev,high_temp_stress_days,frac_high_temp_stress_days,Temperature_n,Temperature_years,collection_type
+W1_TX,7/7/23,NERR Centralized Data. Mission Aransas - Copano Bay West MARCWWQ,28.0841,-97.2009,2007,2021,23.10605003,32.61875,7.775,13.8,30.5,6.385486691,1839,0.357226107,490047,16,continuous
+W2_LA,8/15/23,USGS Water Data Sister Lake - 07381349,29.24916667,-90.9211111,2007,2022,22.86358534,33.16875,7.3125,13.2,30.7,6.691385901,1787,0.373302695,246950,16,continuous
+W3_FL,9/13/23,National Parks Service Continuous Water Data - Timucuan Preserve,30.44116,-81.43908,2005,2022,22.1556673,30.6387,10.38665,14.559,29.279,5.707664316,1610,0.306491529,258086,20,continuous
+W4_VA,10/1/24,"NOAA National Buoy Data Center (NDBC), Chesapeake Bay Interpretive Buoy System with values corrected based on data from VIMS Water Quality Data",37.211,-76.787,2008,2019,19.93463523,28.24166667,3.158333333,7.5,29.5,8.488798068,687,0.208434466,109712,12,continuous
+W5_NH,7/11/23,NERR Centralized Data. Great Bay - Squamscott River GRBSQWQ,43.0524,-70.91181,1997,2022,16.71713124,27.88076923,2.319230769,7.2,24.2,6.449615505,50,0.008912656,432368,26,continuous
+W6_ME,3/21/24,University of Maine,43.986,-69.55,2015,2023,15.3288717,23.46,4.021428571,7.563,21.5,5.22149722,0,0,26314,7,intermittent
+LEW,2/26/25,VIMS - William Reay,37.9803,-76.4619,2023,2024,18.4378262,31.35,3.4065,7.2,28.2,7.857653196,118,0.193760263,58296,2,continuous
+YRK,2/28/25,"Virginia Estuarine and Coastal Observing System, VIMS",37.247284,-76.499369,2023,2025,18.10198746,30.5235,5.858,7.984,27.393,7.38100145,81,0.156069364,49612,2,continuous
+S1-LOLA,2/26/25,VIMS - William Reay,37.9803,-76.4619,2023,2024,18.4378262,31.35,3.4065,7.2,28.2,7.857653196,118,0.193760263,58296,2,continuous
+S2-DEBY,4/2/24,"Virginia Estuarine and Coastal Observing System, VIMS",37.247284,-76.499369,2003,2024,17.12424242,30.14377273,3.546090909,6.53,27.49,8.075056458,999,0.141121627,667193,22,continuous
