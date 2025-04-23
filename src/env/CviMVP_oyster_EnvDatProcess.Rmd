@@ -35,6 +35,8 @@ library(stringr)
 # data
 seascapeEnv <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")
 expEnv <- read.csv("data/EnvDat/exp/envr_summary_stats.csv")[,-1]
+expsal <- read.csv("data/EnvDat/exp/all_salinity.csv")
+exptemp <- read.csv("data/EnvDat/exp/all_temperature.csv")
 ```
 
 
@@ -58,6 +60,18 @@ pairs.panels(expEnv[,c("Mean_Annual_Salinity_ppt","Mean_max_Salinity_ppt","Mean_
 # seascape & env keep maxes & mins, remove all else (need the same variables in both sets)
 seascapeEnv_trim <- seascapeEnv[,c("ID_Site","Site_name","Site_ID2","Site_Order","Site_Color","Region","Region_color","Latitude_manual","Longitude_manual","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","Mean_max_temperature_C","Mean_min_temperature_C")]
 expEnv_trim <- expEnv[,c("site_name","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","Mean_max_temperature_C","Mean_min_temperature_C")]
+
+# THIS IS NEW METHOD, THE ABOVE PROB DOESN'T WORK QUITE RIGHT
+# put together temp and sal
+expsal_red <- expsal[,c("site_name","lat","lon","Mean_Annual_Salinity_ppt","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","salinity_quantile_10","salinity_quantile_90")]
+exptemp_red <- exptemp[,c("site_name","lat","lon","Mean_Annual_Temperature_C","Mean_max_temperature_C","Mean_min_temperature_C","temp_quantile_10","temp_quantile_90")]
+expenv_mg <- merge(expsal_red, exptemp_red, by = c("site_name"))
+
+# look at corrs
+pairs.panels(expenv_mg[,c("Mean_Annual_Salinity_ppt","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","salinity_quantile_10","salinity_quantile_90","Mean_Annual_Temperature_C","Mean_max_temperature_C","Mean_min_temperature_C","temp_quantile_10","temp_quantile_90")])
+
+# keeping just quantiles
+expenv_trim <- expenv_mg[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")]
 ```
 
 Everything is looking good! Now I will standardize data to be scaled and centered for downstream analysis.
@@ -87,12 +101,82 @@ scaling <- as.data.frame(rbind(sea_scale_env, sea_center_env, exp_scale_env, exp
 scaling$factor_type <- rownames(scaling)
 rownames(scaling) <- NULL
 scaling
+
+# do it again now for the expenv_mg data
+# quick data inspection
+head(expenv_trim)
+
+# scale
+std_expmg <- scale(expenv_trim)
+colnames(std_expmg) <-  c("sal_quant10_scaled","sal_quant90_scaled","temp_quant10_scaled","temp_quant90_scaled")
+
+# attach scaled information back to env dfs
+expmg_scaled <- as.data.frame(cbind(expenv_mg, std_expmg))
+
+# keep track of scaling factors
+expmg_scale_env <- attr(std_expmg, "scaled:scale")
+expmg_center_env <- attr(std_expmg, "scaled:center")
+
+# write out this env data
+write.csv(expmg_scaled, "data/EnvDat/exp/expquants_scaled_04222025.csv")
 ```
 
 Finally I want to make sure now that my environmental data will match my genomic data by having one row in my environmental dataset for each individual in my genomic dataset. To do so, I will need to process the individual data and pair this with my environmental data.
 
 ```{r}
-# need ind level data first, process in GenDatProcess
+# experimental individuals - would replace this with the seascape individuals for lining up the environmental data with genetic data, no need to actually have indiv level predictions for experiment just pop level
+
+# need ind level dat
+indsExp <- readRDS("data/GenDat/20240922_experimental_indsmatrix.rds")
+
+# keep just relevant data
+indsExp_red <- indsExp[,c("merge_ID_inds","Label_ind","Key_ind","ID_SiteDate","SiteDate_Key")]
+levels(as.factor(indsExp_red$ID_SiteDate))
+
+# need to add scaled env data to this
+exp_scaled$site_name
+indsExp_red$ID_SiteDate
+
+# the pop (ID_SiteDate/site_name) data doesn't match up
+map <- list("TX-CapBay" = "W1-TX", "LA-SisLake" = "W2-LA", "FL-KingPlan" = "W3-FL", "LOLA" = "S1-LOLA", "DEBY" = "S2-DEBY", "VA-DeepWatSh" = "W4-VA", "NH-GrtBay" = "W5-NH", "ME-HogIs" = "W6-ME")
+indsExp_red_mut <- indsExp_red %>% mutate(ID_SiteDate = ifelse(ID_SiteDate %in% names(map), map[ID_SiteDate], ID_SiteDate))
+colnames(indsExp_red_mut) <- c("merge_ID_inds", "Label_ind", "Key_ind", "site_name", "SiteDate_Key")
+
+which(!(exp_scaled$site_name %in% indsExp_red_mut$site_name))
+which(!(indsExp_red_mut$site_name %in% exp_scaled$site_name)) # substitution worked!
+
+indsExp_red_mut$site_name <- as.character(indsExp_red_mut$site_name)
+
+# how many inds per site?
+table(indsExp_red_mut$site_name)
+
+# merge
+exp_scaled_expanded <- merge(as.data.frame(indsExp_red_mut), as.data.frame(exp_scaled), by = c("site_name"))
+
+# write this out to .csv
+write.csv(exp_scaled_expanded, "data/EnvDat/exp/exp_scaled_expanded_04222025.csv")
+
+# do it for the other exp data
+expmg_scaled
+indsExp_red_mut
+
+expmg_scaled$site_name <- gsub("_","-",expmg_scaled$site_name)
+
+expmg_scaled_expanded <- merge(as.data.frame(indsExp_red_mut), as.data.frame(expmg_scaled), by = c("site_name"))
+
+# we lost lew and york because they weren't technically lines/pops, I actually need to attach the Lew/york info as separate columns
+lewyrk_scaled <- as.data.frame(expmg_scaled[expmg_scaled$site_name %in% c("LEW","YRK"),])
+lew_scaled <- as.data.frame(expmg_scaled[expmg_scaled$site_name == "LEW",c("site_name","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","sal_quant10_scaled","sal_quant90_scaled","temp_quant10_scaled","temp_quant90_scaled")])
+yrk_scaled <- as.data.frame(expmg_scaled[expmg_scaled$site_name == "YRK",c("site_name","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","sal_quant10_scaled","sal_quant90_scaled","temp_quant10_scaled","temp_quant90_scaled")])
+colnames(lew_scaled) <- paste0("LEW_",colnames(lew_scaled))
+colnames(yrk_scaled) <- paste0("YRK_",colnames(yrk_scaled))
+
+# add columns to larger df
+expmg_scaled_expanded_mg1 <- cbind(expmg_scaled_expanded, lew_scaled[rep(seq_len(nrow(lew_scaled)), 154),-1])
+expmg_scaled_expanded_mg2 <- cbind(expmg_scaled_expanded_mg1, yrk_scaled[rep(seq_len(nrow(yrk_scaled)), 154),-1])
+
+# save this output
+write.csv(expmg_scaled_expanded_mg2, "data/EnvDat/exp/expsitesquants_scaled_04222025.csv")
 ```
 
 ## Formatting for LEA
@@ -101,13 +185,22 @@ LEA requires environmental data be formatted as a .env file type.
 
 ```{r}
 # prep as matrix
-sea_mat <- as.matrix(sea_scaled[,c("max_sal_scaled","min_sal_scaled","max_temp_scaled","min_temp_scaled")])
-exp_mat <- as.matrix(exp_scaled[,c("max_sal_scaled","min_sal_scaled","max_temp_scaled","min_temp_scaled")])
+#sea_mat <- as.matrix(sea_scaled[,c("max_sal_scaled","min_sal_scaled","max_temp_scaled","min_temp_scaled")])
+exp_mat <- as.matrix(exp_scaled_expanded[,c("max_sal_scaled","min_sal_scaled","max_temp_scaled","min_temp_scaled")]) # would only actually need exp_scaled because don't need each individual to have assigned data, just pop level predictions
+expquants_mat <- as.matrix(expmg_scaled_expanded_mg2[,c("sal_quant10_scaled","sal_quant90_scaled","temp_quant10_scaled","temp_quant90_scaled")])
+lewquants_mat <- as.matrix(expmg_scaled_expanded_mg2[,c("LEW_sal_quant10_scaled","LEW_sal_quant90_scaled","LEW_temp_quant10_scaled","LEW_temp_quant90_scaled")])
+yrkquants_mat <- as.matrix(expmg_scaled_expanded_mg2[,c("YRK_sal_quant10_scaled","YRK_sal_quant90_scaled","YRK_temp_quant10_scaled","YRK_temp_quant90_scaled")])
 
 # and convert to env format
-write.env(sea_mat, "data/EnvDat/sea_scaled.env")
-write.env(exp_mat, "data/EnvDat/exp_scaled.env")
+#write.env(sea_mat, "data/EnvDat/sea/sea_scaled.env")
+#write.env(exp_mat, "data/EnvDat/exp/exp_scaled.env")
+write.env(exp_mat, "data/EnvDat/exp/exp_scaled_expanded_04222025.env")
+write.env(expquants_mat, "data/EnvDat/exp/expquant_scaled_expanded_04222025.env")
+write.env(lewquants_mat, "data/EnvDat/exp/lewquant_scaled_expanded_04222025.env")
+write.env(yrkquants_mat, "data/EnvDat/exp/yrkquant_scaled_expanded_04222025.env")
 ```
 
 
 ## Formatting for RDA & GF
+
+Here, the csv format should work fine so there's no need to go further. I will simply use the csv "data/EnvDat/exp/exp_scaled_expanded_04222025.csv" for the RDA and GF analyses. Could potentially add pcnms here for GF??? - leave that for now.

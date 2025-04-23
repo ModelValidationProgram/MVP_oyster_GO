@@ -32,10 +32,14 @@ library(stringr) # for data wrangling
 # env
 seascapeEnv <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv") # keep this but also get list of reduced variables
 expEnv <- read.csv("data/EnvDat/exp/envr_summary_stats.csv")[,-1]
+expEnv_env <- read.env("data/EnvDat/exp/exp_scaled_expanded_04222025.env")
+#expEnv_york_lew <- read.env() # this will have the experimental sites' env data once it's ready - may make sense to have one for york and one for lew to make it easier to calc GO separately
 
 # gen
-# add once i get it from madeline
-geno_mat
+geno_lfmm <- read.lfmm("data/GenDat/geno_file_exp_all.lfmm")
+
+# inds
+indsExp <- readRDS("data/GenDat/20240922_experimental_indsmatrix.rds")
 ```
 
 
@@ -45,16 +49,9 @@ geno_mat
 # check data
 seascapeEnv
 expEnv
-geno_mat
+geno_lfmm
 
-# Genetic data prep
-# need to convert genotype matrix to lfmm format
-geno2lfmm("INSERT_PATH&FILENAME.csv", force = T)
-
-# read in lfmm object
-geno_lfmm <- read.lfmm("INSERT_PATH&FILENAME.lfmm")
-
-# any missing data?
+# any missing data? - this part is largely redundant now with the gendatprocess script, remove this stuff eventually
 sum(geno_lfmm == 9)
 
 # naive imputation, remove once i get fully processed genetic data
@@ -70,7 +67,8 @@ geno_lfmm_imp_mat <- as.matrix(geno_lfmm_imp_trim)
 write.lfmm(geno_lfmm_imp_mat, "data/GenDat/geno_lfmm_imp_mat.lfmm")
 
 # environmental data prep
-# add this once I have environmental data
+expEnv
+expEnv_env
 ```
 
 
@@ -87,8 +85,10 @@ geno_lfmm_mod <- read.lfmm("data/GenDat/geno_lfmm_imp_mat.lfmm")
 
 # check the data
 geno_lfmm_mod
-seascape_env # these will be .env files, read in with data
-exp_env
+#seascape_env
+expEnv_env
+york_env
+lew_env
 
 # fit model
 mod_lfmm <- lfmm2(input = geno_lfmm_mod,
