@@ -1,0 +1,258 @@
+---
+title: "Oyster_len_calc"
+author: "Camille Rumberger"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "~/MVP_Oyster_Analysis_Camille/MVP_Oysters_Analysis_Camille")
+
+# load libraries
+library(tidyverse) # for data wrangling
+library(stringr) # for splitting strings
+library(lubridate) # for dates
+library(ggplot2) # for plotting
+library(plotrix) # for std error
+```
+
+## Calculating Length/growth of Oysters in Field
+
+This script is to analyze length of oysters in the MVP Field Experiment from 2023-2025. First I need to read in and merge together relevant data. I will then clean this data up to prepare it for analysis by time point, site, population, and more.
+
+```{r}
+bags <- read.csv("data/ooters_prelim/MVP23-FieldBags - bags.csv")
+expsites <- read.csv("data/ooters_prelim/MVP23-FieldBags - sites.csv")
+spawntrt <- read.csv("data/ooters_prelim/MVP23-FieldBags - spawn_trt2.csv")
+tags <- read.csv("data/ooters_prelim/MVP23-FieldBags - tags.csv")
+tagleng <- read.csv("data/ooters_prelim/MVP23-FieldBags - tagsLength.csv")
+
+# split bags to have more detailed bag data
+bags[,5:6] <- str_split_fixed(bags$bags_label, "-", 3)[,2:3]
+colnames(bags) <- c("bags_key","bag_site","bags_label","SpawnTrt_Key","pop","bagnum")
+
+# and remove practice bags
+bags_rm <- bags[-(61:62),]
+
+# also put together tagleng data
+tagsbags <- merge(tags, bags_rm, by = c("bags_key"), all = T)
+tagsbags1 <- merge(tagsbags, tagleng, by = c("tags_key"), all = T)
+
+# trim dataset
+tagsbags2 <- tagsbags1[,c("tags_label","tags_timestamp","bag_site","bags_label",
+                          "pop","bagnum","length","width","tagsLength_timestamp")]
+
+# split timestamps to get dates, dates 4/29-5/7 for most recent monitoring
+# split timestamp column into two
+tagsbags2[,c("tagsLength_timestamp")]
+datetime_split_tag <- str_split_fixed(tagsbags2[,c("tagsLength_timestamp")], " ", 2) # split timestamp
+colnames(datetime_split_tag) <- c("tagsLength_date", "tagsLength_time") # name columns
+tagsbags3 <- cbind(tagsbags2, datetime_split_tag) # add to full dataset
+
+# use dates to split by monitoring event
+# dates are 11/7/23 - 11/15/23, 4/29/24 - 5/7/24
+tagsbags3$tagsLength_date <- mdy(tagsbags3$tagsLength_date)
+
+# remove practice
+tagsbags4 <- tagsbags3[!(tagsbags3$tagsLength_date == "2024-03-13"),]
+tagsbags5 <- tagsbags4[!(is.na(tagsbags4$tagsLength_date)),]
+
+tagsbags5$monitoring_event <- ifelse(as_date(tagsbags5$tagsLength_date) > as_date("2023-11-16"),
+                                     ifelse(as_date(tagsbags5$tagsLength_date) > as_date("2024-05-09"), 3, 2),
+                                     1)
+
+tagsbags6 <- tagsbags5[!(tagsbags5$pop == ""),]
+tagsbags6 <- tagsbags6[!(tagsbags6$pop == "LEW"),]
+tagsbags6 <- tagsbags6[!(tagsbags6$pop == "YORK"),]
+
+write.csv(tagsbags6, "results/lengths_long.csv")
+```
+
+Now that I have prepared the data, I will look at some larger data trends. 
+
+```{r}
+###########
+# calc bag level averages for each event
+event1_bags <- tapply(tagsbags6[tagsbags6$monitoring_event == 1,]$length, 
+                      tagsbags6[tagsbags6$monitoring_event == 1,]$bags_label,
+                      mean)
+event2_bags <- tapply(tagsbags6[tagsbags6$monitoring_event == 2,]$length,
+                      tagsbags6[tagsbags6$monitoring_event == 2,]$bags_label,
+                      mean)
+event3_bags <- tapply(tagsbags6[tagsbags6$monitoring_event == 3,]$length,
+                      tagsbags6[tagsbags6$monitoring_event == 3,]$bags_label,
+                      mean)
+
+# put this in data frame
+event1_bags_df <- data.frame(bag = rownames(event1_bags), 
+                             monitoring_event = 1, 
+                             length = event1_bags)
+rownames(event1_bags_df) <- NULL
+event2_bags_df <- data.frame(bag = rownames(event2_bags), 
+                             monitoring_event = 2, 
+                             length = event2_bags)
+rownames(event2_bags_df) <- NULL
+event3_bags_df <- data.frame(bag = rownames(event3_bags), 
+                             monitoring_event = 3, 
+                             length = event3_bags)
+rownames(event3_bags_df) <- NULL
+
+# put it together
+lengths_bags_df <- rbind(event1_bags_df, event2_bags_df, event3_bags_df)
+
+# save it
+write.csv(lengths_bags_df, "results/lengths_bags_022025.csv")
+
+# calc pop level averages for each event
+event1_york <- tapply(tagsbags6[tagsbags6$monitoring_event == 1 & tagsbags6$bag_site == "YorkRiver",]$length, 
+                      tagsbags6[tagsbags6$monitoring_event == 1 & tagsbags6$bag_site == "YorkRiver",]$pop, 
+                      mean)
+event1_lew <- tapply(tagsbags6[tagsbags6$monitoring_event == 1 & tagsbags6$bag_site == "Lewisetta",]$length, 
+                     tagsbags6[tagsbags6$monitoring_event == 1 & tagsbags6$bag_site == "Lewisetta",]$pop, 
+                     mean)
+event1_tot <- tapply(tagsbags6[tagsbags6$monitoring_event == 1,]$length, 
+                     tagsbags6[tagsbags6$monitoring_event == 1,]$pop, 
+                     mean)
+event2_york <- tapply(tagsbags6[tagsbags6$monitoring_event == 2 & tagsbags6$bag_site == "YorkRiver",]$length, 
+                      tagsbags6[tagsbags6$monitoring_event == 2 & tagsbags6$bag_site == "YorkRiver",]$pop, 
+                      mean)
+event2_lew <- tapply(tagsbags6[tagsbags6$monitoring_event == 2 & tagsbags6$bag_site == "Lewisetta",]$length, 
+                     tagsbags6[tagsbags6$monitoring_event == 2 & tagsbags6$bag_site == "Lewisetta",]$pop, 
+                     mean)
+event2_tot <- tapply(tagsbags6[tagsbags6$monitoring_event == 2,]$length, 
+                     tagsbags6[tagsbags6$monitoring_event == 2,]$pop, 
+                     mean)
+event3_york <- tapply(tagsbags6[tagsbags6$monitoring_event == 3 & tagsbags6$bag_site == "YorkRiver",]$length, 
+                      tagsbags6[tagsbags6$monitoring_event == 3 & tagsbags6$bag_site == "YorkRiver",]$pop, 
+                      mean)
+event3_lew <- tapply(tagsbags6[tagsbags6$monitoring_event == 3 & tagsbags6$bag_site == "Lewisetta",]$length, 
+                     tagsbags6[tagsbags6$monitoring_event == 3 & tagsbags6$bag_site == "Lewisetta",]$pop, 
+                     mean)
+event3_tot <- tapply(tagsbags6[tagsbags6$monitoring_event == 3,]$length, 
+                     tagsbags6[tagsbags6$monitoring_event == 3,]$pop, 
+                     mean)
+
+# put it all into a df
+df <- data.frame(site = "Lewisetta", pop = rownames(event1_lew), 
+                 monitoring_event = 1, length = event1_lew)
+df1 <- data.frame(site = "Lewisetta", pop = rownames(event1_lew),
+                  monitoring_event = 2, length = event2_lew)
+df3 <- data.frame(site = "Lewisetta", pop = rownames(event1_lew),
+                  monitoring_event = 3, length = event3_lew)
+df4 <- data.frame(site = "York", pop = rownames(event1_york), 
+                  monitoring_event = 1, length = event1_york)
+df5 <- data.frame(site = "York", pop = rownames(event1_york),
+                  monitoring_event = 2, length = event2_york)
+df6 <- data.frame(site = "York", pop = rownames(event1_york),
+                  monitoring_event = 3, length = event3_york)
+df7 <- data.frame(site = "Overall", pop = rownames(event1_tot), 
+                  monitoring_event = 1, length = event1_tot)
+df8 <- data.frame(site = "Overall", pop = rownames(event1_lew),
+                  monitoring_event = 2, length = event2_tot)
+df9 <- data.frame(site = "Overall", pop = rownames(event1_lew),
+                  monitoring_event = 3, length = event3_tot)
+
+lengths <- rbind(df, df1, df3, df4, df5, df6, df7, df8, df9)
+
+len_summary <- lengths %>% 
+  #  filter(monitoring_event == 1, bag_site == "Lewisetta") %>%
+  arrange(-length, .by_group = T) %>%
+  as.data.frame()
+
+lew3 <- len_summary[len_summary$monitoring_event == 3 & len_summary$site == "Lewisetta",]
+lew2 <- len_summary[len_summary$monitoring_event == 2 & len_summary$site == "Lewisetta",]
+lew1 <- len_summary[len_summary$monitoring_event == 1 & len_summary$site == "Lewisetta",]
+york3 <- len_summary[len_summary$monitoring_event == 3 & len_summary$site == "York",]
+york2 <- len_summary[len_summary$monitoring_event == 2 & len_summary$site == "York",]
+york1 <- len_summary[len_summary$monitoring_event == 1 & len_summary$site == "York",]
+
+sink("results/len_sites_02202025.txt")
+york1
+york2
+york3
+lew1
+lew2
+lew3
+sink()
+```
+
+Now visualize some of these trends.
+
+```{r}
+popsdf <- data.frame(pop = c("TX","LA","FL","JR","DEBY","LOLA","NH","ME","LARMIX","SEEDMIX"), 
+                     order = 1:10, 
+#                     cols = c("#6f1926","#de324c","#f4895f","#f8e16f","#95cf92","#369acc",
+#                              "#9656a2","#cbabd1","black","gray"),
+                     cols = c("#332288","#117733","#44AA99","#88CCEE","#DDCC77","#CC6677",
+                              "#AA4499","#882255","black","gray"),
+                     shape = c(21,21,21,21,23,23,21,21,24,24),
+                     label = c("W1-TX","W2-LA","W3-FL","W4-VA","S1-LOLA","S2-DEBY",
+                               "W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"))
+
+# merge with popsdf
+lengths_mg <- merge(lengths, popsdf, by = c("pop"))
+
+# plot
+lew_len <- ggplot(data = lengths_mg[lengths_mg$site == "Lewisetta",]) + 
+  geom_line(aes(x = monitoring_event, y = length, color = fct_reorder(pop,order))) + 
+  scale_color_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
+  geom_point(aes(x = monitoring_event, y = length, fill = fct_reorder(pop,order), 
+                 shape = fct_reorder(pop,order)),
+             size = 4) + 
+  scale_shape_manual(name = "Population", label = popsdf$label, values = popsdf$shape)+
+  scale_fill_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
+  ylim(20,80) + 
+  labs(color = "Population") +
+  ylab("Shell Length (mm)") +
+  scale_x_continuous("Monitoring Event", breaks = c(1,2,3),
+                     labels = c("Fall '23", "Spring '24", "Fall '24")) +
+  theme_classic() + 
+  ggtitle("(C) Lewisetta: Oyster Shell Length thru Time") +
+  theme(plot.title = element_text(size = 20), 
+        legend.title = element_text(size = 14),
+        legend.justification = "top") +
+  ggtitle("Lewisetta: Oyster Shell Length thru Time")
+lew_len
+
+york_len <- ggplot(data = lengths_mg[lengths_mg$site == "York",]) + 
+  geom_line(aes(x = monitoring_event, y = length, color = fct_reorder(pop,order))) + 
+  scale_color_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
+  geom_point(aes(x = monitoring_event, y = length, fill = fct_reorder(pop,order), 
+                 shape = fct_reorder(pop,order)),
+             size = 4) + 
+  scale_shape_manual(name = "Population", label = popsdf$label, values = popsdf$shape)+
+  scale_fill_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
+  ylim(20,80) + 
+  labs(color = "Population") +
+  ylab("Shell Length (mm)") +
+  scale_x_continuous("Monitoring Event", breaks = c(1,2,3),
+                     labels = c("Fall '23", "Spring '24", "Fall '24")) +
+  theme_classic() + 
+  ggtitle("(C) Lewisetta: Oyster Shell Length thru Time") +
+  theme(plot.title = element_text(size = 20), 
+        legend.title = element_text(size = 14),
+        legend.justification = "top") +
+  ggtitle("York River: Oyster Shell Length thru Time")
+york_len
+
+all_len <- ggplot(data = lengths[lengths$site == "Overall",]) + 
+  geom_line(aes(x = monitoring_event, y = length, color = fct_reorder(pop,order))) + 
+  scale_color_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
+  geom_point(aes(x = monitoring_event, y = length, fill = fct_reorder(pop,order), 
+                 shape = fct_reorder(pop,order)),
+             size = 4) + 
+  scale_shape_manual(name = "Population", label = popsdf$label, values = popsdf$shape)+
+  scale_fill_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
+  ylim(20,80) + 
+  labs(color = "Population") +
+  ylab("Shell Length (mm)") +
+  scale_x_continuous("Monitoring Event", breaks = c(1,2,3),
+                     labels = c("Fall '23", "Spring '24", "Fall '24")) +
+  theme_classic()
+
+
+all_len
+lew_len
+york_len
+```

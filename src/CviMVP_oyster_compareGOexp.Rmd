@@ -1,0 +1,148 @@
+---
+title: "CviMVP_oyster_compareGOexp"
+author: "Camille Rumberger"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(root.dir = "~/Documents/GitHub/MVP_oyster_GO")
+```
+
+# Compare Predicted GO to Experimental Results
+
+This script is for analyzing how well various genomic offset methods predict experimentally obtained fitness. I compare LEA, GF, and RDA offsets to experimental mortality, length, and condition index at the conclusion of the experiment. 
+
+## Setup
+
+```{r}
+# setwd
+setwd("~/Documents/GitHub/MVP_oyster_GO")
+
+# packages
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(vegan)
+library(ggplot2)
+library(plotrix)
+
+# data
+# offset predictions
+lea_go <- read.csv("results/GO_results/offsets_LEA_expSites_04222025.csv")[,-1]
+#rda_go <- 
+#gf_go <- 
+
+# fitness metrics
+mort <- read.csv("data/ExpDat/mortality_bag_overall_12092024.csv")[,-1]
+#len <- read.csv("data/ExpDat/")
+```
+
+## Data Prep
+
+Prepare data from offsets & experiment to be directly compared.
+
+```{r}
+# inspect data
+lea_go
+mort
+
+# we want to get avg mort per pop per site
+mort_popsite <- mort %>% group_by(site,pop) %>%
+  summarise(mean_t1 = mean(as.numeric(survival_1)), 
+            sd_t1 = sd(as.numeric(survival_1)),
+            se_t1 = std.error(as.numeric(survival_1)),
+            mean_t2 = mean(as.numeric(survival_2)), 
+            sd_t2 = sd(as.numeric(survival_2)),
+            se_t2 = std.error(as.numeric(survival_2)),
+            mean_t3 = mean(as.numeric(survival_3)), 
+            sd_t3 = sd(as.numeric(survival_3)),
+            se_t3 = std.error(as.numeric(survival_3)),
+            .groups = 'drop') %>% as.data.frame()
+
+# # split go & fitness by site
+# # go
+# leaLew <- lea_go[,c("site","offset_lew","order_lew")]
+# leaYrk <- lea_go[,c("site","offset_lew","order_yrk")]
+# # fitness
+# mortlew <- mort_popsite[mort_popsite$site == "Lewisetta",]
+# mortyrk <- mort_popsite[mort_popsite$site == "York River",]
+
+# need to align naming conventions to merge
+colnames(lea_go) <- c("pop", "offset_lew", "order_lew", "offset_yrk", "order_yrk")
+lea_go$pop <- str_split_fixed(lea_go$pop, "-",2)[,1]
+mort_popsite[mort_popsite$pop == "JR",]$pop <- "VA"
+
+# merge gos & fitness dat
+goFit <- merge(mort_popsite, lea_go, by = "pop")
+```
+
+
+## Compare Offsets to Fitness
+
+Now that offsets and fitness are in a comparable format, look at how well the two match.
+
+```{r}
+# correlations between go/lew mort at each time point
+# lea
+corLEAt1lew <- cor(goFit[goFit$site == "Lewisetta",]$offset_lew, goFit[goFit$site == "Lewisetta",]$mean_t1)
+corLEAt2lew <- cor(goFit[goFit$site == "Lewisetta",]$offset_lew, goFit[goFit$site == "Lewisetta",]$mean_t2)
+corLEAt3lew <- cor(goFit[goFit$site == "Lewisetta",]$offset_lew, goFit[goFit$site == "Lewisetta",]$mean_t3)
+# rda
+# gf
+
+# correlations between go/york mort at each time point
+# lea
+corLEAt1yrk <- cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$site == "York River",]$mean_t1)
+corLEAt2yrk <- cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$site == "York River",]$mean_t2)
+corLEAt3yrk <- cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$site == "York River",]$mean_t3)
+# rda
+# gf
+
+# these corrs seems crazy, they're very high but positive when we expect them to be negative if the method performs well - try kendall's tau by getting rankings
+
+# put this all into a df with method/time point/fitness metric/site/corr
+
+```
+
+
+Plot these data sets against each other
+
+```{r}
+# plot lea vs mort at each site/time point
+gofit_lew_plot <- ggplot(data = goFit[goFit$site == "Lewisetta",]) +
+  geom_point(data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t1, y = offset_lew, col = "Fall'23")) +
+  geom_smooth(method = "lm", data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t1, y = offset_lew), col = "cornflowerblue", se = F) +
+  geom_point(data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t2, y = offset_lew, col = "Spring'24")) +
+  geom_smooth(method = "lm", data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t2, y = offset_lew), col = "slateblue", se = F) +
+  geom_point(data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t3, y = offset_lew, col = "Fall'24")) +
+  geom_smooth(method = "lm", data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t3, y = offset_lew), col = "purple4", se = F) +
+  labs(title = "Predicted GO (LEA) vs Mortality at Lewisetta", x = "Survival", y = "LEA Offset") +
+  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24"), values = c("Fall'23"="cornflowerblue","Spring'24"="slateblue","Fall'24"="purple4"))+
+  theme_classic()
+gofit_lew_plot
+ggsave("results/lea_lew_compare.png")
+
+gofit_yrk_plot <- ggplot(data = goFit[goFit$site == "York River",]) +
+  geom_point(data = goFit[goFit$site == "York River",], aes(x = mean_t1, y = offset_yrk, col = "Fall'23")) +
+  geom_smooth(method = "lm", data = goFit[goFit$site == "York River",], aes(x = mean_t1, y = offset_yrk), col = "cornflowerblue", se = F) +
+  geom_point(data = goFit[goFit$site == "York River",], aes(x = mean_t2, y = offset_yrk, col = "Spring'24")) +
+  geom_smooth(method = "lm", data = goFit[goFit$site == "York River",], aes(x = mean_t2, y = offset_yrk), col = "slateblue", se = F) +
+  geom_point(data = goFit[goFit$site == "York River",], aes(x = mean_t3, y = offset_yrk, col = "Fall'24")) +
+  geom_smooth(method = "lm", data = goFit[goFit$site == "York River",], aes(x = mean_t3, y = offset_yrk), col = "purple4", se = F) +
+  labs(title = "Predicted GO (LEA) vs Mortality at York River", x = "Survival", y = "LEA Offset") +
+  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24"), values = c("Fall'23"="cornflowerblue","Spring'24"="slateblue","Fall'24"="purple4"))+
+  theme_classic()
+gofit_yrk_plot
+ggsave("results/lea_york_compare.png")
+```
+
+## Compare Offset Methods
+
+Once I have predictions from different methods, I will look at how offset predictions made by these methods compare to each other and how different their ability is to predict experimental fitness.
+
+```{r}
+
+```
+
