@@ -110,22 +110,32 @@ corLEAt3yrk <- cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$si
 Plot these data sets against each other
 
 ```{r}
-# 
-
 # plot lea vs mort at each site/time point
-gofit_lew_plot <- ggplot(data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t1, y = offset_lew)) +
-  geom_point(col = "cornflowerblue") +
-  geom_point(data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t2, y = offset_lew), col = "slateblue") +
-  geom_point(data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t3, y = offset_lew), col = "purple4") +
+gofit_lew_plot <- ggplot(data = goFit[goFit$site == "Lewisetta",]) +
+  geom_point(data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t1, y = offset_lew, col = "Fall'23")) +
+  geom_smooth(method = "lm", data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t1, y = offset_lew), col = "cornflowerblue", se = F) +
+  geom_point(data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t2, y = offset_lew, col = "Spring'24")) +
+  geom_smooth(method = "lm", data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t2, y = offset_lew), col = "slateblue", se = F) +
+  geom_point(data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t3, y = offset_lew, col = "Fall'24")) +
+  geom_smooth(method = "lm", data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t3, y = offset_lew), col = "purple4", se = F) +
+  labs(title = "Predicted GO (LEA) vs Mortality at Lewisetta", x = "Survival", y = "LEA Offset") +
+  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24"), values = c("Fall'23"="cornflowerblue","Spring'24"="slateblue","Fall'24"="purple4"))+
   theme_classic()
 gofit_lew_plot
+ggsave("results/lea_lew_compare.png")
 
-gofit_yrk_plot <- ggplot(data = goFit[goFit$site == "York River",], aes(x = mean_t1, y = offset_yrk)) +
-  geom_point(col = "cornflowerblue") +
-  geom_point(data = goFit[goFit$site == "York River",], aes(x = mean_t2, y = offset_yrk), col = "slateblue") +
-  geom_point(data = goFit[goFit$site == "York River",], aes(x = mean_t3, y = offset_yrk), col = "purple4") +
+gofit_yrk_plot <- ggplot(data = goFit[goFit$site == "York River",]) +
+  geom_point(data = goFit[goFit$site == "York River",], aes(x = mean_t1, y = offset_yrk, col = "Fall'23")) +
+  geom_smooth(method = "lm", data = goFit[goFit$site == "York River",], aes(x = mean_t1, y = offset_yrk), col = "cornflowerblue", se = F) +
+  geom_point(data = goFit[goFit$site == "York River",], aes(x = mean_t2, y = offset_yrk, col = "Spring'24")) +
+  geom_smooth(method = "lm", data = goFit[goFit$site == "York River",], aes(x = mean_t2, y = offset_yrk), col = "slateblue", se = F) +
+  geom_point(data = goFit[goFit$site == "York River",], aes(x = mean_t3, y = offset_yrk, col = "Fall'24")) +
+  geom_smooth(method = "lm", data = goFit[goFit$site == "York River",], aes(x = mean_t3, y = offset_yrk), col = "purple4", se = F) +
+  labs(title = "Predicted GO (LEA) vs Mortality at York River", x = "Survival", y = "LEA Offset") +
+  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24"), values = c("Fall'23"="cornflowerblue","Spring'24"="slateblue","Fall'24"="purple4"))+
   theme_classic()
 gofit_yrk_plot
+ggsave("results/lea_york_compare.png")
 ```
 
 ## Compare Offset Methods
