@@ -1,0 +1,11 @@
+site_name,download_date,source_description,lat,lon,firstyear,finalyear,Mean_Annual_Salinity_ppt,Mean_max_Salinity_ppt,Mean_min_Salinity_ppt,salinity_quantile_10,salinity_quantile_90,high_sal_stress_days,low_sal_stress_days,frac_high_sal_stress_days,frac_low_sal_stress_days,Salinity_st_dev,Salinity_n,Salinity_years,collection_type
+W1_TX,7/7/23,NERR Centralized Data. Mission Aransas - Copano Bay West MARCWWQ,28.0841,-97.2009,2007,2021,20.85778793,29.90625,6.34375,5.9,36.7,879,1604,0.170745921,0.311577312,11.66413094,490047,16,continuous
+W2_LA,8/15/23,USGS Water Data Sister Lake - 07381349,29.24916667,-90.9211111,2007,2022,10.4648686,25.75,0.96875,3,18,0,3562,0,0.7440986,5.582166837,246950,16,continuous
+W3_FL,9/13/23,National Parks Service Continuous Water Data - Timucuan Preserve,30.44116,-81.43908,2005,2022,32.35225365,37.20420518,15.42244418,27.85066428,35.97585067,2472,18,0.485086342,0.003532182,3.715396855,249752,20,continuous
+W4_VA,10/1/24,"NOAA National Buoy Data Center (NDBC), Chesapeake Bay Interpretive Buoy System with values corrected based on data from VIMS Water Quality Data",37.211,-76.787,2008,2019,3.108226083,10.08333333,0.441666667,0.1,7,0,3296,0,1,2.701416475,109712,12,continuous
+W5_NH,7/11/23,NERR Centralized Data. Great Bay - Squamscott River GRBSQWQ,43.0524,-70.91181,1997,2022,18.641368,30.29230769,0.284615385,5.9,28.6,0,3383,0,0.603030303,8.320938367,432368,26,continuous
+W6_ME,3/21/24,University of Maine,43.986,-69.55,2015,2023,29.47828304,31.50428571,8.741428571,26.29,31.48,0,13,0,0.011524823,2.277877961,26314,7,intermittent
+LEW,2/26/25,VIMS - William Reay,37.9803,-76.4619,2023,2024,13.11045406,17.8,9.7,8.7,16.6,0,239,0,0.392446634,2.867123523,58296,2,continuous
+YRK,2/28/25,"Virginia Estuarine and Coastal Observing System, VIMS",37.247284,-76.499369,2023,2025,19.77022817,24.355,15.385,15.43,22.93,0,0,0,0,2.796360103,49612,2,continuous
+S1-LOLA,2/26/25,VIMS - William Reay,37.9803,-76.4619,2023,2024,13.11045406,17.8,9.7,8.7,16.6,0,239,0,0.392446634,2.867123523,58296,2,continuous
+S2-DEBY,4/2/24,"Virginia Estuarine and Coastal Observing System, VIMS",37.247284,-76.499369,2003,2024,19.33913072,24.18909091,12.90636364,15.81,22.39,0,126,0,0.017799124,2.560148766,667193,22,continuous

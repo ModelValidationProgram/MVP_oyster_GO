@@ -1,0 +1,81 @@
+---
+title: "CviMVP_oyster_GenDatProcess"
+author: "Camille Rumberger"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Genetic Data Processing
+
+This script is to process individual and (genetic for seascape) level data for the seascape and experiment by identifying the number and identities of individuals in each dataset and preparing this information and the genomic data into formats needed for downstream analysis.
+
+The seascape data comes from...
+
+The experimental data comes from...
+
+
+FOR NOW I AM DOING THIS JUST WITH EXPERIMENTAL INDIVIDUALS GENOTYPED, BUT WE WILL NEED TO THINK ABOUT HOW TO DO THIS WHEN WE HAVE NO TRUE EXPERIMENTAL FITNESS DATA ON AN INDIVIDUAL LEVEL (IG WE DO FOR TAGGED INDS LENGTHS? BUT NOT MORT)
+
+
+## Setup
+
+```{r}
+# set wd
+setwd("~/Documents/Github/MVP_oyster_GO")
+
+# packages
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(LEA)
+library(stringr)
+
+# data
+geno_mat <- read.geno("data/GenDat/geno_file_exp_all.geno")
+exp_inds_rds <- readRDS("data/GenDat/20240922_experimental_indsmatrix.rds")
+```
+
+
+## Pre-processing
+
+Process data to remove missing data, non-variable genomic sites.
+
+```{r}
+# check data
+dim(geno_mat) # 154 inds, 32487 snps
+geno_mat[1:10,1:10]
+
+# any missing data?
+length(which(geno_mat == 9)) # nope!
+
+# non-variable genomic sites
+nonvarsite <- apply(geno_mat, 2, function(x) all(x == x[1]))
+which(nonvarsite == T) # just one non-variable site so not going to bother removing
+```
+
+
+## Individual Data
+
+```{r}
+dim(geno_mat) # 154 inds, 32847 loci
+dim(exp_inds_rds) # 154 inds (presumably in same order), 55 cols with identifying info incl pop
+
+# inds for rownames
+rownames(geno_mat) <- exp_inds_rds$Label_ind
+```
+
+
+## Genomic Data Formatting
+
+```{r}
+# for LEA need lfmm format data
+geno2lfmm("data/GenDat/geno_file_exp_all.geno")
+
+# for RDA and gf geno matrix should work, will also output geno as .csv
+write.csv(geno_mat, "data/GenDat/geno_file_exp_all.csv")
+```
+
