@@ -35,29 +35,27 @@ expEnv <- read.csv("data/EnvDat/exp/envr_summary_stats.csv")[,-1]
 
 # gen
 # add once i get it from madeline
-geno_mat
+genoMat <- read.geno("data/GenDat/geno_file_exp_all.geno")
 ```
 
 
 ## Data Prep
 
-```{r}
-# check data
-seascapeEnv
-expEnv
-geno_mat
 
+### Genetic Data Prep
+
+```{r}
 # Genetic data prep
 # need to convert genotype matrix to lfmm format
-geno2lfmm("INSERT_PATH&FILENAME.csv", force = T)
+geno2lfmm("data/GenDat/geno_file_exp_all.geno", force = T)
 
 # read in lfmm object
-geno_lfmm <- read.lfmm("INSERT_PATH&FILENAME.lfmm")
+geno_lfmm <- read.lfmm("data/GenDat/geno_file_exp_all.lfmm")
 
 # any missing data?
-sum(geno_lfmm == 9)
+sum(geno_lfmm == 9) # no
 
-# naive imputation, remove once i get fully processed genetic data
+# naive imputation
 geno_lfmm_imp <- apply(geno_lfmm, 2, function(x) replace(x, x == 9, as.numeric(names(which.max(table(x))))))
 sum((geno_lfmm_imp == 9)) 
 
@@ -68,9 +66,27 @@ geno_lfmm_imp_mat <- as.matrix(geno_lfmm_imp_trim)
 
 # rewrite lfmm files
 write.lfmm(geno_lfmm_imp_mat, "data/GenDat/geno_lfmm_imp_mat.lfmm")
+```
 
+
+### Environmental Data Prep
+
+```{r}
 # environmental data prep
-# add this once I have environmental data
+seascapeEnv
+
+# check correlations
+pairs.panels(seascapeEnv[,c("Mean_Annual_Salinity_ppt","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","Salinity_st_dev","Mean_Annual_Temperature_C","Mean_max_temperature_C","Mean_min_temperature_C","Temperature_st_dev")])
+
+# just use mins and maxs
+seascapeEnvRed <- seascapeEnv[,c("ID_Site","Site_ID2","Site_Order","Latitude_manual","Longitude_manual","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","Mean_max_temperature_C","Mean_min_temperature_C")]
+
+# we have some sites with missing data - note these sites and remove them
+sites_missDat <- seascapeEnvRed[is.na(seascapeEnvRed$Mean_min_temperature_C),]$ID_Site
+seascapeEnvRed_narm <-  seascapeEnvRed[!(is.na(seascapeEnvRed$Mean_min_temperature_C)), ]
+
+# standardize the env dat
+
 ```
 
 
