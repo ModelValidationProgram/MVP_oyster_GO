@@ -148,7 +148,7 @@ which(!(indsExp_red_mut$site_name %in% exp_scaled$site_name)) # substitution wor
 indsExp_red_mut$site_name <- as.character(indsExp_red_mut$site_name)
 
 # how many inds per site?
-table(indsExp_red_mut$site_name)
+table(indsExp_red_mut$site_name) # 17-20
 
 # merge
 exp_scaled_expanded <- merge(as.data.frame(indsExp_red_mut), as.data.frame(exp_scaled), by = c("site_name"))

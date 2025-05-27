@@ -44,12 +44,12 @@ geno_lfmm <- read.lfmm("data/GenDat/geno_file_exp_all.lfmm")
 
 # inds
 indsExp <- readRDS("data/GenDat/20240922_experimental_indsmatrix.rds")
+indsExpSeq <- readRDS("data/GenDat/20240820_experimentalmatrix.rds")
 ```
 
 
 ## Data Prep
 
-<<<<<<< HEAD
 
 ### Genetic Data Prep
 
