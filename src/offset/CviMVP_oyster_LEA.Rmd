@@ -37,14 +37,16 @@ expEnvq_env <- read.env("data/EnvDat/exp/expquant_scaled_expanded_04222025.env")
 york_env <- read.env("data/EnvDat/exp/yrkquant_scaled_expanded_04222025.env")
 lew_env <- read.env("data/EnvDat/exp/lewquant_scaled_expanded_04222025.env")
 
+expEnv_comp <- read.csv("data/EnvDat/exp/expsitesquants_scaled_04222025.csv")[,-1]
+
 # gen
 # add once i get it from madeline
 genoMat <- read.geno("data/GenDat/geno_file_exp_all.geno")
 geno_lfmm <- read.lfmm("data/GenDat/geno_file_exp_all.lfmm")
 
 # inds
-indsExp <- readRDS("data/GenDat/20240922_experimental_indsmatrix.rds")
-indsExpSeq <- readRDS("data/GenDat/20240820_experimentalmatrix.rds")
+indsExp <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")
+indsExpSeq <- readRDS("data/IndDat/20240820_experimentalmatrix.rds")
 ```
 
 
@@ -62,8 +64,6 @@ geno2lfmm("data/GenDat/geno_file_exp_all.geno", force = T)
 geno_lfmm <- read.lfmm("data/GenDat/geno_file_exp_all.lfmm")
 
 # check data
-seascapeEnv
-expEnv
 geno_lfmm
 
 # any missing data? - this part is largely redundant now with the gendatprocess script, remove this stuff eventually
@@ -87,22 +87,8 @@ write.lfmm(geno_lfmm_imp_mat, "data/GenDat/geno_lfmm_imp_mat.lfmm")
 
 ```{r}
 # environmental data prep
-seascapeEnv
-
-# check correlations
-pairs.panels(seascapeEnv[,c("Mean_Annual_Salinity_ppt","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","Salinity_st_dev","Mean_Annual_Temperature_C","Mean_max_temperature_C","Mean_min_temperature_C","Temperature_st_dev")])
-
-# just use mins and maxs
-seascapeEnvRed <- seascapeEnv[,c("ID_Site","Site_ID2","Site_Order","Latitude_manual","Longitude_manual","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","Mean_max_temperature_C","Mean_min_temperature_C")]
-
-# we have some sites with missing data - note these sites and remove them
-sites_missDat <- seascapeEnvRed[is.na(seascapeEnvRed$Mean_min_temperature_C),]$ID_Site
-seascapeEnvRed_narm <-  seascapeEnvRed[!(is.na(seascapeEnvRed$Mean_min_temperature_C)), ]
-
-# standardize the env dat
-
-expEnv
-expEnv_env
+colnames(expEnvq_env) <- c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")
+rownames(expEnvq_env) <- expEnv_comp$site_name
 ```
 
 
@@ -119,6 +105,7 @@ geno_lfmm_mod <- read.lfmm("data/GenDat/geno_file_exp_all.lfmm")
 
 # check the data
 geno_lfmm_mod
+
 #seascape_env
 expEnv_env <- read.env("data/EnvDat/exp/expquant_scaled_expanded_04222025.env")
 york_env <- read.env("data/EnvDat/exp/yrkquant_scaled_expanded_04222025.env")
@@ -199,17 +186,15 @@ plot(dist_env, gap$distance,
      cex = .6, col = "darkslategray4", pch = 19)
 
 # Extract genomic offset from genetic gap object
-offsets <- gap$offset
 offsets_lew <- gap_lew$offset
 offsets_yrk <- gap_yrk$offset
 
 # summary stats on offsets
-summary(offsets)
 summary(offsets_lew)
 summary(offsets_yrk)
 
 # offset dfs
-offsets_df <- cbind(indsExp, offsets_lew, offsets_yrk)
+offsets_df <- cbind(expEnv_comp[,c("site_name","Label_ind")], offsets_lew, offsets_yrk)
 
 # output results
 write.csv(offsets_df, "results/GO_results/offsets_LEA_allexpinds_04222025.csv")
@@ -220,10 +205,10 @@ write.csv(offsets_df, "results/GO_results/offsets_LEA_allexpinds_04222025.csv")
 # UPDATE FOR OYSTERS WHEN DATA IS IN
 # can now calculate offset by region, site, etc
 # average offset by site
-offset_lew <- aggregate(offsets_df$offsets_lew, by = list(offsets_df$ID_SiteDate), FUN = mean)
+offset_lew <- aggregate(offsets_df$offsets_lew, by = list(offsets_df$site_name), FUN = mean)
 colnames(offset_lew) <- c("site","offset_lew")
 
-offset_yrk <- aggregate(offsets_df$offsets_yrk, by = list(offsets_df$ID_SiteDate), FUN = mean)
+offset_yrk <- aggregate(offsets_df$offsets_yrk, by = list(offsets_df$site_name), FUN = mean)
 colnames(offset_yrk) <- c("site","offset_yrk")
 
 # order populations by average offset
@@ -238,5 +223,7 @@ offset_sites <- merge(ordered_offset_lew, ordered_offset_yrk, by = "site")
 colnames(offset_sites) <- c("site","offset_lew","order_lew","offset_yrk","order_yrk")
 
 # save this and raw offsets as .csv
-write.csv(offset_sites, "results/GO_results/offsets_LEA_expSites_04222025.csv")
+write.csv(offset_sites, "results/GO_results/offsets_LEA_expSites_05272025.csv")
 ```
+
+

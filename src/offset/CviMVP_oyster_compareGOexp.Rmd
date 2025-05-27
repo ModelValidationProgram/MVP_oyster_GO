@@ -30,7 +30,7 @@ library(plotrix)
 
 # data
 # offset predictions
-lea_go <- read.csv("results/GO_results/offsets_LEA_expSites_04222025.csv")[,-1]
+lea_go <- read.csv("results/GO_results/offsets_LEA_expSites_05272025.csv")[,-1]
 #rda_go <- 
 #gf_go <- 
 
@@ -52,27 +52,33 @@ mort
 mort_popsite <- mort %>% group_by(site,pop) %>%
   summarise(mean_t1 = mean(as.numeric(survival_1)), 
             sd_t1 = sd(as.numeric(survival_1)),
-            se_t1 = std.error(as.numeric(survival_1)),
+        #    se_t1 = std.error(as.numeric(survival_1)),
             mean_t2 = mean(as.numeric(survival_2)), 
             sd_t2 = sd(as.numeric(survival_2)),
-            se_t2 = std.error(as.numeric(survival_2)),
+       #     se_t2 = std.error(as.numeric(survival_2)),
             mean_t3 = mean(as.numeric(survival_3)), 
             sd_t3 = sd(as.numeric(survival_3)),
-            se_t3 = std.error(as.numeric(survival_3)),
+       #     se_t3 = std.error(as.numeric(survival_3)),
             .groups = 'drop') %>% as.data.frame()
 
-# # split go & fitness by site
-# # go
-# leaLew <- lea_go[,c("site","offset_lew","order_lew")]
-# leaYrk <- lea_go[,c("site","offset_lew","order_yrk")]
-# # fitness
-# mortlew <- mort_popsite[mort_popsite$site == "Lewisetta",]
-# mortyrk <- mort_popsite[mort_popsite$site == "York River",]
+# also get fitness rankings at each time
+# t1
+ordt1_lew <- order(mort_popsite[mort_popsite$site == "Lewisetta", c("mean_t1")])
+ordt1_york <- order(mort_popsite[mort_popsite$site == "York River", c("mean_t1")])
+mort_popsite$ordt1 <- c(ordt1_lew, ordt1_york)
+# t2
+ordt2_lew <- order(mort_popsite[mort_popsite$site == "Lewisetta", c("mean_t2")])
+ordt2_york <- order(mort_popsite[mort_popsite$site == "York River", c("mean_t2")])
+mort_popsite$ordt2 <- c(ordt2_lew, ordt2_york)
+# t3
+ordt3_lew <- order(mort_popsite[mort_popsite$site == "Lewisetta", c("mean_t3")])
+ordt3_york <- order(mort_popsite[mort_popsite$site == "York River", c("mean_t3")])
+mort_popsite$ordt3 <- c(ordt3_lew, ordt3_york)
 
 # need to align naming conventions to merge
 colnames(lea_go) <- c("pop", "offset_lew", "order_lew", "offset_yrk", "order_yrk")
-lea_go$pop <- str_split_fixed(lea_go$pop, "-",2)[,1]
-mort_popsite[mort_popsite$pop == "JR",]$pop <- "VA"
+lea_go$pop <- str_split_fixed(lea_go$pop, "-",2)[,2]
+#mort_popsite[mort_popsite$pop == "JR",]$pop <- "VA"
 
 # merge gos & fitness dat
 goFit <- merge(mort_popsite, lea_go, by = "pop")
@@ -86,21 +92,40 @@ Now that offsets and fitness are in a comparable format, look at how well the tw
 ```{r}
 # correlations between go/lew mort at each time point
 # lea
-corLEAt1lew <- cor(goFit[goFit$site == "Lewisetta",]$offset_lew, goFit[goFit$site == "Lewisetta",]$mean_t1)
-corLEAt2lew <- cor(goFit[goFit$site == "Lewisetta",]$offset_lew, goFit[goFit$site == "Lewisetta",]$mean_t2)
-corLEAt3lew <- cor(goFit[goFit$site == "Lewisetta",]$offset_lew, goFit[goFit$site == "Lewisetta",]$mean_t3)
+corLEAt1lew <- cor(goFit[goFit$site == "Lewisetta",]$offset_lew, goFit[goFit$site == "Lewisetta",]$mean_t1) # 0.07640155
+corLEAt2lew <- cor(goFit[goFit$site == "Lewisetta",]$offset_lew, goFit[goFit$site == "Lewisetta",]$mean_t2) # 0.03125308
+corLEAt3lew <- cor(goFit[goFit$site == "Lewisetta",]$offset_lew, goFit[goFit$site == "Lewisetta",]$mean_t3) # -0.4493965
 # rda
 # gf
 
 # correlations between go/york mort at each time point
 # lea
-corLEAt1yrk <- cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$site == "York River",]$mean_t1)
-corLEAt2yrk <- cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$site == "York River",]$mean_t2)
-corLEAt3yrk <- cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$site == "York River",]$mean_t3)
+corLEAt1yrk <- cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$site == "York River",]$mean_t1) # -0.05720262
+corLEAt2yrk <- cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$site == "York River",]$mean_t2) # 0.02890556
+corLEAt3yrk <- cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$site == "York River",]$mean_t3) # -0.4362926
 # rda
 # gf
 
-# these corrs seems crazy, they're very high but positive when we expect them to be negative if the method performs well - try kendall's tau by getting rankings
+# these corrs aren't great, try kendall's tau
+cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$site == "York River",]$mean_t1, method = "kendall") # -0.07142857
+cor(goFit[goFit$site == "Lewisetta",]$offset_lew, goFit[goFit$site == "Lewisetta",]$mean_t1, method = "kendall") # 0.2857143
+
+cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$site == "York River",]$mean_t2, method = "kendall") # 0.07142857
+cor(goFit[goFit$site == "Lewisetta",]$offset_lew, goFit[goFit$site == "Lewisetta",]$mean_t2, method = "kendall") # 0.1428571
+
+cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$site == "York River",]$mean_t3, method = "kendall") # -0.1428571
+cor(goFit[goFit$site == "Lewisetta",]$offset_lew, goFit[goFit$site == "Lewisetta",]$mean_t3, method = "kendall") # -0.1428571
+
+# pearson's using rankings
+# t1
+cor(goFit[goFit$site == "Lewisetta",]$order_lew, goFit[goFit$site == "Lewisetta",]$ordt1, method = "pearson") # 0.03984095
+cor(goFit[goFit$site == "York River",]$order_yrk, goFit[goFit$site == "York River",]$ordt1, method = "pearson") # -0.1314684
+# t2
+cor(goFit[goFit$site == "Lewisetta",]$order_lew, goFit[goFit$site == "Lewisetta",]$ordt2, method = "pearson") # -0.3313972
+cor(goFit[goFit$site == "York River",]$order_yrk, goFit[goFit$site == "York River",]$ordt2, method = "pearson") # -0.1428571
+# t3
+cor(goFit[goFit$site == "Lewisetta",]$order_lew, goFit[goFit$site == "Lewisetta",]$ordt3, method = "pearson") # 0.07647191
+cor(goFit[goFit$site == "York River",]$order_yrk, goFit[goFit$site == "York River",]$ordt3, method = "pearson") # -0.8179178
 
 # put this all into a df with method/time point/fitness metric/site/corr
 

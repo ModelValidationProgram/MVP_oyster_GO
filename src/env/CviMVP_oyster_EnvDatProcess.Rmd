@@ -127,7 +127,7 @@ Finally I want to make sure now that my environmental data will match my genomic
 # experimental individuals - would replace this with the seascape individuals for lining up the environmental data with genetic data, no need to actually have indiv level predictions for experiment just pop level
 
 # need ind level dat
-indsExp <- readRDS("data/GenDat/20240922_experimental_indsmatrix.rds")
+indsExp <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")
 
 # keep just relevant data
 indsExp_red <- indsExp[,c("merge_ID_inds","Label_ind","Key_ind","ID_SiteDate","SiteDate_Key")]
