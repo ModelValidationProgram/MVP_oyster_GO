@@ -135,6 +135,7 @@ e4_surv <- surv_calc_bag(merge4_rm, 4)
 
 # long format df
 surv_long <- rbind(e1_surv,e2_surv,e3_surv,e4_surv)
+surv_long_narm <- surv_long[!(is.na(surv_long$bag)),]
 
 # wide format df
 colnames(e1_surv) <- c("bags_label","event","t1")
@@ -237,5 +238,6 @@ mort_df <- rbind(e0, e1, e2, e3, e4)
 
 # save all these dataframes
 write.csv(mort_df, "results/mortality_long_popsite_052925.csv")
+write.csv(surv_long_narm, "results/mortality_long_bags_052925.csv")
 write.csv(surv_df_ord, "results/mortality_bags_052925.csv")
 ```

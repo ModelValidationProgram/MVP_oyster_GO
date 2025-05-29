@@ -35,7 +35,7 @@ lea_go <- read.csv("results/GO_results/offsets_LEA_expSites_05272025.csv")[,-1]
 #gf_go <- 
 
 # fitness metrics
-mort <- read.csv("data/ExpDat/mortality_bag_overall_12092024.csv")[,-1]
+mort <- read.csv("results/mortality_bags_052925.csv")[,-1]
 #len <- read.csv("data/ExpDat/")
 ```
 
@@ -49,31 +49,34 @@ lea_go
 mort
 
 # we want to get avg mort per pop per site
-mort_popsite <- mort %>% group_by(site,pop) %>%
-  summarise(mean_t1 = mean(as.numeric(survival_1)), 
-            sd_t1 = sd(as.numeric(survival_1)),
-        #    se_t1 = std.error(as.numeric(survival_1)),
-            mean_t2 = mean(as.numeric(survival_2)), 
-            sd_t2 = sd(as.numeric(survival_2)),
-       #     se_t2 = std.error(as.numeric(survival_2)),
-            mean_t3 = mean(as.numeric(survival_3)), 
-            sd_t3 = sd(as.numeric(survival_3)),
-       #     se_t3 = std.error(as.numeric(survival_3)),
+mort_popsite <- mort %>% group_by(bag_site,pop) %>%
+  summarise(mean_t1 = mean(as.numeric(t1)), 
+            sd_t1 = sd(as.numeric(t1)),
+            mean_t2 = mean(as.numeric(t2)), 
+            sd_t2 = sd(as.numeric(t2)),
+            mean_t3 = mean(as.numeric(t3)), 
+            sd_t3 = sd(as.numeric(t3)),
+            mean_t4 = mean(as.numeric(t4)),
+            sd_t4 = sd(as.numeric(t4)),
             .groups = 'drop') %>% as.data.frame()
 
 # also get fitness rankings at each time
 # t1
-ordt1_lew <- order(mort_popsite[mort_popsite$site == "Lewisetta", c("mean_t1")])
-ordt1_york <- order(mort_popsite[mort_popsite$site == "York River", c("mean_t1")])
+ordt1_lew <- order(mort_popsite[mort_popsite$bag_site == "Lewisetta", c("mean_t1")])
+ordt1_york <- order(mort_popsite[mort_popsite$bag_site == "York River", c("mean_t1")])
 mort_popsite$ordt1 <- c(ordt1_lew, ordt1_york)
 # t2
-ordt2_lew <- order(mort_popsite[mort_popsite$site == "Lewisetta", c("mean_t2")])
-ordt2_york <- order(mort_popsite[mort_popsite$site == "York River", c("mean_t2")])
+ordt2_lew <- order(mort_popsite[mort_popsite$bag_site == "Lewisetta", c("mean_t2")])
+ordt2_york <- order(mort_popsite[mort_popsite$bag_site == "York River", c("mean_t2")])
 mort_popsite$ordt2 <- c(ordt2_lew, ordt2_york)
 # t3
-ordt3_lew <- order(mort_popsite[mort_popsite$site == "Lewisetta", c("mean_t3")])
-ordt3_york <- order(mort_popsite[mort_popsite$site == "York River", c("mean_t3")])
+ordt3_lew <- order(mort_popsite[mort_popsite$bag_site == "Lewisetta", c("mean_t3")])
+ordt3_york <- order(mort_popsite[mort_popsite$bag_site == "York River", c("mean_t3")])
 mort_popsite$ordt3 <- c(ordt3_lew, ordt3_york)
+# t4
+ordt4_lew <- order(mort_popsite[mort_popsite$bag_site == "Lewisetta", c("mean_t4")])
+ordt4_york <- order(mort_popsite[mort_popsite$bag_site == "York River", c("mean_t4")])
+mort_popsite$ordt4 <- c(ordt4_lew, ordt4_york)
 
 # need to align naming conventions to merge
 colnames(lea_go) <- c("pop", "offset_lew", "order_lew", "offset_yrk", "order_yrk")
@@ -92,17 +95,18 @@ Now that offsets and fitness are in a comparable format, look at how well the tw
 ```{r}
 # correlations between go/lew mort at each time point
 # lea
-corLEAt1lew <- cor(goFit[goFit$site == "Lewisetta",]$offset_lew, goFit[goFit$site == "Lewisetta",]$mean_t1) # 0.07640155
-corLEAt2lew <- cor(goFit[goFit$site == "Lewisetta",]$offset_lew, goFit[goFit$site == "Lewisetta",]$mean_t2) # 0.03125308
-corLEAt3lew <- cor(goFit[goFit$site == "Lewisetta",]$offset_lew, goFit[goFit$site == "Lewisetta",]$mean_t3) # -0.4493965
+corLEAt1lew <- cor(goFit[goFit$bag_site == "Lewisetta",]$offset_lew, goFit[goFit$bag_site == "Lewisetta",]$mean_t1) # 0.07640155
+corLEAt2lew <- cor(goFit[goFit$bag_site == "Lewisetta",]$offset_lew, goFit[goFit$bag_site == "Lewisetta",]$mean_t2) # 0.03125308
+corLEAt3lew <- cor(goFit[goFit$bag_site == "Lewisetta",]$offset_lew, goFit[goFit$bag_site == "Lewisetta",]$mean_t3) # -0.4493965
+corLEAt4lew <- cor(goFit[goFit$bag_site == "Lewisetta",]$offset_lew, goFit[goFit$bag_site == "Lewisetta",]$mean_t4) # -0.4493965
 # rda
 # gf
 
 # correlations between go/york mort at each time point
 # lea
-corLEAt1yrk <- cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$site == "York River",]$mean_t1) # -0.05720262
-corLEAt2yrk <- cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$site == "York River",]$mean_t2) # 0.02890556
-corLEAt3yrk <- cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$site == "York River",]$mean_t3) # -0.4362926
+corLEAt1yrk <- cor(goFit[goFit$bag_site == "York River",]$offset_yrk, goFit[goFit$bag_site == "York River",]$mean_t1) # -0.05720262
+corLEAt2yrk <- cor(goFit[goFit$bag_site == "York River",]$offset_yrk, goFit[goFit$bag_site == "York River",]$mean_t2) # 0.02890556
+corLEAt3yrk <- cor(goFit[goFit$bag_site == "York River",]$offset_yrk, goFit[goFit$bag_site == "York River",]$mean_t3) # -0.4362926
 # rda
 # gf
 

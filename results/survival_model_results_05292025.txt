@@ -1,0 +1,53 @@
+Anova Table (Type III tests)
+
+Response: surv
+             Sum Sq  Df  F value    Pr(>F)    
+(Intercept)  4.0459   1 656.4258 < 2.2e-16 ***
+bag_site     0.0384   1   6.2288   0.01376 *  
+pop          0.9927   7  23.0078 < 2.2e-16 ***
+t            0.2643   3  14.2965 3.763e-08 ***
+bag_site:pop 0.7397   7  17.1459 3.985e-16 ***
+bag_site:t   0.6987   3  37.7895 < 2.2e-16 ***
+pop:t        0.5048  21   3.9003 6.433e-07 ***
+Residuals    0.8382 136                       
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Anova Table (Type III tests)
+
+Response: surv
+              Sum Sq Df F value    Pr(>F)    
+(Intercept)  1.50265  1 291.483 2.460e-16 ***
+bag_site     0.30673  1  59.500 2.107e-08 ***
+pop          1.65336  7  45.817 1.126e-13 ***
+bag_site:pop 0.36995  7  10.252 2.606e-06 ***
+Residuals    0.14434 28                      
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Anova Table (Type III tests)
+
+Response: surv
+                 Sum Sq Df F value    Pr(>F)    
+(Intercept)     0.43333  1  84.058 6.313e-10 ***
+bag_site        0.05417  1  10.508  0.003064 ** 
+oldpop          1.65336  7  45.817 1.126e-13 ***
+bag_site:oldpop 0.36995  7  10.252 2.606e-06 ***
+Residuals       0.14434 28                      
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+               letters        popsite
+Lewisetta:LA         a   Lewisetta:LA
+Lewisetta:LOLA      ab Lewisetta:LOLA
+Lewisetta:TX        ab   Lewisetta:TX
+Lewisetta:DEBY    abcd Lewisetta:DEBY
+Lewisetta:FL        bc   Lewisetta:FL
+Lewisetta:VA       bcd   Lewisetta:VA
+YorkRiver:FL       cde   YorkRiver:FL
+YorkRiver:VA       cde   YorkRiver:VA
+YorkRiver:TX        de   YorkRiver:TX
+YorkRiver:DEBY      de YorkRiver:DEBY
+YorkRiver:LOLA      ef YorkRiver:LOLA
+YorkRiver:LA       efg   YorkRiver:LA
+Lewisetta:ME        fg   Lewisetta:ME
+Lewisetta:NH        fg   Lewisetta:NH
+YorkRiver:NH        fg   YorkRiver:NH
+YorkRiver:ME         g   YorkRiver:ME
