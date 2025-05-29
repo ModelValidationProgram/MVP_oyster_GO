@@ -1,5 +1,5 @@
 mortality_key,mortality_label,bags_key,alive_count,dead_count,mortality_timestamp,mortality_notes,username,dead_bag,alive_returned
-d96f7e66,2023-11-7_MVP-FL-1,815e1dab,1210,87,11/7/2023 8:30:21,"3 med blue crabs,",k.lotterhos@gmail.com,TRUE,-1
+d96f7e66,2023-11-7_MVP-FL-1,815e1dab,1210,87,11/7/2023 8:30:21,"3 med blue crabs,",k.lotterhos@gmail.com,TRUE,1210
 27171934,2023-11-7_MVP-DEBY-1,24d5645e,1444,118,11/7/2023 8:54:42,1 blue crab,k.lotterhos@gmail.com,TRUE,1444
 8fc8ba73,2023-11-7_MVP-JR-3,6981f952,673,310,11/7/2023 9:22:21,2 large blue crabs,k.lotterhos@gmail.com,TRUE,673
 2a93a4ae,2023-11-7_MVP-TX-1,2b6a3191,1266,154,11/7/2023 9:23:59,2 big blue crabs,k.lotterhos@gmail.com,TRUE,1266
@@ -245,3 +245,4 @@ a3b62817,2025-5-24_MVP-JR-4,ab963807,156,19,5/24/2025 13:11:32,"16 alive tags pl
 990f6b05,2025-5-24_MVP-LOLA-4,bd86970d,69,22,5/24/2025 13:35:43,5 dead plus 5 alive tags found,eppley.madeline@gmail.com,TRUE,0
 cec97655,2025-5-24_MVP-LARMIX-4,36a7a874,89,22,5/24/2025 13:40:40,8 alive plus 4 dead tags found,eppley.madeline@gmail.com,TRUE,0
 af624eb0,2025-5-24_MVP-NH-6,26bf3141,8,4,5/24/2025 13:45:39,"All 10 alive taken for genotyping, 2 tags found 1 alive 1 dead",eppley.madeline@gmail.com,TRUE,0
+0ba25c37,2025-5-29_MVP-NH-4,b2afd5ee,0,0,5/29/2025 12:49:44,"adding entry for analysis purposes, this bag crashed in november '24",camillerumberger11@gmail.com,FALSE,0
