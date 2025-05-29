@@ -161,6 +161,17 @@ gofit_yrk_plot <- ggplot(data = goFit[goFit$site == "York River",]) +
   theme_classic()
 gofit_yrk_plot
 ggsave("results/lea_york_compare.png")
+
+# plot go lea vs mort at both sites just final time point
+gofit_plotT3 <- ggplot(data = goFit) +
+  geom_point(data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t3, y = offset_lew, col = "Lewisetta")) +
+  geom_smooth(method = "lm", data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t3, y = offset_lew), col = "mediumspringgreen", se = F) +
+  geom_point(data = goFit[goFit$site == "York River",], aes(x = mean_t3, y = offset_lew, col = "York River")) +
+  geom_smooth(method = "lm", data = goFit[goFit$site == "York River",], aes(x = mean_t3, y = offset_lew), col = "dodgerblue", se = F) +
+  labs(title = "Predicted GO (LEA) vs Mortality at Final Time Point", x = "Survival", y = "LEA Offset") +
+  scale_colour_manual(name = "Experimental Site", breaks = c("Lewisetta", "York River"), values = c("Lewisetta"="mediumspringgreen","York River"="dodgerblue"))+
+  theme_classic()
+gofit_plotT3
 ```
 
 ## Compare Offset Methods
