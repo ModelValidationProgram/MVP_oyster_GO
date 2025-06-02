@@ -15,36 +15,32 @@ This script is a gradientForest pipeline for calculating genomic offset. I am us
 
 ## Setup
 
-```{r}
+```{r Setup}
 # wd
 setwd("~/Documents/GitHub/MVP_oyster_GO")
 
 # packages
 library(LEA)
-library(dplyr)
+library(dplyr) # for data cleaning
 library(BiocManager) # needed to download specific packages
 library(readxl) # reading xlsx files
 library(raster) # for environmental pixels
 library(ggplot2) # for plotting
-#library(magrittr) # unsure
-#library(geosphere) # unsure
-#library(gdm) # unsure
-#library(foreach) # unsure
 library(parallel) # for parallelizing processes
 library(doParallel) # for parallelizing processes 
 library(gradientForest) # for running gradient forest
-#library(fields) # unsure
-#library(sf) # for spatial files
 
 # data
 # env
 seascapeEnv <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv") # keep this but also get list of reduced variables
-expEnv <- read.csv("data/EnvDat/exp/envr_summary_stats.csv")[,-1]
-seascape_env <- read.csv()
-exp_env <- read.csv()
+expEnv <- read.csv("data/EnvDat/exp/exp_scaled_expanded_04222025.csv")[,-1]
+expEnv_pop <- read.csv("data/EnvDat/exp/expquants_scaled_04222025.csv")[,-1]
 
 # gen
-# add once i get it from madeline
+geno_dat <- as.data.frame(read.lfmm("data/GenDat/geno_file_exp_all.lfmm"))
+
+# individuals
+seascapeInds <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")
 ```
 
 
@@ -52,11 +48,124 @@ exp_env <- read.csv()
 
 Inspect the environmental and genomic data to ensure it's ready for gradientForest. Note that environmental data was pre-processed in the script "CviMVP_oyster_EnvDatPRocess.Rmd" and genomic data was pre-processed in the script "CviMVP_oyster_GenDatProcess.Rmd".
 
-```{r}
-# check geno data
-dim(geno_mat)
+### Individual Data Prep
 
-# check env data
-dim(seascape_env)
-dim(exp_env)
+```{r}
+head(seascapeInds)
+
+# need ind level dat
+indsExp <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")
+
+# keep just relevant data
+indsExp_red <- indsExp[,c("merge_ID_inds","Label_ind","Key_ind","ID_SiteDate","SiteDate_Key")]
+levels(as.factor(indsExp_red$ID_SiteDate))
+
+# need to add scaled env data to this
+exp_scaled$site_name
+indsExp_red$ID_SiteDate
+
+# the pop (ID_SiteDate/site_name) data doesn't match up
+map <- list("TX-CapBay" = "W1-TX", "LA-SisLake" = "W2-LA", "FL-KingPlan" = "W3-FL", "LOLA" = "S1-LOLA", "DEBY" = "S2-DEBY", "VA-DeepWatSh" = "W4-VA", "NH-GrtBay" = "W5-NH", "ME-HogIs" = "W6-ME")
+indsExp_red_mut <- indsExp_red %>% mutate(ID_SiteDate = ifelse(ID_SiteDate %in% names(map), map[ID_SiteDate], ID_SiteDate))
+colnames(indsExp_red_mut) <- c("merge_ID_inds", "Label_ind", "Key_ind", "site_name", "SiteDate_Key")
+
+# also need to remap expenvpop 
+expEnv_pop
+map <- list("LEW" = "LEW", "YRK" = "YRK", "W1_TX" = "W1-TX", "W2_LA" = "W2-LA", "W3_FL" = "W3-FL", "S1_LOLA" = "S1-LOLA", "S2_DEBY" = "S2-DEBY", "W4_VA" = "W4-VA", "W5_NH" = "W5-NH", "W6_ME" = "W6-ME")
+expEnv_pop_mut <- expEnv_pop %>% mutate(site_name = ifelse(site_name %in% names(map), map[site_name], site_name))
+
+which(!(exp_scaled$site_name %in% expEnv_pop_mut$site_name))
+which(!(expEnv_pop_mut$site_name %in% exp_scaled$site_name)) # substitution worked!
+
+expEnv_pop_mut$site_name <- as.character(expEnv_pop_mut$site_name)
 ```
+
+### Genomic Data Prep
+
+```{r Genomic Data Prep}
+# check geno data
+dim(geno_dat)
+
+# rotate df so rows are now columns (we want individuals as columns, alleles as rows)
+geno_dat_t <- as.matrix(t(geno_dat))
+
+# any missing data?
+sum((geno_dat_t == 9)) # returns NA - good
+
+# get vector of populations
+seascapePops <- seascapeInds$ID_SiteDate
+
+# add pop data to genomic data
+colnames(geno_dat_t) <- seascapePops
+
+# function to calculate allele frequency @ single locus
+calc_freq <- function(x){
+  a <- sum(x, na.rm=TRUE)
+  b <- (2*length(na.omit(x)))
+  a/b
+}
+
+# function extending this to calculate allele frequencies across whole pop
+calcfreq <- function(a, pop){
+  tapply(a, pop, calc_freq)
+}
+
+# allele freqs
+freqs <- apply(t(geno_dat_t), 2, calcfreq, seascapePops)
+str(freqs)
+```
+
+
+### Environmental Data Prep
+
+```{r Environmental Data Prep}
+# check env data
+#dim(seascapeEnv) # for now I only use expEnv object because I don't have any seascape genomic data
+dim(expEnv)
+dim(expEnv_pop)
+dim(indsExp_red_mut)
+
+# rename site names pop df
+expEnv_pop$site_name <- c("LEW", "S1-LOLA", "S2-DEBY", "W1-TX", "W2-LA", "W3-FL", "W4-VA", "W5-NH","W6-ME","YRK")
+
+# merge
+exp_scaled_expanded <- merge(as.data.frame(indsExp_red_mut), as.data.frame(expEnv_pop[,c("site_name", "sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled"),]), by = c("site_name"))
+
+# reduced variable set
+expEnv_red <- exp_scaled_expanded[,c("site_name","sal_quant10_scaled","sal_quant90_scaled","temp_quant10_scaled","temp_quant90_scaled")]
+expEnv_pop_red <- expEnv_pop_mut[,c("site_name","sal_quant10_scaled","sal_quant90_scaled","temp_quant10_scaled","temp_quant90_scaled")]
+```
+
+
+## Train Models
+
+To train the models, I will be using the seascape genomic dataset that we processed in the previous chunk, as well as the current environmental data files produced using "CviMVP_oyster_EnvDatProcess.Rmd." NOTE FOR NOW TRAINED ON EXP INDS
+
+```{r}
+# start by defining a maximum number of splits
+maxLevel <- log2(0.368*nrow(expEnv_red)/2)
+
+# run gradient forest
+# allele freq models
+start_time <- Sys.time() # time start
+gf_af <- gradientForest(cbind(expEnv_pop_red[2:9,c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")], freqs), predictor.vars = colnames(expEnv_pop_red[, c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]), response.vars=colnames(freqs), ntree=500, maxLevel=maxLevel, trace=T, corr.threshold=0.50) # tons of warnings here, "response has five or fewer unique values. Are you sure you want to do regression?"
+end_time <- Sys.time() # time end
+(end_time - start_time)
+
+# geno models
+start_time <- Sys.time() # time start
+gf_geno <- gradientForest(cbind(expEnv_red[,c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")], geno_dat), predictor.vars = colnames(expEnv_red[, c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]), response.vars=colnames(geno_dat), ntree=500, maxLevel=maxLevel, trace=T, corr.threshold=0.50)
+end_time <- Sys.time() # time end
+(end_time - start_time)
+
+# plot bar graphs depicting importance of each spatial and climate variable
+plot(gf_af, plot.type = "O")
+plot(gf_geno, plot.type = "O")
+
+# plots of turnover functions for individual loci - now having issues with ylim
+plot(gf_af, plot.type = "C", imp.vars = gf_af$imp.vars, show.overall = T, legend = T, leg.posn = "topleft", leg.nspecies = 5, ylim = c(0,0.5)) # ylim error
+plot(gf_geno, plot.type = "C", imp.vars = gf_geno$imp.vars, show.overall = T, legend = T, leg.posn = "topleft", leg.nspecies = 5, ylim = c(0,0.5))
+```
+
+
+

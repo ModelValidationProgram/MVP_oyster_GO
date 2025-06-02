@@ -154,7 +154,7 @@ table(indsExp_red_mut$site_name) # 17-20
 exp_scaled_expanded <- merge(as.data.frame(indsExp_red_mut), as.data.frame(exp_scaled), by = c("site_name"))
 
 # write this out to .csv
-write.csv(exp_scaled_expanded, "data/EnvDat/exp/exp_scaled_expanded_04222025.csv")
+write.csv(exp_scaled_expanded, paste0("data/EnvDat/exp/exp_scaled_expanded", Sys.Date(), ".csv"))
 
 # do it for the other exp data
 expmg_scaled
