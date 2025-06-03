@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = "~/MVP_Oyster_Analysis_Camille/MVP_Oysters_Analysis_Camille")
+knitr::opts_knit$set(root.dir = "~/projects/lotterhos/MVP_oyster_GO")
 
 # load libraries
 library(tidyverse) # for data wrangling
@@ -240,4 +240,65 @@ mort_df <- rbind(e0, e1, e2, e3, e4)
 write.csv(mort_df, "results/mortality_long_popsite_052925.csv")
 write.csv(surv_long_narm, "results/mortality_long_bags_052925.csv")
 write.csv(surv_df_ord, "results/mortality_bags_052925.csv")
+```
+
+
+All of my survival data is calculated, now I want to visualize trends in survival.
+
+```{r}
+# pops df for plotting
+popsdf <- data.frame(pop = c("TX","LA","FL","JR","DEBY","LOLA","NH","ME","LARMIX","SEEDMIX"), 
+                     order = 1:10, 
+#                     cols = c("#6f1926","#de324c","#f4895f","#f8e16f","#95cf92","#369acc",
+#                              "#9656a2","#cbabd1","black","gray"),
+                     cols = c("#332288","#117733","#44AA99","#88CCEE","#DDCC77","#CC6677",
+                              "#AA4499","#882255","black","gray"),
+                     shape = c(21,21,21,21,23,23,21,21,24,24),
+                     label = c("W1-TX","W2-LA","W3-FL","W4-VA","S1-LOLA","S2-DEBY",
+                               "W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"))
+mort_df_full <- merge(mort_df, popsdf, by = c("pop"))
+
+# york river
+york_surv <- ggplot(data = mort_df_full[mort_df_full$bag_site == "YorkRiver",]) + 
+  geom_line(aes(x = event, y = mean_surv, color = fct_reorder(pop,order))) + 
+  scale_color_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
+  geom_point(aes(x = event, y = mean_surv, fill = fct_reorder(pop,order), 
+                 shape = fct_reorder(pop,order)),
+             size = 4) + 
+  scale_shape_manual(name = "Population", label = popsdf$label, values = popsdf$shape)+
+  scale_fill_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
+  #  geom_errorbar(aes(x = event, ymin = mean_surv-se, ymax = mean_surv+se), width = 0.05) + # error bars look terrible
+  ylim(0,1) + 
+  labs(color = "Population") +
+  ylab("Survival") +
+  scale_x_continuous("Monitoring Event", breaks = c(0,1,2,3),
+                     labels = c("Spring '23", "Fall '23", "Spring '24", "Fall '24")) +
+  theme_classic() + 
+  theme(plot.title = element_text(size = 20), 
+        legend.title = element_text(size = 14),
+        legend.justification = "top") +
+  ggtitle("York River: Oyster Survival thru Time")
+york_surv
+
+# lewisetta
+lew_surv <- ggplot(data = mort_df_full[mort_df_full$bag_site == "Lewisetta",]) + 
+  geom_line(aes(x = event, y = mean_surv, color = fct_reorder(pop,order))) + 
+  scale_color_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
+  geom_point(aes(x = event, y = mean_surv, fill = fct_reorder(pop,order), 
+                 shape = fct_reorder(pop,order)),
+             size = 4) + 
+  scale_shape_manual(name = "Population", label = popsdf$label, values = popsdf$shape)+
+  scale_fill_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
+  #  geom_errorbar(aes(x = event, ymin = mean_surv-se, ymax = mean_surv+se), width = 0.05) + # error bars look terrible
+  ylim(0,1) + 
+  labs(color = "Population") +
+  ylab("Survival") +
+  scale_x_continuous("Monitoring Event", breaks = c(0,1,2,3),
+                     labels = c("Spring '23", "Fall '23", "Spring '24", "Fall '24")) +
+  theme_classic() + 
+  theme(plot.title = element_text(size = 20), 
+        legend.title = element_text(size = 14),
+        legend.justification = "top") +
+  ggtitle("Lewisetta: Oyster Survival thru Time")
+lew_surv
 ```
