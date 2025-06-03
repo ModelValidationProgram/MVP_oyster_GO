@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # GF Genomic Offsets
 
-This script is a gradientForest pipeline for calculating genomic offset. I am using gradientForest, which build on randomForest to use predictions of genome-wide allele frequency variation along multivariate environmental gradients to quantify the disruption of genotype-environment associations under environmental change. I first train the models using gradientForest on a large seascape dataset, then predict offset for a subset of 8 populations from this dataset and 2 selection lines used in a common garden experiment. Offset is calculated from the environment of origin to common garden conditions.
+This script is a gradientForest pipeline for calculating genomic offset. I am using gradientForest, which build on randomForest to use predictions of genome-wide allele frequency variation along multivariate environmental gradients to quantify the disruption of genotype-environment associations under environmental change. I first train the models using gradientForest on a large seascape dataset, then predict offset for a subset of 8 populations from this dataset and 2 selection lines used in a common garden experiment based in the Chesapeake Bay. Offset is calculated from the environment of origin to common garden conditions.
 
 ## Setup
 
@@ -69,6 +69,9 @@ map <- list("TX-CapBay" = "W1-TX", "LA-SisLake" = "W2-LA", "FL-KingPlan" = "W3-F
 indsExp_red_mut <- indsExp_red %>% mutate(ID_SiteDate = ifelse(ID_SiteDate %in% names(map), map[ID_SiteDate], ID_SiteDate))
 colnames(indsExp_red_mut) <- c("merge_ID_inds", "Label_ind", "Key_ind", "site_name", "SiteDate_Key")
 
+# pops list
+pops_list <- unique(indsExp_red_mut$site_name)
+
 # also need to remap expenvpop 
 expEnv_pop
 map <- list("LEW" = "LEW", "YRK" = "YRK", "W1_TX" = "W1-TX", "W2_LA" = "W2-LA", "W3_FL" = "W3-FL", "S1_LOLA" = "S1-LOLA", "S2_DEBY" = "S2-DEBY", "W4_VA" = "W4-VA", "W5_NH" = "W5-NH", "W6_ME" = "W6-ME")
@@ -124,6 +127,7 @@ str(freqs)
 dim(expEnv)
 dim(expEnv_pop)
 dim(indsExp_red_mut)
+indsExp_red_mut$site_name<- as.character(indsExp_red_mut$site_name)
 
 # rename site names pop df
 expEnv_pop$site_name <- c("LEW", "S1-LOLA", "S2-DEBY", "W1-TX", "W2-LA", "W3-FL", "W4-VA", "W5-NH","W6-ME","YRK")
@@ -141,7 +145,7 @@ expEnv_pop_red <- expEnv_pop_mut[,c("site_name","sal_quant10_scaled","sal_quant9
 
 To train the models, I will be using the seascape genomic dataset that we processed in the previous chunk, as well as the current environmental data files produced using "CviMVP_oyster_EnvDatProcess.Rmd." NOTE FOR NOW TRAINED ON EXP INDS
 
-```{r}
+```{r GO Model Training}
 # start by defining a maximum number of splits
 maxLevel <- log2(0.368*nrow(expEnv_red)/2)
 
@@ -153,19 +157,122 @@ end_time <- Sys.time() # time end
 (end_time - start_time)
 
 # geno models
-start_time <- Sys.time() # time start
-gf_geno <- gradientForest(cbind(expEnv_red[,c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")], geno_dat), predictor.vars = colnames(expEnv_red[, c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]), response.vars=colnames(geno_dat), ntree=500, maxLevel=maxLevel, trace=T, corr.threshold=0.50)
-end_time <- Sys.time() # time end
-(end_time - start_time)
+# crashes on personal laptop, run on cluster
+# start_time <- Sys.time() # time start
+# gf_geno <- gradientForest(cbind(expEnv_red[,c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")], geno_dat), predictor.vars = colnames(expEnv_red[, c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]), response.vars=colnames(geno_dat), ntree=500, maxLevel=maxLevel, trace=T, corr.threshold=0.50)
+# end_time <- Sys.time() # time end
+# (end_time - start_time)
 
 # plot bar graphs depicting importance of each spatial and climate variable
-plot(gf_af, plot.type = "O")
-plot(gf_geno, plot.type = "O")
+plot(gf_af)
+# plot(gf_geno, plot.type = "O")
 
 # plots of turnover functions for individual loci - now having issues with ylim
 plot(gf_af, plot.type = "C", imp.vars = gf_af$imp.vars, show.overall = T, legend = T, leg.posn = "topleft", leg.nspecies = 5, ylim = c(0,0.5)) # ylim error
-plot(gf_geno, plot.type = "C", imp.vars = gf_geno$imp.vars, show.overall = T, legend = T, leg.posn = "topleft", leg.nspecies = 5, ylim = c(0,0.5))
+# plot(gf_geno, plot.type = "C", imp.vars = gf_geno$imp.vars, show.overall = T, legend = T, leg.posn = "topleft", leg.nspecies = 5, ylim = c(0,0.5))
+```
+
+It looks like for the allele frequency based model, temp_quant90 is the most important climate variable, followed by either sal_quant1/temp_quant10 (accuracy importance/R2 weighted importance), then temp_quant10/sal_quant90, and finally sal_quant90/sal_quant10. 
+
+For the genotype based model, ...
+
+For both training runs, it's important to note that I had a significant number of warning messages - specifically:
+
+"Warning in randomForest.default(x = X, y = spec_vec, maxLevel = maxLevel, : The response has five or fewer unique values. Are you sure you want to do regression?"
+
+I think this is coming from non-variable genomic sites, which I could trim in future iterations of this model. Brandon has encountered this issue before and seems to think that the warning is internal to extendedForests (pckg for implementing random forests), and refers to number of unique AFs for a given locus.
+
+
+### Predict Offset
+
+Now that we have trained our gradient forest models, we need to use these to predict performance in the mesocosm treatments. This requires no new genomic data, just new environmental data that corresponds to each of the treatments and to the sites these populations originated from. Importantly, this new environmental data set must use the same column names as the data set used for training. We will ensure data compatibility below.
+
+```{r Predict Offset Prep}
+# check everything again
+gf_af
+gf_geno
+
+# reverse order of pops list to match previous data
+pops_list <- pops_list[rev(1:length(pops_list))]
+
+# process the env data for the gardens to match up with each pop/ind entry
+# AF
+af_lewenv <- expEnv_pop_red[expEnv_pop_red$site_name %in% c("LEW"), c("site_name", "sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]
+colnames(af_lewenv) <- c("garden", "sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")
+pops_list <- unique(indsExp_red_mut$site_name)
+pops_list_lew <- data.frame(site_name = pops_list)
+pops_list_lew$garden <- rep("LEW", 8)
+af_lewenv_comp <- merge(pops_list_lew, af_lewenv, by = c("garden"))
+
+af_yrkenv <- expEnv_pop_red[expEnv_pop_red$site_name %in% c("YRK"), c("site_name", "sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]
+colnames(af_yrkenv) <- c("garden", "sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")
+pops_list <- unique(indsExp_red_mut$site_name)
+pops_list_yrk <- data.frame(site_name = pops_list)
+pops_list_yrk$garden <- rep("YRK", 8)
+af_yrkenv_comp <- merge(pops_list_yrk, af_yrkenv, by = c("garden"))
+
+# COME BACK TO DO GENO ONCE THIS MODEL CAN BE RUN ON THE CLUSTER AGAIN
 ```
 
 
+Now I can predict offset using these different methods (genotype and allele frequency based).
+
+```{r Predict Offset}
+# prediction to home site
+pred_af_home <- predict(gf_af, expEnv_pop_red[2:9, 2:5])
+#pred_geno_home <- predict(gf_geno, curr_pop_env_gf_red)
+
+# prediction to common gardens
+pred_af_lew <- predict(gf_af, af_lewenv_comp[,3:6])
+pred_af_yrk <- predict(gf_af, af_yrkenv_comp[,3:6])
+
+#pred_geno_lew <- predict(gf_geno, geno_lewenv_comp[,3:6])
+#pred_geno_yrk <- predict(gf_geno, geno_yrkenv_comp[,3:6])
+
+# We now compute the euclidean distance between current and new cumulative importance
+nb_ind_af <- nrow(pred_af_lew)
+#nb_ind_geno <- nrow(pred_geno_lew)
+
+# calculate offsets
+euclidean <- function(a, b) sqrt(sum((a - b)^2)) # Euclidean distance for genetic offset
+
+# af
+# lew
+df_af_lew <- data.frame() # df
+for (i in 1:nb_ind_af){ # calc offset
+  ec_dist <- as.data.frame(euclidean(pred_af_home[i,], pred_af_lew[i,]))
+  df_af_lew <- rbind(df_af_lew, ec_dist)
+}
+af_offset_lew <- cbind(pops_list, df_af_lew) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
+colnames(af_offset_lew) <- c("site_name", "offset_af_lew")
+
+# york
+df_af_yrk <- data.frame() # df
+for (i in 1:nb_ind_af){ # calc offset
+  ec_dist <- as.data.frame(euclidean(pred_af_home[i,], pred_af_yrk[i,]))
+  df_af_yrk <- rbind(df_af_yrk, ec_dist)
+}
+af_offset_yrk <- cbind(pops_list, df_af_yrk) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
+colnames(af_offset_yrk) <- c("site_name", "offset_af_yrk")
+
+# merge
+af_offsets <- merge(af_offset_lew, af_offset_yrk, by = c("site_name"))
+
+# geno
+# lew
+df_geno_lew <- data.frame() # df
+for (i in 1:nb_ind_af){ # calc offset
+  ec_dist <- as.data.frame(euclidean(pred_geno[i,], pred_geno_garden[i,]))
+  df_geno_lew <- rbind(df_geno_lew, ec_dist)
+}
+geno_offset_lew <- cbind(as.data.frame(pops_list), df_geno_lew) # associate metadata with offset calculation
+
+# york
+df_geno_yrk <- data.frame() # df
+for (i in 1:nb_ind_af){ # calc offset
+  ec_dist <- as.data.frame(euclidean(pred_geno[i,], pred_geno_garden[i,]))
+  df_geno_yrk <- rbind(df_geno_yrk, ec_dist)
+}
+geno_offset_yrk <- cbind(as.data.frame(pops_list), df_geno_yrk) # associate metadata with offset calculation
+```
 
