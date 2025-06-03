@@ -32,10 +32,10 @@ library(plotrix)
 # offset predictions
 lea_go <- read.csv("results/GO_results/offsets_LEA_expSites_05272025.csv")[,-1]
 #rda_go <- 
-#gf_go <- 
+gf_go <- read.csv("results/GO_results/offsetsMVP_2025-06-03.csv")[,-1]
 
 # fitness metrics
-mort <- read.csv("results/mortality_bags_052925.csv")[,-1]
+mort <- read.csv("results/exp_results/mortality_bags_052925.csv")[,-1]
 #len <- read.csv("data/ExpDat/")
 ```
 
@@ -46,6 +46,7 @@ Prepare data from offsets & experiment to be directly compared.
 ```{r}
 # inspect data
 lea_go
+gf_go
 mort
 
 # we want to get avg mort per pop per site
@@ -79,12 +80,20 @@ ordt4_york <- order(mort_popsite[mort_popsite$bag_site == "York River", c("mean_
 mort_popsite$ordt4 <- c(ordt4_lew, ordt4_york)
 
 # need to align naming conventions to merge
+# LEA
 colnames(lea_go) <- c("pop", "offset_lew", "order_lew", "offset_yrk", "order_yrk")
 lea_go$pop <- str_split_fixed(lea_go$pop, "-",2)[,2]
 #mort_popsite[mort_popsite$pop == "JR",]$pop <- "VA"
 
+# GF
+# add order
+gf_go$order_lew <- order(gf_go$offset_af_lew)
+gf_go$order_yrk <- order(gf_go$offset_af_yrk)
+gf_go$pop <- str_split_fixed(gf_go$site_name,"-",2)[,2]
+
 # merge gos & fitness dat
-goFit <- merge(mort_popsite, lea_go, by = "pop")
+goFitLEA <- merge(mort_popsite, lea_go, by = "pop")
+goFitGF <- merge(mort_popsite, gf_go, by = "pop")
 ```
 
 
@@ -92,44 +101,42 @@ goFit <- merge(mort_popsite, lea_go, by = "pop")
 
 Now that offsets and fitness are in a comparable format, look at how well the two match.
 
+### LEA Offset
+
 ```{r}
 # correlations between go/lew mort at each time point
 # lea
-corLEAt1lew <- cor(goFit[goFit$bag_site == "Lewisetta",]$offset_lew, goFit[goFit$bag_site == "Lewisetta",]$mean_t1) # 0.07640155
-corLEAt2lew <- cor(goFit[goFit$bag_site == "Lewisetta",]$offset_lew, goFit[goFit$bag_site == "Lewisetta",]$mean_t2) # 0.03125308
-corLEAt3lew <- cor(goFit[goFit$bag_site == "Lewisetta",]$offset_lew, goFit[goFit$bag_site == "Lewisetta",]$mean_t3) # -0.4493965
-corLEAt4lew <- cor(goFit[goFit$bag_site == "Lewisetta",]$offset_lew, goFit[goFit$bag_site == "Lewisetta",]$mean_t4) # -0.4493965
-# rda
-# gf
+corLEAt1lew <- cor(goFitLEALEA[goFitLEALEA$bag_site == "Lewisetta",]$offset_lew, goFitLEALEA[goFitLEALEA$bag_site == "Lewisetta",]$mean_t1) # 0.07640155
+corLEAt2lew <- cor(goFitLEALEA[goFitLEALEA$bag_site == "Lewisetta",]$offset_lew, goFitLEALEA[goFitLEALEA$bag_site == "Lewisetta",]$mean_t2) # 0.03125308
+corLEAt3lew <- cor(goFitLEALEA[goFitLEALEA$bag_site == "Lewisetta",]$offset_lew, goFitLEALEA[goFitLEALEA$bag_site == "Lewisetta",]$mean_t3) # -0.4493965
+corLEAt4lew <- cor(goFitLEALEA[goFitLEALEA$bag_site == "Lewisetta",]$offset_lew, goFitLEALEA[goFitLEALEA$bag_site == "Lewisetta",]$mean_t4) # -0.4493965
 
 # correlations between go/york mort at each time point
 # lea
-corLEAt1yrk <- cor(goFit[goFit$bag_site == "York River",]$offset_yrk, goFit[goFit$bag_site == "York River",]$mean_t1) # -0.05720262
-corLEAt2yrk <- cor(goFit[goFit$bag_site == "York River",]$offset_yrk, goFit[goFit$bag_site == "York River",]$mean_t2) # 0.02890556
-corLEAt3yrk <- cor(goFit[goFit$bag_site == "York River",]$offset_yrk, goFit[goFit$bag_site == "York River",]$mean_t3) # -0.4362926
-# rda
-# gf
+corLEAt1yrk <- cor(goFitLEALEA[goFitLEALEA$bag_site == "York River",]$offset_yrk, goFitLEALEA[goFitLEALEA$bag_site == "York River",]$mean_t1) # -0.05720262
+corLEAt2yrk <- cor(goFitLEALEA[goFitLEALEA$bag_site == "York River",]$offset_yrk, goFitLEALEA[goFitLEALEA$bag_site == "York River",]$mean_t2) # 0.02890556
+corLEAt3yrk <- cor(goFitLEALEA[goFitLEALEA$bag_site == "York River",]$offset_yrk, goFitLEALEA[goFitLEALEA$bag_site == "York River",]$mean_t3) # -0.4362926
 
 # these corrs aren't great, try kendall's tau
-cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$site == "York River",]$mean_t1, method = "kendall") # -0.07142857
-cor(goFit[goFit$site == "Lewisetta",]$offset_lew, goFit[goFit$site == "Lewisetta",]$mean_t1, method = "kendall") # 0.2857143
+cor(goFitLEALEA[goFitLEALEA$site == "York River",]$offset_yrk, goFitLEALEA[goFitLEALEA$site == "York River",]$mean_t1, method = "kendall") # -0.07142857
+cor(goFitLEALEA[goFitLEALEA$site == "Lewisetta",]$offset_lew, goFitLEALEA[goFitLEALEA$site == "Lewisetta",]$mean_t1, method = "kendall") # 0.2857143
 
-cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$site == "York River",]$mean_t2, method = "kendall") # 0.07142857
-cor(goFit[goFit$site == "Lewisetta",]$offset_lew, goFit[goFit$site == "Lewisetta",]$mean_t2, method = "kendall") # 0.1428571
+cor(goFitLEA[goFitLEA$site == "York River",]$offset_yrk, goFitLEA[goFitLEA$site == "York River",]$mean_t2, method = "kendall") # 0.07142857
+cor(goFitLEA[goFitLEA$site == "Lewisetta",]$offset_lew, goFitLEA[goFitLEA$site == "Lewisetta",]$mean_t2, method = "kendall") # 0.1428571
 
-cor(goFit[goFit$site == "York River",]$offset_yrk, goFit[goFit$site == "York River",]$mean_t3, method = "kendall") # -0.1428571
-cor(goFit[goFit$site == "Lewisetta",]$offset_lew, goFit[goFit$site == "Lewisetta",]$mean_t3, method = "kendall") # -0.1428571
+cor(goFitLEA[goFitLEA$site == "York River",]$offset_yrk, goFitLEA[goFitLEA$site == "York River",]$mean_t3, method = "kendall") # -0.1428571
+cor(goFitLEA[goFitLEA$site == "Lewisetta",]$offset_lew, goFitLEA[goFitLEA$site == "Lewisetta",]$mean_t3, method = "kendall") # -0.1428571
 
 # pearson's using rankings
 # t1
-cor(goFit[goFit$site == "Lewisetta",]$order_lew, goFit[goFit$site == "Lewisetta",]$ordt1, method = "pearson") # 0.03984095
-cor(goFit[goFit$site == "York River",]$order_yrk, goFit[goFit$site == "York River",]$ordt1, method = "pearson") # -0.1314684
+cor(goFitLEA[goFitLEA$site == "Lewisetta",]$order_lew, goFitLEA[goFitLEA$site == "Lewisetta",]$ordt1, method = "pearson") # 0.03984095
+cor(goFitLEA[goFitLEA$site == "York River",]$order_yrk, goFitLEA[goFitLEA$site == "York River",]$ordt1, method = "pearson") # -0.1314684
 # t2
-cor(goFit[goFit$site == "Lewisetta",]$order_lew, goFit[goFit$site == "Lewisetta",]$ordt2, method = "pearson") # -0.3313972
-cor(goFit[goFit$site == "York River",]$order_yrk, goFit[goFit$site == "York River",]$ordt2, method = "pearson") # -0.1428571
+cor(goFitLEA[goFitLEA$site == "Lewisetta",]$order_lew, goFitLEA[goFitLEA$site == "Lewisetta",]$ordt2, method = "pearson") # -0.3313972
+cor(goFitLEA[goFitLEA$site == "York River",]$order_yrk, goFitLEA[goFitLEA$site == "York River",]$ordt2, method = "pearson") # -0.1428571
 # t3
-cor(goFit[goFit$site == "Lewisetta",]$order_lew, goFit[goFit$site == "Lewisetta",]$ordt3, method = "pearson") # 0.07647191
-cor(goFit[goFit$site == "York River",]$order_yrk, goFit[goFit$site == "York River",]$ordt3, method = "pearson") # -0.8179178
+cor(goFitLEA[goFitLEA$site == "Lewisetta",]$order_lew, goFitLEA[goFitLEA$site == "Lewisetta",]$ordt3, method = "pearson") # 0.07647191
+cor(goFitLEA[goFitLEA$site == "York River",]$order_yrk, goFitLEA[goFitLEA$site == "York River",]$ordt3, method = "pearson") # -0.8179178
 
 # put this all into a df with method/time point/fitness metric/site/corr
 
@@ -140,49 +147,112 @@ Plot these data sets against each other
 
 ```{r}
 # plot lea vs mort at each site/time point
-gofit_lew_plot <- ggplot(data = goFit[goFit$site == "Lewisetta",]) +
-  geom_point(data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t1, y = offset_lew, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t1, y = offset_lew), col = "cornflowerblue", se = F) +
-  geom_point(data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t2, y = offset_lew, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t2, y = offset_lew), col = "slateblue", se = F) +
-  geom_point(data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t3, y = offset_lew, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t3, y = offset_lew), col = "purple4", se = F) +
+goFitLEA_lew_plot <- ggplot(data = goFitLEA[goFitLEA$site == "Lewisetta",]) +
+  geom_point(data = goFitLEA[goFitLEA$site == "Lewisetta",], aes(x = mean_t1, y = offset_lew, col = "Fall'23")) +
+  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$site == "Lewisetta",], aes(x = mean_t1, y = offset_lew), col = "cornflowerblue", se = F) +
+  geom_point(data = goFitLEA[goFitLEA$site == "Lewisetta",], aes(x = mean_t2, y = offset_lew, col = "Spring'24")) +
+  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$site == "Lewisetta",], aes(x = mean_t2, y = offset_lew), col = "slateblue", se = F) +
+  geom_point(data = goFitLEA[goFitLEA$site == "Lewisetta",], aes(x = mean_t3, y = offset_lew, col = "Fall'24")) +
+  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$site == "Lewisetta",], aes(x = mean_t3, y = offset_lew), col = "purple4", se = F) +
   labs(title = "Predicted GO (LEA) vs Mortality at Lewisetta", x = "Survival", y = "LEA Offset") +
   scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24"), values = c("Fall'23"="cornflowerblue","Spring'24"="slateblue","Fall'24"="purple4"))+
   theme_classic()
-gofit_lew_plot
+goFitLEA_lew_plot
 ggsave("results/lea_lew_compare.png")
 
-gofit_yrk_plot <- ggplot(data = goFit[goFit$site == "York River",]) +
-  geom_point(data = goFit[goFit$site == "York River",], aes(x = mean_t1, y = offset_yrk, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = goFit[goFit$site == "York River",], aes(x = mean_t1, y = offset_yrk), col = "cornflowerblue", se = F) +
-  geom_point(data = goFit[goFit$site == "York River",], aes(x = mean_t2, y = offset_yrk, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = goFit[goFit$site == "York River",], aes(x = mean_t2, y = offset_yrk), col = "slateblue", se = F) +
-  geom_point(data = goFit[goFit$site == "York River",], aes(x = mean_t3, y = offset_yrk, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = goFit[goFit$site == "York River",], aes(x = mean_t3, y = offset_yrk), col = "purple4", se = F) +
+goFitLEA_yrk_plot <- ggplot(data = goFitLEA[goFitLEA$site == "York River",]) +
+  geom_point(data = goFitLEA[goFitLEA$site == "York River",], aes(x = mean_t1, y = offset_yrk, col = "Fall'23")) +
+  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$site == "York River",], aes(x = mean_t1, y = offset_yrk), col = "cornflowerblue", se = F) +
+  geom_point(data = goFitLEA[goFitLEA$site == "York River",], aes(x = mean_t2, y = offset_yrk, col = "Spring'24")) +
+  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$site == "York River",], aes(x = mean_t2, y = offset_yrk), col = "slateblue", se = F) +
+  geom_point(data = goFitLEA[goFitLEA$site == "York River",], aes(x = mean_t3, y = offset_yrk, col = "Fall'24")) +
+  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$site == "York River",], aes(x = mean_t3, y = offset_yrk), col = "purple4", se = F) +
   labs(title = "Predicted GO (LEA) vs Mortality at York River", x = "Survival", y = "LEA Offset") +
   scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24"), values = c("Fall'23"="cornflowerblue","Spring'24"="slateblue","Fall'24"="purple4"))+
   theme_classic()
-gofit_yrk_plot
+goFitLEA_yrk_plot
 ggsave("results/lea_york_compare.png")
 
 # plot go lea vs mort at both sites just final time point
-gofit_plotT3 <- ggplot(data = goFit) +
-  geom_point(data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t3, y = offset_lew, col = "Lewisetta")) +
-  geom_smooth(method = "lm", data = goFit[goFit$site == "Lewisetta",], aes(x = mean_t3, y = offset_lew), col = "mediumspringgreen", se = F) +
-  geom_point(data = goFit[goFit$site == "York River",], aes(x = mean_t3, y = offset_lew, col = "York River")) +
-  geom_smooth(method = "lm", data = goFit[goFit$site == "York River",], aes(x = mean_t3, y = offset_lew), col = "dodgerblue", se = F) +
+goFitLEA_plotT3 <- ggplot(data = goFitLEA) +
+  geom_point(data = goFitLEA[goFitLEA$site == "Lewisetta",], aes(x = mean_t3, y = offset_lew, col = "Lewisetta")) +
+  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$site == "Lewisetta",], aes(x = mean_t3, y = offset_lew), col = "mediumspringgreen", se = F) +
+  geom_point(data = goFitLEA[goFitLEA$site == "York River",], aes(x = mean_t3, y = offset_lew, col = "York River")) +
+  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$site == "York River",], aes(x = mean_t3, y = offset_lew), col = "dodgerblue", se = F) +
   labs(title = "Predicted GO (LEA) vs Mortality at Final Time Point", x = "Survival", y = "LEA Offset") +
   scale_colour_manual(name = "Experimental Site", breaks = c("Lewisetta", "York River"), values = c("Lewisetta"="mediumspringgreen","York River"="dodgerblue"))+
   theme_classic()
-gofit_plotT3
+goFitLEA_plotT3
 ```
+
+
+### GF Offset
+
+```{r}
+# correlations between go/lew mort at each time point
+cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t1) # -0.08865028
+cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t2) # 0.1247669
+cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t3) # 0.08480605
+cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t4) # 0.06622808
+
+# correlations between go/yrk mort at each time point
+cor(goFitGF[goFitGF$bag_site == "YorkRiver",]$offset_af_yrk, goFitGF[goFitGF$bag_site == "YorkRiver",]$mean_t1) # 0.3556833
+cor(goFitGF[goFitGF$bag_site == "YorkRiver",]$offset_af_yrk, goFitGF[goFitGF$bag_site == "YorkRiver",]$mean_t2) # 0.3466489
+cor(goFitGF[goFitGF$bag_site == "YorkRiver",]$offset_af_yrk, goFitGF[goFitGF$bag_site == "YorkRiver",]$mean_t3) # 0.1280315
+cor(goFitGF[goFitGF$bag_site == "YorkRiver",]$offset_af_yrk, goFitGF[goFitGF$bag_site == "YorkRiver",]$mean_t4) # 0.1363403
+
+# really bad correlations, may need to double check offset calculations
+# pearson of orders - LEW
+cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$order_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t1) # -0.2063336
+cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$order_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t2) # -0.0903556
+cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$order_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t3) # -0.0654962
+cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$order_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t4) # -0.1185905
+# pearson of orders - YRK
+cor(goFitGF[goFitGF$bag_site == "YorkRiver",]$order_yrk, goFitGF[goFitGF$bag_site == "YorkRiver",]$mean_t1) # 0.1376695
+cor(goFitGF[goFitGF$bag_site == "YorkRiver",]$order_yrk, goFitGF[goFitGF$bag_site == "YorkRiver",]$mean_t2) # 0.1340658
+cor(goFitGF[goFitGF$bag_site == "YorkRiver",]$order_yrk, goFitGF[goFitGF$bag_site == "YorkRiver",]$mean_t3) # -0.1269526
+cor(goFitGF[goFitGF$bag_site == "YorkRiver",]$order_yrk, goFitGF[goFitGF$bag_site == "YorkRiver",]$mean_t4) # -0.1199833
+```
+
 
 ## Compare Offset Methods
 
-Once I have predictions from different methods, I will look at how offset predictions made by these methods compare to each other and how different their ability is to predict experimental fitness.
+Now that I have predictions from different methods, I will look at how offset predictions made by these methods compare to each other and how different their ability is to predict experimental fitness.
 
-```{r}
+
+### Compare Offsets to Each Other
+
+```{r Offset Compilation}
+# make a df with all of the offsets in them
+offsets_lea_exp <- goFitLEA[,c("pop", "bag_site","offset_lew", "offset_yrk", "order_lew", "order_yrk")]
+colnames(offsets_lea_exp) <- c("pop", "bag_site","lea_offset_lew", "lea_offset_yrk", "lea_order_lew", "lea_order_yrk")
+offsets_gf_exp <- goFitGF[,c("pop", "bag_site","offset_af_lew", "offset_af_yrk", "order_lew", "order_yrk")]
+colnames(offsets_gf_exp) <- c("pop", "bag_site","gf_offset_af_lew", "gf_offset_af_yrk", "gf_order_lew", "gf_order_yrk")
+offsets_all <- merge(offsets_lea_exp, offsets_gf_exp, by = c("pop", "bag_site"))
+```
+
+
+```{r Offset Comparison}
+# corr gf/lea
+cor(offsets_all[offsets_all$bag_site == "Lewisetta",]$lea_offset_lew,  offsets_all[offsets_all$bag_site == "Lewisetta",]$gf_offset_af_lew) # 0.8234259
+cor(offsets_all[offsets_all$bag_site == "YorkRiver",]$lea_offset_yrk,  offsets_all[offsets_all$bag_site == "YorkRiver",]$gf_offset_af_yrk) # 0.836363
+
+ggplot(data = offsets_all) + 
+  geom_point(data = offsets_all[offsets_all$bag_site == "Lewisetta",], aes(x = lea_offset_lew, y = gf_offset_af_lew, fill = pop), pch = 21, size = 3) +
+  geom_smooth(method = "lm", data = offsets_all[offsets_all$bag_site == "Lewisetta",], aes(x = lea_offset_lew, y = gf_offset_af_lew), col = "black") +
+  labs(title = "LEA vs GF Offsets Lewisetta", x = "LEA Offset", y = "GF Offset", fill = "Broodstock Group") +
+  theme_classic()
+
+ggplot(data = offsets_all) + 
+  geom_point(data = offsets_all[offsets_all$bag_site == "YorkRiver",], aes(x = lea_offset_yrk, y = gf_offset_af_yrk, fill = pop), pch = 21, size = 3) +
+  geom_smooth(method = "lm", data = offsets_all[offsets_all$bag_site == "YorkRiver",], aes(x = lea_offset_yrk, y = gf_offset_af_yrk), col = "black") +
+  labs(title = "LEA vs GF Offsets York River", x = "LEA Offset", y = "GF Offset", fill = "Broodstock Group") +
+  theme_classic()
+
+# corr gf/rda
+
+
+# corr lea/rda
 
 ```
 

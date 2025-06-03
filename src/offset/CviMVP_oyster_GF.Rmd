@@ -274,5 +274,12 @@ for (i in 1:nb_ind_af){ # calc offset
   df_geno_yrk <- rbind(df_geno_yrk, ec_dist)
 }
 geno_offset_yrk <- cbind(as.data.frame(pops_list), df_geno_yrk) # associate metadata with offset calculation
+
+# merge
+geno_offsets <- merge(geno_offset_lew, geno_offset_yrk, by = c("site_name"))
+offsets_mvp <- merge(af_offsets, geno_offsets, by = c("site_name"))
+
+# write these offsets to results
+write.csv(offsets_mvp, paste0("results/GO_results/offsetsMVP_", Sys.Date(), ".csv"))
 ```
 
