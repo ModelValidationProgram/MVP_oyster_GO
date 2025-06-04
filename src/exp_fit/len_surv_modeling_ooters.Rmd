@@ -201,21 +201,7 @@ I will now use LMMs to look at differences in length by grouping.
 ```{r}
 # analysis of fixed effects
 lengths_mod_narm_nodead$t <- as.factor(lengths_mod_narm_nodead$t)
-modtemp0 <- lm(length ~ pop * bag_site * t, data = lengths_mod_narm_nodead) # outlier 1174
-modtemp <- Anova(lm(length ~ pop * bag_site * t, data = lengths_mod_narm_nodead)) # all significant
-boxplot(residuals(modtemp0) ~ lengths_mod_narm_nodead$bags_label) # looks for random effects
-
-# we have a massive outlier, need to identify this guy
-summary(lengths_mod_narm_nodead) # we have a max len/wid of 400/465, which is definitely wrong
-lengths_mod_narm_nodead[which(lengths_mod_narm_nodead$length == 400),]
-lengths_mod_narm_nodead[which(lengths_mod_narm_nodead$width == 465),]
-
-# i feel confident these are just off by an order of magnitude so i will change them
-lengths_mod_narm_nodead[which(lengths_mod_narm_nodead$length == 400),]$length <- 40.0
-lengths_mod_narm_nodead[which(lengths_mod_narm_nodead$width == 465),]$width <- 46.5
-
-# try again
-modtemp0.1 <- lm(length ~ pop * bag_site * t, data = lengths_mod_narm_nodead) # outlier 1174
+modtemp0.1 <- lm(length ~ pop * bag_site * t, data = lengths_mod_narm_nodead)
 modtemp.1 <- Anova(lm(length ~ pop * bag_site * t, data = lengths_mod_narm_nodead), type = "III") # all significant
 boxplot(residuals(modtemp0.1) ~ lengths_mod_narm_nodead$bags_label) # looks good!
 
@@ -230,10 +216,11 @@ drop1(lmm8) # says to drop the three way interaction - this is Satterthwaite's m
 # for growth, need random effect because multiple different obs per bag - start with growth data with same stuff but no random effects, box plot residuals against bag_id
 
 # one more model on final time point only
-lmm10 <- lmer(length ~ bag_site * pop + (1|bags_label), data = lengths_mod_narm_nodead[lengths_mod_narm_nodead$t == 3,])
+lmm10 <- lmer(length ~ bag_site * pop + (1|bags_label), data = lengths_mod_narm_nodead[lengths_mod_narm_nodead$t == 4,])
 plot(lmm10)
 Anova(lmm10, type = "III") # bag_site, pop, bag_site:pop all significant
 #TukeyHSD(aov(lmm10)) # tukey post hoc - not working, try em-means
+drop1(lmm10)
 
 library(emmeans)
 emmeans_lmm10 <- emmeans(lmm10, ~bag_site * pop) # get estimated marginal means
@@ -246,47 +233,47 @@ test(pairs(emmeans_lmm10, by = "bag_site"), by = NULL, adjust = "mvt")
 test(pairs(emmeans_lmm10, by = "pop"), by = NULL, adjust = "mvt")
 
 # can paste pops with sites to do a traditional Tukey - this is separate from the rest of the modeling
-lengths_final_time <- lengths_mod_narm_nodead[lengths_mod_narm_nodead$t == 3,]
+lengths_final_time <- lengths_mod_narm_nodead[lengths_mod_narm_nodead$t == 4,]
 lengths_final_time$popsite <- paste0(lengths_final_time$pop, "_", lengths_final_time$bag_site)
 
 # rename pops
 lengths_final_time_rename <- lengths_final_time
 lengths_final_time_rename$popsite <- paste0(str_split_fixed(lengths_final_time$pop,"-",2)[,2],"_",lengths_final_time$bag_site)
 
-(aov_len_t3 <- aov(lm(length ~ popsite, data = lengths_final_time_rename)))
-plot(aov_len_t3) # looks good!
-(tukey_len_t3 <- TukeyHSD(aov_len_t3, conf.level = 0.95))
+(aov_len_t4 <- aov(lm(length ~ popsite, data = lengths_final_time_rename)))
+plot(aov_len_t4) # looks good!
+(tukey_len_t4 <- TukeyHSD(aov_len_t4, conf.level = 0.95))
 
 # multcomp letters to get letters
 library(multcompView)
-anova_len_t3 <- (Anova(lm(length ~ popsite, data = lengths_final_time_rename)))
-letters_len_t3 <- multcompLetters4(aov_len_t3, tukey_len_t3)
+anova_len_t4 <- (Anova(lm(length ~ popsite, data = lengths_final_time_rename)))
+letters_len_t4 <- multcompLetters4(aov_len_t4, tukey_len_t4)
 
-letters_len_t3_df <- data.frame(letters = as.data.frame.list(letters_len_t3$popsite)$Letters, popsite = rownames(as.data.frame.list(letters_len_t3$popsite)))
+letters_len_t4_df <- data.frame(letters = as.data.frame.list(letters_len_t4$popsite)$Letters, popsite = rownames(as.data.frame.list(letters_len_t4$popsite)))
 
-lengths_final_time_rename_mg <- merge(lengths_final_time_rename, letters_len_t3_df, by = "popsite")
+lengths_final_time_rename_mg <- merge(lengths_final_time_rename, letters_len_t4_df, by = "popsite")
 (lengths_final_time_rename_mg)
 
 # need sd for letters
-summary_len_t3 <- lengths_final_time_rename_mg %>%
+summary_len_t4 <- lengths_final_time_rename_mg %>%
   summarise(mean_len = mean(length), sd = sd(length)) %>%
   arrange()
 
 # save all this 
-sink("results/length_model_results_03282025.txt")
+sink(paste0("results/exp_results/length_model_results_", Sys.Date(), ".txt"))
 Anova(lmm8, type = "III")
 Anova(lmm10, type = "III")
-anova_len_t3
-letters_len_t3
+anova_len_t4
+letters_len_t4
 sink()
 
 # plot
-len_t3_plot_site <- ggplot(lengths_final_time_rename_mg, aes(x = pop, y = length, fill = bag_site)) + 
+len_t4_plot_site <- ggplot(lengths_final_time_rename_mg, aes(x = pop, y = length, fill = bag_site)) + 
   geom_boxplot(position=position_dodge(1)) +
   ggtitle("Length at Final Time Point") +
-  geom_text(aes(label = letters, y = 115), vjust = -0.5, position=position_dodge(1)) +
+  geom_text(aes(label = letters, y = 127), vjust = -0.5, position=position_dodge(1)) +
   theme_classic()
-len_t3_plot_site
+len_t4_plot_site
 
 # pop color scheme
 pop_colors <- data.frame(pop = c("W1-TX","W2-LA","W3-FL","S1-LOLA","S2-DEBY","W4-VA","W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"), hex = c("#3e4989","#31688e","#26828e","#440154","#482878","#1f9e89","#35b779","#6ece58","#fde725","#b5de2b"), order = 1:10)
@@ -294,15 +281,15 @@ pop_colors <- data.frame(pop = c("W1-TX","W2-LA","W3-FL","S1-LOLA","S2-DEBY","W4
 len_final_time_plotting <- merge(lengths_final_time_rename_mg, pop_colors, by = "pop")
 
 # plot by pop
-len_t3_plot_pop <- ggplot(len_final_time_plotting, aes(x = bag_site, y = length, fill = fct_reorder(pop, order))) + 
+len_t4_plot_pop <- ggplot(len_final_time_plotting, aes(x = bag_site, y = length, fill = fct_reorder(pop, order))) + 
   geom_boxplot(position=position_dodge(1.0)) +  
   scale_fill_manual(name = "Broodstock Group", label = pop_colors$pop, values = pop_colors$hex)+
-  geom_text(aes(label = letters, y = 115), vjust = -0.5, position=position_dodge(1)) +
+  geom_text(aes(label = letters, y = 127), vjust = -0.5, position=position_dodge(1)) +
   labs(title = "Length at Final Time Point", x = "Experimental Site", y = "Survival") +
   theme_classic()
-len_t3_plot_pop
+len_t4_plot_pop
 
-ggsave("results/figures/length_t3_h2f.pdf", plot = len_t3_plot_pop, width = 10, height = 6, dpi = 300)
+ggsave("results/figures/length_t4.pdf", plot = len_t4_plot_pop, width = 10, height = 6, dpi = 300)
 ```
 
 
