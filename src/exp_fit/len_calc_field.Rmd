@@ -213,8 +213,7 @@ popsdf <- data.frame(pop = c("TX","LA","FL","JR","DEBY","LOLA","NH","ME","LARMIX
                      order = 1:10, 
 #                     cols = c("#6f1926","#de324c","#f4895f","#f8e16f","#95cf92","#369acc",
 #                              "#9656a2","#cbabd1","black","gray"),
-                     cols = c("#332288","#117733","#44AA99","#88CCEE","#DDCC77","#CC6677",
-                              "#AA4499","#882255","black","gray"),
+                     cols = c("#440154FF", "#482878FF", "#3E4A89FF", "#31688EFF", "#26828EFF", "#1F9E89FF", "#35B779FF", "#6DCD59FF", "#B4DE2CFF", "#FDE725FF"),
                      shape = c(21,21,21,21,23,23,21,21,24,24),
                      label = c("W1-TX","W2-LA","W3-FL","W4-VA","S1-LOLA","S2-DEBY",
                                "W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"))
@@ -238,7 +237,7 @@ lew_len <- ggplot(data = lengths_mg[lengths_mg$site == "Lewisetta",]) +
   theme_classic() + 
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
-        legend.justification = "top") +
+        legend.justification = "top")
 
 york_len <- ggplot(data = lengths_mg[lengths_mg$site == "York",]) + 
   geom_line(aes(x = monitoring_event, y = length, color = fct_reorder(pop,order))) + 
@@ -255,7 +254,7 @@ york_len <- ggplot(data = lengths_mg[lengths_mg$site == "York",]) +
   theme_classic() + 
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
-        legend.justification = "top") +
+        legend.justification = "top")
 
 all_len <- ggplot(data = lengths_mg[lengths_mg$site == "Overall",]) + 
   geom_line(aes(x = monitoring_event, y = length, color = fct_reorder(pop,order))) + 
@@ -271,8 +270,35 @@ all_len <- ggplot(data = lengths_mg[lengths_mg$site == "Overall",]) +
                      labels = c("Fall '23", "Spring '24", "Fall '24", "Spring '25")) +
   theme_classic()
 
-
 all_len
 lew_len
 york_len
+```
+
+
+Now we'll look more in depth at length at just the final time point. 
+
+```{r}
+lengths_bags_df$pop <- str_split_fixed(lengths_bags_df$bag, "-", 3)[,2]
+lengths_t4 <- merge(lengths_bags_df[lengths_bags_df$monitoring_event == 4,], popsdf, by = c("pop"))
+lengths_t4$bagnum <- str_split_fixed(lengths_t4$bag, "-", 3)[,3]
+lengths_t4$site <- ifelse(lengths_t4$bagnum < 4, "Lewisetta", "York")
+
+# plot by pop
+len_t4_plot_pop <- ggplot(data = lengths_t4, aes(x = site, y = length, fill = fct_reorder(pop, order))) + 
+  geom_boxplot(position=position_dodge(0.9)) +
+    scale_fill_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
+#  geom_text(aes(label = letters, y = 1), vjust = -0.5, position=position_dodge(1)) +
+  labs(title = "Length at Final Time Point", x = "Experimental Site", y = "Length (mm)") +
+  theme_classic()
+len_t4_plot_pop
+
+# plot by site
+len_t4_plot_site <- ggplot(data = lengths_t4, aes(x = site, y = length, fill = site)) + 
+  geom_boxplot(position=position_dodge(0.9)) +
+  scale_fill_manual(name = "Site", label = c("Lewisetta", "York"), values = c("mediumspringgreen", "dodgerblue")) +
+#  geom_text(aes(label = letters, y = 1), vjust = -0.5, position=position_dodge(1)) +
+  labs(title = "Length at Final Time Point", x = "Experimental Site", y = "Length (mm)") +
+  theme_classic()
+len_t4_plot_site
 ```
