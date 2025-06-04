@@ -1,0 +1,85 @@
+Analysis of Deviance Table (Type III Wald chisquare tests)
+
+Response: length
+               Chisq Df Pr(>Chisq)    
+(Intercept) 118.1296  1  < 2.2e-16 ***
+max_temp      8.5242  1   0.003505 ** 
+min_temp     83.6804  1  < 2.2e-16 ***
+max_sal      82.7071  1  < 2.2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Analysis of Deviance Table (Type III Wald chisquare tests)
+
+Response: length
+              Chisq Df Pr(>Chisq)    
+(Intercept) 103.752  1  < 2.2e-16 ***
+max_temp     20.772  1  5.173e-06 ***
+min_temp     30.002  1  4.316e-08 ***
+max_sal      12.484  1  0.0004104 ***
+min_sal      32.246  1  1.358e-08 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Analysis of Deviance Table (Type III Wald chisquare tests)
+
+Response: length
+             Chisq Df Pr(>Chisq)    
+(Intercept) 16.993  1  3.752e-05 ***
+ho          42.427  1  7.338e-11 ***
+min_sal     18.513  1  1.687e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Analysis of Deviance Table (Type III Wald chisquare tests)
+
+Response: length
+               Chisq Df Pr(>Chisq)    
+(Intercept)   0.1533  1     0.6954    
+ho           16.2028  1  5.691e-05 ***
+max_temp     16.2232  1  5.630e-05 ***
+min_temp     21.1213  1  4.311e-06 ***
+min_sal     111.6127  1  < 2.2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Analysis of Deviance Table (Type III Wald chisquare tests)
+
+Response: length
+              Chisq Df Pr(>Chisq)    
+(Intercept) 454.455  1  < 2.2e-16 ***
+min_temp     79.445  1  < 2.2e-16 ***
+max_sal     115.127  1  < 2.2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Analysis of Deviance Table (Type III Wald chisquare tests)
+
+Response: length
+              Chisq Df Pr(>Chisq)    
+(Intercept)  7.1922  1   0.007322 ** 
+ar           2.7858  1   0.095105 .  
+max_temp     9.5090  1   0.002045 ** 
+min_sal     75.8909  1  < 2.2e-16 ***
+max_sal     38.5180  1  5.425e-10 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Analysis of Deviance Table (Type III Wald chisquare tests)
+
+Response: length
+              Chisq Df Pr(>Chisq)    
+(Intercept)  6.3886  1   0.011486 *  
+ho           0.5680  1   0.451053    
+ar           2.7383  1   0.097971 .  
+max_temp     2.6536  1   0.103317    
+min_temp    10.1476  1   0.001445 ** 
+max_sal     17.4181  1      3e-05 ***
+min_sal      3.2840  1   0.069960 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Analysis of Deviance Table (Type III Wald chisquare tests)
+
+Response: length
+              Chisq Df Pr(>Chisq)    
+(Intercept) 28.1262  1  1.137e-07 ***
+ar          21.3336  1  3.859e-06 ***
+max_temp     8.8763  1   0.002889 ** 
+min_sal     81.3275  1  < 2.2e-16 ***
+max_sal     29.3957  1  5.901e-08 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
