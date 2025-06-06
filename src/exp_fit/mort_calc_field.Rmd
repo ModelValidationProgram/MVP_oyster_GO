@@ -97,17 +97,18 @@ merge4_narm[which(merge4_narm[merge4_narm$event == 4,]$alive_count > merge4_narm
 ## DEBY-2, 27 more
 merge4_narm[merge4_narm$event == 4 & merge4_narm$bags_label == "MVP-DEBY-2",]$alive_count - merge4_narm[merge4_narm$event == 3 & merge4_narm$bags_label == "MVP-DEBY-2",]$alive_returned
 
-# remove the funky bags from analysis, will need to calculate these mortalities separately due to dimension issues
+# remove the funky bags from analysis
+# keep for now
 #merge4_rm <- merge4_narm[!(merge4_narm$bags_label == "MVP-DEBY-3" & merge4_narm$event == 2),]
 #merge4_rm1 <- merge4_rm[!(merge4_rm$bags_label == "MVP-LA-3" & merge4_rm$event == 2),]
 #merge4_rm2 <- merge4_rm1[!(merge4_rm1$bags_label == "MVP-DEBY-2" & merge4_rm1$event == 4),]
-merge4_rm <- merge4_narm[!merge4_narm$bags_label == "MVP-DEBY-3",]
-merge4_rm1 <- merge4_rm[!merge4_rm$bags_label == "MVP-LA-3",]
-merge4_rm2 <- merge4_rm1[!merge4_rm1$bags_label == "MVP-DEBY-2",]
-
+#merge4_rm <- merge4_narm[!merge4_narm$bags_label == "MVP-DEBY-3",]
+#merge4_rm1 <- merge4_rm[!merge4_rm$bags_label == "MVP-LA-3",]
+#merge4_rm2 <- merge4_rm1[!merge4_rm1$bags_label == "MVP-DEBY-2",]
 
 # add pop to df
-merge4_rm2$pop <- str_split_fixed(merge4_rm2$bags_label, "-", 3)[,2]
+merge4_narm$pop <- str_split_fixed(merge4_narm$bags_label, "-", 3)[,2]
+#merge4_rm$pop <- str_split_fixed(merge4_rm2$bags_label, "-", 3)[,2]
 ```
 
 
@@ -132,10 +133,10 @@ surv_calc_bag <- function(dat, e) {
 }
 
 # calc survival
-e1_surv <- surv_calc_bag(merge4_rm2, 1)
-e2_surv <- surv_calc_bag(merge4_rm2, 2)
-e3_surv <- surv_calc_bag(merge4_rm2, 3)
-e4_surv <- surv_calc_bag(merge4_rm2, 4)
+e1_surv <- surv_calc_bag(merge4_narm, 1)
+e2_surv <- surv_calc_bag(merge4_narm, 2)
+e3_surv <- surv_calc_bag(merge4_narm, 3)
+e4_surv <- surv_calc_bag(merge4_narm, 4)
 
 # long format df
 surv_long <- rbind(e1_surv,e2_surv,e3_surv,e4_surv)
@@ -241,9 +242,9 @@ colnames(e0) <- colnames(e1) <- colnames(e2) <- colnames(e3) <- colnames(e4) <- 
 mort_df <- rbind(e0, e1, e2, e3, e4)
 
 # save all these dataframes
-write.csv(mort_df, "results/mortality_long_popsite_052925.csv")
-write.csv(surv_long_narm, "results/mortality_long_bags_052925.csv")
-write.csv(surv_df_ord, "results/mortality_bags_052925.csv")
+write.csv(mort_df, paste0("results/exp_results/mortality_long_popsite_",Sys.Date(),".csv"))
+write.csv(surv_long_narm, paste0("results/exp_results/mortality_long_bags_",Sys.Date(),".csv"))
+write.csv(surv_df_ord, paste0("results/exp_results/mortality_bags_", Sys.Date(), ".csv"))
 ```
 
 
@@ -251,15 +252,12 @@ All of my survival data is calculated, now I want to visualize trends in surviva
 
 ```{r}
 # pops df for plotting
-popsdf <- data.frame(pop = c("TX","LA","FL","JR","DEBY","LOLA","NH","ME","LARMIX","SEEDMIX"), 
+popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "DEBY", "LOLA", "NH", "ME", "LARMIX", "SEEDMIX"), 
                      order = 1:10, 
-#                     cols = c("#6f1926","#de324c","#f4895f","#f8e16f","#95cf92","#369acc",
-#                              "#9656a2","#cbabd1","black","gray"),
-                     cols = c("#332288","#117733","#44AA99","#88CCEE","#DDCC77","#CC6677",
-                              "#AA4499","#882255","black","gray"),
+                     cols = c("#3e4989" ,"#31688e", "#26828e", "#440154", "#482878", "#1f9e89", "#35b779", "#6ece58", "#fde725", "#b5de2b"),
                      shape = c(21,21,21,21,23,23,21,21,24,24),
-                     label = c("W1-TX","W2-LA","W3-FL","W4-VA","S1-LOLA","S2-DEBY",
-                               "W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"))
+                     label = c("W1-TX", "W2-LA", "W3-FL", "W4-VA", "S1-LOLA", "S2-DEBY", "W5-NH", "W6-ME", "H1-LARMIX", "H2-SEEDMIX"))
+mort_df[mort_df$pop == "JR",]$pop <- "VA"
 mort_df_full <- merge(mort_df, popsdf, by = c("pop"))
 
 # york river
@@ -275,14 +273,15 @@ york_surv <- ggplot(data = mort_df_full[mort_df_full$bag_site == "YorkRiver",]) 
   ylim(0,1) + 
   labs(color = "Population") +
   ylab("Survival") +
-  scale_x_continuous("Monitoring Event", breaks = c(0,1,2,3),
-                     labels = c("Spring '23", "Fall '23", "Spring '24", "Fall '24")) +
+  scale_x_continuous("Monitoring Event", breaks = c(0,1,2,3,4),
+                     labels = c("Spring '23", "Fall '23", "Spring '24", "Fall '24","Spring'25")) +
   theme_classic() + 
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
         legend.justification = "top") +
   ggtitle("York River: Oyster Survival thru Time")
 york_surv
+ggsave(paste0("results/figures/oyster_surv_all_yrk_",Sys.Date(),".png"))
 
 # lewisetta
 lew_surv <- ggplot(data = mort_df_full[mort_df_full$bag_site == "Lewisetta",]) + 
@@ -297,12 +296,13 @@ lew_surv <- ggplot(data = mort_df_full[mort_df_full$bag_site == "Lewisetta",]) +
   ylim(0,1) + 
   labs(color = "Population") +
   ylab("Survival") +
-  scale_x_continuous("Monitoring Event", breaks = c(0,1,2,3),
-                     labels = c("Spring '23", "Fall '23", "Spring '24", "Fall '24")) +
+  scale_x_continuous("Monitoring Event", breaks = c(0,1,2,3,4),
+                     labels = c("Spring '23", "Fall '23", "Spring '24", "Fall '24","Spring'25")) +
   theme_classic() + 
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
         legend.justification = "top") +
   ggtitle("Lewisetta: Oyster Survival thru Time")
 lew_surv
+ggsave(paste0("results/figures/oyster_surv_all_lew_",Sys.Date(),".png"))
 ```
