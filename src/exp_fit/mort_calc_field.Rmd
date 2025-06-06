@@ -28,7 +28,7 @@ First I need to read in and merge together relevant data. I will then clean this
 bags <- read.csv("data/ExpDat/MVP23-FieldBags - bags.csv")
 mort <- read.csv("data/ExpDat/MVP23-FieldBags - mortality.csv")
 expsites <- read.csv("data/ExpDat/MVP23-FieldBags - sites.csv")
-spawntrt <- read.csv("data/ExpDat/MVP23-FieldBags_spawn_trt2.csv")
+spawntrt <- read.csv("data/ExpDat/MVP23-FieldBags - spawn_trt2.csv")
 
 # merging bags and mortality
 head(bags)
@@ -90,20 +90,24 @@ which(merge4[merge4$event == 3,]$alive_count > merge4[merge4$event == 2,]$alive_
 merge4_narm <- merge4[(!(is.na(merge4$alive_count))),]
 # checks
 which(merge4_narm[merge4_narm$event == 4,]$alive_count > merge4_narm[merge4_narm$event == 3,]$alive_returned)
-event4[which(merge4_narm[merge4_narm$event == 4,]$alive_count > merge4_narm[merge4_narm$event == 3,]$alive_returned),]$bags_label
+merge4_narm[which(merge4_narm[merge4_narm$event == 4,]$alive_count > merge4_narm[merge4_narm$event == 3,]$alive_returned),]$bags_label
 # MVP-DEBY-2 has more
 
 # how much more?
 ## DEBY-2, 27 more
 merge4_narm[merge4_narm$event == 4 & merge4_narm$bags_label == "MVP-DEBY-2",]$alive_count - merge4_narm[merge4_narm$event == 3 & merge4_narm$bags_label == "MVP-DEBY-2",]$alive_returned
 
-# remove the funky bags from analysis
+# remove the funky bags from analysis, will need to calculate these mortalities separately due to dimension issues
+#merge4_rm <- merge4_narm[!(merge4_narm$bags_label == "MVP-DEBY-3" & merge4_narm$event == 2),]
+#merge4_rm1 <- merge4_rm[!(merge4_rm$bags_label == "MVP-LA-3" & merge4_rm$event == 2),]
+#merge4_rm2 <- merge4_rm1[!(merge4_rm1$bags_label == "MVP-DEBY-2" & merge4_rm1$event == 4),]
 merge4_rm <- merge4_narm[!merge4_narm$bags_label == "MVP-DEBY-3",]
-merge4_rm <- merge4_rm[!merge4_narm$bags_label == "MVP-LA-3",]
-merge4_rm <- merge4_rm[!merge4_narm$bags_label == "MVP-DEBY-2",]
+merge4_rm1 <- merge4_rm[!merge4_rm$bags_label == "MVP-LA-3",]
+merge4_rm2 <- merge4_rm1[!merge4_rm1$bags_label == "MVP-DEBY-2",]
+
 
 # add pop to df
-merge4_rm$pop <- str_split_fixed(merge4_rm$bags_label, "-", 3)[,2]
+merge4_rm2$pop <- str_split_fixed(merge4_rm2$bags_label, "-", 3)[,2]
 ```
 
 
@@ -111,7 +115,7 @@ Data is now ready for analysis. I will calculate survival as a proportion of tho
 
 
 ```{r}
-# function for survival calculation
+# function for survival calculation - this works across rows, it's naive to population/bag id
 surv_calc_bag <- function(dat, e) {
   dat_ord = dat[order(dat$order),]
   O = dat_ord[dat_ord$event == e,]$alive_count
@@ -128,10 +132,10 @@ surv_calc_bag <- function(dat, e) {
 }
 
 # calc survival
-e1_surv <- surv_calc_bag(merge4_rm, 1)
-e2_surv <- surv_calc_bag(merge4_rm, 2)
-e3_surv <- surv_calc_bag(merge4_rm, 3)
-e4_surv <- surv_calc_bag(merge4_rm, 4)
+e1_surv <- surv_calc_bag(merge4_rm2, 1)
+e2_surv <- surv_calc_bag(merge4_rm2, 2)
+e3_surv <- surv_calc_bag(merge4_rm2, 3)
+e4_surv <- surv_calc_bag(merge4_rm2, 4)
 
 # long format df
 surv_long <- rbind(e1_surv,e2_surv,e3_surv,e4_surv)
