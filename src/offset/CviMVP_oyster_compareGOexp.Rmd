@@ -117,7 +117,7 @@ Start with the bag level mortality data.
 ```{r}
 # correlations between go/lew mort at each time point
 # lea
-(cor_lea1_lew <- cor(goFitLEA[goFitLEA$bag_site == "Lewisetta",]$offset_lew, goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$t1)) # -0.04646617
+(cor_lea1_lew <- cor(goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$offset_lew, goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$t1)) # -0.04646617
 (cor_lea2_lew <- cor(goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$offset_lew, goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$t2)) # 0.01330168
 (cor_lea3_lew <- cor(goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$offset_lew, goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$t3)) # -0.08660892
 (cor_lea4_lew <- cor(goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$offset_lew, goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$t4)) # -0.1313757
@@ -188,17 +188,29 @@ Start with the population level mortality data.
 ```{r}
 # correlations between go/lew mort at each time point
 # lea
-(cor_lea1_lew_pop <- cor(goFitLEA[goFitLEA$bag_site == "Lewisetta",]$offset_lew, goFitLEA[goFitLEA$bag_site == "Lewisetta",]$mean_t1)) # -0.05736393
-(cor_lea2_lew_pop <- cor(goFitLEA[goFitLEA$bag_site == "Lewisetta",]$offset_lew, goFitLEA[goFitLEA$bag_site == "Lewisetta",]$mean_t2)) # 0.01456035
-(cor_lea3_lew_pop <- cor(goFitLEA[goFitLEA$bag_site == "Lewisetta",]$offset_lew, goFitLEA[goFitLEA$bag_site == "Lewisetta",]$mean_t3)) # -0.08913129
-(cor_lea4_lew_pop <- cor(goFitLEA[goFitLEA$bag_site == "Lewisetta",]$offset_lew, goFitLEA[goFitLEA$bag_site == "Lewisetta",]$mean_t4)) # -0.135897
+(cor_lea1_lew_pop <- cor.test(goFitLEA[goFitLEA$bag_site == "Lewisetta",]$offset_lew, goFitLEA[goFitLEA$bag_site == "Lewisetta",]$mean_t1, method = "pearson")) # -0.05736393, r2 0.00329062
+(cor_lea2_lew_pop <- cor.test(goFitLEA[goFitLEA$bag_site == "Lewisetta",]$offset_lew, goFitLEA[goFitLEA$bag_site == "Lewisetta",]$mean_t2, method = "pearson")) # 0.01456035, r2 0.0002120037
+(cor_lea3_lew_pop <- cor.test(goFitLEA[goFitLEA$bag_site == "Lewisetta",]$offset_lew, goFitLEA[goFitLEA$bag_site == "Lewisetta",]$mean_t3, method = "pearson")) # -0.08913129, r2 0.007944386
+(cor_lea4_lew_pop <- cor.test(goFitLEA[goFitLEA$bag_site == "Lewisetta",]$offset_lew, goFitLEA[goFitLEA$bag_site == "Lewisetta",]$mean_t4, method = "pearson")) # -0.135897, r2 0.01846799
+
+(Kcor_lea1_lew_pop <- cor.test(goFitLEA[goFitLEA$bag_site == "Lewisetta",]$offset_lew, goFitLEA[goFitLEA$bag_site == "Lewisetta",]$mean_t1, method = "kendall")) # -0.05736393
+(Kcor_lea2_lew_pop <- cor.test(goFitLEA[goFitLEA$bag_site == "Lewisetta",]$offset_lew, goFitLEA[goFitLEA$bag_site == "Lewisetta",]$mean_t2, method = "kendall")) # 0.01456035
+(Kcor_lea3_lew_pop <- cor.test(goFitLEA[goFitLEA$bag_site == "Lewisetta",]$offset_lew, goFitLEA[goFitLEA$bag_site == "Lewisetta",]$mean_t3, method = "kendal")) # -0.08913129
+(Kcor_lea4_lew_pop <- cor.test(goFitLEA[goFitLEA$bag_site == "Lewisetta",]$offset_lew, goFitLEA[goFitLEA$bag_site == "Lewisetta",]$mean_t4, method = "kendall")) # -0.135897
 
 # correlations between go/york mort at each time point
 # lea
-(cor_lea1_yrk_pop <- cor(goFitLEA[goFitLEA$bag_site == "YorkRiver",]$offset_yrk, goFitLEA[goFitLEA$bag_site == "YorkRiver",]$mean_t1)) # 0.0400319
-(cor_lea2_yrk_pop <- cor(goFitLEA[goFitLEA$bag_site == "YorkRiver",]$offset_yrk, goFitLEA[goFitLEA$bag_site == "YorkRiver",]$mean_t2)) # -0.01014261
-(cor_lea3_yrk_pop <- cor(goFitLEA[goFitLEA$bag_site == "YorkRiver",]$offset_yrk, goFitLEA[goFitLEA$bag_site == "YorkRiver",]$mean_t3)) # -0.2889805
-(cor_lea4_yrk_pop <- cor(goFitLEA[goFitLEA$bag_site == "YorkRiver",]$offset_yrk, goFitLEA[goFitLEA$bag_site == "YorkRiver",]$mean_t4)) # -0.3244636
+(cor_lea1_yrk_pop <- cor.test(goFitLEA[goFitLEA$bag_site == "YorkRiver",]$offset_yrk, goFitLEA[goFitLEA$bag_site == "YorkRiver",]$mean_t1, method = "pearson")) # 0.0400319, r2 0.001602553
+(cor_lea2_yrk_pop <- cor.test(goFitLEA[goFitLEA$bag_site == "YorkRiver",]$offset_yrk, goFitLEA[goFitLEA$bag_site == "YorkRiver",]$mean_t2, method = "pearson")) # -0.01014261, r2 0.0001028726
+(cor_lea3_yrk_pop <- cor.test(goFitLEA[goFitLEA$bag_site == "YorkRiver",]$offset_yrk, goFitLEA[goFitLEA$bag_site == "YorkRiver",]$mean_t3, method = "pearson")) # -0.2889805, r2 0.0835097
+(cor_lea4_yrk_pop <- cor.test(goFitLEA[goFitLEA$bag_site == "YorkRiver",]$offset_yrk, goFitLEA[goFitLEA$bag_site == "YorkRiver",]$mean_t4, method = "pearson")) # -0.3244636, r2 0.1052767
+
+summary(lm(goFitLEA[goFitLEA$bag_site == "YorkRiver",]$offset_yrk ~ goFitLEA[goFitLEA$bag_site == "YorkRiver",]$mean_t4))$r.squared
+
+(KenCor_lea1_yrk_pop <- cor.test(goFitLEA[goFitLEA$bag_site == "YorkRiver",]$offset_yrk, goFitLEA[goFitLEA$bag_site == "YorkRiver",]$mean_t1, method = "kendall")) # 0.07142857
+(KenCor_lea2_yrk_pop <- cor.test(goFitLEA[goFitLEA$bag_site == "YorkRiver",]$offset_yrk, goFitLEA[goFitLEA$bag_site == "YorkRiver",]$mean_t2, method = "kendall")) # 0.07142857
+(KenCor_lea3_yrk_pop <- cor.test(goFitLEA[goFitLEA$bag_site == "YorkRiver",]$offset_yrk, goFitLEA[goFitLEA$bag_site == "YorkRiver",]$mean_t3, method = "kendall")) # -0.2142857
+(KenCor_lea4_yrk_pop <- cor.test(goFitLEA[goFitLEA$bag_site == "YorkRiver",]$offset_yrk, goFitLEA[goFitLEA$bag_site == "YorkRiver",]$mean_t4, method = "kendall")) # 0
 
 # put this all into a df with method/time point/fitness metric/site/corr
 lea_corr_df_pop <- data.frame(method = rep("LEA", 8), metric = rep("surv", 8), monitoring_event = rep(c(1:4),2), bag_site = c(rep("Lewisetta",4 ), rep("YorkRiver", 4)), pearson = c(cor_lea1_lew_pop, cor_lea2_lew_pop, cor_lea3_lew_pop, cor_lea4_lew_pop, cor_lea1_yrk_pop, cor_lea2_yrk_pop, cor_lea3_yrk_pop, cor_lea4_yrk_pop))
@@ -256,10 +268,15 @@ goFitLEA_plotT4
 
 ```{r}
 # correlations between go/lew mort at each time point
-(cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t1)) # -0.1931013
-(cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t2)) # -0.006177896
-(cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t3)) # 0.04885283
-(cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t4)) # 0.04589687
+(cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t1)) # -0.1931013, r2 0.003633104
+(cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t2)) # -0.006177896, r2 0.002257078
+(cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t3)) # 0.04885283, r2 0.003688538
+(cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t4)) # 0.04589687, r2 0.002099499
+
+summary(lm(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew ~ goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t1))$r.squared
+summary(lm(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew ~ goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t2))$r.squared
+summary(lm(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew ~ goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t3))$r.squared
+summary(lm(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew ~ goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t4))$r.squared
 
 # correlations between go/yrk mort at each time point
 (cor(goFitGF[goFitGF$bag_site == "YorkRiver",]$offset_af_yrk, goFitGF[goFitGF$bag_site == "YorkRiver",]$mean_t1)) # 0.2852591
@@ -269,15 +286,15 @@ goFitLEA_plotT4
 
 # really bad correlations, may need to double check offset calculations
 # pearson of orders - LEW
-cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$order_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t1) # -0.2063336
-cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$order_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t2) # -0.0903556
-cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$order_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t3) # -0.0654962
-cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$order_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t4) # -0.1185905
+cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$order_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t1) # 0.003129999
+cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$order_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t2) # 0.03004949
+cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$order_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t3) # -0.03736819
+cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$order_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t4) # -0.107596
 # pearson of orders - YRK
-cor(goFitGF[goFitGF$bag_site == "YorkRiver",]$order_yrk, goFitGF[goFitGF$bag_site == "YorkRiver",]$mean_t1) # 0.1376695
-cor(goFitGF[goFitGF$bag_site == "YorkRiver",]$order_yrk, goFitGF[goFitGF$bag_site == "YorkRiver",]$mean_t2) # 0.1340658
-cor(goFitGF[goFitGF$bag_site == "YorkRiver",]$order_yrk, goFitGF[goFitGF$bag_site == "YorkRiver",]$mean_t3) # -0.1269526
-cor(goFitGF[goFitGF$bag_site == "YorkRiver",]$order_yrk, goFitGF[goFitGF$bag_site == "YorkRiver",]$mean_t4) # -0.1199833
+cor(goFitGF[goFitGF$bag_site == "YorkRiver",]$order_yrk, goFitGF[goFitGF$bag_site == "YorkRiver",]$mean_t1) # 0.1687206
+cor(goFitGF[goFitGF$bag_site == "YorkRiver",]$order_yrk, goFitGF[goFitGF$bag_site == "YorkRiver",]$mean_t2) # 0.1059771
+cor(goFitGF[goFitGF$bag_site == "YorkRiver",]$order_yrk, goFitGF[goFitGF$bag_site == "YorkRiver",]$mean_t3) # -0.214745
+cor(goFitGF[goFitGF$bag_site == "YorkRiver",]$order_yrk, goFitGF[goFitGF$bag_site == "YorkRiver",]$mean_t4) # -0.2206604
 ```
 
 Plot these data against each other.
@@ -346,8 +363,8 @@ offsets_all <- merge(offsets_lea_exp, offsets_gf_exp, by = c("pop", "bag_site"))
 
 ```{r Offset Comparison}
 # corr gf/lea
-cor(offsets_all[offsets_all$bag_site == "Lewisetta",]$lea_offset_lew,  offsets_all[offsets_all$bag_site == "Lewisetta",]$gf_offset_af_lew) # 0.8234259
-cor(offsets_all[offsets_all$bag_site == "YorkRiver",]$lea_offset_yrk,  offsets_all[offsets_all$bag_site == "YorkRiver",]$gf_offset_af_yrk) # 0.836363
+cor.test(offsets_all[offsets_all$bag_site == "Lewisetta",]$lea_offset_lew,  offsets_all[offsets_all$bag_site == "Lewisetta",]$gf_offset_af_lew) # 0.8234259, p = 0.02282
+cor.test(offsets_all[offsets_all$bag_site == "YorkRiver",]$lea_offset_yrk,  offsets_all[offsets_all$bag_site == "YorkRiver",]$gf_offset_af_yrk) # 0.836363, p = 0.01901
 
 ggplot(data = offsets_all) + 
   geom_point(data = offsets_all[offsets_all$bag_site == "Lewisetta",], aes(x = lea_offset_lew, y = gf_offset_af_lew, fill = pop), pch = 21, size = 3) +
