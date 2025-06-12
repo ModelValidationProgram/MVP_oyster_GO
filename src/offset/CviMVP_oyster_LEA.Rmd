@@ -178,9 +178,16 @@ gap_yrk <- genetic.gap(input = geno_lfmm_mod,
 
 # THESE PARTS NEED TO BE UPDATED FROM EELGRASS SCRIPT VERSION
 # check how well each genetic gap measure correlates with euclidean environmental distance
-Delta <- seascape_env - exp_env
+Delta <- expEnv_env - lew_env
 dist_env <- sqrt(rowSums(Delta^2))
-plot(dist_env, gap$distance,
+plot(dist_env, gap_lew$distance,
+     main = "Genetic gap vs Environmental Distance", 
+     xlab ="Euclidean distance",  ylab ="sqrt(genetic gap)", 
+     cex = .6, col = "darkslategray4", pch = 19)
+
+Delta <- expEnv_env - york_env
+dist_env <- sqrt(rowSums(Delta^2))
+plot(dist_env, gap_yrk$distance,
      main = "Genetic gap vs Environmental Distance", 
      xlab ="Euclidean distance",  ylab ="sqrt(genetic gap)", 
      cex = .6, col = "darkslategray4", pch = 19)
@@ -197,7 +204,7 @@ summary(offsets_yrk)
 offsets_df <- cbind(expEnv_comp[,c("site_name","Label_ind")], offsets_lew, offsets_yrk)
 
 # output results
-write.csv(offsets_df, "results/GO_results/offsets_LEA_allexpinds_04222025.csv")
+write.csv(offsets_df, paste0("results/GO_results/offsets_LEA_allexpinds_",Sys.Date,".csv", sep = ""))
 ```
 
 
@@ -223,7 +230,102 @@ offset_sites <- merge(ordered_offset_lew, ordered_offset_yrk, by = "site")
 colnames(offset_sites) <- c("site","offset_lew","order_lew","offset_yrk","order_yrk")
 
 # save this and raw offsets as .csv
-write.csv(offset_sites, "results/GO_results/offsets_LEA_expSites_05272025.csv")
+write.csv(offset_sites, paste0("results/GO_results/offsets_LEA_expSites_",Sys.Date(),".csv", sep = ""))
+```
+
+
+## Offset Visualization
+
+```{r}
+# need to add latlongs for each site
+sites_geo <- expEnv_comp[,c("site_name","lat.x","lon.x")]
+colnames(sites_geo) <- c("site","lat","lon")
+offsets_plotting <- merge(sites_geo, offset_sites, by =  c("site"))
+
+# add the color palette
+popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "DEBY", "LOLA", "NH", "ME", "LARMIX", "SEEDMIX"), 
+                     order = 1:10, 
+                     cols = c("#3e4989" ,"#31688e", "#26828e", "#440154", "#482878", "#1f9e89", "#35b779", "#6ece58", "#fde725", "#b5de2b"),
+                     shape = c(21,21,21,21,23,23,21,21,24,24),
+                     site = c("W1-TX", "W2-LA", "W3-FL", "W4-VA", "S1-LOLA", "S2-DEBY", "W5-NH", "W6-ME", "H1-LARMIX", "H2-SEEDMIX"))
+offsets_plotting_full <- merge(offsets_plotting, popsdf, by = c("site"))
+
+# try mapping the offsets
+library(s2) # mapping
+library(rnaturalearth) # mapping
+library(rnaturalearthdata) # mapping
+library(maps) # mapping
+library(ggspatial) # mapping
+
+# map
+sf::sf_use_s2(FALSE) # sf package doesn't work
+
+# set object
+world <- ne_countries(scale = "medium", returnclass = "sf")
+world_crop <- sf::st_crop(world, c(xmin =-102 , xmax = -68, ymin = 24, ymax = 47.049130))
+
+# bottom right: 24.353558, -55.373595
+# top left: 47.049130, -101.983412
+
+# offset to lew
+map_lew <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  geom_point(data = offsets_plotting_full, aes(x=lon, y=lat, 
+                                       fill = offset_lew), 
+             shape = 21, size = 4)+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.07))+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
+        labs(title = "Genomic Offset of Oysters \n to Lewisetta", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
+(map_lew)
+
+world_chesapeake <- sf::st_crop(world, c(xmin =-77.856476 , xmax = -72.762787, ymin = 36.019557, ymax = 39.939163))
+
+# top left: 39.939163, -77.856476
+# bottom right: 36.019557, -72.762787
+
+popout_lew <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
+  geom_point(data = offsets_plotting_full, aes(x=lon, y=lat, 
+                                       fill = offset_lew), 
+             shape = 21, size = 4)+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.07))+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
+        xlim(-77.856476, -72.762787) +
+        ylim(36.019557, 39.939163)
+popout_lew
+
+# offset to york
+map_york <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  geom_point(data = offsets_plotting_full, aes(x=lon, y=lat, 
+                                       fill = offset_yrk), 
+             shape = 21, size = 4)+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.07))+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
+        labs(title = "Genomic Offset of Oysters \n to York River", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
+(map_york)
+
+popout_york <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
+  geom_point(data = offsets_plotting_full, aes(x=lon, y=lat, 
+                                       fill = offset_yrk), 
+             shape = 21, size = 4)+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.07))+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
+        xlim(-77.856476, -72.762787) +
+        ylim(36.019557, 39.939163)
+popout_york
+
+cor(offsets_plotting_full$offset_lew, offsets_plotting_full$offset_yrk)
+plot(x = offsets_plotting_full$offset_lew, y = offsets_plotting_full$offset_yrk)
 ```
 
 
