@@ -121,6 +121,7 @@ expmg_center_env <- attr(std_expmg, "scaled:center")
 write.csv(expmg_scaled, "data/EnvDat/exp/expquants_scaled_04222025.csv")
 ```
 
+
 Finally I want to make sure now that my environmental data will match my genomic data by having one row in my environmental dataset for each individual in my genomic dataset. To do so, I will need to process the individual data and pair this with my environmental data.
 
 ```{r}
@@ -178,6 +179,82 @@ expmg_scaled_expanded_mg2 <- cbind(expmg_scaled_expanded_mg1, yrk_scaled[rep(seq
 # save this output
 write.csv(expmg_scaled_expanded_mg2, "data/EnvDat/exp/expsitesquants_scaled_04222025.csv")
 ```
+
+## Environmental Distance
+
+In addition to processing this environmental data, I want to calculate environmental distance for downstream analyses. I will also visualize this distance.
+
+```{r}
+# data
+expenv_dist_df <- expenv_mg
+
+# change the site_names to match
+expenv_dist_df$site_name <- sub("_","-", expenv_dist_df$site_name)
+
+# reduce variable set
+expenv_dist_red_df <- expenv_dist_df[c("site_name", "lat.x", "lon.x", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90")]
+
+# standardize
+std_expenv <- scale(expenv_dist_red_df[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90")])
+colnames(std_expenv) <- c("std_salinity_quantile_10", "std_salinity_quantile_90", "std_temp_quantile_10", "std_temp_quantile_90")
+expenv_dist_std_df <- cbind(expenv_dist_red_df, std_expenv)
+
+# calculate environmental distance
+library(vegan)
+env_dist <- round(vegdist(expenv_dist_std_df[,c("std_salinity_quantile_10", "std_salinity_quantile_90", "std_temp_quantile_10", "std_temp_quantile_90")], 
+                          method = "euclidian", upper = FALSE, diag = TRUE), 4)
+env_dist_df <- as.data.frame(as.matrix(env_dist))
+colnames(env_dist_df) <- rownames(env_dist_df) <- expenv_dist_std_df$site_name
+env_dist_df
+
+# matrix
+env_dist_mat <- cbind(rownames(env_dist_df),env_dist_df)
+
+# export matrix
+write.csv(env_dist_mat, paste0("data/EnvDat/exp/distance_matrix_",Sys.Date(),".csv"))
+
+# visualize this distance as heatmap
+library(reshape2)
+env_dist_longer <- melt(env_dist_mat)
+head(env_dist_longer)
+colnames(env_dist_longer) <- c("site1","site2","dist")
+
+popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "DEBY", "LOLA", "NH", "ME", "LARMIX", "SEEDMIX"), 
+                     order = 2:11, 
+                     cols = c("#3e4989" ,"#31688e", "#26828e", "#440154", "#482878", "#1f9e89", "#35b779", "#6ece58", "#fde725", "#b5de2b"),
+                     shape = c(21,21,21,21,23,23,21,21,24,24),
+                     site_name = c("W1-TX", "W2-LA", "W3-FL", "W4-VA", "S1-LOLA", "S2-DEBY", "W5-NH", "W6-ME", "H1-LARMIX", "H2-SEEDMIX"))
+popsdf0 <- rbind(data.frame(pop = c("YRK","LEW"), order = 0:1, cols = c("white","black"), shape = c(22,22), site_name = c("YRK","LEW")), popsdf)
+popsdf1 <- popsdf0
+popsdf2 <- popsdf0
+colnames(popsdf1) <- c("pop","order1","cols","shape","site1")
+colnames(popsdf2) <- c("pop","order2","cols","shape","site2")
+env_dist_long_mg <- merge(popsdf1[,c("site1","order1")], env_dist_longer, by = "site1")
+env_dist_long_mg2 <- merge(popsdf2[,c("site2","order2")], env_dist_long_mg, by = "site2")
+
+# keep this too
+write.csv(env_dist_long_mg2, paste0("data/EnvDat/exp/distance_matrix_longer_", Sys.Date(), ".csv"))
+
+# visualize
+library(viridis)
+envdist_plot <- ggplot(env_dist_long_mg2, aes(x = fct_reorder(site1, order1), 
+                              y = fct_reorder(site2, order2), 
+                              fill = value))+
+  theme_classic()+
+  geom_tile(color = "black") +
+#  geom_text(aes(label = distances), color = "white", size = 4)+
+  scale_fill_viridis_c(name = "Euclidean 
+Distance", limits = c(0, 5))+
+  theme(plot.title = element_text(size = 20), 
+        legend.title = element_text(size = 14),
+        legend.position = "right", legend.justification = "top") +
+  labs(title = "Environmental Distance between Sites", x = "", y = "") +
+  theme(plot.title = element_text(size = 18), 
+        legend.title = element_text(size = 14),
+        legend.position = "right", legend.justification = "top")
+envdist_plot
+```
+
 
 ## Formatting for LEA
 
