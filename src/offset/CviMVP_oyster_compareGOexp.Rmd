@@ -170,12 +170,12 @@ ggsave(paste0("results/figures/lea_york_compareBag_",Sys.Date(),".png"))
 
 # plot go lea vs mort at both sites just final time point
 goFitLEA_plotT4bag <- ggplot(data = goFitLEAbag) +
-  geom_point(data = goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",], aes(x = t4, y = offset_lew, col = "Lewisetta")) +
-  geom_smooth(method = "lm", data = goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",], aes(x = t4, y = offset_lew), col = "mediumspringgreen", se = T) +
-  geom_point(data = goFitLEAbag[goFitLEAbag$bag_site == "YorkRiver",], aes(x = t4, y = offset_lew, col = "YorkRiver")) +
-  geom_smooth(method = "lm", data = goFitLEAbag[goFitLEAbag$bag_site == "YorkRiver",], aes(x = t4, y = offset_lew), col = "dodgerblue", se = T) +
-  labs(title = "Predicted GO (LEA) vs Mortality at Final Time Point", x = "Survival", y = "LEA Offset") +
-  scale_colour_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
+  geom_point(data = goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",], aes(x = offset_lew, y = t4, fill = "Lewisetta"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",], aes(x = offset_lew, y = t4), col = "mediumspringgreen", se = T) +
+  geom_point(data = goFitLEAbag[goFitLEAbag$bag_site == "YorkRiver",], aes(x = offset_yrk, y = t4, fill = "YorkRiver"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = goFitLEAbag[goFitLEAbag$bag_site == "YorkRiver",], aes(x = offset_yrk, y = t4), col = "dodgerblue", se = T) +
+  labs(title = "Predicted GO (LEA) vs Mortality at Final Time Point", x = "LEA Offset", y = "Survival") +
+  scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitLEA_plotT4bag
 ggsave(paste0("results/figures/lea_yorklew_compareBag_",Sys.Date(),".png"))
@@ -222,43 +222,44 @@ Plot these data sets against each other
 ```{r}
 # plot lea vs mort at each site/time point
 goFitLEA_lew_plot <- ggplot(data = goFitLEA[goFitLEA$bag_site == "Lewisetta",]) +
-  geom_point(data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = mean_t1, y = offset_lew, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = mean_t1, y = offset_lew), col = "cadetblue3", se = F) +
-  geom_point(data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = mean_t2, y = offset_lew, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = mean_t2, y = offset_lew), col = "cornflowerblue", se = F) +
-  geom_point(data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = mean_t3, y = offset_lew, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = mean_t3, y = offset_lew), col = "slateblue", se = F) +
-  geom_point(data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = mean_t4, y = offset_lew, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = mean_t4, y = offset_lew), col = "purple4", se = F) +
+  geom_point(data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = offset_lew, y = mean_t1, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = offset_lew, y = mean_t1), col = "cadetblue3", se = F) +
+  geom_point(data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = offset_lew, y = mean_t2, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = offset_lew, y = mean_t2), col = "cornflowerblue", se = F) +
+  geom_point(data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = offset_lew, y = mean_t3, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = offset_lew, y = mean_t3), col = "slateblue", se = F) +
+  geom_point(data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = offset_lew, y = mean_t4, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = offset_lew, y = mean_t4), col = "purple4", se = F) +
   labs(title = "Predicted GO (LEA) vs Mortality at Lewisetta", x = "Survival", y = "LEA Offset") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23" = "cadetblue3", "Spring'24" = "cornflowerblue", "Fall'24" = "slateblue", "Spring'25" = "purple4"))+
+  ylim(0,1) +
   theme_classic()
 goFitLEA_lew_plot
 ggsave(paste0("results/figures/lea_lew_compare_",Sys.Date(),".png"))
 
 goFitLEA_yrk_plot <- ggplot(data = goFitLEA[goFitLEA$bag_site == "YorkRiver",]) +
-  geom_point(data = goFitLEA[goFitLEA$bag_site == "YorkRiver",], aes(x = mean_t1, y = offset_yrk, col = "Fall'23")) +
+  geom_point(data = goFitLEA[goFitLEA$bag_site == "YorkRiver",], aes(x = mean_t1, y = offset_yrk, fill = "Fall'23"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = goFitLEA[goFitLEA$bag_site == "YorkRiver",], aes(x = mean_t1, y = offset_yrk), col = "cadetblue3", se = F) +
-  geom_point(data = goFitLEA[goFitLEA$bag_site == "YorkRiver",], aes(x = mean_t2, y = offset_yrk, col = "Spring'24")) +
+  geom_point(data = goFitLEA[goFitLEA$bag_site == "YorkRiver",], aes(x = mean_t2, y = offset_yrk, fill = "Spring'24"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = goFitLEA[goFitLEA$bag_site == "YorkRiver",], aes(x = mean_t2, y = offset_yrk), col = "cornflowerblue", se = F) +
-  geom_point(data = goFitLEA[goFitLEA$bag_site == "YorkRiver",], aes(x = mean_t3, y = offset_yrk, col = "Fall'24")) +
+  geom_point(data = goFitLEA[goFitLEA$bag_site == "YorkRiver",], aes(x = mean_t3, y = offset_yrk, fill = "Fall'24"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = goFitLEA[goFitLEA$bag_site == "YorkRiver",], aes(x = mean_t3, y = offset_yrk), col = "slateblue", se = F) +
-  geom_point(data = goFitLEA[goFitLEA$bag_site == "YorkRiver",], aes(x = mean_t4, y = offset_yrk, col = "Spring'25")) +
+  geom_point(data = goFitLEA[goFitLEA$bag_site == "YorkRiver",], aes(x = mean_t4, y = offset_yrk, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = goFitLEA[goFitLEA$bag_site == "YorkRiver",], aes(x = mean_t4, y = offset_yrk), col = "purple4", se = F) +
   labs(title = "Predicted GO (LEA) vs Mortality at York River", x = "Survival", y = "LEA Offset") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitLEA_yrk_plot
 ggsave(paste0("results/figures/lea_york_compare_",Sys.Date(),".png"))
 
 # plot go lea vs mort at both sites just final time point
 goFitLEA_plotT4 <- ggplot(data = goFitLEA) +
-  geom_point(data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = mean_t4, y = offset_lew, col = "Lewisetta")) +
-  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = mean_t4, y = offset_lew), col = "mediumspringgreen", se = T) +
-  geom_point(data = goFitLEA[goFitLEA$bag_site == "YorkRiver",], aes(x = mean_t4, y = offset_lew, col = "YorkRiver")) +
-  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$bag_site == "YorkRiver",], aes(x = mean_t4, y = offset_lew), col = "dodgerblue", se = T) +
-  labs(title = "Predicted GO (LEA) vs Mortality at Final Time Point", x = "Survival", y = "LEA Offset") +
-  scale_colour_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
+  geom_point(data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = offset_lew, y = mean_t4, fill = "Lewisetta"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$bag_site == "Lewisetta",], aes(x = offset_lew, y = mean_t4), col = "mediumspringgreen", se = T) +
+  geom_point(data = goFitLEA[goFitLEA$bag_site == "YorkRiver",], aes(x = offset_yrk, y = mean_t4, fill = "YorkRiver"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = goFitLEA[goFitLEA$bag_site == "YorkRiver",], aes(x = offset_yrk, y = mean_t4), col = "dodgerblue", se = T) +
+  labs(title = "Predicted GO (LEA) vs Mortality at Final Time Point", x = "LEA Offset", y = "Survival") +
+  scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitLEA_plotT4
 ```
@@ -302,45 +303,137 @@ Plot these data against each other.
 ```{r}
 # plot lea vs mort at each site/time point
 goFitGF_lew_plot <- ggplot(data = goFitGF[goFitGF$bag_site == "Lewisetta",]) +
-  geom_point(data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t1, y = offset_af_lew, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t1, y = offset_af_lew), col = "cadetblue3", se = F) +
-  geom_point(data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t2, y = offset_af_lew, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t2, y = offset_af_lew), col = "cornflowerblue", se = F) +
-  geom_point(data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t3, y = offset_af_lew, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t3, y = offset_af_lew), col = "slateblue", se = F) +
-  geom_point(data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t4, y = offset_af_lew, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t4, y = offset_af_lew), col = "purple4", se = F) +
+  geom_point(data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t1, y = offset_af_lew, col = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t1, y = offset_af_lew), fill = "cadetblue3", se = F) +
+  geom_point(data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t2, y = offset_af_lew, col = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t2, y = offset_af_lew), fill = "cornflowerblue", se = F) +
+  geom_point(data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t3, y = offset_af_lew, col = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t3, y = offset_af_lew), fill = "slateblue", se = F) +
+  geom_point(data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t4, y = offset_af_lew, col = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t4, y = offset_af_lew), fill = "purple4", se = F) +
   labs(title = "Predicted GO (GFaf) vs Mortality at Lewisetta", x = "Survival", y = "GFaf Offset") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitGF_lew_plot
 ggsave(paste0("results/figures/gf_lew_compare_",Sys.Date(),".png"))
 
 goFitGF_yrk_plot <- ggplot(data = goFitGF[goFitGF$bag_site == "YorkRiver",]) +
-  geom_point(data = goFitGF[goFitGF$bag_site == "YorkRiver",], aes(x = mean_t1, y = offset_af_yrk, col = "Fall'23")) +
+  geom_point(data = goFitGF[goFitGF$bag_site == "YorkRiver",], aes(x = mean_t1, y = offset_af_yrk, fill = "Fall'23"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = goFitGF[goFitGF$bag_site == "YorkRiver",], aes(x = mean_t1, y = offset_af_yrk), col = "cadetblue3", se = F) +
-  geom_point(data = goFitGF[goFitGF$bag_site == "YorkRiver",], aes(x = mean_t2, y = offset_af_yrk, col = "Spring'24")) +
+  geom_point(data = goFitGF[goFitGF$bag_site == "YorkRiver",], aes(x = mean_t2, y = offset_af_yrk, fill = "Spring'24"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = goFitGF[goFitGF$bag_site == "YorkRiver",], aes(x = mean_t2, y = offset_af_yrk), col = "cornflowerblue", se = F) +
-  geom_point(data = goFitGF[goFitGF$bag_site == "YorkRiver",], aes(x = mean_t3, y = offset_af_yrk, col = "Fall'24")) +
+  geom_point(data = goFitGF[goFitGF$bag_site == "YorkRiver",], aes(x = mean_t3, y = offset_af_yrk, fill = "Fall'24"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = goFitGF[goFitGF$bag_site == "YorkRiver",], aes(x = mean_t3, y = offset_af_yrk), col = "slateblue", se = F) +
-  geom_point(data = goFitGF[goFitGF$bag_site == "YorkRiver",], aes(x = mean_t4, y = offset_af_yrk, col = "Spring'25")) +
+  geom_point(data = goFitGF[goFitGF$bag_site == "YorkRiver",], aes(x = mean_t4, y = offset_af_yrk, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = goFitGF[goFitGF$bag_site == "YorkRiver",], aes(x = mean_t4, y = offset_af_yrk), col = "purple4", se = F) +
   labs(title = "Predicted GO (GFaf) vs Mortality at York River", x = "Survival", y = "GFaf Offset") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitGF_yrk_plot
 ggsave(paste0("results/figures/gf_york_compare_",Sys.Date(),".png"))
 
 # plot go lea vs mort at both sites just final time point
 goFitGF_plotT4 <- ggplot(data = goFitGF) +
-  geom_point(data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t4, y = offset_af_lew, col = "Lewisetta")) +
-  geom_smooth(method = "lm", data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t4, y = offset_af_lew), col = "mediumspringgreen", se = F) +
-  geom_point(data = goFitGF[goFitGF$bag_site == "YorkRiver",], aes(x = mean_t4, y = offset_af_yrk, col = "YorkRiver")) +
-  geom_smooth(method = "lm", data = goFitGF[goFitGF$bag_site == "YorkRiver",], aes(x = mean_t4, y = offset_af_yrk), col = "dodgerblue", se = F) +
+  geom_point(data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t4, y = offset_af_lew, fill = "Lewisetta"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = goFitGF[goFitGF$bag_site == "Lewisetta",], aes(x = mean_t4, y = offset_af_lew), col = "mediumspringgreen", se = T) +
+  geom_point(data = goFitGF[goFitGF$bag_site == "YorkRiver",], aes(x = mean_t4, y = offset_af_yrk, fill = "YorkRiver"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = goFitGF[goFitGF$bag_site == "YorkRiver",], aes(x = mean_t4, y = offset_af_yrk), col = "dodgerblue", se = T) +
   labs(title = "Predicted GO (GFaf) vs Mortality at Final Time Point", x = "Survival", y = "GFaf Offset") +
-  scale_colour_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
+  scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitGF_plotT4
+```
+
+### Environmental Distance
+
+Does environmental distance between home sites and common garden conditions predict mortality better than genomic offset does? 
+
+```{r}
+# read in environmental distance matrix (comes from "EnvDatProcess")
+env_dist_mat <- read.csv("data/EnvDat/exp/distance_matrix_2025-06-12.csv")[,-c(1:2)]
+rownames(env_dist_mat) <- colnames(env_dist_mat)
+env_dist <- read.csv("data/EnvDat/exp/distance_matrix_longer_2025-06-12.csv")[-1]
+
+# check env dist and mortality data
+env_dist
+mort
+
+# keep just comparisons to experimental sites in dist df
+env_dist_exp <- env_dist[env_dist$site1 %in% c("YRK", "LEW"),]
+env_dist_exprm <- env_dist_exp[!(env_dist_exp$site2 %in% c("YRK", "LEW")), c("site2", "site1", "value")]
+colnames(env_dist_exprm) <- c("site_name","bag_site","euc_dist")
+env_dist_exprm$bag_site <- ifelse(env_dist_exprm$bag_site == "LEW", "Lewisetta", "YorkRiver")
+
+# add popsdf
+popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "DEBY", "LOLA", "NH", "ME", "LARMIX", "SEEDMIX"), 
+                     order = 1:10, 
+                     cols = c("#3e4989" ,"#31688e", "#26828e", "#440154", "#482878", "#1f9e89", "#35b779", "#6ece58", "#fde725", "#b5de2b"),
+                     shape = c(21,21,21,21,23,23,21,21,24,24),
+                     site_name = c("W1-TX", "W2-LA", "W3-FL", "W4-VA", "S1-LOLA", "S2-DEBY", "W5-NH", "W6-ME", "H1-LARMIX", "H2-SEEDMIX"))
+mort_popsdf <- merge(mort, popsdf, by = "pop")
+
+# merge
+distMort_mg <- merge(mort_popsdf, env_dist_exprm, by = c("site_name", "bag_site"))
+
+# compare
+# lew
+cor.test(distMort_mg[distMort_mg$bag_site == "Lewisetta",]$t1, distMort_mg[distMort_mg$bag_site == "Lewisetta",]$euc_dist) # -0.05480737
+cor.test(distMort_mg[distMort_mg$bag_site == "Lewisetta",]$t2, distMort_mg[distMort_mg$bag_site == "Lewisetta",]$euc_dist) # -0.05106267
+cor.test(distMort_mg[distMort_mg$bag_site == "Lewisetta",]$t3, distMort_mg[distMort_mg$bag_site == "Lewisetta",]$euc_dist) # -0.1423009
+cor.test(distMort_mg[distMort_mg$bag_site == "Lewisetta",]$t4, distMort_mg[distMort_mg$bag_site == "Lewisetta",]$euc_dist) # -0.2023333
+
+# yrk
+cor.test(distMort_mg[distMort_mg$bag_site == "YorkRiver",]$t1, distMort_mg[distMort_mg$bag_site == "YorkRiver",]$euc_dist) # 0.1967869
+cor.test(distMort_mg[distMort_mg$bag_site == "YorkRiver",]$t2, distMort_mg[distMort_mg$bag_site == "YorkRiver",]$euc_dist) # 0.2152596
+cor.test(distMort_mg[distMort_mg$bag_site == "YorkRiver",]$t3, distMort_mg[distMort_mg$bag_site == "YorkRiver",]$euc_dist) # 0.1171927
+cor.test(distMort_mg[distMort_mg$bag_site == "YorkRiver",]$t4, distMort_mg[distMort_mg$bag_site == "YorkRiver",]$euc_dist) # 0.1491704
+
+summary(lm(distMort_mg[distMort_mg$bag_site == "YorkRiver",]$t4 ~ distMort_mg[distMort_mg$bag_site == "YorkRiver",]$euc_dist))
+
+# visualize
+# lewisetta
+envdist_mort_plot_lew <- ggplot(data = distMort_mg[distMort_mg$bag_site == "Lewisetta",]) + 
+  geom_point(data = distMort_mg[distMort_mg$bag_site == "Lewisetta",], aes(x = euc_dist, y = t1, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = distMort_mg[distMort_mg$bag_site == "Lewisetta",], aes(x = euc_dist, y = t1), col = "cadetblue3", se = F) +
+  geom_point(data = distMort_mg[distMort_mg$bag_site == "Lewisetta",], aes(x = euc_dist, y = t2, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = distMort_mg[distMort_mg$bag_site == "Lewisetta",], aes(x = euc_dist, y = t2), col = "cornflowerblue", se = F) +
+  geom_point(data = distMort_mg[distMort_mg$bag_site == "Lewisetta",], aes(x = euc_dist, y = t3, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = distMort_mg[distMort_mg$bag_site == "Lewisetta",], aes(x = euc_dist, y = t3), col = "slateblue", se = F) +
+  geom_point(data = distMort_mg[distMort_mg$bag_site == "Lewisetta",], aes(x = euc_dist, y = t4, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = distMort_mg[distMort_mg$bag_site == "Lewisetta",], aes(x = euc_dist, y = t4), col = "purple4", se = F) +
+  labs(title = "Environmental Distance vs Mortality at Lewisetta", x = "Euclidean Environmental Distance", y = "Survival") +
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  ylim(0,1)+
+  theme_classic()
+envdist_mort_plot_lew
+
+# york river
+envdist_mort_plot_yrk <- ggplot(data = distMort_mg[distMort_mg$bag_site == "YorkRiver",]) + 
+  geom_point(data = distMort_mg[distMort_mg$bag_site == "YorkRiver",], aes(x = euc_dist, y = t1, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = distMort_mg[distMort_mg$bag_site == "YorkRiver",], aes(x = euc_dist, y = t1), col = "cadetblue3", se = F) +
+  geom_point(data = distMort_mg[distMort_mg$bag_site == "YorkRiver",], aes(x = euc_dist, y = t2, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = distMort_mg[distMort_mg$bag_site == "YorkRiver",], aes(x = euc_dist, y = t2), col = "cornflowerblue", se = F) +
+  geom_point(data = distMort_mg[distMort_mg$bag_site == "YorkRiver",], aes(x = euc_dist, y = t3, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = distMort_mg[distMort_mg$bag_site == "YorkRiver",], aes(x = euc_dist, y = t3), col = "slateblue", se = F) +
+  geom_point(data = distMort_mg[distMort_mg$bag_site == "YorkRiver",], aes(x = euc_dist, y = t4, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = distMort_mg[distMort_mg$bag_site == "YorkRiver",], aes(x = euc_dist, y = t4), col = "purple4", se = F) +
+  labs(title = "Environmental Distance vs Mortality at York River", x = "Euclidean Environmental Distance", y = "Survival") +
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  ylim(0,1)+
+  theme_classic()
+envdist_mort_plot_yrk
+
+# compare
+envdist_mort_plotT4 <- ggplot(data = distMort_mg) +
+  geom_point(data = distMort_mg[distMort_mg$bag_site == "Lewisetta",], aes(x = euc_dist, y = t4, fill = "Lewisetta"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = distMort_mg[distMort_mg$bag_site == "Lewisetta",], aes(x = euc_dist, y = t4), col = "mediumspringgreen", se = T) +
+  geom_point(data = distMort_mg[distMort_mg$bag_site == "YorkRiver",], aes(x = euc_dist, y = t4, fill = "YorkRiver"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = distMort_mg[distMort_mg$bag_site == "YorkRiver",], aes(x = euc_dist, y = t4), col = "dodgerblue", se = T) +
+  labs(title = "Environmental Distance vs Mortality at Final Time Point", x = "Euclidean Environmental Distance", y = "Survival") +
+  scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
+  ylim(0,1)+
+  theme_classic()
+envdist_mort_plotT4
 ```
 
 
