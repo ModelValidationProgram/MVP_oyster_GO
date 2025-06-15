@@ -142,7 +142,7 @@ surv_t4_plot_site <- ggplot(surv_final_time_rename_mg, aes(x = pop, y = surv, fi
 surv_t4_plot_site
 
 # pop color scheme
-pop_colors <- data.frame(pop = c("W1-TX","W2-LA","W3-FL","S1-LOLA","S2-DEBY","W4-VA","W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"), hex = c("#3e4989","#31688e","#26828e","#440154","#482878","#1f9e89","#35b779","#6ece58","#fde725","#b5de2b"), order = 1:10)
+pop_colors <- data.frame(pop = c("W1-TX","W2-LA","W3-FL","W4-VA","S1-LOLA","S2-DEBY","W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"), hex = c("#3e4989","#31688e","#26828e","#1f9e89","#440154","#482878","#35b779","#6ece58","#fde725","#b5de2b"), order = 1:10)
 
 surv_final_time_plotting <- merge(surv_final_time_rename_mg, pop_colors, by = "pop")
 
@@ -262,7 +262,7 @@ len_t4_plot_site <- ggplot(lengths_final_time_rename_mg, aes(x = pop, y = length
 len_t4_plot_site
 
 # pop color scheme
-pop_colors <- data.frame(pop = c("W1-TX","W2-LA","W3-FL","S1-LOLA","S2-DEBY","W4-VA","W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"), hex = c("#3e4989","#31688e","#26828e","#440154","#482878","#1f9e89","#35b779","#6ece58","#fde725","#b5de2b"), order = 1:10)
+pop_colors <- data.frame(pop = c("W1-TX","W2-LA","W3-FL","W4-VA","S1-LOLA","S2-DEBY","W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"), hex = c("#3e4989","#31688e","#26828e","#1f9e89","#440154","#482878","#35b779","#6ece58","#fde725","#b5de2b"), order = 1:10)
 
 len_final_time_plotting <- merge(lengths_final_time_rename_mg, pop_colors, by = "pop")
 

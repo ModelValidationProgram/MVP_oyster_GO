@@ -245,7 +245,7 @@ offsets_plotting <- merge(sites_geo, offset_sites, by =  c("site"))
 # add the color palette
 popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "DEBY", "LOLA", "NH", "ME", "LARMIX", "SEEDMIX"), 
                      order = 1:10, 
-                     cols = c("#3e4989" ,"#31688e", "#26828e", "#440154", "#482878", "#1f9e89", "#35b779", "#6ece58", "#fde725", "#b5de2b"),
+                     cols = c("#3e4989" ,"#31688e", "#26828e", "#1f9e89", "#440154", "#482878", "#35b779", "#6ece58", "#fde725", "#b5de2b"),
                      shape = c(21,21,21,21,23,23,21,21,24,24),
                      site = c("W1-TX", "W2-LA", "W3-FL", "W4-VA", "S1-LOLA", "S2-DEBY", "W5-NH", "W6-ME", "H1-LARMIX", "H2-SEEDMIX"))
 offsets_plotting_full <- merge(offsets_plotting, popsdf, by = c("site"))
