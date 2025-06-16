@@ -253,6 +253,28 @@ Distance", limits = c(0, 5))+
         legend.title = element_text(size = 14),
         legend.position = "right", legend.justification = "top")
 envdist_plot
+
+# show just the lew and york comparisons
+env_dist_long_expsite <- env_dist_long_mg2[env_dist_long_mg2$site2 %in% c("LEW", "YRK"),]
+env_dist_long_expsite_red <- env_dist_long_expsite[!(env_dist_long_expsite$site1 %in% c("LEW","YRK")),]
+
+# plot
+envdist_plot_red <- ggplot(env_dist_long_expsite_red, aes(x = fct_reorder(site1, order1), 
+                              y = fct_reorder(site2, order2), 
+                              fill = value))+
+  theme_classic()+
+  geom_tile(color = "black") +
+#  geom_text(aes(label = distances), color = "white", size = 4)+
+  scale_fill_viridis_c(name = "Euclidean 
+Distance", limits = c(0, 4))+
+  theme(plot.title = element_text(size = 20), 
+        legend.title = element_text(size = 14),
+        legend.position = "right", legend.justification = "top") +
+  labs(title = "Environmental Distance between Sites", x = "", y = "") +
+  theme(plot.title = element_text(size = 18), 
+        legend.title = element_text(size = 14),
+        legend.position = "right", legend.justification = "top")
+envdist_plot_red
 ```
 
 

@@ -151,7 +151,7 @@ surv_t4_plot_pop <- ggplot(surv_final_time_plotting, aes(x = bag_site, y = surv,
   geom_boxplot(position=position_dodge(1.0)) +  
   scale_fill_manual(name = "Broodstock Group", label = pop_colors$pop, values = pop_colors$hex)+
   geom_text(aes(label = letters, y = 1), vjust = -0.5, position=position_dodge(1)) +
-  labs(title = "Survival at Final Time Point", x = "Experimental Site", y = "Survival") +
+  labs(title = "Final Survival at Lewisetta and York River", x = "Experimental Site", y = "Survival") +
   theme_classic()
 surv_t4_plot_pop
 ```
