@@ -144,12 +144,15 @@ surv_t4_plot_site
 # pop color scheme
 pop_colors <- data.frame(pop = c("W1-TX","W2-LA","W3-FL","W4-VA","S1-LOLA","S2-DEBY","W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"), hex = c("#3e4989","#31688e","#26828e","#1f9e89","#440154","#482878","#35b779","#6ece58","#fde725","#b5de2b"), order = 1:10)
 
-surv_final_time_plotting <- merge(surv_final_time_rename_mg, pop_colors, by = "pop")
+# pop colors H1/H2 removed
+pop_colors_rm <- data.frame(pop = c("W1-TX","W2-LA","W3-FL","W4-VA","S1-LOLA","S2-DEBY","W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"), hex = c("#365C8DFF","#277F8EFF","#1FA187FF","#4AC16DFF","#440154FF","#46337EFF","#9FDA3AFF","#FDE725FF","black","white"), order = 1:10)
+
+surv_final_time_plotting <- merge(surv_final_time_rename_mg, pop_colors_rm, by = "pop")
 
 # plot by pop
 surv_t4_plot_pop <- ggplot(surv_final_time_plotting, aes(x = bag_site, y = surv, fill = fct_reorder(pop, order))) + 
   geom_boxplot(position=position_dodge(1.0)) +  
-  scale_fill_manual(name = "Broodstock Group", label = pop_colors$pop, values = pop_colors$hex)+
+  scale_fill_manual(name = "Broodstock Group", label = pop_colors_rm$pop, values = pop_colors_rm$hex)+
   geom_text(aes(label = letters, y = 1), vjust = -0.5, position=position_dodge(1)) +
   labs(title = "Final Survival at Lewisetta and York River", x = "Experimental Site", y = "Survival") +
   theme_classic()
@@ -264,12 +267,15 @@ len_t4_plot_site
 # pop color scheme
 pop_colors <- data.frame(pop = c("W1-TX","W2-LA","W3-FL","W4-VA","S1-LOLA","S2-DEBY","W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"), hex = c("#3e4989","#31688e","#26828e","#1f9e89","#440154","#482878","#35b779","#6ece58","#fde725","#b5de2b"), order = 1:10)
 
-len_final_time_plotting <- merge(lengths_final_time_rename_mg, pop_colors, by = "pop")
+# pop colors H1/H2 removed
+pop_colors_rm <- data.frame(pop = c("W1-TX","W2-LA","W3-FL","W4-VA","S1-LOLA","S2-DEBY","W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"), hex = c("#365C8DFF","#277F8EFF","#1FA187FF","#4AC16DFF","#440154FF","#46337EFF","#9FDA3AFF","#FDE725FF","black","white"), order = 1:10)
+
+len_final_time_plotting <- merge(lengths_final_time_rename_mg, pop_colors_rm, by = "pop")
 
 # plot by pop
 len_t4_plot_pop <- ggplot(len_final_time_plotting, aes(x = bag_site, y = length, fill = fct_reorder(pop, order))) + 
   geom_boxplot(position=position_dodge(1.0)) +  
-  scale_fill_manual(name = "Broodstock Group", label = pop_colors$pop, values = pop_colors$hex)+
+  scale_fill_manual(name = "Broodstock Group", label = pop_colors_rm$pop, values = pop_colors_rm$hex)+
   geom_text(aes(label = letters, y = 127), vjust = -0.5, position=position_dodge(1)) +
   labs(title = "Length at Final Time Point", x = "Experimental Site", y = "Survival") +
   theme_classic()
