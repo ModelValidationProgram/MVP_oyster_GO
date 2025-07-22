@@ -154,7 +154,7 @@ maxLevel <- log2(0.368*nrow(expEnv_red)/2)
 start_time <- Sys.time() # time start
 gf_af <- gradientForest(cbind(expEnv_pop_red[2:9,c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")], freqs), predictor.vars = colnames(expEnv_pop_red[, c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]), response.vars=colnames(freqs), ntree=500, maxLevel=maxLevel, trace=T, corr.threshold=0.50) # tons of warnings here, "response has five or fewer unique values. Are you sure you want to do regression?"
 end_time <- Sys.time() # time end
-(end_time - start_time)
+(end_time - start_time) # about 2 mins
 
 # geno models
 # crashes on personal laptop, run on cluster
@@ -193,21 +193,20 @@ gf_af
 gf_geno
 
 # reverse order of pops list to match previous data
-pops_list <- pops_list[rev(1:length(pops_list))]
+pops_list1 <- rev(pops_list) # VA is in the wrong spot, hard code instead
+pops_list1 <- c("S1-LOLA", "S2-DEBY", "W1-TX", "W2-LA", "W3-FL", "W4-VA", "W5-NH", "W6-ME")
 
 # process the env data for the gardens to match up with each pop/ind entry
 # AF
 af_lewenv <- expEnv_pop_red[expEnv_pop_red$site_name %in% c("LEW"), c("site_name", "sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]
 colnames(af_lewenv) <- c("garden", "sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")
-pops_list <- unique(indsExp_red_mut$site_name)
-pops_list_lew <- data.frame(site_name = pops_list)
+pops_list_lew <- data.frame(site_name = pops_list1)
 pops_list_lew$garden <- rep("LEW", 8)
 af_lewenv_comp <- merge(pops_list_lew, af_lewenv, by = c("garden"))
 
 af_yrkenv <- expEnv_pop_red[expEnv_pop_red$site_name %in% c("YRK"), c("site_name", "sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]
 colnames(af_yrkenv) <- c("garden", "sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")
-pops_list <- unique(indsExp_red_mut$site_name)
-pops_list_yrk <- data.frame(site_name = pops_list)
+pops_list_yrk <- data.frame(site_name = pops_list1)
 pops_list_yrk$garden <- rep("YRK", 8)
 af_yrkenv_comp <- merge(pops_list_yrk, af_yrkenv, by = c("garden"))
 
@@ -243,8 +242,8 @@ for (i in 1:nb_ind_af){ # calc offset
   ec_dist <- as.data.frame(euclidean(pred_af_home[i,], pred_af_lew[i,]))
   df_af_lew <- rbind(df_af_lew, ec_dist)
 }
-af_offset_lew <- cbind(pops_list, df_af_lew) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
-colnames(af_offset_lew) <- c("site_name", "offset_af_lew")
+af_offset_lew <- cbind(pops_list1, df_af_lew) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
+colnames(af_offset_lew) <- c("site_name", "offset_gf_af_lew")
 
 # york
 df_af_yrk <- data.frame() # df
@@ -252,8 +251,8 @@ for (i in 1:nb_ind_af){ # calc offset
   ec_dist <- as.data.frame(euclidean(pred_af_home[i,], pred_af_yrk[i,]))
   df_af_yrk <- rbind(df_af_yrk, ec_dist)
 }
-af_offset_yrk <- cbind(pops_list, df_af_yrk) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
-colnames(af_offset_yrk) <- c("site_name", "offset_af_yrk")
+af_offset_yrk <- cbind(pops_list1, df_af_yrk) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
+colnames(af_offset_yrk) <- c("site_name", "offset_gf_af_yrk")
 
 # merge
 af_offsets <- merge(af_offset_lew, af_offset_yrk, by = c("site_name"))
@@ -280,6 +279,6 @@ geno_offsets <- merge(geno_offset_lew, geno_offset_yrk, by = c("site_name"))
 offsets_mvp <- merge(af_offsets, geno_offsets, by = c("site_name"))
 
 # write these offsets to results
-write.csv(offsets_mvp, paste0("results/GO_results/offsetsMVP_", Sys.Date(), ".csv"))
+write.csv(offsets_mvp, paste0("results/GO_results/offsetsMVP_GF_", Sys.Date(), ".csv"))
 ```
 

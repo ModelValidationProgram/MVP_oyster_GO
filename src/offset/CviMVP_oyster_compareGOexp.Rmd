@@ -32,7 +32,7 @@ library(plotrix)
 # offset predictions
 lea_go <- read.csv("results/GO_results/offsets_LEA_expSites_05272025.csv")[,-1]
 #rda_go <- 
-gf_go <- read.csv("results/GO_results/offsetsMVP_2025-06-03.csv")[,-1]
+gf_go <- read.csv("results/GO_results/offsetsMVP_2025-07-21.csv")[,-1]
 
 # fitness metrics
 mort <- read.csv("results/exp_results/mortality_bags_2025-06-06.csv")[,-1]
@@ -87,8 +87,8 @@ lea_go$pop <- str_split_fixed(lea_go$pop, "-",2)[,2]
 
 # GF
 # add order
-gf_go$order_lew <- order(gf_go$offset_af_lew)
-gf_go$order_yrk <- order(gf_go$offset_af_yrk)
+gf_go$order_lew <- order(gf_go$offset_gf_af_lew)
+gf_go$order_yrk <- order(gf_go$offset_gf_af_yrk)
 gf_go$pop <- str_split_fixed(gf_go$site_name,"-",2)[,2]
 
 # mort popsite uses wrong label for JR/VA - call it VA
@@ -122,6 +122,12 @@ Start with the bag level mortality data.
 (cor_lea3_lew <- cor(goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$offset_lew, goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$t3)) # -0.08660892
 (cor_lea4_lew <- cor(goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$offset_lew, goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$t4)) # -0.1313757
 
+# gf
+(cor_gf1_lew <- cor(goFitGFbag[goFitGFbag$bag_site == "Lewisetta",]$offset_gf_af_lew, goFitGFbag[goFitLEAbag$bag_site == "Lewisetta",]$t1)) # -0.04646617
+(cor_gf2_lew <- cor(goFitGFbag[goFitGFbag$bag_site == "Lewisetta",]$offset_gf_af_lew, goFitGFbag[goFitGFbag$bag_site == "Lewisetta",]$t2)) # 0.04308186
+(cor_gf3_lew <- cor(goFitGFbag[goFitGFbag$bag_site == "Lewisetta",]$offset_gf_af_lew, goFitGFbag[goFitGFbag$bag_site == "Lewisetta",]$t3)) # 0.05726335
+(cor_gf4_lew <- cor(goFitGFbag[goFitGFbag$bag_site == "Lewisetta",]$offset_gf_af_lew, goFitGFbag[goFitGFbag$bag_site == "Lewisetta",]$t4)) # 0.04197161
+
 # correlations between go/york mort at each time point
 # lea
 (cor_lea1_yrk <- cor(goFitLEAbag[goFitLEAbag$bag_site == "YorkRiver",]$offset_yrk, goFitLEAbag[goFitLEAbag$bag_site == "YorkRiver",]$t1)) # 0.03567268
@@ -129,8 +135,14 @@ Start with the bag level mortality data.
 (cor_lea3_yrk <- cor(goFitLEAbag[goFitLEAbag$bag_site == "YorkRiver",]$offset_yrk, goFitLEAbag[goFitLEAbag$bag_site == "YorkRiver",]$t3)) # -0.2830991
 (cor_lea4_yrk <- cor(goFitLEAbag[goFitLEAbag$bag_site == "YorkRiver",]$offset_yrk, goFitLEAbag[goFitLEAbag$bag_site == "YorkRiver",]$t4)) # -0.316612
 
+# gf
+(cor_gf1_yrk <- cor(goFitGFbag[goFitGFbag$bag_site == "YorkRiver",]$offset_gf_af_yrk, goFitGFbag[goFitGFbag$bag_site == "YorkRiver",]$t1)) # 0.2726633
+(cor_gf2_yrk <- cor(goFitGFbag[goFitGFbag$bag_site == "YorkRiver",]$offset_gf_af_yrk, goFitGFbag[goFitGFbag$bag_site == "YorkRiver",]$t2)) # 0.2862175
+(cor_gf3_yrk <- cor(goFitGFbag[goFitGFbag$bag_site == "YorkRiver",]$offset_gf_af_yrk, goFitGFbag[goFitGFbag$bag_site == "YorkRiver",]$t3)) # 0.2156996
+(cor_gf4_yrk <- cor(goFitGFbag[goFitGFbag$bag_site == "YorkRiver",]$offset_gf_af_yrk, goFitGFbag[goFitGFbag$bag_site == "YorkRiver",]$t4)) # 0.2609522
+
 # put this all into a df with method/time point/fitness metric/site/corr
-lea_corr_df <- data.frame(method = rep("LEA", 8), metric = rep("surv", 8), monitoring_event = rep(c(1:4),2), bag_site = c(rep("Lewisetta",4 ), rep("YorkRiver", 4)), pearson = c(cor_lea1_lew, cor_lea2_lew, cor_lea3_lew, cor_lea4_lew, cor_lea1_yrk, cor_lea2_yrk, cor_lea3_yrk, cor_lea4_yrk))
+corr_df <- data.frame(method = c(rep("LEA", 8), rep("GF", 8)), metric = rep("surv", 16), monitoring_event = rep(c(1:4),4), bag_site = rep(c(rep("Lewisetta",4), rep("YorkRiver", 4)),2), pearson = c(cor_lea1_lew, cor_lea2_lew, cor_lea3_lew, cor_lea4_lew, cor_lea1_yrk, cor_lea2_yrk, cor_lea3_yrk, cor_lea4_yrk, cor_gf1_lew, cor_gf2_lew, cor_gf3_lew, cor_gf4_lew, cor_gf1_yrk, cor_gf2_yrk, cor_gf3_yrk, cor_gf4_yrk))
 ```
 
 
@@ -269,15 +281,15 @@ goFitLEA_plotT4
 
 ```{r}
 # correlations between go/lew mort at each time point
-(cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t1)) # -0.1931013, r2 0.003633104
-(cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t2)) # -0.006177896, r2 0.002257078
-(cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t3)) # 0.04885283, r2 0.003688538
-(cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t4)) # 0.04589687, r2 0.002099499
+(cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_gf_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t1)) # -0.1931013, r2 0.003633104
+(cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_gf_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t2)) # -0.006177896, r2 0.002257078
+(cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_gf_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t3)) # 0.04885283, r2 0.003688538
+(cor(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_gf_af_lew, goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t4)) # 0.04589687, r2 0.002099499
 
-summary(lm(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew ~ goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t1))$r.squared
-summary(lm(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew ~ goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t2))$r.squared
-summary(lm(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew ~ goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t3))$r.squared
-summary(lm(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_af_lew ~ goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t4))$r.squared
+summary(lm(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_gf_af_lew ~ goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t1))$r.squared
+summary(lm(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_gf_af_lew ~ goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t2))$r.squared
+summary(lm(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_gf_af_lew ~ goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t3))$r.squared
+summary(lm(goFitGF[goFitGF$bag_site == "Lewisetta",]$offset_gf_af_lew ~ goFitGF[goFitGF$bag_site == "Lewisetta",]$mean_t4))$r.squared
 
 # correlations between go/yrk mort at each time point
 (cor(goFitGF[goFitGF$bag_site == "YorkRiver",]$offset_af_yrk, goFitGF[goFitGF$bag_site == "YorkRiver",]$mean_t1)) # 0.2852591
