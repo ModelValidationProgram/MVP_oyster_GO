@@ -32,7 +32,7 @@ library(plotrix)
 # offset predictions
 lea_go <- read.csv("results/GO_results/offsets_LEA_expSites_05272025.csv")[,-1]
 #rda_go <- 
-gf_go <- read.csv("results/GO_results/offsetsMVP_2025-07-21.csv")[,-1]
+gf_go <- read.csv("results/GO_results/offsetsMVP_GF_2025-07-22.csv")[,-1]
 
 # fitness metrics
 mort <- read.csv("results/exp_results/mortality_bags_2025-06-06.csv")[,-1]
