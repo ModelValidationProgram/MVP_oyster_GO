@@ -250,6 +250,9 @@ popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "DEBY", "LOLA", "NH", "ME",
                      site = c("W1-TX", "W2-LA", "W3-FL", "W4-VA", "S1-LOLA", "S2-DEBY", "W5-NH", "W6-ME", "H1-LARMIX", "H2-SEEDMIX"))
 offsets_plotting_full <- merge(offsets_plotting, popsdf, by = c("site"))
 
+# save popdf object
+write.csv(popsdf, "data/IndDat/popsdf.csv")
+
 # try mapping the offsets
 library(s2) # mapping
 library(rnaturalearth) # mapping
