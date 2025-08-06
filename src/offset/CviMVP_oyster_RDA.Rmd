@@ -174,7 +174,7 @@ ggplot() +
   geom_segment(data = TAB_var, aes(xend=RDA1, yend=RDA2, x=0, y=0), colour="black", size=0.15, linetype=1, arrow=arrow(length = unit(0.02, "npc"))) +
   geom_text(data = TAB_var, aes(x=1.1*RDA1, y=1.1*RDA2, label = row.names(TAB_var)), size = 2.5, family = "Times") +
   guides(color=guide_legend(title="Locus type")) +
-  labs(x = "RDA 1 (XX%)", y = "RDA 2 (XX%)", subtitle = "RDA space") +
+  labs(x = "RDA 1 (67.3%)", y = "RDA 2 (15.2%)", subtitle = "RDA space") +
   theme_bw(base_size = 11, base_family = "Times") +
   theme(panel.grid = element_blank()
         , plot.background = element_blank()
@@ -249,6 +249,7 @@ sf::sf_use_s2(FALSE) # sf package doesn't work
 # set object
 world <- ne_countries(scale = "medium", returnclass = "sf")
 world_crop <- sf::st_crop(world, c(xmin =-102 , xmax = -68, ymin = 24, ymax = 47.049130))
+world_chesapeake <- sf::st_crop(world, c(xmin =-77.856476 , xmax = -72.762787, ymin = 36.019557, ymax = 39.939163))
 
 # bottom right: 24.353558, -55.373595
 # top left: 47.049130, -101.983412
@@ -266,6 +267,19 @@ map_lew <- ggplot(data = world) +
         labs(title = "Genomic Offset of Oysters \n to Lewisetta (RDA)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
 (map_lew)
 
+popout_lew <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
+  geom_point(data = offsets_plotting, aes(x=lon, y=lat, 
+                                       fill = offset_lew), 
+             shape = 21, size = 4)+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,2.25))+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
+        xlim(-77.856476, -72.762787) +
+        ylim(36.019557, 39.939163)
+popout_lew
+
 map_yrk <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
@@ -277,5 +291,22 @@ map_yrk <- ggplot(data = world) +
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
         labs(title = "Genomic Offset of Oysters \n to York (RDA)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
 (map_yrk)
+
+popout_york <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
+  geom_point(data = offsets_plotting, aes(x=lon, y=lat, 
+                                       fill = offset_yrk), 
+             shape = 21, size = 4)+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,2.25))+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
+        xlim(-77.856476, -72.762787) +
+        ylim(36.019557, 39.939163)
+popout_york
+
+cor(offsets_plotting$offset_lew, offsets_plotting$offset_yrk)
+plot(x = offsets_plotting$offset_lew, y = offsets_plotting$offset_yrk)
+abline(offsets_plotting$offset_yrk ~ offsets_plotting$offset_lew)
 ```
 
