@@ -107,9 +107,11 @@ pairs.panels(expenv_mg[,c("salinity_quantile_10","salinity_quantile_90","temp_qu
 expenv_trim <- expenv_mg[,c("site_name","lat.x","lon.x","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")]
 
 # the rest of the experimental disease info for experimental pops is in the seascape data; no DEBY or LOLA
-seascape2exp <- data.frame(ID_SiteDate = c("CB_TX_2022-6-9", "Sister_Lk_LA_2022-8-9", "KP_FGR_FL_2022-8-23", "CC_VA_2022-7-11", "SR_GB_NH_2022-8-12", "Orrs_Cove_ME_2022-10-31"), site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"))
+seascape2exp <- data.frame(ID_SiteDate = c("CB_TX_2022-6-9", "Sister_Lk_LA_2022-8-9", "KP_FGR_FL_2022-8-23", "VA", "SR_GB_NH_2022-8-12", "DC_DR_ME_2022-10-25"), site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"))
 
-expEnv_all <- merge(seascape2exp, seascapeEnv_trim_nona, by = c("ID_SiteDate"))
+expEnv_all <- merge(seascape2exp, seascapeEnv_trim, by = c("ID_SiteDate"))
+
+# we need to 
 
 # trim to just what we have for the other sites - exclude DEBY & LOLA for now until we can get this disease data
 
