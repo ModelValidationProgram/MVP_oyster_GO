@@ -33,35 +33,52 @@ library(LEA)
 library(stringr)
 
 # data
-seascapeEnv <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")
-expEnv <- read.csv("data/EnvDat/exp/envr_summary_stats.csv")[,-1]
+seascapeEnv <- read.csv("data/EnvDat/seascape/seascape_abiotic_biotic_envr.csv")
 expsal <- read.csv("data/EnvDat/exp/all_salinity.csv")
 exptemp <- read.csv("data/EnvDat/exp/all_temperature.csv")
+expdis <- read.csv("data/EnvDat/exp/sentinel_RFTM_organized_dermo.csv")[,-(6:10)]
 ```
 
 
 ## Data Pre-processing
 
-Will start by checking the environmental data structure and processing to retain only  biologically relevant & uncorrelated variables.
+First, I need to get the experimental environmental data into a workable format - right now, the disease data & environmental quantiles are all over the place, not in a single df.
+
+Will start by checking the environmental data structure and processing seascape data to retain only  biologically relevant & uncorrelated variables.
 
 ```{r}
 # check data
 seascapeEnv
-expEnv
 colnames(seascapeEnv)
-colnames(expEnv)
 
 # check data correlations within each dataset
-# seascape
-pairs.panels(seascapeEnv[,c("Mean_Annual_Salinity_ppt","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","Salinity_st_dev","Mean_Annual_Temperature_C","Mean_max_temperature_C","Mean_min_temperature_C","Temperature_st_dev")])
-pairs.panels(expEnv[,c("Mean_Annual_Salinity_ppt","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","Salinity_st_dev","Mean_Annual_Temperature_C","Mean_max_temperature_C","Mean_min_temperature_C","Temperature_st_dev")])
+# seascape - lots of correlated variables in the quantiles but keep for now, will check vif
+pairs.panels(seascapeEnv[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence","intensity_msx","intensity_dermo","Pea_crab","Boring_sponge")])
+pairs.panels(seascapeEnv[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence","Pea_crab")])
 
-# remove some of these correlated variables
 # seascape & env keep maxes & mins, remove all else (need the same variables in both sets)
-seascapeEnv_trim <- seascapeEnv[,c("ID_Site","Site_name","Site_ID2","Site_Order","Site_Color","Region","Region_color","Latitude_manual","Longitude_manual","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","Mean_max_temperature_C","Mean_min_temperature_C")]
-expEnv_trim <- expEnv[,c("site_name","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","Mean_max_temperature_C","Mean_min_temperature_C")]
+seascapeEnv_trim <- seascapeEnv[,c("ID_SiteDate","Site_Order","State_Abbrev","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence","Pea_crab")]
 
-# THIS IS NEW METHOD, THE ABOVE PROB DOESN'T WORK QUITE RIGHT
+# need to remove rows with all NAs for environmental quantiles
+seascapeEnv_trim_nona <- na.omit(seascapeEnv_trim)
+dim(seascapeEnv_trim_nona) # this removes 7 sites for a total of 32
+
+# need to match seascape sites with experimental pops
+seascapeEnv_trim_nona[,c("ID_SiteDate","Latitude_manual","Longitude_manual")]
+```
+
+I need to do some work to put together the experimental dataframe
+
+```{r}
+# start with the disease data, need to organize averages across experimental period
+# this is coming from sentinel population
+lewyrk_dis_avgs <- expdis %>% 
+  group_by(SITE) %>% 
+  summarize(Dermo_Prevalence = mean(P_dermo), Dermo_Weighted_Prevalence = mean(WP_dermo, na.rm = T))
+
+# still need msx & pea crabs for these sites - where is this data?
+
+# move on to other experimental data for now
 # put together temp and sal
 expsal_red <- expsal[,c("site_name","lat","lon","Mean_Annual_Salinity_ppt","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","salinity_quantile_10","salinity_quantile_90")]
 exptemp_red <- exptemp[,c("site_name","lat","lon","Mean_Annual_Temperature_C","Mean_max_temperature_C","Mean_min_temperature_C","temp_quantile_10","temp_quantile_90")]
@@ -69,9 +86,18 @@ expenv_mg <- merge(expsal_red, exptemp_red, by = c("site_name"))
 
 # look at corrs
 pairs.panels(expenv_mg[,c("Mean_Annual_Salinity_ppt","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","salinity_quantile_10","salinity_quantile_90","Mean_Annual_Temperature_C","Mean_max_temperature_C","Mean_min_temperature_C","temp_quantile_10","temp_quantile_90")])
+pairs.panels(expenv_mg[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")])
 
 # keeping just quantiles
-expenv_trim <- expenv_mg[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")]
+expenv_trim <- expenv_mg[,c("site_name","lat.x","lon.x","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")]
+
+# the rest of the experimental disease info for experimental pops is in the seascape data; no DEBY or LOLA
+seascape2exp <- data.frame(ID_SiteDate = c("CB_TX_2022-6-9", "Sister_Lk_LA_2022-8-9", "KP_FGR_FL_2022-8-23", "CC_VA_2022-7-11", "SR_GB_NH_2022-8-12", "Orrs_Cove_ME_2022-10-31"), site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"))
+
+expEnv_all <- merge(seascape2exp, seascapeEnv_trim_nona, by = c("ID_SiteDate"))
+
+# trim to just what we have for the other sites - exclude DEBY & LOLA for now until we can get this disease data
+
 ```
 
 Everything is looking good! Now I will standardize data to be scaled and centered for downstream analysis.
