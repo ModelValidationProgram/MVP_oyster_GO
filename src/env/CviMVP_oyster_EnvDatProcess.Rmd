@@ -37,6 +37,7 @@ seascapeEnv <- read.csv("data/EnvDat/seascape/seascape_abiotic_biotic_envr.csv")
 expsal <- read.csv("data/EnvDat/exp/all_salinity.csv")
 exptemp <- read.csv("data/EnvDat/exp/all_temperature.csv")
 expdis <- read.csv("data/EnvDat/exp/sentinel_RFTM_organized_dermo.csv")[,-(6:10)]
+peacrab <- read.csv("data/EnvDat/exp/MVP23-FieldBags - finalTissue.csv")
 ```
 
 
@@ -76,7 +77,21 @@ lewyrk_dis_avgs <- expdis %>%
   group_by(SITE) %>% 
   summarize(Dermo_Prevalence = mean(P_dermo), Dermo_Weighted_Prevalence = mean(WP_dermo, na.rm = T))
 
-# still need msx & pea crabs for these sites - where is this data?
+# get the peacrab data from finalTissue
+peacrab_trim <- peacrab[,c("bagID","peaCrab")]
+
+# figure out which sites each bag comes from
+peacrab_trim$bagnum <- as.numeric(str_split_fixed(peacrab_trim$bagID, "-", 3)[,3])
+peacrab_trim$site_name <- (str_split_fixed(peacrab_trim$bagID, "-", 3)[,2])
+peacrab_trim$site <- ifelse(peacrab_trim$bagnum < 4, "Lewisetta", "YorkRiver")
+
+# now calculate numbers of pea crabs
+lewyrk_pea_avgs <- peacrab_trim %>% 
+  group_by(site) %>% 
+  summarize(peaCrab_prev = sum(peaCrab == T))
+
+
+# still need msx for these sites
 
 # move on to other experimental data for now
 # put together temp and sal
