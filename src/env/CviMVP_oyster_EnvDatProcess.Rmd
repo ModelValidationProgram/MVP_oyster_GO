@@ -38,6 +38,7 @@ expsal <- read.csv("data/EnvDat/exp/all_salinity.csv")
 exptemp <- read.csv("data/EnvDat/exp/all_temperature.csv")
 expdis <- read.csv("data/EnvDat/exp/sentinel_RFTM_organized_dermo.csv")[,-(6:10)]
 peacrab <- read.csv("data/EnvDat/exp/MVP23-FieldBags - finalTissue.csv")
+sitedate <- read.csv("data/EnvDat/seascape/SeascapeSamples - date.csv")
 ```
 
 
@@ -60,15 +61,11 @@ pairs.panels(seascapeEnv[,c("salinity_quantile_10","salinity_quantile_90","temp_
 # seascape & env keep maxes & mins, remove all else (need the same variables in both sets)
 seascapeEnv_trim <- seascapeEnv[,c("ID_SiteDate","Site_Order","State_Abbrev","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence","Pea_crab")]
 
-# need to remove rows with all NAs for environmental quantiles
-seascapeEnv_trim_nona <- na.omit(seascapeEnv_trim)
-dim(seascapeEnv_trim_nona) # this removes 7 sites for a total of 32
-
-# need to match seascape sites with experimental pops
-seascapeEnv_trim_nona[,c("ID_SiteDate","Latitude_manual","Longitude_manual")]
+# match seascape sites with experimental pops
+seascapeEnv_trim[,c("ID_SiteDate","Latitude_manual","Longitude_manual")]
 ```
 
-I need to do some work to put together the experimental dataframe
+I need to do some work to put together the experimental data frame
 
 ```{r}
 # start with the disease data, need to organize averages across experimental period
@@ -76,6 +73,7 @@ I need to do some work to put together the experimental dataframe
 lewyrk_dis_avgs <- expdis %>% 
   group_by(SITE) %>% 
   summarize(Dermo_Prevalence = mean(P_dermo), Dermo_Weighted_Prevalence = mean(WP_dermo, na.rm = T))
+lewyrk_dis_avgs <- as.data.frame(lewyrk_dis_avgs)
 
 # get the peacrab data from finalTissue
 peacrab_trim <- peacrab[,c("bagID","peaCrab")]
@@ -88,8 +86,8 @@ peacrab_trim$site <- ifelse(peacrab_trim$bagnum < 4, "Lewisetta", "YorkRiver")
 # now calculate numbers of pea crabs
 lewyrk_pea_avgs <- peacrab_trim %>% 
   group_by(site) %>% 
-  summarize(peaCrab_prev = sum(peaCrab == T))
-
+  summarize(Pea_Crab = sum(peaCrab == T)/(sum(peaCrab == T) + sum(peaCrab == F))) # this is the percent of oysters per pop that had pea crabs
+lewyrk_pea_avgs <- as.data.frame(lewyrk_pea_avgs)
 
 # still need msx for these sites
 
@@ -106,15 +104,42 @@ pairs.panels(expenv_mg[,c("salinity_quantile_10","salinity_quantile_90","temp_qu
 # keeping just quantiles
 expenv_trim <- expenv_mg[,c("site_name","lat.x","lon.x","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")]
 
-# the rest of the experimental disease info for experimental pops is in the seascape data; no DEBY or LOLA
-seascape2exp <- data.frame(ID_SiteDate = c("CB_TX_2022-6-9", "Sister_Lk_LA_2022-8-9", "KP_FGR_FL_2022-8-23", "VA", "SR_GB_NH_2022-8-12", "DC_DR_ME_2022-10-25"), site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"))
+# pull out just lewisetta and york
+lewyrk_quants <- expenv_trim[expenv_trim$site_name %in% c("LEW", "YRK"),]
+lewyrk_quants$site_name <- ifelse(lewyrk_quants$site_name == "LEW", "Lewisetta", "YorkRiver")
 
+# and add disease data
+lewyrk_dis_avgs
+lewyrk_pea_avgs
+names(lewyrk_dis_avgs)[names(lewyrk_dis_avgs) == "SITE"] <- names(lewyrk_pea_avgs)[names(lewyrk_pea_avgs) == "site"] <- "site_name"
+lewyrk1 <- merge(lewyrk_quants, lewyrk_dis_avgs[,1:2], by = c("site_name"))
+lewyrkEnv_all <- merge(lewyrk1, lewyrk_pea_avgs, by = c("site_name"))
+
+# the rest of the experimental disease info for experimental pops is in the seascape data; no DEBY or LOLA
+seascape2exp <- data.frame(ID_SiteDate = c("CB_TX_2022-6-9", "Sister_Lk_LA_2022-8-9", "KP_FGR_FL_2022-8-23", "WS_CB_VA_2022-10-7", "SR_GB_NH_2022-8-12", "DC_DR_ME_2022-10-25"), site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"))
+
+# merge
 expEnv_all <- merge(seascape2exp, seascapeEnv_trim, by = c("ID_SiteDate"))
 
-# we need to 
+# the VA site has no quantile data, but we did have some compiled from H2F, take from there
+quantile_forVA <- read.csv("data/EnvDat/exp/quantiles_05232025.csv")[,-1]
+VA_only <- quantile_forVA[quantile_forVA$site_name == "W4-VA", c("site_name","salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90")]
+expEnv_all[expEnv_all$site_name == "W4_VA", c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")] <- VA_only[,2:5]
+
+pairs.panels(expEnv_all[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence")]) # don't include pea crab because all are 0
+# these are all reasonably uncorrelated, temp quantile 10/90 are 0.62 and temp quantile 90/MSX are -0.63 but otherwise all are low corr (and all are below |0.7|)
 
 # trim to just what we have for the other sites - exclude DEBY & LOLA for now until we can get this disease data
+head(seascapeEnv_trim)
+head(expEnv_all)
+head(lewyrkEnv_all)
 
+# rename lat long in lewyrk2
+names(lewyrkEnv_all)[names(lewyrkEnv_all) == "lat.x"] <- "Latitude_manual"
+names(lewyrkEnv_all)[names(lewyrkEnv_all) == "lon.x"] <- "Longitude_manual"
+names(lewyrkEnv_all)[names(lewyrkEnv_all) == "Pea_Crab"] <- "Pea_crab"
+
+# all have the same column names now, but we don't have MSX for lew or york
 ```
 
 Everything is looking good! Now I will standardize data to be scaled and centered for downstream analysis.
@@ -122,46 +147,46 @@ Everything is looking good! Now I will standardize data to be scaled and centere
 ```{r}
 # quick data inspection
 head(seascapeEnv_trim)
-head(expEnv_trim)
+head(expEnv_all)
+head(lewyrkEnv_all)
 
 # scale
-std_sea <- scale(seascapeEnv_trim[,10:13])
-std_exp <- scale(expEnv_trim[,2:5])
-colnames(std_sea) <- colnames(std_exp) <-  c("max_sal_scaled","min_sal_scaled","max_temp_scaled","min_temp_scaled")
+std_sea <- scale(seascapeEnv_trim[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")])
+std_exp <- scale(expEnv_all[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")])
+std_lewyrk <- scale(lewyrkEnv_all[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")])
+colnames(std_sea) <- colnames(std_exp) <- colnames(std_lewyrk) <- c("salinity_quantile_10_scale", "salinity_quantile_90_scale", "temp_quantile_10_scale", "temp_quantile_90_scale", "Dermo_Prevalence_scale", "Pea_crab_scale")
 
-# attach scaled information back to env dfs
+# attach scaled information back to env dfs - question, should I scale all of these values together in one df, rather than as separate info?
 sea_scaled <- as.data.frame(cbind(seascapeEnv_trim, std_sea))
-exp_scaled <- as.data.frame(cbind(expEnv_trim, std_exp))
+exp_scaled <- as.data.frame(cbind(expEnv_all, std_exp))
+lewyrk_scaled <- as.data.frame(cbind(lewyrkEnv_all, std_lewyrk))
+
+# also try scaling all together
+seascapeEnv_trim$site_name <- seascapeEnv_trim$ID_SiteDate
+allenv1 <- rbind(na.omit(seascapeEnv_trim[!(seascapeEnv_trim$ID_SiteDate %in% seascape2exp$ID_SiteDate), c("site_name","salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")]), expEnv_all[,c("site_name", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")], lewyrkEnv_all[,c("site_name", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")])
+
+# scale the full env version
+std_allenv <- scale(allenv1[,-1])
+allenv_scaled <- as.data.frame(cbind(allenv1, std_allenv))
 
 # keep track of scaling factors
 sea_scale_env <- attr(std_sea, "scaled:scale")
 sea_center_env <- attr(std_sea, "scaled:center")
 exp_scale_env <- attr(std_exp, "scaled:scale")
 exp_center_env <- attr(std_exp, "scaled:center")
+lewyrk_scale_env <- attr(std_lewyrk, "scaled:scale")
+lewyrk_center_env <- attr(std_lewyrk, "scaled:center")
+all_scale_env <- attr(std_allenv, "scaled:scale")
+all_center_env <- attr(std_allenv, "scaled:center")
 
 # put those scaling factors into their own df
-scaling <- as.data.frame(rbind(sea_scale_env, sea_center_env, exp_scale_env, exp_center_env))
+scaling <- as.data.frame(rbind(sea_scale_env, sea_center_env, exp_scale_env, exp_center_env, lewyrk_scale_env, lewyrk_center_env, all_scale_env, all_center_env))
 scaling$factor_type <- rownames(scaling)
 rownames(scaling) <- NULL
 scaling
 
-# do it again now for the expenv_mg data
-# quick data inspection
-head(expenv_trim)
-
-# scale
-std_expmg <- scale(expenv_trim)
-colnames(std_expmg) <-  c("sal_quant10_scaled","sal_quant90_scaled","temp_quant10_scaled","temp_quant90_scaled")
-
-# attach scaled information back to env dfs
-expmg_scaled <- as.data.frame(cbind(expenv_mg, std_expmg))
-
-# keep track of scaling factors
-expmg_scale_env <- attr(std_expmg, "scaled:scale")
-expmg_center_env <- attr(std_expmg, "scaled:center")
-
 # write out this env data
-write.csv(expmg_scaled, "data/EnvDat/exp/expquants_scaled_04222025.csv")
+write.csv(allenv_scaled, paste0("data/EnvDat/env_scaled_",Sys.Date(),".csv"))
 ```
 
 
@@ -177,6 +202,7 @@ indsExp <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")
 indsExp_red <- indsExp[,c("merge_ID_inds","Label_ind","Key_ind","ID_SiteDate","SiteDate_Key")]
 levels(as.factor(indsExp_red$ID_SiteDate))
 
+# LEFT OFF HERE, ADD SCALED DATA HERE
 # need to add scaled env data to this
 exp_scaled$site_name
 indsExp_red$ID_SiteDate
