@@ -1,4 +1,4 @@
-"","site_name","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","Pea_crab","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","Pea_crab"
+"","site_name","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","Pea_crab","salinity_quantile_10_scaled","salinity_quantile_90_scaled","temp_quantile_10_scaled","temp_quantile_90_scaled","Dermo_Prevalence_scaled","Pea_crab_scaled"
 "1","AC_LIS_CT_2023-10-3",1.1,27,4.5,24.4,1,0.263157895,-1.25638197994899,0.092712794688389,-1.64932861119344,-1.05146186864862,0.946309829362121,1.40552202222687
 "2","Cal_Lake_LA_2022-8-11",8.7,25,13.4,30.7,0.888888889,0,-0.483788057015038,-0.171924104554797,0.938866441878673,0.851646841023653,0.552559451456106,-0.336925850438738
 "4","CC_VA_2022-7-11",27.34,32.39,6.158,27.893,1,0,1.4111001960756,0.805909238148776,-1.16716822939641,0.00370618260300573,0.946309829362121,-0.336925850438738
