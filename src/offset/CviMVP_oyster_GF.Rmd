@@ -22,6 +22,7 @@ setwd("~/Documents/GitHub/MVP_oyster_GO")
 # packages
 library(LEA)
 library(dplyr) # for data cleaning
+library(plyr) # for data cleaning
 library(BiocManager) # needed to download specific packages
 library(readxl) # reading xlsx files
 library(raster) # for environmental pixels
@@ -29,6 +30,7 @@ library(ggplot2) # for plotting
 library(parallel) # for parallelizing processes
 library(doParallel) # for parallelizing processes 
 library(gradientForest) # for running gradient forest
+library(sf) # plotting
 
 # data
 # env
@@ -295,3 +297,139 @@ offsets_mvp <- merge(geno_offsets_red, af_offsets, by = c("site_name"))
 write.csv(offsets_mvp, paste0("results/GO_results/offsetsMVP_GF_", Sys.Date(), ".csv"))
 ```
 
+### Plotting
+
+I've got my offsets, and now want to plot them on a map! 
+
+```{r}
+library(rnaturalearth)
+
+# prep data for plotting
+offsets_mvp
+expEnv_pop
+popsdf <- read.csv("data/IndDat/popsdf.csv")[,-1]
+expEnv_pop2 <- expEnv_pop[,c("site_name","lat.x","lon.x")]
+colnames(expEnv_pop2) <- c("site","lat","lon")
+colnames(offsets_mvp) <- c("site", "Label_ind", "offset_gf_geno_lew", "offset_gf_geno_yrk", "offset_gf_af_lew", "offset_gf_af_yrk")
+popsplot1 <- merge(popsdf, expEnv_pop2, by = "site")
+popsplot2 <- merge(popsplot1, offsets_mvp, by = "site")
+
+# map
+sf::sf_use_s2(FALSE) # sf package doesn't work
+
+# set object
+world <- ne_countries(scale = "medium", returnclass = "sf")
+world_crop <- sf::st_crop(world, c(xmin =-102 , xmax = -68, ymin = 24, ymax = 47.049130))
+
+# bottom right: 24.353558, -55.373595
+# top left: 60.109743, 9.489737
+
+# offset to lew geno
+map_lew_geno <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  geom_point(data = popsplot2, aes(x=lon, y=lat, 
+                                   fill = offset_gf_geno_lew), 
+             shape = 21, size = 4)+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.045))+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
+        labs(title = "Genomic Offset of Oysters \n to Lewisetta (GF, Geno)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
+(map_lew_geno)
+
+world_chesapeake <- sf::st_crop(world, c(xmin =-77.856476 , xmax = -72.762787, ymin = 36.019557, ymax = 39.939163))
+
+# top left: 39.939163, -77.856476
+# bottom right: 36.019557, -72.762787
+
+popout_lew_geno <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
+  geom_point(data = popsplot2, aes(x=lon, y=lat, 
+                                   fill = offset_gf_geno_lew), 
+             shape = 21, size = 4)+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.045))+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
+        xlim(-77.856476, -72.762787) +
+        ylim(36.019557, 39.939163)
+popout_lew_geno
+
+# offset to lew af
+map_lew_af <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  geom_point(data = popsplot2, aes(x=lon, y=lat, 
+                                   fill = offset_gf_af_lew), 
+             shape = 21, size = 4)+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.045))+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
+        labs(title = "Genomic Offset of Oysters \n to Lewisetta (GF, AF)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
+(map_lew_af)
+
+popout_lew_af <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
+  geom_point(data = popsplot2, aes(x=lon, y=lat, 
+                                   fill = offset_gf_af_lew), 
+             shape = 21, size = 4)+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.07))+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
+        xlim(-77.856476, -72.762787) +
+        ylim(36.019557, 39.939163)
+popout_lew_af
+
+# offset to york geno
+map_york_geno <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  geom_point(data = popsplot2, aes(x=lon, y=lat, 
+                                   fill = offset_gf_geno_yrk), 
+             shape = 21, size = 4)+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.045))+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
+        labs(title = "Genomic Offset of Oysters \n to York River (GF, Geno)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
+(map_york_geno)
+
+popout_york_geno <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
+  geom_point(data = popsplot2, aes(x=lon, y=lat, 
+                                   fill = offset_gf_geno_yrk), 
+             shape = 21, size = 4)+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.07))+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
+        xlim(-77.856476, -72.762787) +
+        ylim(36.019557, 39.939163)
+popout_york_geno
+
+# offset to york af
+map_york_af <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  geom_point(data = popsplot2, aes(x=lon, y=lat, 
+                                   fill = offset_gf_af_yrk), 
+             shape = 21, size = 4)+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.045))+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
+        labs(title = "Genomic Offset of Oysters \n to York River (GF, AF)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
+(map_york_af)
+
+popout_york_af <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
+  geom_point(data = popsplot2, aes(x=lon, y=lat, 
+                                   fill = offset_gf_af_yrk), 
+             shape = 21, size = 4)+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.07))+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
+        xlim(-77.856476, -72.762787) +
+        ylim(36.019557, 39.939163)
+popout_york_af
+```
