@@ -68,6 +68,12 @@ which(nonvarsite_ld == T) # none
 
 ```{r}
 dim(sea_inds) # 746 inds (presumably in same order), 79 cols with identifying info incl pop
+<<<<<<< HEAD
+=======
+
+# let's get rid of the empty columns
+sea_inds_rm <- sea_inds[, apply(sea_inds, 2, function(x) !any(is.na(x)))] # only 29 columns now
+>>>>>>> 71caa11d457877753593e32f3e7f18fc6ec7efff
 
 # let's get rid of the empty columns
 sea_inds_rm <- sea_inds[, apply(sea_inds, 2, function(x) !any(is.na(x)))] # only 29 columns now
@@ -83,6 +89,7 @@ sea_inds_rm <- sea_inds[, apply(sea_inds, 2, function(x) !any(is.na(x)))] # only
 write.geno(geno_mat, paste0("data/GenDat/geno_seascape_", Sys.Date(), ".geno"))
 write.geno(geno_mat_ld, paste0("data/GenDat/geno_seascape_LDthin_", Sys.Date(), ".geno"))
 
+<<<<<<< HEAD
 # for LEA need lfmm format data
 geno2lfmm("data/GenDat/geno_seascape_2025-08-13.geno")
 geno2lfmm("data/GenDat/geno_seascape_LDthin_2025-08-13.geno")
@@ -90,5 +97,9 @@ geno2lfmm("data/GenDat/geno_seascape_LDthin_2025-08-13.geno")
 # for RDA and gf geno matrix should work, will also output geno as rds object
 write_rds(geno_mat, paste0("data/GenDat/geno_seascape_", Sys.Date(),".rds"))
 write_rds(geno_mat_ld, paste0("data/GenDat/geno_seascape_LDthin_", Sys.Date(),".rds"))
+=======
+# for RDA and gf geno matrix should work, will also output geno as rds object
+write.csv(geno_mat, "data/GenDat/geno_file_exp_all.csv")
+>>>>>>> 71caa11d457877753593e32f3e7f18fc6ec7efff
 ```
 
