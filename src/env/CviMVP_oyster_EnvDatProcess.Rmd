@@ -167,6 +167,7 @@ allenv1 <- rbind(na.omit(seascapeEnv_trim[!(seascapeEnv_trim$ID_SiteDate %in% se
 
 # scale the full env version
 std_allenv <- scale(allenv1[,-1])
+colnames(std_allenv) <- c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")
 allenv_scaled <- as.data.frame(cbind(allenv1, std_allenv))
 
 # keep track of scaling factors
@@ -196,57 +197,82 @@ Finally I want to make sure now that my environmental data will match my genomic
 # experimental individuals - would replace this with the seascape individuals for lining up the environmental data with genetic data, no need to actually have indiv level predictions for experiment just pop level
 
 # need ind level dat
+indsSea <- readRDS("data/IndDat/20250604_seascape_indsmatrix.rds")
 indsExp <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")
 
 # keep just relevant data
+indsSea_red <- indsSea[,c("clean_ID","Label_ind","Key_ind","ID_SiteDate","ID_Site","SiteDate_Key")]
+
 indsExp_red <- indsExp[,c("merge_ID_inds","Label_ind","Key_ind","ID_SiteDate","SiteDate_Key")]
 levels(as.factor(indsExp_red$ID_SiteDate))
 
-# LEFT OFF HERE, ADD SCALED DATA HERE
 # need to add scaled env data to this
-exp_scaled$site_name
+allenv_scaled$site_name
+indsSea_red$ID_SiteDate
 indsExp_red$ID_SiteDate
 
-# the pop (ID_SiteDate/site_name) data doesn't match up
-map <- list("TX-CapBay" = "W1-TX", "LA-SisLake" = "W2-LA", "FL-KingPlan" = "W3-FL", "LOLA" = "S1-LOLA", "DEBY" = "S2-DEBY", "VA-DeepWatSh" = "W4-VA", "NH-GrtBay" = "W5-NH", "ME-HogIs" = "W6-ME")
+# the pop (ID_SiteDate/site_name) data doesn't match up for experimental samples
+map <- list("TX-CapBay" = "W1_TX", "LA-SisLake" = "W2_LA", "FL-KingPlan" = "W3_FL", "LOLA" = "S1_LOLA", "DEBY" = "S2_DEBY", "VA-DeepWatSh" = "W4_VA", "NH-GrtBay" = "W5_NH", "ME-HogIs" = "W6_ME")
 indsExp_red_mut <- indsExp_red %>% mutate(ID_SiteDate = ifelse(ID_SiteDate %in% names(map), map[ID_SiteDate], ID_SiteDate))
+indsExp_red_mut <- as.data.frame(indsExp_red_mut)
 colnames(indsExp_red_mut) <- c("merge_ID_inds", "Label_ind", "Key_ind", "site_name", "SiteDate_Key")
 
 which(!(exp_scaled$site_name %in% indsExp_red_mut$site_name))
-which(!(indsExp_red_mut$site_name %in% exp_scaled$site_name)) # substitution worked!
+which(!(indsExp_red_mut$site_name %in% exp_scaled$site_name)) # no lola or deby, which is expected
 
 indsExp_red_mut$site_name <- as.character(indsExp_red_mut$site_name)
 
 # how many inds per site?
+table(indsSea_red$ID_SiteDate) # oops, we have a laguna madre sample in here, we need to remove this
 table(indsExp_red_mut$site_name) # 17-20
 
+# rm laguna madre
+indsSea_redrm <- indsSea_red[!(indsSea_red$ID_SiteDate == "LM_TX_2022-7-10"),]
+
+# split the allenv df into respective datasets
+sea_env_scale <- allenv_scaled[!(allenv_scaled$site_name %in% c("Lewisetta", "YorkRiver")),] # don't take out the expOrg data here, as it is the data for the seascape sites that I removed before scaling
+expOrg_env_scale <- allenv_scaled[allenv_scaled$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"),]
+expSite_env_scale <- allenv_scaled[allenv_scaled$site_name %in% c("Lewisetta", "YorkRiver"),]
+
+# rename the expOrg site_names that are still in the sea_env_scale df
+seascape2exp
+map2 <- list("W1_TX" = "CB_TX_2022-6-9", "W2_LA" = "Sister_Lk_LA_2022-8-9", "W3_FL" = "KP_FGR_FL_2022-8-23", "W4_VA" = "WS_CB_VA_2022-10-7", "W5_NH" = "SR_GB_NH_2022-8-12", "W6_ME" = "DC_DR_ME_2022-10-25")
+sea_env_scale_mut <- sea_env_scale %>% mutate(site_name = ifelse(site_name %in% names(map2), map2[site_name], site_name)) %>% as.data.frame()
+
+# site_name is a list
+sea_env_scale_mut$site_name <- as.factor(unlist(sea_env_scale_mut$site_name))
+
+# the experimental sites Lew & York need to be added to the experimental origin data in a single df
+expSite_env_scale_yrk <- expSite_env_scale[expSite_env_scale$site_name == "YorkRiver",]
+expSite_env_scale_lew <- expSite_env_scale[expSite_env_scale$site_name == "Lewisetta",]
+colnames(expSite_env_scale_yrk) <- c("site_name", "yrk_salinity_quantile_10", "yrk_salinity_quantile_90", "yrk_temp_quantile_10", "yrk_temp_quantile_90", "yrk_Dermo_Prevalence", "yrk_Pea_crab", "yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")
+colnames(expSite_env_scale_lew) <- c("site_name", "lew_salinity_quantile_10", "lew_salinity_quantile_90", "lew_temp_quantile_10", "lew_temp_quantile_90", "lew_Dermo_Prevalence", "lew_Pea_crab", "lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")
+
+# add this info to the expOrg df
+nrow(indsExp_red_mut) # 154 rows
+exp_env_scale <- cbind(expOrg_env_scale, (expSite_env_scale_lew[,-1]), (expSite_env_scale_yrk[,-1]))
+
+# add site_name column to seascape inds
+indsSea_redrm$site_name <- indsSea_redrm$ID_SiteDate
+
 # merge
-exp_scaled_expanded <- merge(as.data.frame(indsExp_red_mut), as.data.frame(exp_scaled), by = c("site_name"))
+sea_scaled_expanded <- merge(as.data.frame(indsSea_redrm), as.data.frame(sea_env_scale_mut), by = c("site_name"))
+exp_scaled_expanded <- merge(as.data.frame(indsExp_red_mut), as.data.frame(exp_env_scale), by = c("site_name"))
 
-# write this out to .csv
-write.csv(exp_scaled_expanded, paste0("data/EnvDat/exp/exp_scaled_expanded", Sys.Date(), ".csv"))
+# we lose a lot of rows when merging seascape, what are we losing?
+dim(sea_scaled_expanded)
+dim(indsSea_redrm) # 116 rows lost
 
-# do it for the other exp data
-expmg_scaled
-indsExp_red_mut
+levels(as.factor(indsSea_redrm[which(!(indsSea_redrm$site_name %in% sea_env_scale_mut$site_name)),]$site_name)) # we lose six seascape sites, namely "DWS_CB_VA_2022-10-7", "EelLake_Canada_2022-9-27", "FC_LIS_CT_2023-10-11", "NPS_PS_NC_2022-10-12", "NR_NB_RI_2022-8-19", and "PrEdIs_CN_A_2022-10-18"
 
-expmg_scaled$site_name <- gsub("_","-",expmg_scaled$site_name)
+# is it because these had NA's?
+View(seascapeEnv_trim[seascapeEnv_trim$site_name %in% c("DWS_CB_VA_2022-10-7", "EelLake_Canada_2022-9-27", "FC_LIS_CT_2023-10-11", "NPS_PS_NC_2022-10-12", "NR_NB_RI_2022-8-19", "PrEdIs_CN_A_2022-10-18"),]) # yes, these sites only have disease data - they should be removed from analysis, so it's ok that they are not in the seascape scaled df
 
-expmg_scaled_expanded <- merge(as.data.frame(indsExp_red_mut), as.data.frame(expmg_scaled), by = c("site_name"))
-
-# we lost lew and york because they weren't technically lines/pops, I actually need to attach the Lew/york info as separate columns
-lewyrk_scaled <- as.data.frame(expmg_scaled[expmg_scaled$site_name %in% c("LEW","YRK"),])
-lew_scaled <- as.data.frame(expmg_scaled[expmg_scaled$site_name == "LEW",c("site_name","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","sal_quant10_scaled","sal_quant90_scaled","temp_quant10_scaled","temp_quant90_scaled")])
-yrk_scaled <- as.data.frame(expmg_scaled[expmg_scaled$site_name == "YRK",c("site_name","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","sal_quant10_scaled","sal_quant90_scaled","temp_quant10_scaled","temp_quant90_scaled")])
-colnames(lew_scaled) <- paste0("LEW_",colnames(lew_scaled))
-colnames(yrk_scaled) <- paste0("YRK_",colnames(yrk_scaled))
-
-# add columns to larger df
-expmg_scaled_expanded_mg1 <- cbind(expmg_scaled_expanded, lew_scaled[rep(seq_len(nrow(lew_scaled)), 154),-1])
-expmg_scaled_expanded_mg2 <- cbind(expmg_scaled_expanded_mg1, yrk_scaled[rep(seq_len(nrow(yrk_scaled)), 154),-1])
-
-# save this output
-write.csv(expmg_scaled_expanded_mg2, "data/EnvDat/exp/expsitesquants_scaled_04222025.csv")
+# write these out to .csv
+write.csv(exp_env_scale, paste0("data/EnvDat/exp/exp_scaled_", Sys.Date(), ".csv"))
+write.csv(as.data.frame(sea_env_scale_mut), paste0("data/EnvDat/exp/sea_scaled_", Sys.Date(), ".csv"))
+write.csv(exp_scaled_expanded, paste0("data/EnvDat/exp/exp_scaled_expanded_", Sys.Date(), ".csv"))
+write.csv(sea_scaled_expanded, paste0("data/EnvDat/seascape/sea_scaled_expanded_", Sys.Date(), ".csv"))
 ```
 
 ## Environmental Distance
@@ -308,7 +334,7 @@ write.csv(env_dist_long_mg2, paste0("data/EnvDat/exp/distance_matrix_longer_", S
 library(viridis)
 envdist_plot <- ggplot(env_dist_long_mg2, aes(x = fct_reorder(site1, order1), 
                               y = fct_reorder(site2, order2), 
-                              fill = value))+
+                              fill = dist))+
   theme_classic()+
   geom_tile(color = "black") +
 #  geom_text(aes(label = distances), color = "white", size = 4)+
@@ -353,19 +379,16 @@ LEA requires environmental data be formatted as a .env file type.
 
 ```{r}
 # prep as matrix
-#sea_mat <- as.matrix(sea_scaled[,c("max_sal_scaled","min_sal_scaled","max_temp_scaled","min_temp_scaled")])
-exp_mat <- as.matrix(exp_scaled_expanded[,c("max_sal_scaled","min_sal_scaled","max_temp_scaled","min_temp_scaled")]) # would only actually need exp_scaled because don't need each individual to have assigned data, just pop level predictions
-expquants_mat <- as.matrix(expmg_scaled_expanded_mg2[,c("sal_quant10_scaled","sal_quant90_scaled","temp_quant10_scaled","temp_quant90_scaled")])
-lewquants_mat <- as.matrix(expmg_scaled_expanded_mg2[,c("LEW_sal_quant10_scaled","LEW_sal_quant90_scaled","LEW_temp_quant10_scaled","LEW_temp_quant90_scaled")])
-yrkquants_mat <- as.matrix(expmg_scaled_expanded_mg2[,c("YRK_sal_quant10_scaled","YRK_sal_quant90_scaled","YRK_temp_quant10_scaled","YRK_temp_quant90_scaled")])
+sea_mat <- as.matrix(sea_env_scale_mut[,8:13])
+sea_expanded_mat <- as.matrix(sea_scaled_expanded[,13:18])
+full_exp_mat <- as.matrix(exp_env_scale[,8:37])
+full_exp_expanded_mat <- as.matrix(exp_scaled_expanded[,12:41])
 
 # and convert to env format
-#write.env(sea_mat, "data/EnvDat/sea/sea_scaled.env")
-#write.env(exp_mat, "data/EnvDat/exp/exp_scaled.env")
-write.env(exp_mat, "data/EnvDat/exp/exp_scaled_expanded_04222025.env")
-write.env(expquants_mat, "data/EnvDat/exp/expquant_scaled_expanded_04222025.env")
-write.env(lewquants_mat, "data/EnvDat/exp/lewquant_scaled_expanded_04222025.env")
-write.env(yrkquants_mat, "data/EnvDat/exp/yrkquant_scaled_expanded_04222025.env")
+write.env(sea_mat, paste0("data/EnvDat/seascape/seascape_scaled_", Sys.Date(), ".env"))
+write.env(sea_expanded_mat, paste0("data/EnvDat/seascape/seascape_scaled_expanded_", Sys.Date(), ".env"))
+write.env(full_exp_mat, paste0("data/EnvDat/seascape/exp_scaled_", Sys.Date(), ".env"))
+write.env(full_exp_expanded_mat,paste0("data/EnvDat/seascape/exp_scaled_expanded_", Sys.Date(), ".env"))
 ```
 
 
