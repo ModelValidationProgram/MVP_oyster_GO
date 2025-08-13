@@ -87,8 +87,6 @@ write.geno(geno_mat_ld, paste0("data/GenDat/geno_seascape_LDthin_", Sys.Date(), 
 geno2lfmm("data/GenDat/geno_seascape_2025-08-13.geno")
 geno2lfmm("data/GenDat/geno_seascape_LDthin_2025-08-13.geno")
 
-# for RDA and gf geno matrix should work, will also output geno as rds object
-write_rds(geno_mat, paste0("data/GenDat/geno_seascape_", Sys.Date(),".rds"))
-write_rds(geno_mat_ld, paste0("data/GenDat/geno_seascape_LDthin_", Sys.Date(),".rds"))
+# for RDA and gf geno matrix should work, these already exist
 ```
 
