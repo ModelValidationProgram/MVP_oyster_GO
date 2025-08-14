@@ -42,17 +42,24 @@ library(stringr) # for data wrangling
 # env
 env_all <- read.csv("data/EnvDat/env_scaled_2025-08-13.csv")[,-1]
 env_sea <- read.env("data/EnvDat/seascape/seascape_scaled_2025-08-13.env")
-env_sea_expand <- read.env("data/EnvDat/seascape/seascape_scaled_expanded_2025-08-13.env")
+env_sea_csv <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-08-14.csv")[,-1]
+env_sea_expand <- read.env("data/EnvDat/seascape/seascape_scaled_expanded_reord_2025-08-14.env")
 env_exp <- read.env("data/EnvDat/exp/exp_scaled_2025-08-13.env")
+env_exp_csv <-  read.csv("data/EnvDat/exp/exp_scaled_expanded_2025-08-13.csv")[,-1]
 env_exp_expand <- read.env("data/EnvDat/exp/exp_scaled_expanded_2025-08-13.env")
 
+# sites
+env_sea_sites <- read.csv("data/EnvDat/seascape_sitenames.csv")[,-1]
+env_exp_sites <- read.csv("data/EnvDat/exp_sitenames.csv")[,-1]
+
 # gen
-genoMat <- read.geno("data/GenDat/geno_seascape_2025-08-13.geno")
-genoLfmm <- read.lfmm("data/GenDat/geno_seascape_2025-08-13.lfmm")
-genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2025-08-13.geno")
-genoThinLfmm <- read.lfmm("data/GenDat/geno_seascape_LDthin_2025-08-13.lfmm")
+genoMat <- read.geno("data/GenDat/geno_seascape_2025-08-14.geno")
+genoLfmm <- read.lfmm("data/GenDat/geno_seascape_2025-08-14.lfmm")
+genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2025-08-14.geno")
+genoThinLfmm <- read.lfmm("data/GenDat/geno_seascape_LDthin_2025-08-14.lfmm")
 
 # inds
+inds_genomat <- read.csv("data/GenDat/inds_genomat.csv")[,-1]
 indsExp <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")
 indsExpSeq <- readRDS("data/IndDat/20240820_experimentalmatrix.rds")
 indsSea <- readRDS("data/IndDat/20250604_seascape_indsmatrix.rds")
@@ -70,10 +77,22 @@ colnames(env_sea) <- colnames(env_sea_expand) <- c("sal_quant10_scaled", "sal_qu
 
 colnames(env_exp) <- colnames(env_exp_expand) <- c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "lew_sal_quant10_scaled", "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "yrk_sal_quant10_scaled", "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")
 
-rownames(env_sea) <- .
-rownames(env_exp) <- .
-rownames(env_sea_expand) <- .
-rownames(env_exp_expand)
+rownames(env_sea) <- env_sea_ordered$site_name
+rownames(env_exp) <- env_exp_sites
+rownames(env_sea_expand) <- indsSea[indsSea$ID_SiteDate %in% env_sea_sites, "ID_SiteDate"]
+rownames(env_exp_expand) <- indsExp[!(indsExp$ID_SiteDate %in% c("DEBY", "LOLA")), "ID_SiteDate"]
+```
+
+
+### Genetic Data Prep
+
+```{r}
+# name the rows of genomic data
+rownames(genoMat) <- rownames(genoLfmm) <- rownames(genoThinMat) <- rownames(genoThinLfmm) <- inds_genomat
+
+# make sure genotype data is in the same order as individual & environmental data
+env_sea_csv$clean_ID %in% inds_genomat
+env_sea_csv$clean_ID == inds_genomat # yes, everything is in the correct order
 ```
 
 
@@ -85,48 +104,58 @@ Madeline also compiled the environmental data, which I further processed in the 
 May decide to train both genotype-based models and allele frequency based models - for now genotype models only.
 
 ```{r}
-# read in the new lfmm file
-geno_lfmm_mod <- read.lfmm("data/GenDat/geno_file_exp_all.lfmm")
-
 # check the data
-geno_lfmm_mod
+genoLfmm[1:10, 1:10]
+genoThinLfmm[1:10, 1:10]
 
-#seascape_env
-expEnv_env <- read.env("data/EnvDat/exp/expquant_scaled_expanded_04222025.env")
-york_env <- read.env("data/EnvDat/exp/yrkquant_scaled_expanded_04222025.env")
-lew_env <- read.env("data/EnvDat/exp/lewquant_scaled_expanded_04222025.env")
 
 # fit model
-mod_lfmm <- lfmm2(input = geno_lfmm_mod,
-                  env = expEnv_env, 
-                  K = 2) # using number of MLLs - should I keep K the same for
+mod_lfmm <- lfmm2(input = genoLfmm,
+                  env = env_sea_expand, 
+                  K = 2) # this was number from Madeline's snmf analysis
+mod_lfmmthin <- lfmm2(input = genoThinLfmm,
+                      env = env_sea_expand,
+                      K = 2)
 
 # perform test
 pv_lfmm <- lfmm2.test(object = mod_lfmm,
-                      input = geno_lfmm_mod,
-                      env = expEnv_env, 
+                      input = genoLfmm,
+                      env = env_sea_expand, 
+                      full = TRUE)
+pv_lfmmthin <- lfmm2.test(object = mod_lfmmthin,
+                      input = genoThinLfmm,
+                      env = env_sea_expand, 
                       full = TRUE)
 
 # pvalues
 pv <- pv_lfmm$pvalues
+pvthin <- pvlfmmthin$pvalues
 
 # qvalues
 library(qvalue)
 qv <- qvalue(pv, fdr.level = 0.01)
+qvthin <- qvalue(pvthin, fdr.level = 0.01)
 
 # candidates
 candidates <- which(qv$significant)
 candidates_pvals <- (pv)[candidates]
 
+candidatesthin <- which(qvthin$significant)
+candidates_pvalsthin <- (pvthin)[candidates]
+
 # using FDR to filter out false positives
 length(which(qv$qvalues < 0.01)) # how many
+length(which(qvthin$qvalues < 0.01))
 
 # identify which SNPs have FDR less than 1%
-fdr_cands <- colnames(geno_lfmm_mod)[which(qv$qvalues < 0.01)]
+fdr_cands <- colnames(genoLfmm)[which(qv$qvalues < 0.01)]
+fdr_candsthin <- colnames(genoThinLfmm)[which(qv$qvalues < 0.01)]
 
 # df for candidates
 cand_df <- data.frame(index = colnames(geno_lfmm_mod), pos = 1:length(pv),
                       pvals = pv, qvals = qv$qvalues)
+
+### LEFT OFF HERE ###
 
 # manhattan plot - unnecessary but just a quick visualization
 plot(cand_df$pos, -log10(cand_df$pvals), 

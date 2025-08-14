@@ -73,6 +73,22 @@ dim(sea_inds) # 746 inds (presumably in same order), 79 cols with identifying in
 sea_inds_rm <- sea_inds[, apply(sea_inds, 2, function(x) !any(is.na(x)))] # only 29 columns now
 
 # rownames of genomic data match clean_ID in individual df, and appear to be in the same order
+
+# i need to get rid of inds not in my dataset (the ones with no environmental data)
+env_sea_sites <- read.csv("data/EnvDat/seascape_sitenames.csv")[,-1]
+seaRows_keep <- which((sea_inds_rm$ID_SiteDate %in% env_sea_sites))
+
+geno_mat_keep <- geno_mat[seaRows_keep,]
+geno_mat_ld_keep <- geno_mat_ld[seaRows_keep,]
+
+# also be sure to put this data in the correct order to match environmental df
+# first let's figure out which population everyone is from
+genomat_order <- data.frame(clean_ID = rownames(geno_mat_keep), order_mat = 1:length(rownames(geno_mat_keep)))
+sea_inds_order <- sea_inds_rm[seaRows_keep, c("clean_ID","ID_SiteDate")]
+sea_inds_order$order_inds <- 1:length(sea_inds_order$clean_ID)
+which(!(sea_inds_order$clean_ID %in% genomat_order$clean_ID))
+ordered_sea_gen <- merge(genomat_order, sea_inds_order, by = "clean_ID")
+ordered_sea_gen
 ```
 
 
@@ -80,13 +96,19 @@ sea_inds_rm <- sea_inds[, apply(sea_inds, 2, function(x) !any(is.na(x)))] # only
 
 ```{r}
 # write these matrices as geno files
-write.geno(geno_mat, paste0("data/GenDat/geno_seascape_", Sys.Date(), ".geno"))
-write.geno(geno_mat_ld, paste0("data/GenDat/geno_seascape_LDthin_", Sys.Date(), ".geno"))
+write.geno(geno_mat_keep, paste0("data/GenDat/geno_seascape_", Sys.Date(), ".geno"))
+write.geno(geno_mat_ld_keep, paste0("data/GenDat/geno_seascape_LDthin_", Sys.Date(), ".geno"))
+
+# also write out information about the individuals in each row (same inds in ld and not ld mats)
+inds_genomat <- rownames(geno_mat_keep)
+write.csv(inds_genomat, "data/GenDat/inds_genomat.csv")
 
 # for LEA need lfmm format data
-geno2lfmm("data/GenDat/geno_seascape_2025-08-13.geno")
-geno2lfmm("data/GenDat/geno_seascape_LDthin_2025-08-13.geno")
+geno2lfmm("data/GenDat/geno_seascape_2025-08-14.geno")
+geno2lfmm("data/GenDat/geno_seascape_LDthin_2025-08-14.geno")
 
-# for RDA and gf geno matrix should work, these already exist
+# for RDA and gf geno matrix should work
+write_rds(geno_mat_keep, paste0("data/GenDat/geno_seascape_rm_", Sys.Date(), ".RDS"))
+write_rds(geno_mat_ld_keep, paste0("data/GenDat/geno_seascape_LDthin_rm_", Sys.Date(), ".RDS"))
 ```
 
