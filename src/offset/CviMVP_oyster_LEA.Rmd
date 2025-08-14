@@ -30,65 +30,50 @@ library(stringr) # for data wrangling
 
 # data
 # env
-seascapeEnv <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv") # keep this but also get list of reduced variables
-expEnv <- read.csv("data/EnvDat/exp/envr_summary_stats.csv")[,-1]
-expEnv_env <- read.env("data/EnvDat/exp/exp_scaled_expanded_04222025.env")
-expEnvq_env <- read.env("data/EnvDat/exp/expquant_scaled_expanded_04222025.env")
-york_env <- read.env("data/EnvDat/exp/yrkquant_scaled_expanded_04222025.env")
-lew_env <- read.env("data/EnvDat/exp/lewquant_scaled_expanded_04222025.env")
+# seascapeEnv <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv") # keep this but also get list of reduced variables
+# expEnv <- read.csv("data/EnvDat/exp/envr_summary_stats.csv")[,-1]
+# expEnv_env <- read.env("data/EnvDat/exp/exp_scaled_expanded_04222025.env")
+# expEnvq_env <- read.env("data/EnvDat/exp/expquant_scaled_expanded_04222025.env")
+# york_env <- read.env("data/EnvDat/exp/yrkquant_scaled_expanded_04222025.env")
+# lew_env <- read.env("data/EnvDat/exp/lewquant_scaled_expanded_04222025.env")
+# 
+# expEnv_comp <- read.csv("data/EnvDat/exp/expsitesquants_scaled_04222025.csv")[,-1]
 
-expEnv_comp <- read.csv("data/EnvDat/exp/expsitesquants_scaled_04222025.csv")[,-1]
+# env
+env_all <- read.csv("data/EnvDat/env_scaled_2025-08-13.csv")[,-1]
+env_sea <- read.env("data/EnvDat/seascape/seascape_scaled_2025-08-13.env")
+env_sea_expand <- read.env("data/EnvDat/seascape/seascape_scaled_expanded_2025-08-13.env")
+env_exp <- read.env("data/EnvDat/exp/exp_scaled_2025-08-13.env")
+env_exp_expand <- read.env("data/EnvDat/exp/exp_scaled_expanded_2025-08-13.env")
 
 # gen
-# add once i get it from madeline
-genoMat <- read.geno("data/GenDat/geno_file_exp_all.geno")
-geno_lfmm <- read.lfmm("data/GenDat/geno_file_exp_all.lfmm")
+genoMat <- read.geno("data/GenDat/geno_seascape_2025-08-13.geno")
+genoLfmm <- read.lfmm("data/GenDat/geno_seascape_2025-08-13.lfmm")
+genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2025-08-13.geno")
+genoThinLfmm <- read.lfmm("data/GenDat/geno_seascape_LDthin_2025-08-13.lfmm")
 
 # inds
 indsExp <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")
 indsExpSeq <- readRDS("data/IndDat/20240820_experimentalmatrix.rds")
+indsSea <- readRDS("data/IndDat/20250604_seascape_indsmatrix.rds")
 ```
 
 
 ## Data Prep
 
-
-### Genetic Data Prep
-
-```{r}
-# Genetic data prep
-# need to convert genotype matrix to lfmm format
-geno2lfmm("data/GenDat/geno_file_exp_all.geno", force = T)
-
-# read in lfmm object
-geno_lfmm <- read.lfmm("data/GenDat/geno_file_exp_all.lfmm")
-
-# check data
-geno_lfmm
-
-# any missing data? - this part is largely redundant now with the gendatprocess script, remove this stuff eventually
-sum(geno_lfmm == 9)
-
-# naive imputation
-geno_lfmm_imp <- apply(geno_lfmm, 2, function(x) replace(x, x == 9, as.numeric(names(which.max(table(x))))))
-sum((geno_lfmm_imp == 9)) 
-
-# remove non-variable genomic sites
-geno_lfmm_imp_df <- as.data.frame(geno_lfmm_imp)
-geno_lfmm_imp_trim <- Filter(var, geno_lfmm_imp_df)
-geno_lfmm_imp_mat <- as.matrix(geno_lfmm_imp_trim)
-
-# rewrite lfmm files
-write.lfmm(geno_lfmm_imp_mat, "data/GenDat/geno_lfmm_imp_mat.lfmm")
-```
-
-
 ### Environmental Data Prep
 
 ```{r}
 # environmental data prep
-colnames(expEnvq_env) <- c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")
-rownames(expEnvq_env) <- expEnv_comp$site_name
+# just renaming columns & rows to be more informative
+colnames(env_sea) <- colnames(env_sea_expand) <- c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")
+
+colnames(env_exp) <- colnames(env_exp_expand) <- c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "lew_sal_quant10_scaled", "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "yrk_sal_quant10_scaled", "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")
+
+rownames(env_sea) <- .
+rownames(env_exp) <- .
+rownames(env_sea_expand) <- .
+rownames(env_exp_expand)
 ```
 
 

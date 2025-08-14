@@ -381,14 +381,14 @@ LEA requires environmental data be formatted as a .env file type.
 # prep as matrix
 sea_mat <- as.matrix(sea_env_scale_mut[,8:13])
 sea_expanded_mat <- as.matrix(sea_scaled_expanded[,13:18])
-full_exp_mat <- as.matrix(exp_env_scale[,8:37])
-full_exp_expanded_mat <- as.matrix(exp_scaled_expanded[,12:41])
+full_exp_mat <- as.matrix(exp_env_scale[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")])
+full_exp_expanded_mat <- as.matrix(exp_scaled_expanded[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")])
 
 # and convert to env format
 write.env(sea_mat, paste0("data/EnvDat/seascape/seascape_scaled_", Sys.Date(), ".env"))
 write.env(sea_expanded_mat, paste0("data/EnvDat/seascape/seascape_scaled_expanded_", Sys.Date(), ".env"))
-write.env(full_exp_mat, paste0("data/EnvDat/seascape/exp_scaled_", Sys.Date(), ".env"))
-write.env(full_exp_expanded_mat,paste0("data/EnvDat/seascape/exp_scaled_expanded_", Sys.Date(), ".env"))
+write.env(full_exp_mat, paste0("data/EnvDat/exp/exp_scaled_", Sys.Date(), ".env"))
+write.env(full_exp_expanded_mat,paste0("data/EnvDat/exp/exp_scaled_expanded_", Sys.Date(), ".env"))
 ```
 
 
