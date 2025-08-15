@@ -98,14 +98,17 @@ lewyrk_pea_avgs <- as.data.frame(lewyrk_pea_avgs)
 # put together temp and sal
 expsal_red <- expsal[,c("site_name","lat","lon","Mean_Annual_Salinity_ppt","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","salinity_quantile_10","salinity_quantile_90")]
 exptemp_red <- exptemp[,c("site_name","lat","lon","Mean_Annual_Temperature_C","Mean_max_temperature_C","Mean_min_temperature_C","temp_quantile_10","temp_quantile_90")]
-expenv_mg <- merge(expsal_red, exptemp_red, by = c("site_name"))
+expenv_mg <- merge(expsal_red, exptemp_red, by = c("site_name", "lat", "lon"))
+
+# experimental site info output
+write.csv(expenv_mg[,c("site_name", "lat", "lon")], "data/EnvDat/exp/exp_site_info.csv")
 
 # look at corrs
 pairs.panels(expenv_mg[,c("Mean_Annual_Salinity_ppt","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","salinity_quantile_10","salinity_quantile_90","Mean_Annual_Temperature_C","Mean_max_temperature_C","Mean_min_temperature_C","temp_quantile_10","temp_quantile_90")])
 pairs.panels(expenv_mg[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")])
 
 # keeping just quantiles
-expenv_trim <- expenv_mg[,c("site_name","lat.x","lon.x","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")]
+expenv_trim <- expenv_mg[,c("site_name","lat","lon","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")]
 
 # pull out just lewisetta and york
 lewyrk_quants <- expenv_trim[expenv_trim$site_name %in% c("LEW", "YRK"),]

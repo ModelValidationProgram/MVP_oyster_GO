@@ -51,6 +51,7 @@ env_exp_expand <- read.env("data/EnvDat/exp/exp_scaled_expanded_2025-08-14.env")
 # sites
 env_sea_sites <- read.csv("data/EnvDat/seascape_sitenames.csv")[,-1]
 env_exp_sites <- read.csv("data/EnvDat/exp_sitenames.csv")[,-1]
+exp_site_latlon <- read.csv("data/EnvDat/exp/exp_site_info.csv")[,-1]
 
 # gen
 genoMat <- read.geno("data/GenDat/geno_seascape_2025-08-14.geno")
@@ -112,10 +113,12 @@ genoThinLfmm[1:10, 1:10]
 # fit model
 mod_lfmm <- lfmm2(input = genoLfmm,
                   env = env_sea_expand, 
-                  K = 2) # this was number from Madeline's snmf analysis
+                  K = 2, # this was number from Madeline's snmf analysis
+                  effect.sizes = T) 
 mod_lfmmthin <- lfmm2(input = genoThinLfmm,
                       env = env_sea_expand,
-                      K = 2)
+                      K = 2,
+                      effect.sizes = T)
 
 # perform test
 pv_lfmm <- lfmm2.test(object = mod_lfmm,
@@ -189,104 +192,61 @@ colnames(env_exp_expand)
 colnames(env_exp_csv)
 colnames(env_exp_expand) <- c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")
 
-# calculate genetic gap
-gap_lew <- genetic.offset(input = genoLfmm, 
-                   env = env_exp_expand[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")], 
-                   pred.env = env_exp_expand[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")], 
-                   scale = F, 
-                   K = 2)
+# I CANNOT CALCULATE OFFSET FOR MY EXPERIMENTAL SITES WITH THE BASE FUNCTION - I NEED TO FOLLOW THE VIGNETTE FROM SSMPG https://github.com/bcm-uga/SSMPG2025/blob/main/Tutorials/Tutorial%20visualization/Spatial_Prediction_Genomic_Offset.Rmd
 
-gap_yrk <- genetic.offset(input = genoLfmm, 
-                   env = env_exp_expand[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")], 
-                   pred.env = env_exp_expand[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")], 
-                   scale = F, 
-                   K = 2)
+# first, I need to get environmental effect sizes from the trained models
+B <- mod_lfmm@B
+Bthin <- mod_lfmmthin@B
 
-gap_lewthin <- genetic.offset(input = genoLfmm, 
-                   env = env_exp_expand[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")], 
-                   pred.env = env_exp_expand[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")], 
-                   scale = F, 
-                   K = 2)
+# not using candidate loci for now
+# calculate "genetic gap" for all the experimental sites
+gg_lew = NULL
+for (i in 1:nrow(env_exp_expand[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
+gg_lew[i] = mean(((env_exp_expand[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_exp_expand[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")])[i,]  %*% t(B))^2, na.rm = TRUE)
+}
 
-gap_yrkthin <- genetic.offset(input = genoLfmm, 
-                   env = env_exp_expand[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")], 
-                   pred.env = env_exp_expand[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")], 
-                   scale = F, 
-                   K = 2)
+gg_yrk = NULL
+for (i in 1:nrow(env_exp_expand[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
+gg_yrk[i] = mean(((env_exp_expand[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_exp_expand[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")])[i,]  %*% t(B))^2, na.rm = TRUE)
+}
 
-# THESE PARTS NEED TO BE UPDATED FROM EELGRASS SCRIPT VERSION
-# check how well each genetic gap measure correlates with euclidean environmental distance
-Delta <- expEnv_env - lew_env
-dist_env <- sqrt(rowSums(Delta^2))
-plot(dist_env, gap_lew$distance,
-     main = "Genetic gap vs Environmental Distance", 
-     xlab ="Euclidean distance",  ylab ="sqrt(genetic gap)", 
-     cex = .6, col = "darkslategray4", pch = 19)
+gg_lewthin = NULL
+for (i in 1:nrow(env_exp_expand[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
+gg_lewthin[i] = mean(((env_exp_expand[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_exp_expand[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")])[i,]  %*% t(Bthin))^2, na.rm = TRUE)
+}
 
-Delta <- expEnv_env - york_env
-dist_env <- sqrt(rowSums(Delta^2))
-plot(dist_env, gap_yrk$distance,
-     main = "Genetic gap vs Environmental Distance", 
-     xlab ="Euclidean distance",  ylab ="sqrt(genetic gap)", 
-     cex = .6, col = "darkslategray4", pch = 19)
+gg_yrkthin = NULL
+for (i in 1:nrow(env_exp_expand[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
+gg_yrkthin[i] = mean(((env_exp_expand[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_exp_expand[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")])[i,]  %*% t(Bthin))^2, na.rm = TRUE)
+}
 
-# Extract genomic offset from genetic gap object
-offsets_lew <- gap_lew$offset
-offsets_yrk <- gap_yrk$offset
+# associate predictions with site metadata
+gap_df <- env_exp_csv[,c("site_name","merge_ID_inds","Label_ind")]
+gap_df$lew_go <- gg_lew
+gap_df$yrk_go <- gg_yrk
+gap_df$lew_gothin <- gg_lewthin
+gap_df$yrk_gothin <- gg_yrkthin
 
-# summary stats on offsets
-summary(offsets_lew)
-summary(offsets_yrk)
-
-# offset dfs
-offsets_df <- cbind(expEnv_comp[,c("site_name","Label_ind")], offsets_lew, offsets_yrk)
+# reduce to single pop level prediction here, no need to have indiv level unless we end up with individual level disease data for these pops
+gap_df_red <- gap_df[!duplicated(gap_df$site_name), c("site_name", "lew_go", "yrk_go", "lew_gothin", "yrk_gothin")]
 
 # output results
-write.csv(offsets_df, paste0("results/GO_results/offsets_LEA_allexpinds_",Sys.Date,".csv", sep = ""))
+write.csv(gap_df_red, paste0("results/GO_results/offsets_LEA_",Sys.Date,".csv", sep = ""))
 ```
-
-
-```{r}
-# UPDATE FOR OYSTERS WHEN DATA IS IN
-# can now calculate offset by region, site, etc
-# average offset by site
-offset_lew <- aggregate(offsets_df$offsets_lew, by = list(offsets_df$site_name), FUN = mean)
-colnames(offset_lew) <- c("site","offset_lew")
-
-offset_yrk <- aggregate(offsets_df$offsets_yrk, by = list(offsets_df$site_name), FUN = mean)
-colnames(offset_yrk) <- c("site","offset_yrk")
-
-# order populations by average offset
-(ordered_offset_lew <- offset_lew[order(offset_lew$offset_lew),])
-ordered_offset_lew$order <- 1:8
-
-(ordered_offset_yrk <- offset_yrk[order(offset_yrk$offset_yrk),])
-ordered_offset_yrk$order <- 1:8
-
-# put this together into single df to visualize
-offset_sites <- merge(ordered_offset_lew, ordered_offset_yrk, by = "site")
-colnames(offset_sites) <- c("site","offset_lew","order_lew","offset_yrk","order_yrk")
-
-# save this and raw offsets as .csv
-write.csv(offset_sites, paste0("results/GO_results/offsets_LEA_expSites_",Sys.Date(),".csv", sep = ""))
-```
-
 
 ## Offset Visualization
 
 ```{r}
 # need to add latlongs for each site
-sites_geo <- expEnv_comp[,c("site_name","lat.x","lon.x")]
-colnames(sites_geo) <- c("site","lat","lon")
-offsets_plotting <- merge(sites_geo, offset_sites, by =  c("site"))
+offsets_plotting <- merge(exp_site_latlon, gap_df_red, by =  c("site_name"))
 
 # add the color palette
 popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "DEBY", "LOLA", "NH", "ME", "LARMIX", "SEEDMIX"), 
                      order = 1:10, 
                      cols = c("#3e4989" ,"#31688e", "#26828e", "#1f9e89", "#440154", "#482878", "#35b779", "#6ece58", "#fde725", "#b5de2b"),
                      shape = c(21,21,21,21,23,23,21,21,24,24),
-                     site = c("W1-TX", "W2-LA", "W3-FL", "W4-VA", "S1-LOLA", "S2-DEBY", "W5-NH", "W6-ME", "H1-LARMIX", "H2-SEEDMIX"))
-offsets_plotting_full <- merge(offsets_plotting, popsdf, by = c("site"))
+                     site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME", "H1_LARMIX", "H2_SEEDMIX"))
+offsets_plotting_full <- merge(offsets_plotting, popsdf, by = c("site_name"))
 
 # save popdf object
 write.csv(popsdf, "data/IndDat/popsdf.csv")
@@ -313,9 +273,9 @@ map_lew <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
   geom_point(data = offsets_plotting_full, aes(x=lon, y=lat, 
-                                       fill = offset_lew), 
+                                       fill = lew_go), 
              shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.07))+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,1.2))+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
         labs(title = "Genomic Offset of Oysters \n to Lewisetta", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
@@ -330,9 +290,9 @@ popout_lew <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
   geom_point(data = offsets_plotting_full, aes(x=lon, y=lat, 
-                                       fill = offset_lew), 
+                                       fill = lew_go), 
              shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.07))+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,1.2))+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
         xlim(-77.856476, -72.762787) +
@@ -344,9 +304,9 @@ map_york <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
   geom_point(data = offsets_plotting_full, aes(x=lon, y=lat, 
-                                       fill = offset_yrk), 
+                                       fill = yrk_go), 
              shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.07))+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,1.2))+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
         labs(title = "Genomic Offset of Oysters \n to York River", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
@@ -356,9 +316,9 @@ popout_york <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
   geom_point(data = offsets_plotting_full, aes(x=lon, y=lat, 
-                                       fill = offset_yrk), 
+                                       fill = yrk_go), 
              shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.07))+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,1.2))+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
         xlim(-77.856476, -72.762787) +
