@@ -425,7 +425,7 @@ full_exp_expanded_mat <- as.matrix(exp_scaled_expanded[,c("salinity_quantile_10_
 write.env(sea_mat, paste0("data/EnvDat/seascape/seascape_scaled_", Sys.Date(), ".env"))
 write.env(env_sea_ordered_mat, paste0("data/EnvDat/seascape/seascape_scaled_expanded_reord_", Sys.Date(), ".env"))
 write.env(full_exp_mat, paste0("data/EnvDat/exp/exp_scaled_", Sys.Date(), ".env"))
-write.env(full_exp_expanded_mat,paste0("data/EnvDat/exp/exp_scaled_expanded_", Sys.Date(), ".env"))
+write.env(full_exp_expanded_mat, paste0("data/EnvDat/exp/exp_scaled_expanded_", Sys.Date(), ".env"))
 ```
 
 

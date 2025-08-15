@@ -44,9 +44,9 @@ env_all <- read.csv("data/EnvDat/env_scaled_2025-08-13.csv")[,-1]
 env_sea <- read.env("data/EnvDat/seascape/seascape_scaled_2025-08-13.env")
 env_sea_csv <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-08-14.csv")[,-1]
 env_sea_expand <- read.env("data/EnvDat/seascape/seascape_scaled_expanded_reord_2025-08-14.env")
-env_exp <- read.env("data/EnvDat/exp/exp_scaled_2025-08-13.env")
-env_exp_csv <-  read.csv("data/EnvDat/exp/exp_scaled_expanded_2025-08-13.csv")[,-1]
-env_exp_expand <- read.env("data/EnvDat/exp/exp_scaled_expanded_2025-08-13.env")
+env_exp <- read.env("data/EnvDat/exp/exp_scaled_2025-08-14.env")
+env_exp_csv <-  read.csv("data/EnvDat/exp/exp_scaled_expanded_2025-08-14.csv")[,-1]
+env_exp_expand <- read.env("data/EnvDat/exp/exp_scaled_expanded_2025-08-14.env")
 
 # sites
 env_sea_sites <- read.csv("data/EnvDat/seascape_sitenames.csv")[,-1]
@@ -77,7 +77,7 @@ colnames(env_sea) <- colnames(env_sea_expand) <- c("sal_quant10_scaled", "sal_qu
 
 colnames(env_exp) <- colnames(env_exp_expand) <- c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "lew_sal_quant10_scaled", "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "yrk_sal_quant10_scaled", "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")
 
-rownames(env_sea) <- env_sea_ordered$site_name
+rownames(env_sea) <- unique(env_sea_ordered$site_name)
 rownames(env_exp) <- env_exp_sites
 rownames(env_sea_expand) <- indsSea[indsSea$ID_SiteDate %in% env_sea_sites, "ID_SiteDate"]
 rownames(env_exp_expand) <- indsExp[!(indsExp$ID_SiteDate %in% c("DEBY", "LOLA")), "ID_SiteDate"]
@@ -129,7 +129,7 @@ pv_lfmmthin <- lfmm2.test(object = mod_lfmmthin,
 
 # pvalues
 pv <- pv_lfmm$pvalues
-pvthin <- pvlfmmthin$pvalues
+pvthin <- pv_lfmmthin$pvalues
 
 # qvalues
 library(qvalue)
@@ -144,18 +144,18 @@ candidatesthin <- which(qvthin$significant)
 candidates_pvalsthin <- (pvthin)[candidates]
 
 # using FDR to filter out false positives
-length(which(qv$qvalues < 0.01)) # how many
-length(which(qvthin$qvalues < 0.01))
+length(which(qv$qvalues < 0.001)) # 12455
+length(which(qvthin$qvalues < 0.001)) # 5430
 
 # identify which SNPs have FDR less than 1%
-fdr_cands <- colnames(genoLfmm)[which(qv$qvalues < 0.01)]
-fdr_candsthin <- colnames(genoThinLfmm)[which(qv$qvalues < 0.01)]
+fdr_cands <- colnames(genoLfmm)[which(qv$qvalues < 0.001)]
+fdr_candsthin <- colnames(genoThinLfmm)[which(qv$qvalues < 0.001)]
 
 # df for candidates
-cand_df <- data.frame(index = colnames(geno_lfmm_mod), pos = 1:length(pv),
+cand_df <- data.frame(index = colnames(genoLfmm), pos = 1:length(pv),
                       pvals = pv, qvals = qv$qvalues)
-
-### LEFT OFF HERE ###
+cand_df_thin <- data.frame(index = colnames(genoThinLfmm), pos = 1:length(pvthin),
+                      pvals = pvthin, qvals= qvthin$qvalues)
 
 # manhattan plot - unnecessary but just a quick visualization
 plot(cand_df$pos, -log10(cand_df$pvals), 
@@ -163,8 +163,18 @@ plot(cand_df$pos, -log10(cand_df$pvals),
      main = "Candidate SNPs",
      xlab = "Position",
      ylab = "-log10(Pvals)")
-points(cand_df$pos[cand_df$qvals < 0.01], 
-       -log10(cand_df$pvals[cand_df$qvals < 0.01]),
+points(cand_df$pos[cand_df$qvals < 0.001], 
+       -log10(cand_df$pvals[cand_df$qvals < 0.001]),
+       pch = 19,
+       col = "hotpink")
+
+plot(cand_df_thin$pos, -log10(cand_df_thin$pvals), 
+     pch = 19, col = "darkslategray4",
+     main = "Candidate SNPs (Thinned)",
+     xlab = "Position",
+     ylab = "-log10(Pvals)")
+points(cand_df_thin$pos[cand_df_thin$qvals < 0.001], 
+       -log10(cand_df_thin$pvals[cand_df_thin$qvals < 0.001]),
        pch = 19,
        col = "hotpink")
 ```
@@ -173,20 +183,34 @@ points(cand_df$pos[cand_df$qvals < 0.01],
 ## Offset Prediction
 
 ```{r}
-# check future env data
-york_env # for predicting to york
-lew_env # for predicting to lew
+# check env data
+colnames(env_exp_csv)
+colnames(env_exp_expand)
+colnames(env_exp_csv)
+colnames(env_exp_expand) <- c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")
 
 # calculate genetic gap
-gap_lew <- genetic.gap(input = geno_lfmm_mod, 
-                   env = expEnv_env, 
-                   pred.env = lew_env, 
+gap_lew <- genetic.offset(input = genoLfmm, 
+                   env = env_exp_expand[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")], 
+                   pred.env = env_exp_expand[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")], 
                    scale = F, 
                    K = 2)
 
-gap_yrk <- genetic.gap(input = geno_lfmm_mod, 
-                   env = expEnv_env, 
-                   pred.env = york_env, 
+gap_yrk <- genetic.offset(input = genoLfmm, 
+                   env = env_exp_expand[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")], 
+                   pred.env = env_exp_expand[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")], 
+                   scale = F, 
+                   K = 2)
+
+gap_lewthin <- genetic.offset(input = genoLfmm, 
+                   env = env_exp_expand[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")], 
+                   pred.env = env_exp_expand[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")], 
+                   scale = F, 
+                   K = 2)
+
+gap_yrkthin <- genetic.offset(input = genoLfmm, 
+                   env = env_exp_expand[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")], 
+                   pred.env = env_exp_expand[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")], 
                    scale = F, 
                    K = 2)
 
