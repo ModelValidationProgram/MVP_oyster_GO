@@ -278,7 +278,7 @@ map_lew <- ggplot(data = world) +
   scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,1.2))+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-        labs(title = "Genomic Offset of Oysters \n to Lewisetta", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
+        labs(title = "Genomic Offset of Oysters \n to Lewisetta (LEA)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
 (map_lew)
 
 world_chesapeake <- sf::st_crop(world, c(xmin =-77.856476 , xmax = -72.762787, ymin = 36.019557, ymax = 39.939163))
@@ -309,7 +309,7 @@ map_york <- ggplot(data = world) +
   scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,1.2))+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-        labs(title = "Genomic Offset of Oysters \n to York River", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
+        labs(title = "Genomic Offset of Oysters \n to York River (LEA)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
 (map_york)
 
 popout_york <- ggplot(data = world) +

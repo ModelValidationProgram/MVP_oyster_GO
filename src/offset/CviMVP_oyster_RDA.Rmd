@@ -35,21 +35,41 @@ library(stringr) # for data wrangling
 library(ggplot2) # for data vis
 library(viridis) # for data vis
 library(wesanderson) # for data vis
+library(rdadapt) # for rda
 
 # data
 # env
 seascapeEnv <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv") # keep this but also get list of reduced variables
-expEnv <- read.csv("data/EnvDat/exp/exp_scaled_expanded_04222025.csv")[,-1]
-expEnv_pop <- read.csv("data/EnvDat/exp/expquants_scaled_04222025.csv")[,-1]
+#expEnv <- read.csv("data/EnvDat/exp/exp_scaled_expanded_04222025.csv")[,-1]
+#expEnv_pop <- read.csv("data/EnvDat/exp/expquants_scaled_04222025.csv")[,-1]
 # expanded env data
-complete_env <- read.csv("data/EnvDat/exp/expsitesquants_scaled_04222025.csv")[,-1]
+#complete_env <- read.csv("data/EnvDat/exp/expsitesquants_scaled_04222025.csv")[,-1]
+
+# env
+env_all <- as.data.frame(read.csv("data/EnvDat/env_scaled_2025-08-13.csv")[,-1])
+env_sea <- as.data.frame(read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-08-14.csv")[,-1])
+env_exp <- as.data.frame(read.csv("data/EnvDat/exp/exp_scaled_expanded_2025-08-14.csv")[,-1])
+
+# sites
+env_sea_site <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")[,-1]
+env_sea_date <- read.csv("data/EnvDat/seascape/SeascapeSamples - date.csv")[,-1]
+env_exp_site <- read.csv("data/EnvDat/exp_sitenames.csv")[,-1]
+exp_site_latlon <- read.csv("data/EnvDat/exp/exp_site_info.csv")[,-1]
 
 # gen
-geno_dat <- as.data.frame(read.lfmm("data/GenDat/geno_file_exp_all.lfmm"))
-geno_exp <- as.data.frame(readRDS("data/GenDat/20250203_experimentalmatrix.RDS"))
+#geno_dat <- as.data.frame(read.lfmm("data/GenDat/geno_file_exp_all.lfmm"))
+#geno_exp <- as.data.frame(readRDS("data/GenDat/20250203_experimentalmatrix.RDS"))
+
+# gen
+genoMat <- read.geno("data/GenDat/geno_seascape_2025-08-14.geno")
+genoLfmm <- read.lfmm("data/GenDat/geno_seascape_2025-08-14.lfmm")
+genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2025-08-14.geno")
+genoThinLfmm <- read.lfmm("data/GenDat/geno_seascape_LDthin_2025-08-14.lfmm")
 
 # individuals
-seascapeInds <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds") # these are the experimental individuals for now, need the updated seascape stuff from madeline
+expInds <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")
+seascapeInds <- readRDS("data/IndDat/20250604_seascape_indsmatrix.rds")
+inds_genomat <- read.csv("data/GenDat/inds_genomat.csv")[,-1]
 ```
 
 
@@ -61,55 +81,33 @@ I will start by double checking that I have my genomic and environmental data in
 # env data
 ##########
 # seascape
-seascapeEnv
-seascapeEnv[which(is.na(seascapeEnv$Mean_Annual_Salinity_ppt)),]
-
-# we have NAs! remove those
-seascape_nona <- seascapeEnv[!(is.na(seascapeEnv$Mean_Annual_Salinity_ppt)),]
+env_sea
+env_sea[which(is.na(env_sea$Mean_Annual_Salinity_ppt)),] # no na
 
 # need to find the more complete YRK & LEW data, talk to nicole about this
-# once I have that and the seascape quantile data, I will make predictions - for now use just the experimental pops for training
-# also need the seascape genomic data, this will be goal for next week to update all three GO pipelines for seascape genomic data
 
 # check exp data
-expEnv
-expEnv_pop # expEnv and expEnv_pop have different values for the same pops, need to fix this! come back here
+env_exp
 
-# lets just use what I'm using in gradient forest right now...
-indsExp <- as.data.frame(readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")) # for some reason this is a list?
-
-ldply(indsExp, data.frame)
+# check individual data
+seascapeInds
 
 # keep just relevant data
-indsExp_red <- indsExp[,c("merge_ID_inds","Label_ind","Key_ind","ID_SiteDate","SiteDate_Key")]
-levels(as.factor(indsExp_red$ID_SiteDate))
-
-# need to add scaled env data to this
-expEnv$site_name
-indsExp_red$ID_SiteDate
-
-# the pop (ID_SiteDate/site_name) data doesn't match up
-map <- list("TX-CapBay" = "W1-TX", "LA-SisLake" = "W2-LA", "FL-KingPlan" = "W3-FL", "LOLA" = "S1-LOLA", "DEBY" = "S2-DEBY", "VA-DeepWatSh" = "W4-VA", "NH-GrtBay" = "W5-NH", "ME-HogIs" = "W6-ME")
-indsExp_red_mut <- indsExp_red %>% mutate(ID_SiteDate = ifelse(ID_SiteDate %in% names(map), map[ID_SiteDate], ID_SiteDate))
-indsExp_red_mut <- as.data.frame(indsExp_red_mut)
-colnames(indsExp_red_mut) <- c("merge_ID_inds", "Label_ind", "Key_ind", "site_name", "SiteDate_Key")
+seascapeInds_red <- seascapeInds[,c("clean_ID","Label_ind","Key_ind","ID_SiteDate","SiteDate_Key","EstuaryRegion_name","Site_Order","Site_Color","Region","Region_color")]
+levels(as.factor(seascapeInds$ID_SiteDate))
 
 # pops list
-pops_list <- unique(indsExp_red_mut$site_name)
+pops_list <- levels(as.factor(seascapeInds$ID_SiteDate))
 
-# also need to remap expenvpop 
-expEnv_pop
-map <- list("LEW" = "LEW", "YRK" = "YRK", "W1_TX" = "W1-TX", "W2_LA" = "W2-LA", "W3_FL" = "W3-FL", "S1_LOLA" = "S1-LOLA", "S2_DEBY" = "S2-DEBY", "W4_VA" = "W4-VA", "W5_NH" = "W5-NH", "W6_ME" = "W6-ME")
-expEnv_pop_mut <- expEnv_pop %>% mutate(site_name = ifelse(site_name %in% names(map), map[site_name], site_name))
+# get some lat lons
+sea_latlon <- merge(env_sea_site[,c("ID_Site", "Latitude_manual", "Longitude_manual")], env_sea_date[,c("ID_Site", "ID_SiteDate")], by = "ID_Site")
 
-which(!(expEnv$site_name %in% expEnv_pop_mut$site_name))
-which(!(expEnv_pop_mut$site_name %in% expEnv$site_name)) # substitution worked!
-
-expEnv_pop_mut$site_name <- as.character(expEnv_pop_mut$site_name)
+# add latlon to env data
+env_sea_complete <- merge(sea_latlon, env_sea, by = c("ID_SiteDate"))
 
 # rasterize these data
-expEnv_pop_mut_rm <- expEnv_pop_mut[, !names(expEnv_pop_mut) %in% c("lat.y", "lon.y")]
-expEnv_pop_mut_rn <- expEnv_pop_mut_rm %>% dplyr::rename(lat = lat.x, lon = lon.x)
+#expEnv_pop_mut_rm <- expEnv_pop_mut[, !names(expEnv_pop_mut) %in% c("lat.y", "lon.y")]
+#expEnv_pop_mut_rn <- expEnv_pop_mut_rm %>% dplyr::rename(lat = lat.x, lon = lon.x)
 
 #ras_env <- rast(data.frame(x = rep(1:12, time = 12) # NEED TO COME BACK HERE
 #                                  , y = rep(1:12, each = 12)
@@ -122,15 +120,12 @@ expEnv_pop_mut_rn <- expEnv_pop_mut_rm %>% dplyr::rename(lat = lat.x, lon = lon.
 
 # gen data
 ##########
-dim(geno_dat) # 154 rows (inds), 32847 cols (loci)
-dim(geno_expfilt) # 186 rows, 275671 - this is not the correct data
-dim(indsExpSeq) # 154 rows (inds), 195026 cols (loci) - this one is snp chip data, likely unfiltered
+# check gen dat
+dim(genoMat)
+dim(genoThinMat)
 
-# use indiv data to check genomic data
-head(seascapeInds)
-
-# put seascapeInds in order of genomic data row names
-# to do
+# assign meaningful rownames - the inds_genomat vector has individual names in the order they appear in the genotype matrix (as determined in GenDatProcess script), which is also the order of the seascape env matrix
+rownames(genoMat) <- rownames(genoThinMat) <- inds_genomat
 ##########
 ```
 
@@ -139,42 +134,76 @@ head(seascapeInds)
 While I do not intend to use an outlier dataset to calculate adaptive index/offset, I will still go through the process of outlier detection with RDA. This process is also part of training the RDA model for offsets later.
 
 ```{r}
-expEnv_red <- complete_env[,c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]
+#expEnv_red <- complete_env[,c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]
+env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")]
 
-RDA_env <- rda(geno_dat ~ ., as.data.frame(expEnv_red))
-plot(RDA_env)
-screeplot(RDA_env, main = "Eigenvalues of constrained axes") # probably just RDA 1, or keep all 4
+RDA_sea <- rda(genoMat ~ ., as.data.frame(env_sea_red))
+plot(RDA_sea)
+screeplot(RDA_sea, main = "Eigenvalues of constrained axes")
 
-# run rdadapt with K = 4 for all 4 axes, since can't run on just one (K=1)
-rdadapt_env <- rdadapt(RDA = RDA_env, K = 4)
+RDA_sea_thin <- rda(genoThinMat ~ ., as.data.frame(env_sea_red))
+plot(RDA_sea_thin)
+screeplot(RDA_sea_thin, main = "Eigenvalues of constrained axes")
+
+# run rdadapt with K = 2 for first two axes
+rdadapt_sea <- rdadapt(RDA = RDA_sea, K = 2)
+rdadapt_sea_thin <- rdadapt(RDA = RDA_sea_thin, K = 2)
 
 # bonferroni correction
 # P-values threshold after Bonferroni correction
-thres_env <- 0.01 / length(rdadapt_env$p.values)
+thres_env <- 0.01 / length(rdadapt_sea$p.values)
+thres_env_thin <- 0.01 / length(rdadapt_sea_thin$p.values)
 
 # Identifying the loci that are below the p-value threshold
-outliers <- (1:ncol(Y))[which(rdadapt_env$p.values < thres_env)]
-length(outliers) # 118 outliers
+outliers <- (1:ncol(genoMat))[which(rdadapt_sea$p.values < thres_env)]
+length(outliers) # 2863 outliers
+
+outliers_thin <- (1:ncol(genoThinMat))[which(rdadapt_sea_thin$p.values < thres_env_thin)]
+length(outliers_thin) # 1203 outliers
 
 # Formatting table for ggplot
-locus_scores <- as.data.frame(scores(RDA_env, choices=c(1:2), display="species", scaling="none"))
+locus_scores <- as.data.frame(scores(RDA_sea, choices=c(1:2), display="species", scaling="none"))
 TAB_loci <- data.frame(names = row.names(locus_scores), locus_scores)
 TAB_loci$type <- "Neutral"
 TAB_loci$type[outliers] <- "Outliers"
 TAB_loci$type <- factor(TAB_loci$type, levels = c("Neutral", "Outliers"))
 TAB_loci <- TAB_loci[order(TAB_loci$type),]
-TAB_var <- as.data.frame(scores(RDA_env, choices=c(1,2), display="bp")) 
+TAB_var <- as.data.frame(scores(RDA_sea, choices=c(1,2), display="bp")) 
+
+locus_scores_thin <- as.data.frame(scores(RDA_sea_thin, choices=c(1:2), display="species", scaling="none"))
+TAB_loci_thin <- data.frame(names = row.names(locus_scores_thin), locus_scores_thin)
+TAB_loci_thin$type <- "Neutral"
+TAB_loci_thin$type[outliers_thin] <- "Outliers"
+TAB_loci_thin$type <- factor(TAB_loci_thin$type, levels = c("Neutral", "Outliers"))
+TAB_loci_thin <- TAB_loci_thin[order(TAB_loci_thin$type),]
+TAB_var_thin <- as.data.frame(scores(RDA_sea_thin, choices=c(1,2), display="bp")) 
+
 
 # Biplot of RDA loci and variables scores
 ggplot() +
-  geom_hline(yintercept=0, linetype="dashed", color = gray(.80), size=0.6) +
-  geom_vline(xintercept=0, linetype="dashed", color = gray(.80), size=0.6) +
+  geom_hline(yintercept=0, linetype="dashed", color = gray(.80), linewidth=0.6) +
+  geom_vline(xintercept=0, linetype="dashed", color = gray(.80), linewidth=0.6) +
   geom_point(data = TAB_loci, aes(x=RDA1*20, y=RDA2*20, colour = type), size = 1.4, alpha = 0.7) +
   scale_color_manual(values = c("gray90", "#EB8055FF")) +
   geom_segment(data = TAB_var, aes(xend=RDA1, yend=RDA2, x=0, y=0), colour="black", size=0.15, linetype=1, arrow=arrow(length = unit(0.02, "npc"))) +
   geom_text(data = TAB_var, aes(x=1.1*RDA1, y=1.1*RDA2, label = row.names(TAB_var)), size = 2.5, family = "Times") +
   guides(color=guide_legend(title="Locus type")) +
-  labs(x = "RDA 1 (67.3%)", y = "RDA 2 (15.2%)", subtitle = "RDA space") +
+  labs(x = "RDA 1 (83.4%)", y = "RDA 2 (10.4%)", subtitle = "RDA space") +
+  theme_bw(base_size = 11, base_family = "Times") +
+  theme(panel.grid = element_blank()
+        , plot.background = element_blank()
+        , panel.background = element_blank())
+
+# plot on thinned geno dat
+ggplot() +
+  geom_hline(yintercept=0, linetype="dashed", color = gray(.80), linewidth=0.6) +
+  geom_vline(xintercept=0, linetype="dashed", color = gray(.80), linewidth=0.6) +
+  geom_point(data = TAB_loci_thin, aes(x=RDA1*20, y=RDA2*20, colour = type), size = 1.4, alpha = 0.7) +
+  scale_color_manual(values = c("gray90", "#EB8055FF")) +
+  geom_segment(data = TAB_var_thin, aes(xend=RDA1, yend=RDA2, x=0, y=0), colour="black", size=0.15, linetype=1, arrow=arrow(length = unit(0.02, "npc"))) +
+  geom_text(data = TAB_var_thin, aes(x=1.1*RDA1, y=1.1*RDA2, label = row.names(TAB_var_thin)), size = 2.5, family = "Times") +
+  guides(color=guide_legend(title="Locus type")) +
+  labs(x = "RDA 1 (83.4%)", y = "RDA 2 (10.4%)", subtitle = "RDA space") +
   theme_bw(base_size = 11, base_family = "Times") +
   theme(panel.grid = element_blank()
         , plot.background = element_blank()
@@ -183,7 +212,9 @@ ggplot() +
 
 ## Adaptive Index
 
-Now, I will use rdadapt to calculate adaptive index at the two seascape sites (NOT across the range, though I could potentially do this if I decide to impute the seascape environmental data to have a more complete coastal environment map - either way the offsets for each site will be the same). 
+Now, I will use rdadapt to calculate adaptive index at the two experimental sites (NOT across the range, though I could potentially do this if I decide to impute the seascape environmental data to have a more complete coastal environment map - either way the offsets for each site will be the same). 
+
+NOTE: For now, I am skipping this as it isn't necessary for calculating offsets.
 
 ```{r}
 # overall, including lew & yrk - I can come back here if I want to do rasterization/interpolation, but it isn't necessary to calculate offset
@@ -201,25 +232,30 @@ Now, I calculate genomic offset for all of my populations!
 
 ```{r}
 # common garden info
-lew_env <- complete_env[,c("LEW_sal_quant10_scaled","LEW_sal_quant90_scaled","LEW_temp_quant10_scaled","LEW_temp_quant90_scaled")]
-yrk_env <- complete_env[,c("YRK_sal_quant10_scaled","YRK_sal_quant90_scaled","YRK_temp_quant10_scaled","YRK_temp_quant90_scaled")]
-colnames(lew_env) <- colnames(yrk_env) <- c("sal_quant10_scaled","sal_quant90_scaled","temp_quant10_scaled","temp_quant90_scaled")
+lew_env <- env_exp[!duplicated(env_exp$site_name) ,c("lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")]
+yrk_env <- env_exp[!duplicated(env_exp$site_name) ,c("yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")]
+colnames(lew_env) <- colnames(yrk_env) <- c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")
+
+env_exp_red <- env_exp[!duplicated(env_exp$site_name) ,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")]
 
 # Estimate genomic offset
-offset_lew <- genomic_offset(RDA = RDA_env, 
-                              K = 2, # will need to reasses where I make this cutoff
-                              env_pres = expEnv_red, 
+offset_lew <- genomic_offset(RDA = RDA_sea, 
+                              K = 2, # will need to reassess where I make this cutoff
+                              env_pres = env_exp_red, 
                               env_fut = lew_env, 
                               method = "loadings")
 
-offset_yrk <- genomic_offset(RDA = RDA_env, 
+offset_yrk <- genomic_offset(RDA = RDA_sea, 
                               K = 2, 
-                              env_pres = expEnv_red, 
+                              env_pres = env_exp_red, 
                               env_fut = yrk_env, 
                               method = "loadings")
 
+# get the experimental long/lat data
+env_exp_latlon <- merge(exp_site_latlon, env_exp, by = c("site_name"))
+
 # reassign the metadata
-offsets_rda_df <- data.frame(site_name = complete_env$site_name, lat = complete_env$lat.x, lon = complete_env$lon.x, offset_lew = offset_lew$genomic_offset$Global, offset_yrk = offset_yrk$genomic_offset$Global)
+offsets_rda_df <- data.frame(site_name = unique(env_exp_latlon$site_name), lat = unique(env_exp_latlon$lat), lon = unique(env_exp_latlon$lon), offset_lew = offset_lew$genomic_offset$Global, offset_yrk = offset_yrk$genomic_offset$Global)
 
 write.csv(offsets_rda_df, paste0("results/GO_results/offsets_RDA_expSites_",Sys.Date(),".csv", sep = ""))
 ```
@@ -232,7 +268,7 @@ popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "DEBY", "LOLA", "NH", "ME")
                      order = 1:8, 
                      cols = c("#3e4989" ,"#31688e", "#35b779", "#6ece58", "#440154", "#482878", "#fde725", "#b5de2b"),
                      shape = c(21,21,21,21,23,23,21,21),
-                     site_name = c("W1-TX", "W2-LA", "W3-FL", "W4-VA", "S1-LOLA", "S2-DEBY", "W5-NH", "W6-ME"))
+                     site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME"))
 
 offsets_plotting <- merge(offsets_rda_df, popsdf, by = c("site_name"))
 
@@ -261,7 +297,7 @@ map_lew <- ggplot(data = world) +
   geom_point(data = offsets_plotting, aes(x=lon, y=lat, 
                                        fill = offset_lew), 
              shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,2.25))+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,3.5))+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
         labs(title = "Genomic Offset of Oysters \n to Lewisetta (RDA)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
@@ -273,7 +309,7 @@ popout_lew <- ggplot(data = world) +
   geom_point(data = offsets_plotting, aes(x=lon, y=lat, 
                                        fill = offset_lew), 
              shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,2.25))+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,3.5))+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
         xlim(-77.856476, -72.762787) +
@@ -286,7 +322,7 @@ map_yrk <- ggplot(data = world) +
   geom_point(data = offsets_plotting, aes(x=lon, y=lat, 
                                        fill = offset_yrk), 
              shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,2.25))+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,3.5))+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
         labs(title = "Genomic Offset of Oysters \n to York (RDA)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
@@ -298,7 +334,7 @@ popout_york <- ggplot(data = world) +
   geom_point(data = offsets_plotting, aes(x=lon, y=lat, 
                                        fill = offset_yrk), 
              shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,2.25))+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,3.5))+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
         xlim(-77.856476, -72.762787) +
