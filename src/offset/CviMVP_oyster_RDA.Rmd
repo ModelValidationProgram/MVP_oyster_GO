@@ -39,13 +39,6 @@ library(rdadapt) # for rda
 
 # data
 # env
-seascapeEnv <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv") # keep this but also get list of reduced variables
-#expEnv <- read.csv("data/EnvDat/exp/exp_scaled_expanded_04222025.csv")[,-1]
-#expEnv_pop <- read.csv("data/EnvDat/exp/expquants_scaled_04222025.csv")[,-1]
-# expanded env data
-#complete_env <- read.csv("data/EnvDat/exp/expsitesquants_scaled_04222025.csv")[,-1]
-
-# env
 env_all <- as.data.frame(read.csv("data/EnvDat/env_scaled_2025-08-13.csv")[,-1])
 env_sea <- as.data.frame(read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-08-14.csv")[,-1])
 env_exp <- as.data.frame(read.csv("data/EnvDat/exp/exp_scaled_expanded_2025-08-14.csv")[,-1])
@@ -57,14 +50,8 @@ env_exp_site <- read.csv("data/EnvDat/exp_sitenames.csv")[,-1]
 exp_site_latlon <- read.csv("data/EnvDat/exp/exp_site_info.csv")[,-1]
 
 # gen
-#geno_dat <- as.data.frame(read.lfmm("data/GenDat/geno_file_exp_all.lfmm"))
-#geno_exp <- as.data.frame(readRDS("data/GenDat/20250203_experimentalmatrix.RDS"))
-
-# gen
 genoMat <- read.geno("data/GenDat/geno_seascape_2025-08-14.geno")
-genoLfmm <- read.lfmm("data/GenDat/geno_seascape_2025-08-14.lfmm")
 genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2025-08-14.geno")
-genoThinLfmm <- read.lfmm("data/GenDat/geno_seascape_LDthin_2025-08-14.lfmm")
 
 # individuals
 expInds <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")
@@ -134,9 +121,10 @@ rownames(genoMat) <- rownames(genoThinMat) <- inds_genomat
 While I do not intend to use an outlier dataset to calculate adaptive index/offset, I will still go through the process of outlier detection with RDA. This process is also part of training the RDA model for offsets later.
 
 ```{r}
-#expEnv_red <- complete_env[,c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]
+# reduce size of env data set
 env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")]
 
+# run rda
 RDA_sea <- rda(genoMat ~ ., as.data.frame(env_sea_red))
 plot(RDA_sea)
 screeplot(RDA_sea, main = "Eigenvalues of constrained axes")
@@ -203,7 +191,7 @@ ggplot() +
   geom_segment(data = TAB_var_thin, aes(xend=RDA1, yend=RDA2, x=0, y=0), colour="black", size=0.15, linetype=1, arrow=arrow(length = unit(0.02, "npc"))) +
   geom_text(data = TAB_var_thin, aes(x=1.1*RDA1, y=1.1*RDA2, label = row.names(TAB_var_thin)), size = 2.5, family = "Times") +
   guides(color=guide_legend(title="Locus type")) +
-  labs(x = "RDA 1 (83.4%)", y = "RDA 2 (10.4%)", subtitle = "RDA space") +
+  labs(x = "RDA 1 (73.7%)", y = "RDA 2 (14.2%)", subtitle = "RDA space") +
   theme_bw(base_size = 11, base_family = "Times") +
   theme(panel.grid = element_blank()
         , plot.background = element_blank()

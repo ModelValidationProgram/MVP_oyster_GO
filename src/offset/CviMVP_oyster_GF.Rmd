@@ -34,15 +34,36 @@ library(sf) # plotting
 
 # data
 # env
-seascapeEnv <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv") # keep this but also get list of reduced variables
-expEnv <- read.csv("data/EnvDat/exp/exp_scaled_expanded_04222025.csv")[,-1]
-expEnv_pop <- read.csv("data/EnvDat/exp/expquants_scaled_04222025.csv")[,-1]
+#seascapeEnv <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv") # keep this but also get list of reduced variables
+#expEnv <- read.csv("data/EnvDat/exp/exp_scaled_expanded_04222025.csv")[,-1]
+#expEnv_pop <- read.csv("data/EnvDat/exp/expquants_scaled_04222025.csv")[,-1]
 
 # gen
-geno_dat <- as.data.frame(read.lfmm("data/GenDat/geno_file_exp_all.lfmm"))
+#geno_dat <- as.data.frame(read.lfmm("data/GenDat/geno_file_exp_all.lfmm"))
 
 # individuals
-seascapeInds <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds") # these are the experimental individuals for now, need the updated seascape stuff from madeline
+#seascapeInds <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds") # these are the experimental individuals for now, need the updated seascape stuff from madeline
+
+# data
+# env
+env_all <- as.data.frame(read.csv("data/EnvDat/env_scaled_2025-08-13.csv")[,-1])
+env_sea <- as.data.frame(read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-08-14.csv")[,-1])
+env_exp <- as.data.frame(read.csv("data/EnvDat/exp/exp_scaled_expanded_2025-08-14.csv")[,-1])
+
+# sites
+env_sea_site <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")[,-1]
+env_sea_date <- read.csv("data/EnvDat/seascape/SeascapeSamples - date.csv")[,-1]
+env_exp_site <- read.csv("data/EnvDat/exp_sitenames.csv")[,-1]
+exp_site_latlon <- read.csv("data/EnvDat/exp/exp_site_info.csv")[,-1]
+
+# gen
+genoMat <- read.geno("data/GenDat/geno_seascape_2025-08-14.geno")
+genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2025-08-14.geno")
+
+# individuals
+expInds <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")
+seascapeInds <- readRDS("data/IndDat/20250604_seascape_indsmatrix.rds")
+inds_genomat <- read.csv("data/GenDat/inds_genomat.csv")[,-1]
 ```
 
 
@@ -53,58 +74,36 @@ Inspect the environmental and genomic data to ensure it's ready for gradientFore
 ### Individual Data Prep
 
 ```{r}
-head(seascapeInds)
+# order this data by genotype info, first by trimming inds to only those in df
+seascapeInds_reord <- seascapeInds[seascapeInds$clean_ID %in% inds_genomat,]
+seascapeInds_reord$clean_ID <- factor(seascapeInds_reord$clean_ID, levels = inds_genomat)
+seascapeInds_reord2 <- seascapeInds_reord[order(seascapeInds_reord$clean_ID),]
 
-# need ind level dat
-indsExp <- as.data.frame(readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")) # for some reason this is a list?
+# double check
+(seascapeInds_reord2$clean_ID == inds_genomat) # looks good!
 
-ldply(indsExp, data.frame)
-
-# keep just relevant data
-indsExp_red <- indsExp[,c("merge_ID_inds","Label_ind","Key_ind","ID_SiteDate","SiteDate_Key")]
-levels(as.factor(indsExp_red$ID_SiteDate))
-
-# need to add scaled env data to this
-expEnv$site_name
-indsExp_red$ID_SiteDate
-
-# the pop (ID_SiteDate/site_name) data doesn't match up
-map <- list("TX-CapBay" = "W1-TX", "LA-SisLake" = "W2-LA", "FL-KingPlan" = "W3-FL", "LOLA" = "S1-LOLA", "DEBY" = "S2-DEBY", "VA-DeepWatSh" = "W4-VA", "NH-GrtBay" = "W5-NH", "ME-HogIs" = "W6-ME")
-indsExp_red_mut <- indsExp_red %>% mutate(ID_SiteDate = ifelse(ID_SiteDate %in% names(map), map[ID_SiteDate], ID_SiteDate))
-indsExp_red_mut <- as.data.frame(indsExp_red_mut)
-colnames(indsExp_red_mut) <- c("merge_ID_inds", "Label_ind", "Key_ind", "site_name", "SiteDate_Key")
-
-# pops list
-pops_list <- unique(indsExp_red_mut$site_name)
-
-# also need to remap expenvpop 
-expEnv_pop
-map <- list("LEW" = "LEW", "YRK" = "YRK", "W1_TX" = "W1-TX", "W2_LA" = "W2-LA", "W3_FL" = "W3-FL", "S1_LOLA" = "S1-LOLA", "S2_DEBY" = "S2-DEBY", "W4_VA" = "W4-VA", "W5_NH" = "W5-NH", "W6_ME" = "W6-ME")
-expEnv_pop_mut <- expEnv_pop %>% mutate(site_name = ifelse(site_name %in% names(map), map[site_name], site_name))
-
-which(!(expEnv$site_name %in% expEnv_pop_mut$site_name))
-which(!(expEnv_pop_mut$site_name %in% expEnv$site_name)) # substitution worked!
-
-expEnv_pop_mut$site_name <- as.character(expEnv_pop_mut$site_name)
+# get a full list of pops
+pops_list_full <- seascapeInds_reord2$ID_SiteDate
 ```
 
 ### Genomic Data Prep
 
 ```{r Genomic Data Prep}
 # check geno data
-dim(geno_dat)
+dim(genoMat)
+dim(genoThinMat)
 
 # rotate df so rows are now columns (we want individuals as columns, alleles as rows)
-geno_dat_t <- as.matrix(t(geno_dat))
+genoMatT <- as.matrix(t(genoMat))
+genoThinMatT <- as.matrix(t(genoThinMat))
 
 # any missing data?
-sum((geno_dat_t == 9)) # returns NA - good
-
-# get vector of populations
-seascapePops <- seascapeInds$ID_SiteDate
+sum((genoMatT == 9)) # 0 - good 
+sum((genoThinMatT == 9)) # 0 - good
 
 # add pop data to genomic data
-colnames(geno_dat_t) <- seascapePops
+rownames(genoMat) <- rownames(genoThinMat) <- pops_list_full
+colnames(genoMatT) <- colnames(genoThinMatT) <- pops_list_full
 
 # function to calculate allele frequency @ single locus
 calc_freq <- function(x){
@@ -119,8 +118,15 @@ calcfreq <- function(a, pop){
 }
 
 # allele freqs
-freqs <- apply(t(geno_dat_t), 2, calcfreq, seascapePops)
+freqs <- apply((genoMat), 2, calcfreq, pops_list_full)
 str(freqs)
+
+freqs_thin <- apply((genoThinMat), 2, calcfreq, pops_list_full)
+str(freqs_thin)
+
+# update colnames for gf
+colnames(freqs) <- make.names(as.character(1:ncol(genoMat)))
+colnames(freqs_thin) <- make.names(as.character(1:ncol(genoThinMat)))
 ```
 
 
@@ -128,43 +134,48 @@ str(freqs)
 
 ```{r Environmental Data Prep}
 # check env data
-#dim(seascapeEnv) # for now I only use expEnv object because I don't have any seascape genomic data
-dim(expEnv)
-dim(expEnv_pop)
-dim(indsExp_red_mut)
-indsExp_red_mut$site_name<- as.character(indsExp_red_mut$site_name)
+dim(env_sea)
+dim(env_exp)
+dim(seascapeInds_reord2)
 
-# rename site names pop df
-expEnv_pop$site_name <- c("LEW", "S1-LOLA", "S2-DEBY", "W1-TX", "W2-LA", "W3-FL", "W4-VA", "W5-NH","W6-ME","YRK")
+# check seascape env in the same order as the genotype matrix
+env_sea$clean_ID == seascapeInds_reord2$clean_ID # in same order
 
-# merge
-exp_scaled_expanded <- merge(as.data.frame(indsExp_red_mut), as.data.frame(expEnv_pop[,c("site_name", "sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled"),]), by = c("site_name"))
+# we also need one just per site
+env_sea_pop <- env_sea[!duplicated(env_sea$ID_SiteDate),]
+
+# now experimental data
+# no need to order this by any geno data
+# should get pop level info 
+env_exp_pop <- env_exp[!duplicated(env_exp$site_name),]
 
 # reduced variable set
-expEnv_red <- exp_scaled_expanded[,c("site_name","sal_quant10_scaled","sal_quant90_scaled","temp_quant10_scaled","temp_quant90_scaled")]
-expEnv_pop_red <- expEnv_pop_mut[,c("site_name","sal_quant10_scaled","sal_quant90_scaled","temp_quant10_scaled","temp_quant90_scaled")]
+env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")]
+env_sea_pop_red <- env_sea_pop[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")]
+env_exp_pop_red <- env_exp_pop[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")]
 ```
 
 
 ## Train Models
 
-To train the models, I will be using the seascape genomic dataset that we processed in the previous chunk, as well as the current environmental data files produced using "CviMVP_oyster_EnvDatProcess.Rmd." NOTE FOR NOW TRAINED ON EXP INDS
+To train the models, I will be using the seascape genomic dataset that we processed in the previous chunk, as well as the current environmental data files produced using "CviMVP_oyster_EnvDatProcess.Rmd."
 
 ```{r GO Model Training}
 # start by defining a maximum number of splits
-maxLevel <- log2(0.368*nrow(expEnv_red)/2)
+maxLevel <- log2(0.368*nrow(env_sea_pop_red)/2)
 
 # run gradient forest
 # allele freq models
 start_time <- Sys.time() # time start
-gf_af <- gradientForest(cbind(expEnv_pop_red[2:9,c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")], freqs), predictor.vars = colnames(expEnv_pop_red[, c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]), response.vars=colnames(freqs), ntree=500, maxLevel=maxLevel, trace=T, corr.threshold=0.50) # tons of warnings here, "response has five or fewer unique values. Are you sure you want to do regression?" - warning doesn't appear on the cluster
+gf_af <- gradientForest(cbind(env_sea_pop_red, freqs), predictor.vars = colnames(env_sea_pop_red), response.vars = (colnames(freqs)), ntree = 500, maxLevel = maxLevel, trace = T, corr.threshold=0.50) # tons of warnings here, "response has five or fewer unique values. Are you sure you want to do regression?" - warning doesn't appear on the cluster
 end_time <- Sys.time() # time end
-(end_time - start_time) # about 2 mins
+(end_time - start_time) # about XX mins
 
+## COME BACK TO THIS ON CLUSTER, DOESN'T RUN ON PERSONAL COMPUTER
 # geno models
 # crashes on personal laptop, run on cluster
 start_time <- Sys.time() # time start
-gf_geno <- gradientForest(cbind(expEnv_red[,c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")], geno_dat), predictor.vars = colnames(expEnv_red[, c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]), response.vars=colnames(geno_dat), ntree=500, maxLevel=maxLevel, trace=T, corr.threshold=0.50)
+gf_geno <- gradientForest(cbind(expEnv_red[,c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")], genoMat), predictor.vars = colnames(expEnv_red[, c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]), response.vars=colnames(genoMat), ntree=500, maxLevel=maxLevel, trace=T, corr.threshold=0.50)
 end_time <- Sys.time() # time end
 (end_time - start_time) # about 2hrs on cluster
 
