@@ -1,6 +1,7 @@
 # script to train models on cluster
 
-setwd("~/projects/lotterhos/MVP_oyster_GO")
+install.packages(c("dplyr","plyr","BiocManager","readxl","parallel","doParallel","sf","raster","ggplot2","gradientForest"))
+BiocManager::install("LEA")
 
 # packages
 library(LEA)
