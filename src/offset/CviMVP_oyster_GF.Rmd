@@ -31,18 +31,7 @@ library(parallel) # for parallelizing processes
 library(doParallel) # for parallelizing processes 
 library(gradientForest) # for running gradient forest
 library(sf) # plotting
-
-# data
-# env
-#seascapeEnv <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv") # keep this but also get list of reduced variables
-#expEnv <- read.csv("data/EnvDat/exp/exp_scaled_expanded_04222025.csv")[,-1]
-#expEnv_pop <- read.csv("data/EnvDat/exp/expquants_scaled_04222025.csv")[,-1]
-
-# gen
-#geno_dat <- as.data.frame(read.lfmm("data/GenDat/geno_file_exp_all.lfmm"))
-
-# individuals
-#seascapeInds <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds") # these are the experimental individuals for now, need the updated seascape stuff from madeline
+library(rnaturalearth) # plotting
 
 # data
 # env
@@ -190,13 +179,13 @@ end_time <- Sys.time() # time end
 
 # plot bar graphs depicting importance of each spatial and climate variable
 plot(gf_af)
-plot(gf_geno)
-saveRDS(gf_af, paste0("results/GO_results/af_geno_",Sys.Date(),".RDS"))
-saveRDS(gf_geno, paste0("results/GO_results/gf_geno_",Sys.Date(),".RDS"))
+#plot(gf_geno)
+saveRDS(gf_af, paste0("results/lg_results/af_geno_",Sys.Date(),".RDS"))
+#saveRDS(gf_geno, paste0("results/GO_results/gf_geno_",Sys.Date(),".RDS"))
 
 # plots of turnover functions for individual loci - now having issues with ylim
 plot(gf_af, plot.type = "C", imp.vars = gf_af$imp.vars, show.overall = T, legend = T, leg.posn = "topleft", leg.nspecies = 5, ylim = c(0,0.5)) # ylim error, if i provide none I get "need finite ylim" if I provide one I get "formal argument "ylim" matched by multiple actual arguments"
-plot(gf_geno, plot.type = "C", imp.vars = gf_geno$imp.vars, show.overall = T, legend = T, leg.posn = "topleft", leg.nspecies = 5, ylim = c(0,0.5)) # doesn't finish running, had to interrupt
+#plot(gf_geno, plot.type = "C", imp.vars = gf_geno$imp.vars, show.overall = T, legend = T, leg.posn = "topleft", leg.nspecies = 5, ylim = c(0,0.5)) # doesn't finish running, had to interrupt
 ```
 
 It looks like for the allele frequency based model, sal_quant90 is the most important climate variable, followed by either dermo prevalence/temp_quant90 (accuracy importance/R2 weighted importance), then dermo prevalence/sal_quantile10, then temp_quantil10, and finally pea crabs. 
@@ -226,24 +215,6 @@ env_exp_yrk_red
 
 # pops list experimental groups
 pops_list1 <- c("S1_LOLA", "S2_DEBY", "W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME")
-
-# process the env data for the gardens to match up with each pop/ind entry
-# # AF
-# af_lewenv <- expEnv_pop_red[expEnv_pop_red$site_name %in% c("LEW"), c("site_name", "sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]
-# colnames(af_lewenv) <- c("garden", "sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")
-# pops_list_lew <- data.frame(site_name = pops_list1)
-# pops_list_lew$garden <- rep("LEW", 8)
-# af_lewenv_comp <- merge(pops_list_lew, af_lewenv, by = c("garden"))
-# 
-# af_yrkenv <- expEnv_pop_red[expEnv_pop_red$site_name %in% c("YRK"), c("site_name", "sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]
-# colnames(af_yrkenv) <- c("garden", "sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")
-# pops_list_yrk <- data.frame(site_name = pops_list1)
-# pops_list_yrk$garden <- rep("YRK", 8)
-# af_yrkenv_comp <- merge(pops_list_yrk, af_yrkenv, by = c("garden"))
-# 
-# # geno
-# geno_lewenv_comp <- merge(af_lewenv_comp, expEnv[c("site_name","Label_ind")], by = c("site_name"))
-# geno_yrkenv_comp <- merge(af_yrkenv_comp, expEnv[c("site_name","Label_ind")], by = c("site_name"))
 ```
 
 
@@ -275,7 +246,7 @@ for (i in 1:nb_ind_af){ # calc offset
   ec_dist <- as.data.frame(euclidean(pred_af_home[i,], pred_af_lew[i,]))
   df_af_lew <- rbind(df_af_lew, ec_dist)
 }
-af_offset_lew <- cbind(pops_list1, df_af_lew) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
+af_offset_lew <- cbind(pops_list1[3:8], df_af_lew) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
 colnames(af_offset_lew) <- c("site_name", "offset_gf_af_lew")
 
 # york
@@ -284,7 +255,7 @@ for (i in 1:nb_ind_af){ # calc offset
   ec_dist <- as.data.frame(euclidean(pred_af_home[i,], pred_af_yrk[i,]))
   df_af_yrk <- rbind(df_af_yrk, ec_dist)
 }
-af_offset_yrk <- cbind(pops_list1, df_af_yrk) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
+af_offset_yrk <- cbind(pops_list1[3:8], df_af_yrk) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
 colnames(af_offset_yrk) <- c("site_name", "offset_gf_af_yrk")
 
 # merge
@@ -326,17 +297,17 @@ write.csv(offsets_mvp, paste0("results/GO_results/offsetsMVP_GF_", Sys.Date(), "
 I've got my offsets, and now want to plot them on a map! 
 
 ```{r}
-library(rnaturalearth)
-
 # prep data for plotting
 offsets_mvp
-expEnv_pop
+# for now just allele frequency stuff
+af_offsets
+env_exp_pop_red
+exp_site_latlon
 popsdf <- read.csv("data/IndDat/popsdf.csv")[,-1]
-expEnv_pop2 <- expEnv_pop[,c("site_name","lat.x","lon.x")]
-colnames(expEnv_pop2) <- c("site","lat","lon")
-colnames(offsets_mvp) <- c("site", "Label_ind", "offset_gf_geno_lew", "offset_gf_geno_yrk", "offset_gf_af_lew", "offset_gf_af_yrk")
-popsplot1 <- merge(popsdf, expEnv_pop2, by = "site")
-popsplot2 <- merge(popsplot1, offsets_mvp, by = "site")
+#colnames(offsets_mvp) <- c("site_name", "Label_ind", "offset_gf_geno_lew", "offset_gf_geno_yrk", "offset_gf_af_lew", "offset_gf_af_yrk")
+popsplot <- merge(popsdf, exp_site_latlon, by = "site_name")
+popsplot1 <- merge(popsplot, env_exp_pop_red, by = "site_name")
+popsplot2 <- merge(popsplot1, af_offsets, by = "site_name")
 
 # map
 sf::sf_use_s2(FALSE) # sf package doesn't work
@@ -386,7 +357,7 @@ map_lew_af <- ggplot(data = world) +
   geom_point(data = popsplot2, aes(x=lon, y=lat, 
                                    fill = offset_gf_af_lew), 
              shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.045))+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.02))+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
         labs(title = "Genomic Offset of Oysters \n to Lewisetta (GF, AF)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
@@ -398,7 +369,7 @@ popout_lew_af <- ggplot(data = world) +
   geom_point(data = popsplot2, aes(x=lon, y=lat, 
                                    fill = offset_gf_af_lew), 
              shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.07))+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.02))+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
         xlim(-77.856476, -72.762787) +
@@ -438,7 +409,7 @@ map_york_af <- ggplot(data = world) +
   geom_point(data = popsplot2, aes(x=lon, y=lat, 
                                    fill = offset_gf_af_yrk), 
              shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.045))+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.02))+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
         labs(title = "Genomic Offset of Oysters \n to York River (GF, AF)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
@@ -450,7 +421,7 @@ popout_york_af <- ggplot(data = world) +
   geom_point(data = popsplot2, aes(x=lon, y=lat, 
                                    fill = offset_gf_af_yrk), 
              shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.07))+
+  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.02))+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
         xlim(-77.856476, -72.762787) +
