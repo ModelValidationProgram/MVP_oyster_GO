@@ -1,7 +1,7 @@
 # script to train models on cluster
 
-install.packages(c("dplyr","plyr","BiocManager","readxl","parallel","doParallel","sf","raster","ggplot2","gradientForest"))
-BiocManager::install("LEA")
+#install.packages(c("dplyr","plyr","BiocManager","readxl","parallel","doParallel","sf","raster","ggplot2","gradientForest"))
+#BiocManager::install("LEA")
 
 # packages
 library(LEA)
@@ -29,8 +29,8 @@ env_exp_site <- read.csv("data/EnvDat/exp_sitenames.csv")[,-1]
 exp_site_latlon <- read.csv("data/EnvDat/exp/exp_site_info.csv")[,-1]
 
 # gen
-genoMat <- read.geno("data/GenDat/geno_seascape_2025-08-14.geno")
-genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2025-08-14.geno")
+genoMat <- readRDS("data/GenDat/genoMatFull.RDS")
+genoThinMat <- readRDS("data/GenDat/genoMatThin.RDS")
 
 # individuals
 expInds <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")
@@ -115,7 +115,13 @@ maxLevel <- log2(0.368*nrow(env_sea_pop_red)/2)
 # run gradient forest
 # allele freq models
 start_time <- Sys.time() # time start
-gf_af <- gradientForest(cbind(env_sea_pop_red, freqs), predictor.vars = colnames(env_sea_pop_red), response.vars = (colnames(freqs)), ntree = 500, maxLevel = maxLevel, trace = T, corr.threshold=0.50) # tons of warnings here, "response has five or fewer unique values. Are you sure you want to do regression?" - warning doesn't appear on the cluster
+gf_af <- gradientForest(cbind(env_sea_pop_red, freqs_thin), 
+                        predictor.vars = colnames(env_sea_pop_red), 
+                        response.vars = (colnames(freqs)), 
+                        ntree = 500, 
+                        maxLevel = maxLevel, 
+                        trace = T, 
+                        corr.threshold=0.50) # tons of warnings here, "response has five or fewer unique values. Are you sure you want to do regression?" - warning doesn't appear on the cluster
 end_time <- Sys.time() # time end
 (end_time - start_time) # about 1.5hrs
 
@@ -123,12 +129,18 @@ end_time <- Sys.time() # time end
 # geno models
 # crashes on personal laptop, run on cluster
 start_time <- Sys.time() # time start
-gf_geno <- gradientForest(cbind(env_sea, genoMat), predictor.vars = colnames(env_sea), response.vars=colnames(genoMat), ntree=500, maxLevel=maxLevel, trace=T, corr.threshold=0.50)
+gf_geno <- gradientForest(cbind(env_sea, genoThinMat), 
+                          predictor.vars = colnames(env_sea), 
+                          response.vars=colnames(genoMat), 
+                          ntree=500, 
+                          maxLevel=maxLevel, 
+                          trace=T, 
+                          corr.threshold=0.50)
 end_time <- Sys.time() # time end
-(end_time - start_time) # about 2hrs on cluster
+(end_time - start_time) # over 24 on cluster
 
 # plot bar graphs depicting importance of each spatial and climate variable
 plot(gf_af)
 plot(gf_geno)
-saveRDS(gf_af, paste0("results/GO_results/af_geno_",Sys.Date(),".RDS"))
-saveRDS(gf_geno, paste0("results/GO_results/gf_geno_",Sys.Date(),".RDS"))
+saveRDS(gf_af, paste0("results/lg_results/af_geno_",Sys.Date(),".RDS"))
+saveRDS(gf_geno, paste0("results/lg_results/gf_geno_",Sys.Date(),".RDS"))
