@@ -78,7 +78,7 @@ colnames(env_sea) <- colnames(env_sea_expand) <- c("sal_quant10_scaled", "sal_qu
 
 colnames(env_exp) <- colnames(env_exp_expand) <- c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "lew_sal_quant10_scaled", "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "yrk_sal_quant10_scaled", "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")
 
-rownames(env_sea) <- unique(env_sea_ordered$site_name)
+rownames(env_sea) <- unique(env_sea_csv$site_name)
 rownames(env_exp) <- env_exp_sites
 rownames(env_sea_expand) <- indsSea[indsSea$ID_SiteDate %in% env_sea_sites, "ID_SiteDate"]
 rownames(env_exp_expand) <- indsExp[!(indsExp$ID_SiteDate %in% c("DEBY", "LOLA")), "ID_SiteDate"]
@@ -92,8 +92,8 @@ rownames(env_exp_expand) <- indsExp[!(indsExp$ID_SiteDate %in% c("DEBY", "LOLA")
 rownames(genoMat) <- rownames(genoLfmm) <- rownames(genoThinMat) <- rownames(genoThinLfmm) <- inds_genomat
 
 # make sure genotype data is in the same order as individual & environmental data
-env_sea_csv$clean_ID %in% inds_genomat
-env_sea_csv$clean_ID == inds_genomat # yes, everything is in the correct order
+#env_sea_csv$clean_ID %in% inds_genomat
+#env_sea_csv$clean_ID == inds_genomat # yes, everything is in the correct order
 ```
 
 
@@ -106,9 +106,8 @@ May decide to train both genotype-based models and allele frequency based models
 
 ```{r}
 # check the data
-genoLfmm[1:10, 1:10]
-genoThinLfmm[1:10, 1:10]
-
+#genoLfmm[1:10, 1:10]
+#genoThinLfmm[1:10, 1:10]
 
 # fit model
 mod_lfmm <- lfmm2(input = genoLfmm,
@@ -231,7 +230,7 @@ gap_df$yrk_gothin <- gg_yrkthin
 gap_df_red <- gap_df[!duplicated(gap_df$site_name), c("site_name", "lew_go", "yrk_go", "lew_gothin", "yrk_gothin")]
 
 # output results
-write.csv(gap_df_red, paste0("results/GO_results/offsets_LEA_",Sys.Date,".csv", sep = ""))
+write.csv(gap_df_red, paste0("results/GO_results/offsets_LEA_",Sys.Date(),".csv", sep = ""))
 ```
 
 ## Offset Visualization

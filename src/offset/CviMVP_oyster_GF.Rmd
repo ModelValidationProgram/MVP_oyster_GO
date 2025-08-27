@@ -289,7 +289,7 @@ geno_offsets_red <- geno_offsets[!duplicated(geno_offsets$site_name),]
 offsets_mvp <- merge(geno_offsets_red, af_offsets, by = c("site_name"))
 
 # write these offsets to results
-write.csv(offsets_mvp, paste0("results/GO_results/offsetsMVP_GF_", Sys.Date(), ".csv"))
+write.csv(offsets_mvp, paste0("results/GO_results/offsets_GF_expSites_", Sys.Date(), ".csv"))
 ```
 
 ### Plotting
