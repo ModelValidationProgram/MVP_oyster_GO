@@ -108,7 +108,7 @@ maxLevel <- log2(0.368*nrow(env_sea_pop_red)/2)
 start_time <- Sys.time() # time start
 gf_af <- gradientForest(cbind(env_sea_pop_red, freqs_thin), 
                         predictor.vars = colnames(env_sea_pop_red), 
-                        response.vars = (colnames(freqs)), 
+                        response.vars = (colnames(freqs_thin)), 
                         ntree = 500, 
                         maxLevel = maxLevel, 
                         trace = T, 
