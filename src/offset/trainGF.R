@@ -1,10 +1,7 @@
 # script to train models on cluster
 
 # packages
-library(dplyr) # for data cleaning
-library(plyr) # for data cleaning
-library(parallel) # for parallelizing processes
-library(doParallel) # for parallelizing processes 
+install.packages("gradientForest")
 library(gradientForest) # for running gradient forest
 
 # data
