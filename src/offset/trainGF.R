@@ -120,9 +120,9 @@ end_time <- Sys.time() # time end
 # geno models
 # crashes on personal laptop, run on cluster
 start_time <- Sys.time() # time start
-gf_geno <- gradientForest(cbind(env_sea, genoThinMat), 
-                          predictor.vars = colnames(env_sea), 
-                          response.vars=colnames(genoMat), 
+gf_geno <- gradientForest(cbind(env_sea_red, genoThinMat), 
+                          predictor.vars = colnames(env_sea_red), 
+                          response.vars=colnames(genoThinMat), 
                           ntree=500, 
                           maxLevel=maxLevel, 
                           trace=T, 
@@ -130,8 +130,6 @@ gf_geno <- gradientForest(cbind(env_sea, genoThinMat),
 end_time <- Sys.time() # time end
 (end_time - start_time) # over 24 on cluster
 
-# plot bar graphs depicting importance of each spatial and climate variable
-plot(gf_af)
-plot(gf_geno)
+# save trained models
 saveRDS(gf_af, paste0("results/lg_results/af_geno_",Sys.Date(),".RDS"))
 saveRDS(gf_geno, paste0("results/lg_results/gf_geno_",Sys.Date(),".RDS"))
