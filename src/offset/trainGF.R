@@ -1,20 +1,11 @@
 # script to train models on cluster
 
-#install.packages(c("dplyr","plyr","BiocManager","readxl","parallel","doParallel","sf","raster","ggplot2","gradientForest"))
-#BiocManager::install("LEA")
-
 # packages
-library(LEA)
 library(dplyr) # for data cleaning
 library(plyr) # for data cleaning
-library(BiocManager) # needed to download specific packages
-library(readxl) # reading xlsx files
-library(raster) # for environmental pixels
-library(ggplot2) # for plotting
 library(parallel) # for parallelizing processes
 library(doParallel) # for parallelizing processes 
 library(gradientForest) # for running gradient forest
-library(sf) # plotting
 
 # data
 # env

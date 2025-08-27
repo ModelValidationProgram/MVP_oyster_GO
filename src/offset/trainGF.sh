@@ -1,5 +1,4 @@
 #!/bin/bash
-
 #SBATCH --job-name=TrainGF082526
 #SBATCH --mail-user=rumberger.c@northeastern.edu
 #SBATCH --mail-type=FAIL
@@ -10,7 +9,7 @@
 #SBATCH --output=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20250825/TrainGF082526_%j.out
 #SBATCH --error=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20250825/TrainGF082526_%j.err
 
-source ~/anaconda3/bin/activate slim_sims_clonal
+source ~/anaconda3/bin/activate offset_R
 
 # setting up error protocols
 set -e
