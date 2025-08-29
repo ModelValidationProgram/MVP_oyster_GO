@@ -30,13 +30,13 @@ library(plotrix)
 
 # data
 # offset predictions
-lea_go <- read.csv("results/GO_results/offsets_LEA_expSites_05272025.csv")[,-1]
-#rda_go <- 
-gf_go <- read.csv("results/GO_results/offsetsMVP_GF_2025-07-22.csv")[,-1]
+lea_go <- read.csv("results/GO_results/offsets_LEA_expSites_2025-08-27.csv")[,-1]
+rda_go <- read.csv("results/GO_results/offsets_RDA_expsites_2025-08-20.csv")[,-1]
+gf_go <- read.csv("results/GO_results/offsets_GF_expSites_2025-08-27.csv")[,-1]
 
 # fitness metrics
-mort <- read.csv("results/exp_results/mortality_bags_2025-06-06.csv")[,-1]
-#len <- read.csv("data/ExpDat/")
+mort <- read.csv("results/exp_results/mortality_long_popsite_2025-06-06.csv")[,-1]
+len <- read.csv("results/exp_results/lengths_bags_event_2025-06-03.csv")[,-1]
 ```
 
 ## Data Prep
@@ -47,41 +47,92 @@ Prepare data from offsets & experiment to be directly compared.
 # inspect data
 lea_go
 gf_go
+rda_go
 mort
+len
 
-# we want to get avg mort per pop per site
-mort_popsite <- mort %>% group_by(bag_site,pop) %>%
-  summarise(mean_t1 = mean(as.numeric(t1)), 
-            sd_t1 = sd(as.numeric(t1)),
-            mean_t2 = mean(as.numeric(t2)), 
-            sd_t2 = sd(as.numeric(t2)),
-            mean_t3 = mean(as.numeric(t3)), 
-            sd_t3 = sd(as.numeric(t3)),
-            mean_t4 = mean(as.numeric(t4)),
-            sd_t4 = sd(as.numeric(t4)),
-            .groups = 'drop') %>% as.data.frame()
+# trim mort
+mort_popsite <- mort[!(mort$event == 0), c("bag_site","pop","mean_surv","sd","event")]
+colnames(mort_popsite) <- c("bag_site","pop","mean_surv","sd_surv","event")
 
 # also get fitness rankings at each time
-# t1
-ordt1_lew <- order(mort_popsite[mort_popsite$bag_site == "Lewisetta", c("mean_t1")])
-ordt1_york <- order(mort_popsite[mort_popsite$bag_site == "York River", c("mean_t1")])
-mort_popsite$ordt1 <- c(ordt1_lew, ordt1_york)
-# t2
-ordt2_lew <- order(mort_popsite[mort_popsite$bag_site == "Lewisetta", c("mean_t2")])
-ordt2_york <- order(mort_popsite[mort_popsite$bag_site == "York River", c("mean_t2")])
-mort_popsite$ordt2 <- c(ordt2_lew, ordt2_york)
-# t3
-ordt3_lew <- order(mort_popsite[mort_popsite$bag_site == "Lewisetta", c("mean_t3")])
-ordt3_york <- order(mort_popsite[mort_popsite$bag_site == "York River", c("mean_t3")])
-mort_popsite$ordt3 <- c(ordt3_lew, ordt3_york)
-# t4
-ordt4_lew <- order(mort_popsite[mort_popsite$bag_site == "Lewisetta", c("mean_t4")])
-ordt4_york <- order(mort_popsite[mort_popsite$bag_site == "York River", c("mean_t4")])
-mort_popsite$ordt4 <- c(ordt4_lew, ordt4_york)
+# mortality
+ord_mort_popsite <- data.frame()
+for (i in 1:4) {
+  ordt_lew <- mort_popsite[mort_popsite$event == i & mort_popsite$bag_site == "Lewisetta",]
+  ordt_lew <- ordt_lew %>% arrange(desc(mean_surv))
+  ordt_lew$order_mort <- 1:length(ordt_lew$pop)
+  ordt_yrk <- mort_popsite[mort_popsite$event == i & mort_popsite$bag_site == "YorkRiver",]
+  ordt_yrk <- ordt_yrk %>% arrange(desc(mean_surv))
+  ordt_yrk$order_mort <- 1:length(ordt_yrk$pop)
+  ord_mort_popsite <- rbind(ord_mort_popsite, ordt_lew, ordt_yrk)
+}
+ord_mort_popsite
+
+# do the same with length
+# first length needs a pop label and site label
+len_bags <- as.data.frame(cbind(len$bag, str_split_fixed(len$bag, "-", 3)[,2:3]))
+colnames(len_bags) <- c("bag","pop","bagnum")
+len_bags$bagnum <- as.numeric(len_bags$bagnum)
+len_bags$site <- ifelse(len_bags$bagnum > 3, "YorkRiver", "Lewisetta")
+len_all <- merge(len_bags[,c("bag","pop","site")], len, by = c("bag"))
+
+len_t1 <- len_all[len_all$monitoring_event == 1,]
+t1_lens <- aggregate(length ~ pop + site, data = len_t1, FUN = mean)
+t1_sd <- aggregate(length ~ pop + site, data = len_t1, FUN = sd)
+colnames(t1_sd) <- c("pop", "site", "len_sd")
+t1_lens_popsite <- merge(t1_lens, t1_sd, by = c("pop", "site"))
+t1_lens_popsite$monitoring_event <- 1
+len_t2 <- len_all[len_all$monitoring_event == 2,]
+t2_lens <- aggregate(length ~ pop + site, data = len_t2, FUN = mean)
+t2_sd <- aggregate(length ~ pop + site, data = len_t2, FUN = sd)
+colnames(t2_sd) <- c("pop", "site", "len_sd")
+t2_lens_popsite <- merge(t2_lens, t2_sd, by = c("pop", "site"))
+t2_lens_popsite$monitoring_event <- 2
+len_t3 <- len_all[len_all$monitoring_event == 3,]
+t3_lens <- aggregate(length ~ pop + site, data = len_t3, FUN = mean)
+t3_sd <- aggregate(length ~ pop + site, data = len_t3, FUN = sd)
+colnames(t3_sd) <- c("pop", "site", "len_sd")
+t3_lens_popsite <- merge(t3_lens, t3_sd, by = c("pop", "site"))
+t3_lens_popsite$monitoring_event <- 3
+len_t4 <- len_all[len_all$monitoring_event == 4,]
+t4_lens <- aggregate(length ~ pop + site, data = len_t4, FUN = mean)
+t4_sd <- aggregate(length ~ pop + site, data = len_t4, FUN = sd)
+colnames(t4_sd) <- c("pop", "site", "len_sd")
+t4_lens_popsite <- merge(t4_lens, t4_sd, by = c("pop", "site"))
+t4_lens_popsite$monitoring_event <- 4
+
+lens_popsite <- rbind(t1_lens_popsite, t2_lens_popsite, t3_lens_popsite, t4_lens_popsite)
+colnames(lens_popsite) <- c("pop","bag_site","mean_len","sd_len","event")
+
+# and orders
+ord_len_popsite <- data.frame()
+for (i in 1:4) {
+  ordt_lew <- lens_popsite[lens_popsite$event == i & lens_popsite$bag_site == "Lewisetta",]
+  ordt_lew <- ordt_lew %>% arrange(desc(mean_len))
+  ordt_lew$order_len <- 1:length(ordt_lew$pop)
+  ordt_yrk <- lens_popsite[lens_popsite$event == i & lens_popsite$bag_site == "YorkRiver",]
+  ordt_yrk <- ordt_yrk %>% arrange(desc(mean_len))
+  ordt_yrk$order_len <- 1:length(ordt_yrk$pop)
+  ord_len_popsite <- rbind(ord_len_popsite, ordt_lew, ordt_yrk)
+}
+ord_len_popsite
+
+# put length and mortality together
+ord_fitness_popsite <- merge(ord_mort_popsite, ord_len_popsite, by = c("pop","bag_site","event"))
+
+# need a site name column
+ord_fitness_popsite$site_name <- ord_fitness_popsite$pop
+map = c("TX"="W1_TX", "LA"="W2_LA", "FL"="W3_FL", "LOLA"="S1_LOLA", "DEBY"="S2_DEBY", "JR"="W4_VA", "NH"="W5_NH", "ME"="W6_ME")
+ord_fitness_popsite$site_name <- recode(ord_fitness_popsite$site_name,
+                                           "TX"="W1_TX", "LA"="W2_LA", "FL"="W3_FL",
+                                           "LOLA"="S1_LOLA", "DEBY"="S2_DEBY", "JR"="W4_VA",
+                                           "NH"="W5_NH", "ME"="W6_ME")
+
 
 # need to align naming conventions to merge
 # LEA
-colnames(lea_go) <- c("pop", "offset_lew", "order_lew", "offset_yrk", "order_yrk")
+colnames(lea_go) <- c("pop", "offset_lew", "offset_yrk", "offset_lewthin", "offset_yrkthin")
 lea_go$pop <- str_split_fixed(lea_go$pop, "-",2)[,2]
 #mort_popsite[mort_popsite$pop == "JR",]$pop <- "VA"
 

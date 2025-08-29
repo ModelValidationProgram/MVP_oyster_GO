@@ -85,22 +85,31 @@ event4_bags <- tapply(tagsbags6[tagsbags6$event == 4,]$length,
                       tagsbags6[tagsbags6$event == 4,]$bags_label,
                       mean)
 
+# get sites and pops
+popsite <- as.data.frame(cbind(rownames(event1_bags), str_split_fixed(rownames(event1_bags), "-", 3)[,2:3]))
+colnames(popsite) <- c("bag","pop","bagnum")
+popsite$site <- ifelse(popsite$bagnum < 4, "Lewisetta", "YorkRiver")
+
 # put this in data frame
 event1_bags_df <- data.frame(bag = rownames(event1_bags), 
                              monitoring_event = 1, 
                              length = event1_bags)
+event1_bags_df2 <- merge(event1_bags_df, popsite, by = "bag")
 rownames(event1_bags_df) <- NULL
 event2_bags_df <- data.frame(bag = rownames(event2_bags), 
                              monitoring_event = 2, 
                              length = event2_bags)
+event2_bags_df2 <- merge(event2_bags_df, popsite, by = "bag")
 rownames(event2_bags_df) <- NULL
 event3_bags_df <- data.frame(bag = rownames(event3_bags), 
                              monitoring_event = 3, 
                              length = event3_bags)
+event3_bags_df2 <- merge(event3_bags_df, popsite, by = "bag")
 rownames(event3_bags_df) <- NULL
 event4_bags_df <- data.frame(bag = rownames(event4_bags), 
                              monitoring_event = 4, 
                              length = event4_bags)
+event4_bags_df2 <- merge(event4_bags_df, popsite, by = "bag")
 rownames(event4_bags_df) <- NULL
 
 # put it together
@@ -153,31 +162,31 @@ event4_tot <- tapply(tagsbags6[tagsbags6$event == 4,]$length,
 
 # put it all into a df
 df <- data.frame(site = "Lewisetta", pop = rownames(event1_lew), 
-                 monitoring_event = 1, length = event1_lew)
+                 monitoring_event = 1, length = event1_lew, t1 = event1_lew)
 df1 <- data.frame(site = "Lewisetta", pop = rownames(event1_lew),
-                  monitoring_event = 2, length = event2_lew)
+                  monitoring_event = 2, length = event2_lew, t2 = event2_lew)
 df3 <- data.frame(site = "Lewisetta", pop = rownames(event1_lew),
-                  monitoring_event = 3, length = event3_lew)
+                  monitoring_event = 3, length = event3_lew, t3 = event3_lew)
 df4 <- data.frame(site = "Lewisetta", pop = rownames(event1_lew),
-                  monitoring_event = 4, length = event4_lew)
+                  monitoring_event = 4, length = event4_lew, t4 = event4_lew)
 df5 <- data.frame(site = "York", pop = rownames(event1_york), 
-                  monitoring_event = 1, length = event1_york)
+                  monitoring_event = 1, length = event1_york, t1 = event1_york)
 df6 <- data.frame(site = "York", pop = rownames(event1_york),
-                  monitoring_event = 2, length = event2_york)
+                  monitoring_event = 2, length = event2_york, t2 = event2_york)
 df7 <- data.frame(site = "York", pop = rownames(event1_york),
-                  monitoring_event = 3, length = event3_york)
+                  monitoring_event = 3, length = event3_york, t3 = event3_york)
 df8 <- data.frame(site = "York", pop = rownames(event1_york),
-                  monitoring_event = 4, length = event4_york)
+                  monitoring_event = 4, length = event4_york, t4 = event4_york)
 df9 <- data.frame(site = "Overall", pop = rownames(event1_tot), 
-                  monitoring_event = 1, length = event1_tot)
+                  monitoring_event = 1, length = event1_tot, t1 = event1_tot)
 df10 <- data.frame(site = "Overall", pop = rownames(event1_lew),
-                  monitoring_event = 2, length = event2_tot)
+                  monitoring_event = 2, length = event2_tot, t2 = event2_tot)
 df11 <- data.frame(site = "Overall", pop = rownames(event1_lew),
-                  monitoring_event = 3, length = event3_tot)
+                  monitoring_event = 3, length = event3_tot, t3 = event3_tot)
 df12 <- data.frame(site = "Overall", pop = rownames(event1_lew),
-                  monitoring_event = 4, length = event4_tot)
+                  monitoring_event = 4, length = event4_tot, t4 = event4_tot)
 
-lengths <- rbind(df, df1, df3, df4, df5, df6, df7, df8, df9, df10, df11, df12)
+lengths <- rbind(df[,-5], df1[,-5], df3[,-5], df4[,-5], df5[,-5], df6[,-5], df7[,-5], df8[,-5], df9[,-5], df10[,-5], df11[,-5], df12[,-5])
 
 len_summary <- lengths %>% 
   #  filter(monitoring_event == 1, bag_site == "Lewisetta") %>%
