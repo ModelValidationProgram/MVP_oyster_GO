@@ -35,6 +35,7 @@ rda_go <- read.csv("results/GO_results/offsets_RDA_expsites_2025-08-20.csv")[,-1
 gf_go <- read.csv("results/GO_results/offsets_GF_expSites_2025-08-27.csv")[,-1]
 
 # fitness metrics
+mort_bags <- read.csv("results/exp_results/mortality_long_bags_2025-06-06.csv")[,-1]
 mort <- read.csv("results/exp_results/mortality_long_popsite_2025-06-06.csv")[,-1]
 len <- read.csv("results/exp_results/lengths_bags_event_2025-06-03.csv")[,-1]
 ```
@@ -130,30 +131,73 @@ ord_fitness_popsite$site_name <- recode(ord_fitness_popsite$site_name,
                                            "NH"="W5_NH", "ME"="W6_ME")
 
 
+# do bag level data as well
+colnames(mort_bags) <- c("bag","event","surv")
+colnames(len) <- c("bag","event","length")
+bagfit <- merge(mort_bags, len, by = c("bag","event"))
+
+# pop info
+bagfit$pop <- str_split_fixed(bagfit$bag, "-", 3)[,2]
+bagfit
+
+# add this to other fitness data
+bagfullfit <- merge(ord_fitness_popsite, bagfit, by = c("pop","event"))
+
 # need to align naming conventions to merge
 # LEA
-colnames(lea_go) <- c("pop", "offset_lew", "offset_yrk", "offset_lewthin", "offset_yrkthin")
-lea_go$pop <- str_split_fixed(lea_go$pop, "-",2)[,2]
-#mort_popsite[mort_popsite$pop == "JR",]$pop <- "VA"
+# colnames
+colnames(lea_go) <- c("site_name","lew_go_lea","yrk_go_lea","lew_gothin_lea","yrk_gothin_lea")
+
+# add order
+order_lew_lea <- as.data.frame(lea_go[order(lea_go$lew_go_lea, decreasing = T),]$site_name)
+colnames(order_lew_lea) <- c("site_name")
+order_lew_lea$order_lew_lea <- 1:length(order_lew_lea$site_name)
+order_yrk_lea <- as.data.frame(lea_go[order(lea_go$yrk_go_lea, decreasing = T),]$site_name)
+colnames(order_yrk_lea) <- c("site_name")
+order_yrk_lea$order_yrk_lea <- 1:length(order_yrk_lea$site_name)
+orders_lea <- merge(order_lew_lea, order_yrk_lea, by = c("site_name"))
+lea_go1 <- merge(lea_go, orders_lea, by = c("site_name"))
 
 # GF
+# colnames are fine
 # add order
-gf_go$order_lew <- order(gf_go$offset_gf_af_lew)
-gf_go$order_yrk <- order(gf_go$offset_gf_af_yrk)
-gf_go$pop <- str_split_fixed(gf_go$site_name,"-",2)[,2]
+order_lew_af <- as.data.frame(gf_go[order(gf_go$offset_gf_af_lew, decreasing = T),]$site_name)
+colnames(order_lew_af) <- c("site_name")
+order_lew_af$order_lew_af_gf <- 1:length(order_lew_af$site_name)
+order_yrk_af <- as.data.frame(lea_go[order(gf_go$offset_gf_af_yrk, decreasing = T),]$site_name)
+colnames(order_yrk_af) <- c("site_name")
+order_yrk_af$order_yrk_af_gf <- 1:length(order_yrk_af$site_name)
+orders_gf <- merge(order_lew_af, order_yrk_af, by = c("site_name"))
+gf_go1 <- merge(gf_go, orders_gf, by = c("site_name"))
 
-# mort popsite uses wrong label for JR/VA - call it VA
-mort_popsite[mort_popsite$pop == "JR",]$pop <- "VA"
+# RDA
+# colnames
+colnames(rda_go) <- c("site_name","lat","lon","offset_lew_rda","offset_yrk_rda")
 
-# merge gos & fitness dat
-goFitLEA <- merge(mort_popsite, lea_go, by = "pop")
-goFitGF <- merge(mort_popsite, gf_go, by = "pop")
+# add order
+order_lew_rda <- as.data.frame(rda_go[order(rda_go$offset_lew, decreasing = T),]$site_name)
+colnames(order_lew_rda) <- c("site_name")
+order_lew_rda$order_lew_rda <- 1:length(order_lew_af$site_name)
+order_yrk_rda <- as.data.frame(rda_go[order(rda_go$offset_yrk, decreasing = T),]$site_name)
+colnames(order_yrk_rda) <- c("site_name")
+order_yrk_rda$order_yrk_rda <- 1:length(order_yrk_rda$site_name)
+orders_rda <- merge(order_lew_rda, order_yrk_rda, by = c("site_name"))
+rda_go1 <- merge(rda_go, orders_rda, by = c("site_name"))
 
-# associate fitness data at the bag level as well
-levels(as.factor(mort$pop))
-mort[mort$pop == "JR",]$pop <- "VA"
-goFitLEAbag <- merge(mort, lea_go, by = "pop")
-goFitGFbag <- merge(mort, gf_go, by = "pop")
+# put together full go & fitness df
+go <- merge(rda_go1, gf_go1, by = "site_name")
+go1 <- merge(go, lea_go1, by = "site_name")
+fullfit <- merge(bagfullfit, go1, by = "site_name")
+
+# # merge gos & fitness dat
+# goFitLEA <- merge(mort_popsite, lea_go, by = "pop")
+# goFitGF <- merge(mort_popsite, gf_go, by = "pop")
+
+# # associate fitness data at the bag level as well
+# levels(as.factor(mort$pop))
+# mort[mort$pop == "JR",]$pop <- "VA"
+# goFitLEAbag <- merge(mort, lea_go, by = "pop")
+# goFitGFbag <- merge(mort, gf_go, by = "pop")
 ```
 
 
@@ -166,34 +210,99 @@ Now that offsets and fitness are in a comparable format, look at how well the tw
 Start with the bag level mortality data.
 
 ```{r}
-# correlations between go/lew mort at each time point
+# correlations between go/mort at each time point
+#################################################
+# lewisetta
 # lea
-(cor_lea1_lew <- cor(goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$offset_lew, goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$t1)) # -0.04646617
-(cor_lea2_lew <- cor(goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$offset_lew, goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$t2)) # 0.01330168
-(cor_lea3_lew <- cor(goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$offset_lew, goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$t3)) # -0.08660892
-(cor_lea4_lew <- cor(goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$offset_lew, goFitLEAbag[goFitLEAbag$bag_site == "Lewisetta",]$t4)) # -0.1313757
+(cor_lea1_lewm <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,]$lew_go_lea, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,]$surv)) # -0.1188
+(cor_lea2_lewm <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,]$lew_go_lea, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,]$surv)) # -0.114408
+(cor_lea3_lewm <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,]$lew_go_lea, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,]$surv)) # 0.1155335
+(cor_lea4_lewm <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,]$lew_go_lea, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,]$surv)) # 0.1225753
 
 # gf
-(cor_gf1_lew <- cor(goFitGFbag[goFitGFbag$bag_site == "Lewisetta",]$offset_gf_af_lew, goFitGFbag[goFitLEAbag$bag_site == "Lewisetta",]$t1)) # -0.04646617
-(cor_gf2_lew <- cor(goFitGFbag[goFitGFbag$bag_site == "Lewisetta",]$offset_gf_af_lew, goFitGFbag[goFitGFbag$bag_site == "Lewisetta",]$t2)) # 0.04308186
-(cor_gf3_lew <- cor(goFitGFbag[goFitGFbag$bag_site == "Lewisetta",]$offset_gf_af_lew, goFitGFbag[goFitGFbag$bag_site == "Lewisetta",]$t3)) # 0.05726335
-(cor_gf4_lew <- cor(goFitGFbag[goFitGFbag$bag_site == "Lewisetta",]$offset_gf_af_lew, goFitGFbag[goFitGFbag$bag_site == "Lewisetta",]$t4)) # 0.04197161
+(cor_gf1_lewm <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,]$offset_gf_af_lew, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,]$surv)) # -0.1320573
+(cor_gf2_lewm <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,]$offset_gf_af_lew, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,]$surv)) # -0.1853239
+(cor_gf3_lewm <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,]$offset_gf_af_lew, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,]$surv)) # -0.1934671
+(cor_gf4_lewm <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,]$offset_gf_af_lew, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,]$surv)) # -0.1759728
+
+# rda
+(cor_rda1_lewm <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,]$offset_lew_rda, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,]$surv)) # -0.4708852
+(cor_rda2_lewm <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,]$offset_lew_rda, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,]$surv)) # -0.5056913
+(cor_rda3_lewm <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,]$offset_lew_rda, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,]$surv)) # -0.515159
+(cor_rda4_lewm <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,]$offset_lew_rda, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,]$surv)) # -0.4586319
 
 # correlations between go/york mort at each time point
 # lea
-(cor_lea1_yrk <- cor(goFitLEAbag[goFitLEAbag$bag_site == "YorkRiver",]$offset_yrk, goFitLEAbag[goFitLEAbag$bag_site == "YorkRiver",]$t1)) # 0.03567268
-(cor_lea2_yrk <- cor(goFitLEAbag[goFitLEAbag$bag_site == "YorkRiver",]$offset_yrk, goFitLEAbag[goFitLEAbag$bag_site == "YorkRiver",]$t2)) # -0.009258749
-(cor_lea3_yrk <- cor(goFitLEAbag[goFitLEAbag$bag_site == "YorkRiver",]$offset_yrk, goFitLEAbag[goFitLEAbag$bag_site == "YorkRiver",]$t3)) # -0.2830991
-(cor_lea4_yrk <- cor(goFitLEAbag[goFitLEAbag$bag_site == "YorkRiver",]$offset_yrk, goFitLEAbag[goFitLEAbag$bag_site == "YorkRiver",]$t4)) # -0.316612
+(cor_lea1_yrkm <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,]$yrk_go_lea, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,]$surv)) # 0.09590167
+(cor_lea2_yrkm <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,]$yrk_go_lea, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,]$surv)) # 0.08713282
+(cor_lea3_yrkm <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,]$yrk_go_lea, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,]$surv)) # -0.118059
+(cor_lea4_yrkm <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,]$yrk_go_lea, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,]$surv)) # -0.1314632
 
 # gf
-(cor_gf1_yrk <- cor(goFitGFbag[goFitGFbag$bag_site == "YorkRiver",]$offset_gf_af_yrk, goFitGFbag[goFitGFbag$bag_site == "YorkRiver",]$t1)) # 0.2726633
-(cor_gf2_yrk <- cor(goFitGFbag[goFitGFbag$bag_site == "YorkRiver",]$offset_gf_af_yrk, goFitGFbag[goFitGFbag$bag_site == "YorkRiver",]$t2)) # 0.2862175
-(cor_gf3_yrk <- cor(goFitGFbag[goFitGFbag$bag_site == "YorkRiver",]$offset_gf_af_yrk, goFitGFbag[goFitGFbag$bag_site == "YorkRiver",]$t3)) # 0.2156996
-(cor_gf4_yrk <- cor(goFitGFbag[goFitGFbag$bag_site == "YorkRiver",]$offset_gf_af_yrk, goFitGFbag[goFitGFbag$bag_site == "YorkRiver",]$t4)) # 0.2609522
+(cor_gf1_yrkm <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,]$offset_gf_af_yrk, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,]$surv)) # -0.08401281
+(cor_gf2_yrkm <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,]$offset_gf_af_yrk, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,]$surv)) # -0.1204811
+(cor_gf3_yrkm <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,]$offset_gf_af_yrk, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,]$surv)) # -0.2840118
+(cor_gf4_yrkm <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,]$offset_gf_af_yrk, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,]$surv)) # -0.2594375
+
+# rda
+(cor_rda1_yrkm <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,]$offset_yrk_rda, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,]$surv)) # 0.4217415
+(cor_rda2_yrkm <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,]$offset_yrk_rda, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,]$surv)) # 0.4692211
+(cor_rda3_yrkm <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,]$offset_yrk_rda, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,]$surv)) # 0.2952187
+(cor_rda4_yrkm <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,]$offset_yrk_rda, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,]$surv)) # 0.2752647
+#################################################
+
+# correlations between go/len at each time point
+################################################
+# lewisetta
+# lea
+(cor_lea1_lewl <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,]$lew_go_lea, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,]$length)) # -0.1602686
+(cor_lea2_lewl <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,]$lew_go_lea, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,]$length)) # 0.08713691
+(cor_lea3_lewl <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,]$lew_go_lea, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,]$length)) # 0.1573283
+(cor_lea4_lewl <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,]$lew_go_lea, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,]$length)) # 0.1036748
+
+# gf
+(cor_gf1_lewl <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,]$offset_gf_af_lew, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,]$length)) # 0.205473
+(cor_gf2_lewl <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,]$offset_gf_af_lew, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,]$length)) # 0.1044639
+(cor_gf3_lewl <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,]$offset_gf_af_lew, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,]$length)) # -0.1849938
+(cor_gf4_lewl <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,]$offset_gf_af_lew, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,]$length)) # -0.129079
+
+# rda
+(cor_rda1_lewl <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,]$offset_lew_rda, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,]$length)) # -0.2086341
+(cor_rda2_lewl <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,]$offset_lew_rda, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,]$length)) # -0.3727353
+(cor_rda3_lewl <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,]$offset_lew_rda, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,]$length)) # -0.2132694
+(cor_rda4_lewl <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,]$offset_lew_rda, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,]$length)) # -0.009785706
+
+# correlations between go/york mort at each time point
+# lea
+(cor_lea1_yrkl <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,]$yrk_go_lea, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,]$length)) # 0.1418931
+(cor_lea2_yrkl <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,]$yrk_go_lea, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,]$length)) # -0.1030296
+(cor_lea3_yrkl <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,]$yrk_go_lea, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,]$length)) # -0.1687404
+(cor_lea4_yrkl <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,]$yrk_go_lea, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,]$length)) # -0.155277
+
+# gf
+(cor_gf1_yrkl <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,]$offset_gf_af_yrk, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,]$length)) # 0.2664307
+(cor_gf2_yrkl <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,]$offset_gf_af_yrk, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,]$length)) # -0.005909796
+(cor_gf3_yrkl <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,]$offset_gf_af_yrk, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,]$length)) # -0.1869383
+(cor_gf4_yrkl <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,]$offset_gf_af_yrk, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,]$length)) # -0.02829487
+
+# rda
+(cor_rda1_yrkl <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,]$offset_yrk_rda, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,]$length)) # 0.2969529
+(cor_rda2_yrkl <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,]$offset_yrk_rda, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,]$length)) # 0.2129072
+(cor_rda3_yrkl <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,]$offset_yrk_rda, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,]$length)) # 0.2044589
+(cor_rda4_yrkl <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,]$offset_yrk_rda, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,]$length)) # 0.306211
+################################################
+
+# compile
+#########
+
+
 
 # put this all into a df with method/time point/fitness metric/site/corr
-corr_df <- data.frame(method = c(rep("LEA", 8), rep("GF", 8)), metric = rep("surv", 16), monitoring_event = rep(c(1:4),4), bag_site = rep(c(rep("Lewisetta",4), rep("YorkRiver", 4)),2), pearson = c(cor_lea1_lew, cor_lea2_lew, cor_lea3_lew, cor_lea4_lew, cor_lea1_yrk, cor_lea2_yrk, cor_lea3_yrk, cor_lea4_yrk, cor_gf1_lew, cor_gf2_lew, cor_gf3_lew, cor_gf4_lew, cor_gf1_yrk, cor_gf2_yrk, cor_gf3_yrk, cor_gf4_yrk))
+corr_df <- data.frame(method = rep(c(rep("LEA", 8), rep("GF", 8), rep("RDA", 8)), 2), metric = c(rep("surv", 24), rep("len", 24)), monitoring_event = rep(c(1:4), 12), bag_site = rep(c(rep("Lewisetta", 4), rep("YorkRiver", 4)), 6), pearson = c(cor_lea1_lewm, cor_lea2_lewm, cor_lea3_lewm, cor_lea4_lewm, cor_lea1_yrkm, cor_lea2_yrkm, cor_lea3_yrkm, cor_lea4_yrkm, cor_gf1_lewm, cor_gf2_lewm, cor_gf3_lewm, cor_gf4_lewm, cor_gf1_yrkm, cor_gf2_yrkm, cor_gf3_yrkm, cor_gf4_yrkm, cor_rda1_lewm, cor_rda2_lewm, cor_rda3_lewm, cor_rda4_lewm, cor_rda1_yrkm, cor_rda2_yrkm, cor_rda3_yrkm, cor_rda4_yrkm, cor_lea1_lewl, cor_lea2_lewl, cor_lea3_lewl, cor_lea4_lewl, cor_lea1_yrkl, cor_lea2_yrkl, cor_lea3_yrkl, cor_lea4_yrkl, cor_gf1_lewl, cor_gf2_lewl, cor_gf3_lewl, cor_gf4_lewl, cor_gf1_yrkl, cor_gf2_yrkl, cor_gf3_yrkl, cor_gf4_yrkl, cor_rda1_lewl, cor_rda2_lewl, cor_rda3_lewl, cor_rda4_lewl, cor_rda1_yrkl, cor_rda2_yrkl, cor_rda3_yrkl, cor_rda4_yrkl))
+
+# save this
+write.csv(corr_df, paste0("results/GO_results/go_fit_corrs_",Sys.Date(),".csv"), row.names = F)
+#########
 ```
 
 
