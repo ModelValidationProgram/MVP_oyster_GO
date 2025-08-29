@@ -567,37 +567,29 @@ Now that I have predictions from different methods, I will look at how offset pr
 
 ### Compare Offsets to Each Other
 
-```{r Offset Compilation}
-# make a df with all of the offsets in them
-offsets_lea_exp <- goFitLEA[,c("pop", "bag_site","offset_lew", "offset_yrk", "order_lew", "order_yrk")]
-colnames(offsets_lea_exp) <- c("pop", "bag_site","lea_offset_lew", "lea_offset_yrk", "lea_order_lew", "lea_order_yrk")
-offsets_gf_exp <- goFitGF[,c("pop", "bag_site","offset_af_lew", "offset_af_yrk", "order_lew", "order_yrk")]
-colnames(offsets_gf_exp) <- c("pop", "bag_site","gf_offset_af_lew", "gf_offset_af_yrk", "gf_order_lew", "gf_order_yrk")
-offsets_all <- merge(offsets_lea_exp, offsets_gf_exp, by = c("pop", "bag_site"))
-```
-
-
 ```{r Offset Comparison}
 # corr gf/lea
-cor.test(offsets_all[offsets_all$bag_site == "Lewisetta",]$lea_offset_lew,  offsets_all[offsets_all$bag_site == "Lewisetta",]$gf_offset_af_lew) # 0.8234259, p = 0.02282
-cor.test(offsets_all[offsets_all$bag_site == "YorkRiver",]$lea_offset_yrk,  offsets_all[offsets_all$bag_site == "YorkRiver",]$gf_offset_af_yrk) # 0.836363, p = 0.01901
+cor.test(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,]$lew_go_lea,  fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,]$offset_gf_af_lew) # -0.08873151, p = 0.6068
+cor.test(fullfit[fullfit$bag_site == "YorkRiver",]$yrk_go_lea,  fullfit[fullfit$bag_site == "YorkRiver",]$offset_gf_af_yrk) # 0.4729701, p = 2.788e-09
 
-ggplot(data = offsets_all) + 
-  geom_point(data = offsets_all[offsets_all$bag_site == "Lewisetta",], aes(x = lea_offset_lew, y = gf_offset_af_lew, fill = pop), pch = 21, size = 3) +
-  geom_smooth(method = "lm", data = offsets_all[offsets_all$bag_site == "Lewisetta",], aes(x = lea_offset_lew, y = gf_offset_af_lew), col = "black") +
+ggplot(data = fullfit) + 
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = lew_go_lea, y = offset_gf_af_lew, fill = pop), pch = 21, size = 3) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = lew_go_lea, y = offset_gf_af_lew), col = "black") +
   labs(title = "LEA vs GF Offsets Lewisetta", x = "LEA Offset", y = "GF Offset", fill = "Broodstock Group") +
   theme_classic()
 
-ggplot(data = offsets_all) + 
-  geom_point(data = offsets_all[offsets_all$bag_site == "YorkRiver",], aes(x = lea_offset_yrk, y = gf_offset_af_yrk, fill = pop), pch = 21, size = 3) +
-  geom_smooth(method = "lm", data = offsets_all[offsets_all$bag_site == "YorkRiver",], aes(x = lea_offset_yrk, y = gf_offset_af_yrk), col = "black") +
+ggplot(data = fullfit) + 
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = yrk_go_lea, y = offset_gf_af_yrk, fill = pop), pch = 21, size = 3) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = yrk_go_lea, y = offset_gf_af_yrk), col = "black") +
   labs(title = "LEA vs GF Offsets York River", x = "LEA Offset", y = "GF Offset", fill = "Broodstock Group") +
   theme_classic()
 
 # corr gf/rda
-
+cor.test(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,]$offset_lew_rda,  fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,]$offset_gf_af_lew) # 0.03513667, p = 0.8388
+cor.test(fullfit[fullfit$bag_site == "YorkRiver",]$offset_yrk_rda,  fullfit[fullfit$bag_site == "YorkRiver",]$offset_gf_af_yrk) # 0.2381278, p = 0.004321
 
 # corr lea/rda
-
+cor.test(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,]$offset_lew_rda,  fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,]$lew_go_lea) # 0.08615492, p = 0.6173
+cor.test(fullfit[fullfit$bag_site == "YorkRiver",]$offset_lew_rda,  fullfit[fullfit$bag_site == "YorkRiver",]$yrk_go_lea) # -0.1736073, p = 0.03881
 ```
 
