@@ -72,7 +72,7 @@ I need to do some work to put together the experimental data frame
 # this is coming from sentinel population
 lewyrk_dis_avgs <- expdis %>% 
   group_by(SITE) %>% 
-  summarize(Dermo_Prevalence = mean(P_dermo), Dermo_Weighted_Prevalence = mean(WP_dermo, na.rm = T))
+  dplyr::summarize(Dermo_Prevalence = mean(P_dermo), Dermo_Weighted_Prevalence = mean(WP_dermo, na.rm = T))
 lewyrk_dis_avgs <- as.data.frame(lewyrk_dis_avgs)
 
 # get the peacrab data from finalTissue
@@ -86,7 +86,7 @@ peacrab_trim$site <- ifelse(peacrab_trim$bagnum < 4, "Lewisetta", "YorkRiver")
 # now calculate numbers of pea crabs
 lewyrk_pea_avgs <- peacrab_trim %>% 
   group_by(site) %>% 
-  summarize(Pea_Crab = sum(peaCrab == T)/(sum(peaCrab == T) + sum(peaCrab == F))) # this is the percent of oysters per pop that had pea crabs
+  dplyr::summarize(Pea_Crab = sum(peaCrab == T)/(sum(peaCrab == T) + sum(peaCrab == F))) # this is the percent of oysters per pop that had pea crabs
 lewyrk_pea_avgs <- as.data.frame(lewyrk_pea_avgs)
 
 # still need msx for these sites
@@ -320,25 +320,19 @@ In addition to processing this environmental data, I want to calculate environme
 
 ```{r}
 # data
-expenv_dist_df <- expenv_mg
-
-# change the site_names to match
-expenv_dist_df$site_name <- sub("_","-", expenv_dist_df$site_name)
+expenv_dist_df <- allenv_scaled
 
 # reduce variable set
-expenv_dist_red_df <- expenv_dist_df[c("site_name", "lat.x", "lon.x", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90")]
-
-# standardize
-std_expenv <- scale(expenv_dist_red_df[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90")])
-colnames(std_expenv) <- c("std_salinity_quantile_10", "std_salinity_quantile_90", "std_temp_quantile_10", "std_temp_quantile_90")
-expenv_dist_std_df <- cbind(expenv_dist_red_df, std_expenv)
+expenv_dist_red_df <- expenv_dist_df[,c("site_name", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90","Dermo_Prevalence","Pea_crab")]
 
 # calculate environmental distance
 library(vegan)
-env_dist <- round(vegdist(expenv_dist_std_df[,c("std_salinity_quantile_10", "std_salinity_quantile_90", "std_temp_quantile_10", "std_temp_quantile_90")], 
-                          method = "euclidian", upper = FALSE, diag = TRUE), 4)
+envdist_std <- round(decostand(expenv_dist_red_df[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90","Dermo_Prevalence","Pea_crab")], method = "standardize"), 4)
+
+env_dist <- round(vegdist(envdist_std, method = "euclidian", 
+                          upper = FALSE, diag = TRUE), 4)
 env_dist_df <- as.data.frame(as.matrix(env_dist))
-colnames(env_dist_df) <- rownames(env_dist_df) <- expenv_dist_std_df$site_name
+colnames(env_dist_df) <- rownames(env_dist_df) <- expenv_dist_red_df$site_name
 env_dist_df
 
 # matrix
@@ -357,8 +351,8 @@ popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "DEBY", "LOLA", "NH", "ME",
                      order = 2:11, 
                      cols = c("#3e4989" ,"#31688e", "#26828e", "#440154", "#482878", "#1f9e89", "#35b779", "#6ece58", "#fde725", "#b5de2b"),
                      shape = c(21,21,21,21,23,23,21,21,24,24),
-                     site_name = c("W1-TX", "W2-LA", "W3-FL", "W4-VA", "S1-LOLA", "S2-DEBY", "W5-NH", "W6-ME", "H1-LARMIX", "H2-SEEDMIX"))
-popsdf0 <- rbind(data.frame(pop = c("YRK","LEW"), order = 0:1, cols = c("white","black"), shape = c(22,22), site_name = c("YRK","LEW")), popsdf)
+                     site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME", "H1_LARMIX", "H2_SEEDMIX"))
+popsdf0 <- rbind(data.frame(pop = c("LEW","YRK"), order = 0:1, cols = c("white","black"), shape = c(22,22), site_name = c("Lewisetta","YorkRiver")), popsdf)
 popsdf1 <- popsdf0
 popsdf2 <- popsdf0
 colnames(popsdf1) <- c("pop","order1","cols","shape","site1")
@@ -378,7 +372,7 @@ envdist_plot <- ggplot(env_dist_long_mg2, aes(x = fct_reorder(site1, order1),
   geom_tile(color = "black") +
 #  geom_text(aes(label = distances), color = "white", size = 4)+
   scale_fill_viridis_c(name = "Euclidean 
-Distance", limits = c(0, 5))+
+Distance", limits = c(0, 7))+
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
         legend.position = "right", legend.justification = "top") +
@@ -393,22 +387,22 @@ env_dist_long_expsite <- env_dist_long_mg2[env_dist_long_mg2$site2 %in% c("LEW",
 env_dist_long_expsite_red <- env_dist_long_expsite[!(env_dist_long_expsite$site1 %in% c("LEW","YRK")),]
 
 # plot
-envdist_plot_red <- ggplot(env_dist_long_expsite_red, aes(x = fct_reorder(site1, order1), 
-                              y = fct_reorder(site2, order2), 
-                              fill = value))+
-  theme_classic()+
-  geom_tile(color = "black") +
-#  geom_text(aes(label = distances), color = "white", size = 4)+
-  scale_fill_viridis_c(name = "Euclidean 
-Distance", limits = c(0, 4))+
-  theme(plot.title = element_text(size = 20), 
-        legend.title = element_text(size = 14),
-        legend.position = "right", legend.justification = "top") +
-  labs(title = "Environmental Distance between Sites", x = "", y = "") +
-  theme(plot.title = element_text(size = 18), 
-        legend.title = element_text(size = 14),
-        legend.position = "right", legend.justification = "top")
-envdist_plot_red
+# envdist_plot_red <- ggplot(env_dist_long_expsite_red, aes(x = fct_reorder(site1, order1), 
+#                               y = fct_reorder(site2, order2), 
+#                               fill = value))+
+#   theme_classic()+
+#   geom_tile(color = "black") +
+# #  geom_text(aes(label = distances), color = "white", size = 4)+
+#   scale_fill_viridis_c(name = "Euclidean 
+# Distance", limits = c(0, 4))+
+#   theme(plot.title = element_text(size = 20), 
+#         legend.title = element_text(size = 14),
+#         legend.position = "right", legend.justification = "top") +
+#   labs(title = "Environmental Distance between Sites", x = "", y = "") +
+#   theme(plot.title = element_text(size = 18), 
+#         legend.title = element_text(size = 14),
+#         legend.position = "right", legend.justification = "top")
+# envdist_plot_red
 ```
 
 
