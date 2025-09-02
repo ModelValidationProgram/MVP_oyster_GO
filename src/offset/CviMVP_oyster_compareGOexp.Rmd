@@ -667,7 +667,7 @@ for (i in 1:4) {
 
 # add these correlations to corrs_df
 corrs_df_dist <- rbind(corrs_df, cor_dist_lew, cor_dist_yrk)
-# write.csv(corrs_df_dist, paste0("results/GO_results/go_fit_corrs_dist_",Sys.Date(),".csv"))
+write.csv(corrs_df_dist, paste0("results/GO_results/go_fit_corrs_dist_",Sys.Date(),".csv"), row.names = F)
 
 # visualize mort
 # lewisetta
