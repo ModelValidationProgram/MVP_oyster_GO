@@ -1,7 +1,7 @@
 # script to train models on cluster
 
 # packages
-install.packages("gradientForest")
+#install.packages("gradientForest")
 library(gradientForest) # for running gradient forest
 
 # data

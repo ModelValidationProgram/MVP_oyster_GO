@@ -1,15 +1,17 @@
 #!/bin/bash
-#SBATCH --job-name=TrainGF082526
+#SBATCH --job-name=TrainGF091725
 #SBATCH --mail-user=rumberger.c@northeastern.edu
 #SBATCH --mail-type=FAIL
 #SBATCH --partition=lotterhos
-#SBATCH --mem=5G
+#SBATCH --mem=20G
 #SBATCH --nodes=1
 #SBATCH --array=2-952%70
-#SBATCH --output=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20250825/TrainGF082526_%j.out
-#SBATCH --error=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20250825/TrainGF082526_%j.err
+#SBATCH --output=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20250917/TrainGF20250917_%j.out
+#SBATCH --error=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20250917/TrainGF20250917_%j.err
 
-source ~/anaconda3/bin/activate offset_R
+podman run containers.rc.northeastern.edu/lotterhos/slim_sims_clonal
+
+source ~/anaconda3/bin/activate R_env_clones
 
 # setting up error protocols
 set -e
@@ -31,6 +33,7 @@ module load R
 
 Rscript src/offset/trainGF.R
 
-gzip -f "results/lg_results/gf_geno_2025-08-27.RDS"
-gzip -f "results/lg_results/gf_geno_2025-08-27.RDS"
+gzip -f "results/lg_results/gf_geno_2025-09-17.RDS"
+gzip -f "results/lg_results/gf_geno_2025-09-17.RDS"
+
 
