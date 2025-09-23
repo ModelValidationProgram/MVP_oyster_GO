@@ -58,20 +58,20 @@ st_crs(oceans_crop)
 st_crs(coast_crop)
 st_crs(world_crop) # looks good
 
-# # define buffer distance
-# dist <- 2.5 # 2.5º difference
-# 
-# # define buffer region
-# buffered_region <- st_buffer(coast_crop, dist)
-# buffered_region2 <- st_difference(buffered_region, coast_crop)
-# plot(buffered_region2, col = "lightblue2")
+# define buffer distance
+dist <- 2.5 # 2.5º difference
+
+# define buffer region - note we need to specify the layer, as there are lots of different coastlines
+buffered_region <- st_buffer(coast_crop, dist)[51,]
+plot(buffered_region, col = "lightblue2")
 
 # crop shapefile to region of interest for interpolation
-int_region <- st_difference(oceans_crop, world_crop)
+# this is the region we will plot, but we need to interpolate the entire buffered region
+int_region <- st_intersection(oceans_crop, buffered_region) 
 
-# define 10x10 km grid across ocean area
-grid <- st_make_grid(int_region, cellsize = 0.1, what = "polygons")
-grid_int <- st_intersection(grid, int_region)
+# define grid across ocean area
+grid <- st_make_grid(buffered_region, cellsize = 0.1, what = "polygons")
+grid_int <- st_intersection(grid, buffered_region)
 
 # interpolate
 interpolated_sal10 <- idw(salinity_quantile_10_scaled~1, dat_sf, grid_int)
