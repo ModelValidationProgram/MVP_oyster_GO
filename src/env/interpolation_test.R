@@ -1,0 +1,83 @@
+###########################
+## INTERPOLATING ENV DAT ##
+###########################
+
+# setup
+setwd("~/Documents/GitHub/MVP_oyster_GO")
+
+# libraries
+library(dplyr)
+library(tidyverse)
+library(sf)
+library(terra)
+library(gstat)
+library(ggplot2)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(stars)
+
+
+# data
+dat <- read.csv("data/EnvDat/env_scaled_2025-09-22.csv")
+
+# inspect
+head(dat)
+summary(dat)
+
+# create a shapefile
+dat_sf <- st_as_sf(dat, 
+                   coords = c("Longitude_manual","Latitude_manual"),
+                   crs = 4326) # for WGS84 projection
+
+# set spherical geometry
+sf::sf_use_s2(FALSE)
+
+# set object
+world <- ne_countries(scale = "medium", returnclass = "sf")
+world_crop <- sf::st_crop(world, c(xmin =-102, xmax = -65, ymin = 24, ymax = 47.05))
+coast <- ne_coastline(scale = "medium", returnclass = "sf")
+coast_crop <- sf::st_crop(coast, c(xmin =-102, xmax = -65, ymin = 24, ymax = 47.05))
+
+# test map
+map_test <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  geom_sf(data = dat_sf, mapping = aes(col = salinity_quantile_10)) +
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
+  labs(title = "Salinity 10% Quantile (PPT)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
+(map_test)
+
+# looks good, now determine area for interpolation
+# start by downloading and cropping oceans data
+oceans110 <- ne_download(scale=110L, type = "ocean", category = "physical")
+oceans_crop <- sf::st_crop(oceans110, c(xmin = -102, xmax = -65, ymin = 24, ymax = 47.05))
+
+# check crs
+st_crs(oceans_crop)
+st_crs(coast_crop)
+st_crs(world_crop) # looks good
+
+# # define buffer distance
+# dist <- 2.5 # 2.5º difference
+# 
+# # define buffer region
+# buffered_region <- st_buffer(coast_crop, dist)
+# buffered_region2 <- st_difference(buffered_region, coast_crop)
+# plot(buffered_region2, col = "lightblue2")
+
+# crop shapefile to region of interest for interpolation
+int_region <- st_difference(oceans_crop, world_crop)
+
+# define 10x10 km grid across ocean area
+grid <- st_make_grid(int_region, cellsize = 0.1, what = "polygons")
+grid_int <- st_intersection(grid, int_region)
+
+# interpolate
+interpolated_sal10 <- idw(salinity_quantile_10_scaled~1, dat_sf, grid_int)
+interpolated_sal90 <- idw(salinity_quantile_90_scaled~1, dat_sf, grid_int)
+interpolated_temp10 <- idw(temp_quantile_10_scaled~1, dat_sf, grid_int)
+interpolated_temp90 <- idw(temp_quantile_90_scaled~1, dat_sf, grid_int)
+interpolated_dermo <- idw(Dermo_Prevalence_scaled~1, dat_sf, grid_int)
+interpolated_pea <- idw(Pea_crab_scaled~1, dat_sf, grid_int)
+
