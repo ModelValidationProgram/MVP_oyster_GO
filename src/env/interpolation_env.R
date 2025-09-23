@@ -16,13 +16,8 @@ library(rnaturalearth)
 library(rnaturalearthdata)
 library(stars)
 
-
 # data
 dat <- read.csv("data/EnvDat/env_scaled_2025-09-22.csv")
-
-# inspect
-head(dat)
-summary(dat)
 
 # create a shapefile
 dat_sf <- st_as_sf(dat, 
@@ -75,9 +70,46 @@ grid_int <- st_intersection(grid, buffered_region)
 
 # interpolate
 interpolated_sal10 <- idw(salinity_quantile_10_scaled~1, dat_sf, grid_int)
-interpolated_sal90 <- idw(salinity_quantile_90_scaled~1, dat_sf, grid_int)
-interpolated_temp10 <- idw(temp_quantile_10_scaled~1, dat_sf, grid_int)
-interpolated_temp90 <- idw(temp_quantile_90_scaled~1, dat_sf, grid_int)
-interpolated_dermo <- idw(Dermo_Prevalence_scaled~1, dat_sf, grid_int)
-interpolated_pea <- idw(Pea_crab_scaled~1, dat_sf, grid_int)
+saveRDS(interpolated_sal10, "data/results/lg_results/interpolated_sal10.rds")
 
+interpolated_sal90 <- idw(salinity_quantile_90_scaled~1, dat_sf, grid_int)
+saveRDS(interpolated_sal90, "data/results/lg_results/interpolated_sal90.rds")
+
+interpolated_temp10 <- idw(temp_quantile_10_scaled~1, dat_sf, grid_int)
+saveRDS(interpolated_temp10, "data/results/lg_results/interpolated_temp10.rds")
+
+interpolated_temp90 <- idw(temp_quantile_90_scaled~1, dat_sf, grid_int)
+saveRDS(interpolated_temp90, "data/results/lg_results/interpolated_temp90.rds")
+
+interpolated_dermo <- idw(Dermo_Prevalence_scaled~1, dat_sf, grid_int)
+saveRDS(interpolated_dermo, "data/results/lg_results/interpolated_dermo.rds")
+
+interpolated_pea <- idw(Pea_crab_scaled~1, dat_sf, grid_int)
+saveRDS(interpolated_pea, "data/results/lg_results/interpolated_pea.rds")
+
+# empty raster
+ext <- ext(st_bbox(interpolated_sal10)) # get spatial extent
+rast_empty <- rast(ext, resolution = 0.1, crs = st_crs(interpolated_sal10)$wkt)
+
+# create a raster stack
+# set up
+sf_ls <- c(interpolated_sal10, interpolated_sal90, # sal
+           interpolated_temp10, interpolated_temp90, # temp
+           interpolated_dermo, interpolated_pea) # disease
+rast_ls <- list()
+
+# loop through sf files to rasterize
+for (i in length(sf_ls)) {
+  sf = sf_ls[i]
+  rast = terra::rasterize(sf, rast_empty, field = "var1.pred", background = NA)
+  rast_ls[[i]] = rast
+}
+
+# combine
+rast_all <- rast(rast_ls)
+names(rast_all) <- c("interpolated_sal10", "interpolated_sal90", # sal
+                     "interpolated_temp10", "interpolated_temp90", # temp
+                     "interpolated_dermo", "interpolated_pea") # disease
+
+# save
+saveRDS(rast_all, "data/EnvDat/seascape/raster_interpolated_scaled_env.RDS")
