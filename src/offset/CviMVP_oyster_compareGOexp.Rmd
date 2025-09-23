@@ -202,123 +202,38 @@ Here I calculate the R^2 and pearson's correlation between fitness and GO for ea
 ```{r}
 # correlations between go/fit at each time point
 #################################################
-# lea
-cor_lea_lew <- data.frame(corr_mort = NA, r2_mort = NA, corr_len = NA, r2_len = NA, corrpop_mort = NA, r2pop_mort = NA, corrpop_len = NA, r2pop_len = NA, method = NA, bag_site = NA, event = NA)
-for (i in 1:4) {
-  cor_lea_lew[i,]$corr_mort <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$lew_go_lea, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$surv)
-  cor_lea_lew[i,]$r2_mort <- summary(lm(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$surv ~ fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$lew_go_lea))$r.squared
-  
-  cor_lea_lew[i,]$corrpop_mort <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$lew_go_lea, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$mean_surv)
-  cor_lea_lew[i,]$r2pop_mort <- summary(lm(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$mean_surv ~ fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$lew_go_lea))$r.squared
-  
-  cor_lea_lew[i,]$corr_len <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$lew_go_lea, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$length)
-  cor_lea_lew[i,]$r2_len <- summary(lm(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$length ~ fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$lew_go_lea))$r.squared
-  
-  cor_lea_lew[i,]$corrpop_len <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$lew_go_lea, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$mean_len)
-  cor_lea_lew[i,]$r2pop_len <- summary(lm(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$mean_len ~ fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$lew_go_lea))$r.squared
-  
-  cor_lea_lew[i,]$method <- "LEA"
-  cor_lea_lew[i,]$bag_site <- "Lewisetta"
-  cor_lea_lew[i,]$event <- i
+# function for correlations
+cor_fit <- function(site, go_method) {
+  cor_df <- data.frame(corr_mort = NA, r2_mort = NA, corr_len = NA, r2_len = NA, corrpop_mort = NA, r2pop_mort = NA, corrpop_len = NA, r2pop_len = NA, method = NA, bag_site = NA, event = NA)
+  go_metric <- ifelse(go_method == "lea" & site == "Lewisetta", "lew_go_lea", ifelse(go_method == "gf" & site == "Lewisetta", "offset_gf_af_lew", ifelse(go_method == "rda" & site == "Lewisetta", "offset_lew_rda", ifelse(go_method == "lea" & site == "YorkRiver", "yrk_go_lea", ifelse(go_method == "gf" & site == "YorkRiver", "offset_gf_af_yrk", ifelse(go_method == "rda" & site == "YorkRiver", "offset_yrk_rda", NULL))))))
+
+  for (i in 1:4) {
+    cor_df[i,]$corr_mort <- cor(fullfit[fullfit$bag_site == (site) & fullfit$event == i, c(go_metric)], fullfit[fullfit$bag_site == (site) & fullfit$event == i,]$surv)
+    cor_df[i,]$r2_mort <- summary(lm(fullfit[fullfit$bag_site == (site) & fullfit$event == i,]$surv ~ fullfit[fullfit$bag_site == (site) & fullfit$event == i, c(go_metric)]))$r.squared
+    
+    cor_df[i,]$corrpop_mort <- cor(fullfit[fullfit$bag_site == (site) & fullfit$event == i, c(go_metric)], fullfit[fullfit$bag_site == (site) & fullfit$event == i,]$mean_surv)
+    cor_df[i,]$r2pop_mort <- summary(lm(fullfit[fullfit$bag_site == (site) & fullfit$event == i,]$mean_surv ~ fullfit[fullfit$bag_site == (site) & fullfit$event == i, c(go_metric)]))$r.squared
+    
+    cor_df[i,]$corr_len <- cor(fullfit[fullfit$bag_site == (site) & fullfit$event == i, c(go_metric)], fullfit[fullfit$bag_site == (site) & fullfit$event == i,]$length)
+    cor_df[i,]$r2_len <- summary(lm(fullfit[fullfit$bag_site == (site) & fullfit$event == i,]$length ~ fullfit[fullfit$bag_site == (site) & fullfit$event == i, c(go_metric)]))$r.squared
+    
+    cor_df[i,]$corrpop_len <- cor(fullfit[fullfit$bag_site == (site) & fullfit$event == i, c(go_metric)], fullfit[fullfit$bag_site == (site) & fullfit$event == i,]$mean_len)
+    cor_df[i,]$r2pop_len <- summary(lm(fullfit[fullfit$bag_site == (site) & fullfit$event == i,]$mean_len ~ fullfit[fullfit$bag_site == (site) & fullfit$event == i, c(go_metric)]))$r.squared
+    
+    cor_df[i,]$method <- as.character(go_method)
+    cor_df[i,]$bag_site <- as.character(site)
+    cor_df[i,]$event <- i
+  }
+  return(cor_df)
 }
 
-cor_lea_yrk <- data.frame(corr_mort = NA, r2_mort = NA, corr_len = NA, r2_len = NA, corrpop_mort = NA, r2pop_mort = NA, corrpop_len = NA, r2pop_len = NA, method = NA, bag_site = NA, event = NA)
-for (i in 1:4) {
-  cor_lea_yrk[i,]$corr_mort <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$yrk_go_lea, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$surv)
-  cor_lea_yrk[i,]$r2_mort <- summary(lm(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$surv ~ fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$yrk_go_lea))$r.squared
-  
-  cor_lea_yrk[i,]$corrpop_mort <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$yrk_go_lea, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$mean_surv)
-  cor_lea_yrk[i,]$r2pop_mort <- summary(lm(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$mean_surv ~ fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$yrk_go_lea))$r.squared
-  
-  cor_lea_yrk[i,]$corr_len <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$yrk_go_lea, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$length)
-  cor_lea_yrk[i,]$r2_len <- summary(lm(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$length ~ fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$yrk_go_lea))$r.squared
-  
-  cor_lea_yrk[i,]$corrpop_len <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$yrk_go_lea, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$mean_len)
-  cor_lea_yrk[i,]$r2pop_len <- summary(lm(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$mean_len ~ fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$yrk_go_lea))$r.squared
-  
-  cor_lea_yrk[i,]$method <- "LEA"
-  cor_lea_yrk[i,]$bag_site <- "YorkRiver"
-  cor_lea_yrk[i,]$event <- i
-}
-
-# gf
-cor_gf_af_lew <- data.frame(corr_mort = NA, r2_mort = NA, corr_len = NA, r2_len = NA, corrpop_mort = NA, r2pop_mort = NA, corrpop_len = NA, r2pop_len = NA, method = NA, bag_site = NA, event = NA)
-for (i in 1:4) {
-  cor_gf_af_lew[i,]$corr_mort <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$offset_gf_af_lew, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$surv)
-  cor_gf_af_lew[i,]$r2_mort <- summary(lm(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$surv ~ fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$offset_gf_af_lew))$r.squared
-  
-  cor_gf_af_lew[i,]$corrpop_mort <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$offset_gf_af_lew, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$mean_surv)
-  cor_gf_af_lew[i,]$r2pop_mort <- summary(lm(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$mean_surv ~ fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$offset_gf_af_lew))$r.squared
-  
-  cor_gf_af_lew[i,]$corr_len <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$offset_gf_af_lew, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$length)
-  cor_gf_af_lew[i,]$r2_len <- summary(lm(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$length ~ fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$offset_gf_af_lew))$r.squared
-  
-  cor_gf_af_lew[i,]$corrpop_len <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$offset_gf_af_lew, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$mean_len)
-  cor_gf_af_lew[i,]$r2pop_len <- summary(lm(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$mean_len ~ fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$offset_gf_af_lew))$r.squared
-  
-  cor_gf_af_lew[i,]$method <- "GF_af"
-  cor_gf_af_lew[i,]$bag_site <- "Lewisetta"
-  cor_gf_af_lew[i,]$event <- i
-}
-cor_gf_af_lew
-
-cor_gf_af_yrk <- data.frame(corr_mort = NA, r2_mort = NA, corr_len = NA, r2_len = NA, corrpop_mort = NA, r2pop_mort = NA, corrpop_len = NA, r2pop_len = NA, method = NA, bag_site = NA, event = NA)
-for (i in 1:4) {
-  cor_gf_af_yrk[i,]$corr_mort <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$offset_gf_af_yrk, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$surv)
-  cor_gf_af_yrk[i,]$r2_mort <- summary(lm(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$surv ~ fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$offset_gf_af_yrk))$r.squared
-  
-  cor_gf_af_yrk[i,]$corrpop_mort <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$offset_gf_af_yrk, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$mean_surv)
-  cor_gf_af_yrk[i,]$r2pop_mort <- summary(lm(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$mean_surv ~ fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$offset_gf_af_yrk))$r.squared
-  
-  cor_gf_af_yrk[i,]$corr_len <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$offset_gf_af_yrk, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$length)
-  cor_gf_af_yrk[i,]$r2_len <- summary(lm(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$length ~ fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$offset_gf_af_yrk))$r.squared
-  
-  cor_gf_af_yrk[i,]$corrpop_len <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$offset_gf_af_yrk, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$mean_len)
-  cor_gf_af_yrk[i,]$r2pop_len <- summary(lm(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$mean_len ~ fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$offset_gf_af_yrk))$r.squared
-  
-  cor_gf_af_yrk[i,]$method <- "GF_af"
-  cor_gf_af_yrk[i,]$bag_site <- "YorkRiver"
-  cor_gf_af_yrk[i,]$event <- i
-}
-
-# rda
-cor_rda_yrk <- data.frame(corr_mort = NA, r2_mort = NA, corr_len = NA, r2_len = NA, corrpop_mort = NA, r2pop_mort = NA, corrpop_len = NA, r2pop_len = NA, method = NA, bag_site = NA, event = NA)
-for (i in 1:4) {
-  cor_rda_yrk[i,]$corr_mort <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$offset_yrk_rda, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$surv)
-  cor_rda_yrk[i,]$r2_mort <- summary(lm(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$surv ~ fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$offset_yrk_rda))$r.squared
-  
-  cor_rda_yrk[i,]$corrpop_mort <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$offset_yrk_rda, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$mean_surv)
-  cor_rda_yrk[i,]$r2pop_mort <- summary(lm(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$mean_surv ~ fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$offset_yrk_rda))$r.squared
-  
-  cor_rda_yrk[i,]$corr_len <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$offset_yrk_rda, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$length)
-  cor_rda_yrk[i,]$r2_len <- summary(lm(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$length ~ fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$offset_yrk_rda))$r.squared
-  
-  cor_rda_yrk[i,]$corrpop_len <- cor(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$offset_yrk_rda, fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$mean_len)
-  cor_rda_yrk[i,]$r2pop_len <- summary(lm(fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$mean_len ~ fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == i,]$offset_yrk_rda))$r.squared
-  
-  cor_rda_yrk[i,]$method <- "RDA"
-  cor_rda_yrk[i,]$bag_site <- "YorkRiver"
-  cor_rda_yrk[i,]$event <- i
-}
-
-cor_rda_lew <- data.frame(corr_mort = NA, r2_mort = NA, corr_len = NA, r2_len = NA, corrpop_mort = NA, r2pop_mort = NA, corrpop_len = NA, r2pop_len = NA, method = NA, bag_site = NA, event = NA)
-for (i in 1:4) {
-  cor_rda_lew[i,]$corr_mort <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$offset_lew_rda, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$surv)
-  cor_rda_lew[i,]$r2_mort <- summary(lm(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$surv ~ fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$offset_lew_rda))$r.squared
-  
-  cor_rda_lew[i,]$corrpop_mort <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$offset_lew_rda, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$mean_surv)
-  cor_rda_lew[i,]$r2pop_mort <- summary(lm(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$mean_surv ~ fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$offset_lew_rda))$r.squared
-  
-  cor_rda_lew[i,]$corr_len <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$offset_lew_rda, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$length)
-  cor_rda_lew[i,]$r2_len <- summary(lm(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$length ~ fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$offset_lew_rda))$r.squared
-  
-  cor_rda_lew[i,]$corrpop_len <- cor(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$offset_lew_rda, fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$mean_len)
-  cor_rda_lew[i,]$r2pop_len <- summary(lm(fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$mean_len ~ fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == i,]$offset_lew_rda))$r.squared
-  
-  cor_rda_lew[i,]$method <- "RDA"
-  cor_rda_lew[i,]$bag_site <- "Lewisetta"
-  cor_rda_lew[i,]$event <- i
-}
+# correlations
+cor_lea_lew <- cor_fit("Lewisetta","lea")
+cor_lea_yrk <- cor_fit("YorkRiver","lea")
+cor_gf_af_lew <- cor_fit("Lewisetta","gf")
+cor_gf_af_yrk <- cor_fit("YorkRiver","gf")
+cor_rda_lew <- cor_fit("Lewisetta","rda")
+cor_rda_yrk <- cor_fit("YorkRiver","rda")
 
 corrs_df <- rbind(cor_lea_lew, cor_lea_yrk, cor_gf_af_lew, cor_gf_af_yrk, cor_rda_lew, cor_rda_yrk)
 rownames(corrs_df) <- NULL

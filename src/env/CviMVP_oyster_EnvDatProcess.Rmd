@@ -60,9 +60,6 @@ pairs.panels(seascapeEnv[,c("salinity_quantile_10","salinity_quantile_90","temp_
 
 # seascape & env keep maxes & mins, remove all else (need the same variables in both sets)
 seascapeEnv_trim <- seascapeEnv[,c("ID_SiteDate","Site_Order","State_Abbrev","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence","Pea_crab")]
-
-# match seascape sites with experimental pops
-seascapeEnv_trim[,c("ID_SiteDate","Latitude_manual","Longitude_manual")]
 ```
 
 I need to do some work to put together the experimental data frame
@@ -148,7 +145,7 @@ names(lewyrkEnv_all)[names(lewyrkEnv_all) == "Pea_Crab"] <- "Pea_crab"
 # all have the same column names now, but we don't have MSX for lew or york
 ```
 
-Everything is looking good! Now I will standardize data to be scaled and centered for downstream analysis. One thing to consider is that I do have individual level disease data, but am standardizing data at the population level and then expanding this scaled data out - I should probably do the expansion first, then scale.
+Everything is looking good! Now I will standardize data to be scaled and centered for downstream analysis. To start this process, I will first put everything into a single data frame. One thing to consider is that I do have individual level disease data, but am standardizing data at the population level and then expanding this scaled data out - I should probably do the expansion first, then scale.
 
 ```{r}
 # quick data inspection
@@ -156,44 +153,31 @@ head(seascapeEnv_trim)
 head(expEnv_all)
 head(lewyrkEnv_all)
 
-# scale
-std_sea <- scale(seascapeEnv_trim[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")])
-std_exp <- scale(expEnv_all[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")])
-std_lewyrk <- scale(lewyrkEnv_all[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")])
-colnames(std_sea) <- colnames(std_exp) <- colnames(std_lewyrk) <- c("salinity_quantile_10_scale", "salinity_quantile_90_scale", "temp_quantile_10_scale", "temp_quantile_90_scale", "Dermo_Prevalence_scale", "Pea_crab_scale")
+# rename columns where relevant
+lewyrkEnv_all <- lewyrkEnv_all %>%
+  rename(Latitude_manual = lat, Longitude_manual = lon)
 
-# attach scaled information back to env dfs - question, should I scale all of these values together in one df, rather than as separate info?
-sea_scaled <- as.data.frame(cbind(seascapeEnv_trim, std_sea))
-exp_scaled <- as.data.frame(cbind(expEnv_all, std_exp))
-lewyrk_scaled <- as.data.frame(cbind(lewyrkEnv_all, std_lewyrk))
-
-# also try scaling all together
+# scale all together
 seascapeEnv_trim$site_name <- seascapeEnv_trim$ID_SiteDate
-allenv1 <- rbind(na.omit(seascapeEnv_trim[!(seascapeEnv_trim$ID_SiteDate %in% seascape2exp$ID_SiteDate), c("site_name","salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")]), expEnv_all[,c("site_name", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")], lewyrkEnv_all[,c("site_name", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")])
+allenv <- rbind(na.omit(seascapeEnv_trim[!(seascapeEnv_trim$ID_SiteDate %in% seascape2exp$ID_SiteDate), c("site_name", "Latitude_manual", "Longitude_manual", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")]), expEnv_all[,c("site_name", "Latitude_manual", "Longitude_manual", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")], lewyrkEnv_all[,c("site_name", "Latitude_manual", "Longitude_manual", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")])
 
 # scale the full env version
-std_allenv <- scale(allenv1[,-1])
+std_allenv <- scale(allenv[,4:ncol(allenv)])
 colnames(std_allenv) <- c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")
-allenv_scaled <- as.data.frame(cbind(allenv1, std_allenv))
+allenv_scaled <- as.data.frame(cbind(allenv, std_allenv))
 
 # keep track of scaling factors
-sea_scale_env <- attr(std_sea, "scaled:scale")
-sea_center_env <- attr(std_sea, "scaled:center")
-exp_scale_env <- attr(std_exp, "scaled:scale")
-exp_center_env <- attr(std_exp, "scaled:center")
-lewyrk_scale_env <- attr(std_lewyrk, "scaled:scale")
-lewyrk_center_env <- attr(std_lewyrk, "scaled:center")
 all_scale_env <- attr(std_allenv, "scaled:scale")
 all_center_env <- attr(std_allenv, "scaled:center")
 
 # put those scaling factors into their own df
-scaling <- as.data.frame(rbind(sea_scale_env, sea_center_env, exp_scale_env, exp_center_env, lewyrk_scale_env, lewyrk_center_env, all_scale_env, all_center_env))
+scaling <- as.data.frame(rbind(all_scale_env, all_center_env))
 scaling$factor_type <- rownames(scaling)
 rownames(scaling) <- NULL
 scaling
 
 # write out this env data
-write.csv(allenv_scaled, paste0("data/EnvDat/env_scaled_",Sys.Date(),".csv"))
+write.csv(allenv_scaled, paste0("data/EnvDat/env_scaled_",Sys.Date(),".csv"), row.names = F)
 ```
 
 
