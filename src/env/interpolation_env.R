@@ -10,6 +10,8 @@ library(dplyr)
 library(tidyverse)
 library(sf)
 library(terra)
+library(raster)
+library(fasterize)
 library(gstat)
 library(ggplot2)
 library(rnaturalearth)
@@ -70,43 +72,42 @@ grid_int <- st_intersection(grid, buffered_region)
 
 # interpolate
 interpolated_sal10 <- idw(salinity_quantile_10_scaled~1, dat_sf, grid_int)
-saveRDS(interpolated_sal10, "data/results/lg_results/interpolated_sal10.rds")
+saveRDS(interpolated_sal10, "results/lg_results/interpolated_sal10.rds")
 
 interpolated_sal90 <- idw(salinity_quantile_90_scaled~1, dat_sf, grid_int)
-saveRDS(interpolated_sal90, "data/results/lg_results/interpolated_sal90.rds")
+saveRDS(interpolated_sal90, "results/lg_results/interpolated_sal90.rds")
 
 interpolated_temp10 <- idw(temp_quantile_10_scaled~1, dat_sf, grid_int)
-saveRDS(interpolated_temp10, "data/results/lg_results/interpolated_temp10.rds")
+saveRDS(interpolated_temp10, "results/lg_results/interpolated_temp10.rds")
 
 interpolated_temp90 <- idw(temp_quantile_90_scaled~1, dat_sf, grid_int)
-saveRDS(interpolated_temp90, "data/results/lg_results/interpolated_temp90.rds")
+saveRDS(interpolated_temp90, "results/lg_results/interpolated_temp90.rds")
 
 interpolated_dermo <- idw(Dermo_Prevalence_scaled~1, dat_sf, grid_int)
-saveRDS(interpolated_dermo, "data/results/lg_results/interpolated_dermo.rds")
+saveRDS(interpolated_dermo, "results/lg_results/interpolated_dermo.rds")
 
 interpolated_pea <- idw(Pea_crab_scaled~1, dat_sf, grid_int)
-saveRDS(interpolated_pea, "data/results/lg_results/interpolated_pea.rds")
+saveRDS(interpolated_pea, "results/lg_results/interpolated_pea.rds")
 
 # empty raster
 ext <- ext(st_bbox(interpolated_sal10)) # get spatial extent
-rast_empty <- rast(ext, resolution = 0.1, crs = st_crs(interpolated_sal10)$wkt)
+rast_empty <- rast(ext, resolution = 0.1, crs = "+proj=longlat +datum=WGS84")
 
 # create a raster stack
 # set up
-sf_ls <- c(interpolated_sal10, interpolated_sal90, # sal
+sf_ls <- list(interpolated_sal10, interpolated_sal90, # sal
            interpolated_temp10, interpolated_temp90, # temp
            interpolated_dermo, interpolated_pea) # disease
 rast_ls <- list()
 
 # loop through sf files to rasterize
-for (i in length(sf_ls)) {
-  sf = sf_ls[i]
-  rast = terra::rasterize(sf, rast_empty, field = "var1.pred", background = NA)
+for (i in seq_along(sf_ls)) {
+  rast = st_rasterize(sf_ls[[i]] %>% dplyr::select(var1.pred, geometry))
   rast_ls[[i]] = rast
 }
 
 # combine
-rast_all <- rast(rast_ls)
+rast_all <- c(rast_ls)
 names(rast_all) <- c("interpolated_sal10", "interpolated_sal90", # sal
                      "interpolated_temp10", "interpolated_temp90", # temp
                      "interpolated_dermo", "interpolated_pea") # disease
