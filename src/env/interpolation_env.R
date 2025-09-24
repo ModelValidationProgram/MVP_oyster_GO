@@ -56,7 +56,7 @@ st_crs(coast_crop)
 st_crs(world_crop) # looks good
 
 # define buffer distance
-dist <- 2.5 # 2.5º difference
+dist <- 0.75 # 0.5º difference
 
 # define buffer region - note we need to specify the layer, as there are lots of different coastlines
 buffered_region <- st_buffer(coast_crop, dist)[51,]
@@ -114,3 +114,13 @@ names(rast_all) <- c("interpolated_sal10", "interpolated_sal90", # sal
 
 # save
 saveRDS(rast_all, "data/EnvDat/seascape/raster_interpolated_scaled_env.RDS")
+
+# try mapping again
+map_test_int <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = interpolated_sal10, mapping = aes(col = var1.pred)) +
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
+  labs(title = "Salinity 10% Quantile (PPT)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
+(map_test_int)
