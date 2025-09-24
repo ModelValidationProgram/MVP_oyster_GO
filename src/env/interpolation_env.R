@@ -56,7 +56,7 @@ st_crs(coast_crop)
 st_crs(world_crop) # looks good
 
 # define buffer distance
-dist <- 0.75 # 0.5º difference
+dist <- 0.75 # 0.75º difference, approximately 50 miles
 
 # define buffer region - note we need to specify the layer, as there are lots of different coastlines
 buffered_region <- st_buffer(coast_crop, dist)[51,]
