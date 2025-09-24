@@ -69,6 +69,8 @@ int_region <- st_intersection(oceans_crop, buffered_region)
 # define grid across ocean area
 grid <- st_make_grid(buffered_region, cellsize = 0.1, what = "polygons")
 grid_int <- st_intersection(grid, buffered_region)
+grid_int_crop <- sf::st_crop(grid_int, c(xmin = -102, xmax = -65, 
+                                         ymin = 24, ymax = 47.05))
 
 # interpolate
 interpolated_sal10 <- idw(salinity_quantile_10_scaled~1, dat_sf, grid_int)
@@ -116,11 +118,56 @@ names(rast_all) <- c("interpolated_sal10", "interpolated_sal90", # sal
 saveRDS(rast_all, "data/EnvDat/seascape/raster_interpolated_scaled_env.RDS")
 
 # try mapping again
-map_test_int <- ggplot(data = world) +
+map_sal10_int <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = interpolated_sal10, mapping = aes(col = var1.pred)) +
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Salinity 10% Quantile (PPT)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
-(map_test_int)
+  labs(title = "Salinity 10% Quantile (PPT)", x = "Longitude", y = "Latitude", col = "Salinity \n(scaled)")
+(map_sal10_int)
+
+map_sal90_int <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = interpolated_sal90, mapping = aes(col = var1.pred)) +
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
+  labs(title = "Salinity 90% Quantile (PPT)", x = "Longitude", y = "Latitude", col = "Salinity \n(scaled)")
+(map_sal90_int)
+
+map_temp10_int <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = interpolated_temp10, mapping = aes(col = var1.pred)) +
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
+  labs(title = "Temperature 10% Quantile (ºC)", x = "Longitude", y = "Latitude", col = "Temperature \n(scaled)")
+(map_temp10_int)
+
+map_temp90_int <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = interpolated_temp90, mapping = aes(col = var1.pred)) +
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
+  labs(title = "Temperature 90% Quantile (ºC)", x = "Longitude", y = "Latitude", col = "Temperature \n(scaled)")
+(map_temp90_int)
+
+map_dermo_int <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = interpolated_dermo, mapping = aes(col = var1.pred)) +
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
+  labs(title = "Dermo Weighted Prevalence", x = "Longitude", y = "Latitude", col = "Prevalence \n(scaled)")
+(map_dermo_int)
+
+map_pea_int <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = interpolated_pea, mapping = aes(col = var1.pred)) +
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
+  labs(title = "Pea Crab Prevalence", x = "Longitude", y = "Latitude", col = "Prevalence \n(scaled)")
+(map_pea_int)
