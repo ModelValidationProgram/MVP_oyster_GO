@@ -30,27 +30,14 @@ library(stringr) # for data wrangling
 
 # data
 # env
-# seascapeEnv <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv") # keep this but also get list of reduced variables
-# expEnv <- read.csv("data/EnvDat/exp/envr_summary_stats.csv")[,-1]
-# expEnv_env <- read.env("data/EnvDat/exp/exp_scaled_expanded_04222025.env")
-# expEnvq_env <- read.env("data/EnvDat/exp/expquant_scaled_expanded_04222025.env")
-# york_env <- read.env("data/EnvDat/exp/yrkquant_scaled_expanded_04222025.env")
-# lew_env <- read.env("data/EnvDat/exp/lewquant_scaled_expanded_04222025.env")
-# 
-# expEnv_comp <- read.csv("data/EnvDat/exp/expsitesquants_scaled_04222025.csv")[,-1]
-
-# env
-env_all <- read.csv("data/EnvDat/env_scaled_2025-08-13.csv")[,-1]
-env_sea <- read.env("data/EnvDat/seascape/seascape_scaled_2025-08-13.env")
-env_sea_csv <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-08-14.csv")[,-1]
-env_sea_expand <- read.env("data/EnvDat/seascape/seascape_scaled_expanded_reord_2025-08-14.env")
-env_exp <- read.env("data/EnvDat/exp/exp_scaled_2025-08-14.env")
-env_exp_csv <-  read.csv("data/EnvDat/exp/exp_scaled_expanded_2025-08-14.csv")[,-1]
-env_exp_expand <- read.env("data/EnvDat/exp/exp_scaled_expanded_2025-08-14.env")
+env_all <- read.csv("data/EnvDat/env_scaled_2025-09-26.csv")[,-1]
+env_rast <- read_rds("data/EnvDat/seascape/raster_interpolated_scaled_env.RDS")
+env_sea <- .
+env_sea_int <- .
+env_exp <- .
 
 # sites
-env_sea_sites <- read.csv("data/EnvDat/seascape_sitenames.csv")[,-1]
-env_exp_sites <- read.csv("data/EnvDat/exp_sitenames.csv")[,-1]
+sea_site_latlon <- read.csv("data/EnvDat/seascape/seascape_sitenames.csv")[,-1]
 exp_site_latlon <- read.csv("data/EnvDat/exp/exp_site_info.csv")[,-1]
 
 # gen
@@ -61,8 +48,6 @@ genoThinLfmm <- read.lfmm("data/GenDat/geno_seascape_LDthin_2025-08-14.lfmm")
 
 # inds
 inds_genomat <- read.csv("data/GenDat/inds_genomat.csv")[,-1]
-indsExp <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")
-indsExpSeq <- readRDS("data/IndDat/20240820_experimentalmatrix.rds")
 indsSea <- readRDS("data/IndDat/20250604_seascape_indsmatrix.rds")
 ```
 
@@ -72,7 +57,6 @@ indsSea <- readRDS("data/IndDat/20250604_seascape_indsmatrix.rds")
 ### Environmental Data Prep
 
 ```{r}
-# environmental data prep
 # just renaming columns & rows to be more informative
 colnames(env_sea) <- colnames(env_sea_expand) <- c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")
 
