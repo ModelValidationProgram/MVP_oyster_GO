@@ -226,8 +226,8 @@ write.csv(site_names_exp, "data/EnvDat/exp_sitenames.csv")
 # the experimental sites Lew & York need to be added to the experimental origin data in a single df
 expSite_env_scale_yrk <- expSite_env_scale[expSite_env_scale$site_name == "YorkRiver",]
 expSite_env_scale_lew <- expSite_env_scale[expSite_env_scale$site_name == "Lewisetta",]
-colnames(expSite_env_scale_yrk) <- c("site_name", "yrk_salinity_quantile_10", "yrk_salinity_quantile_90", "yrk_temp_quantile_10", "yrk_temp_quantile_90", "yrk_Dermo_Prevalence", "yrk_Pea_crab", "yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")
-colnames(expSite_env_scale_lew) <- c("site_name", "lew_salinity_quantile_10", "lew_salinity_quantile_90", "lew_temp_quantile_10", "lew_temp_quantile_90", "lew_Dermo_Prevalence", "lew_Pea_crab", "lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")
+colnames(expSite_env_scale_lew) <- c("site_name", "Latitude_manual", "Longitude_manual", "lew_salinity_quantile_10", "lew_salinity_quantile_90", "lew_temp_quantile_10", "lew_temp_quantile_90", "lew_Dermo_Prevalence", "lew_Pea_crab", "lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")
+colnames(expSite_env_scale_yrk) <- c("site_name", "Latitude_manual", "Longitude_manual", "yrk_salinity_quantile_10", "yrk_salinity_quantile_90", "yrk_temp_quantile_10", "yrk_temp_quantile_90", "yrk_Dermo_Prevalence", "yrk_Pea_crab", "yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")
 
 # add this info to the expOrg df
 nrow(indsExp_red_mut) # 154 rows
@@ -539,7 +539,7 @@ LEA requires environmental data be formatted as a .env file type.
 # prep as matrix
 sea_mat <- as.matrix(sea_env_scale_mut[,8:13])
 
-env_sea_ordered_mat <- env_sea_ordered[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")]
+env_sea_ordered_mat <- env_sea_ordered[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")]
 
 full_exp_mat <- as.matrix(exp_env_scale[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")])
 
