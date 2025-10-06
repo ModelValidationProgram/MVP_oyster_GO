@@ -409,7 +409,7 @@ rast_all <- c(rast_ls)
 names(rast_all) <- c("interpolated_lew_go","interpolated_yrk_go")
 
 # save
-saveRDS(rast_all, "data/results/GO_results/lea_interpolated_go.RDS")
+saveRDS(rast_all, "results/GO_results/lea_interpolated_go.RDS")
 
 # try mapping again
 map_lew_int <- ggplot(data = world) +
@@ -423,7 +423,7 @@ map_lew_int <- ggplot(data = world) +
   scale_fill_viridis_c(option = "magma", limits = c(0,0.055)) +
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Genomic Offset to \nLewisetta", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
+  labs(title = "Genomic Offset to \nLewisetta (LEA)", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
 (map_lew_int)
 
 map_yrk_int <- ggplot(data = world) +
@@ -437,6 +437,6 @@ map_yrk_int <- ggplot(data = world) +
   scale_fill_viridis_c(option = "magma", limits = c(0,0.055)) +
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Genomic Offset to \nYork River", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
+  labs(title = "Genomic Offset to \nYork River (LEA)", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
 (map_yrk_int)
 ```
