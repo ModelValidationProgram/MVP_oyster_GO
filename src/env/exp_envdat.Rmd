@@ -1,0 +1,395 @@
+---
+title: "exp_envdat"
+author: "Camille Rumberger"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Setup
+
+```{r}
+# set wd
+setwd("~/Documents/Github/MVP_oyster_GO")
+
+# packages
+library(dplyr) # data cleaning
+library(tidyr) # data cleaning
+library(lubridate) # dealing with dates
+library(readr) # read in data
+library(ggplot2) # plotting
+
+# data
+# YORK
+# downloaded 10/08/25 from VIMS http://vecos.vims.edu/StationDetail.aspx?param=YRK005.40&program=CMON
+yrk_23 <- read.csv("data/EnvDat/exp/yrk_raw/York_2023.csv")
+yrk_24 <- read.csv("data/EnvDat/exp/yrk_raw/York_2024.csv")
+yrk_25 <- read.csv("data/EnvDat/exp/yrk_raw/York_2025.csv")
+
+# lew data comes from Willy Reas from Coan River -- still need data from Nov'24-May'25
+setwd("data/EnvDat/exp/lew_raw")
+#merge files into one
+raw_lew <- list.files(path=".") %>% 
+  lapply(read.csv) %>% 
+  bind_rows
+
+# set wd
+setwd("~/Documents/Github/MVP_oyster_GO")
+```
+
+
+## Pre-processing - York River
+
+```{r}
+# put together data
+raw_yrk <- rbind(yrk_23, yrk_24, yrk_25)
+
+# subset relevant data
+yrk_all <- raw_yrk[,c("SAMPLE_DATETIME", "WTEMP", "WTEMP_A", "SALINITY", "SALINITY_A")] 
+
+# keep just dates of experiment
+yrk_all$SAMPLE_DATETIME <- as.POSIXct(yrk_all$SAMPLE_DATETIME, "%Y-%m-%d %H:%M:%S", tz = "")
+yrk_all_exp <- subset(yrk_all,
+                      SAMPLE_DATETIME >= as.POSIXct("2023-05-01 00:00:00.00",
+                                                    tz = "") &
+                      SAMPLE_DATETIME <= as.POSIXct("2025-05-28 00:00:00.00",
+                                                    tz = ""))
+
+# temp subset, no error codes
+yrk_noerr <- yrk_all_exp[(yrk_all_exp$WTEMP_A %in% c("", NA)), ]
+
+# sal subset, no error codes
+yrk_exp <- yrk_noerr[(yrk_noerr$SALINITY_A %in% c("", NA)), ]
+
+# trim + rename cols
+yrk_exp <- yrk_exp[,c("SAMPLE_DATETIME", "WTEMP", "SALINITY")]
+colnames(yrk_exp) <- c("datetime", "temp", "salinity")
+
+# remove NAs
+yrk_exp <- yrk_exp %>%
+    filter(!is.na(datetime))
+
+# check
+summary(yrk_exp)
+
+# also store variables that we will include in the final data frame
+site_name <- "YRK"
+download_date <- as.Date(2025-10-08)
+source_description <- "VECOS"
+lat <- 37.247284
+lon <- -76.499369
+firstyear <- 2023
+finalyear <- 2025
+```
+
+## Data filtering
+
+Filter any of the variables that have data points outside of normal range. We will use 0-40 as the accepted range for salinity (ppt) and temperature (C) values. Note, in the summer, salinity values can sometimes exceed 40.
+
+```{r}
+# filter 
+filtered_yrk_sal <- yrk_exp %>%
+    filter(between(salinity, 0, 40)) 
+filtered_yrk_env <- filtered_yrk_sal %>%
+    filter(between(temp, 0, 40))
+
+# store dat in new obj for ease
+yrk <- filtered_yrk_env
+```
+
+## Plotting Trends
+
+Check trends in environment by visualizing.
+
+```{r}
+salplot <- ggplot(yrk, aes(x = datetime)) +
+    geom_line(aes(y = salinity, color = "Salinity (ppt)")) +
+    ylim(0,40) +
+    labs(x = "Time", y = "Salinity ppt", title = "Salinity Plot for YRK - Gloucester Point, Virginia") +
+    scale_color_manual(values = c("Salinity (ppt)" = "lightblue3")) +
+    theme_minimal()
+salplot
+
+tempplot <- ggplot(yrk, aes(x = datetime)) +
+    geom_line(aes(y = temp, color = "Temperature (C)")) +
+    ylim(0, 40) +
+    labs(x = "Time", y = "Temperature C", title = "Temperature Plot for YRK - Gloucester Point, Virginia") +
+    scale_color_manual(values = c( "Temperature (C)" = "pink3")) +
+    theme_minimal()
+tempplot
+```
+
+## Summary statistics
+
+Calculate means, maxes, mins, medians, etc.
+
+```{r}
+# this chunk comes modified from environmental processing script written by M. Eppley to retain consistency in variable naming schemes
+
+# calculate mean, maximum, and minimum values for salinity and temperature for each month. 
+yrk_env_mo <- yrk %>%
+    dplyr::mutate(year = year(datetime), month = month(datetime)) %>%
+    dplyr::group_by(year, month, .drop = FALSE) %>%
+    dplyr::summarise(
+      min_salinity = min(salinity),
+      max_salinity = max(salinity),
+      mean_salinity = mean(salinity),
+      length_salinity = length(salinity),
+      min_temp = min(temp),
+      max_temp = max(temp),
+      mean_temp = mean(temp),
+      length_temp = length(temp))
+  
+print(yrk_env_mo)
+
+
+#Calculate the mean, maximum, and minimum values for salinity and temperature for each year. 
+yrk_env_yr <- yrk %>%
+    dplyr::mutate(year = year(datetime)) %>%
+    dplyr::group_by(year, .drop = FALSE) %>%
+    dplyr::summarise(
+      min_salinity = min(salinity),
+      max_salinity = max(salinity),
+      mean_salinity = mean(salinity),
+      min_temp = min(temp),
+      max_temp = max(temp),
+      mean_temp = mean(temp))
+
+print(yrk_env_yr)
+
+#Calculate the mean, maximum, and minimum values for salinity and temperature for each day. 
+yrk_env_day <- yrk %>%
+    dplyr::mutate(year = year(datetime), month = month(datetime), day = day(datetime)) %>%
+    dplyr::group_by(year, month, day, .drop = FALSE) %>%
+    dplyr::summarise(
+      min_salinity = min(salinity),
+      max_salinity = max(salinity),
+      mean_salinity = mean(salinity),
+      length_salinity = length(salinity),
+      min_temp = min(temp),
+      max_temp = max(temp),
+      mean_temp = mean(temp),
+      length_temp = length(temp))
+  
+print(yrk_env_day)
+
+# check plots
+timeplot <- ggplot(yrk_env_mo, aes(x = year)) +
+    geom_point(aes(y = month, color = length_salinity), size = 4) +
+    labs(x = "Time", y = "Month", title = "Salinity Timeplot for YRK - Gloucester Point, Virginia") +
+    ylim(1,12) +
+    theme_minimal()
+timeplot
+```
+
+# Calculate days above and below thresholds and plot
+
+```{r low-sal-stress}
+# blank df spans all 12 months for all years of data collection for this site
+# merge with observations so that we can plot over time 
+complete_year_month <- expand.grid(
+  year = unique(firstyear:finalyear),
+  month = 1:12
+)
+
+# start with low salinity stress 
+# first calculate for low salinity
+yrk$low_sal_stress <- yrk$salinity < 12
+
+low_sal_stress_count <- yrk %>%
+  dplyr::mutate(year = year(datetime), 
+         month = month(datetime), 
+         day = day(datetime)) %>% 
+  dplyr::filter(low_sal_stress == 1) %>%  
+  dplyr::distinct(year, month, day) %>%  # remove dups
+  dplyr::group_by(year, month) %>%
+  dplyr::summarise(low_sal_stress = n(), .groups = "drop") # group all occurrences together by month rather than by numeric day
+
+print(low_sal_stress_count) # no low stress days
+```
+
+# now calculate for high salinity stress
+
+```{r high-sal-stress}
+yrk$high_sal_stress <- yrk$salinity > 35
+
+high_sal_stress_count <- yrk %>%
+  dplyr::mutate(year = year(datetime), 
+         month = month(datetime), 
+         day = day(datetime)) %>% 
+  dplyr::filter(high_sal_stress == 1) %>%  
+  dplyr::distinct(year, month, day) %>%  # remove dups
+  dplyr::group_by(year, month) %>%
+  dplyr::summarise(high_sal_stress = n(), .groups = "drop") # group all occurrences together by month rather than by numeric day
+
+print(high_sal_stress_count) # no high sal stress 
+```
+
+
+# high temp stress calculations
+
+```{r high-temp-stress}
+yrk$high_temp_stress <- yrk$temp > 28
+
+high_temp_stress_count <- yrk %>%
+  dplyr::mutate(year = year(datetime), 
+         month = month(datetime), 
+         day = day(datetime)) %>% 
+  dplyr::filter(high_temp_stress == 1) %>%  
+  dplyr::distinct(year, month, day) %>%  # remove dups
+  dplyr::group_by(year, month) %>%
+  dplyr::summarise(high_temp_stress = n(), .groups = "drop") # group all occurrences together by month rather than by numeric day
+
+print(high_temp_stress_count)
+
+ggplot(high_temp_stress_count, aes(x = factor(month), y = high_temp_stress, fill = factor(month))) +
+  geom_bar(stat = "identity", fill = "#DD4124FF") +
+  facet_wrap(~ year) +
+  labs(title = "YRK: count of high temperature (> 28 C) days per month",
+       x = "month",
+       y = "count of days") +
+  theme_minimal()
+
+high_temp_complete_data <- complete_year_month %>%
+  left_join(high_temp_stress_count, by = c("year", "month")) %>%
+  mutate(high_temp_stress = ifelse(is.na(high_temp_stress), 0, high_temp_stress))
+
+high_temp_complete_data$month <- as.numeric(high_temp_complete_data$month)
+
+# bars
+ggplot(high_temp_complete_data, aes(x = factor(month), y = high_temp_stress)) +
+  geom_bar(stat = "identity", fill = "#DD4124FF") + 
+  facet_wrap(~ year) +
+  labs(title = "YRK: count of high temperature (> 28 C) days per month",
+       x = "month",
+       y = "count of days") +
+  theme_minimal()
+
+# points
+ggplot(high_temp_complete_data, aes(x = factor(month), y = high_temp_stress)) +
+  geom_point(color = "#DD4124FF", size = 2) + 
+  facet_wrap(~ year) +  
+  labs(title = "YRK: count of high temperature (> 28 C) days per month",
+       x = "month",
+       y = "count of days") +
+  theme_minimal()
+
+```
+
+## Putting it all together
+
+THIS COMES FROM MADELINE'S SCRIPT
+
+We can now calculate a list of variables that we will have collected for all sites. This will allow us to compare sites easily. We will calculate the number of observations from each site, the mean annual, maximum annual, and minimum annual value for all variables. 
+
+Our list of variables includes: 
+
+- Mean_Annual_Temperature_C: average of all available data
+- Mean_max_temperature_C: average of maximums for each year
+- Mean_min_temperature_C: average of minimums for each year
+- Temperature_st_dev: standard deviation of all available data
+- Temperature_n: total number of data points
+- Temperature_years: number of years in data set
+
+- Mean_Annual_Salinity_ppt: average of all available data
+- Mean_min_Salinity_ppt: average of minimums for each year
+- Mean_max_Salinity_ppt: average of maximums for each year
+- Salinity_st_dev: standard deviation of all available data
+- Salinity_n: total number of data points
+- Salinity_years: number of years in data set
+
+Start with the temperature variables
+
+```{r}
+#Calculate temperature variables. 
+Mean_Annual_Temperature_C <- mean(yrk$temp)
+Mean_max_temperature_C <- mean(yrk_env_yr$max_temp)
+Mean_min_temperature_C <- mean(yrk_env_yr$min_temp)
+Temperature_st_dev <- sd(yrk$temp)
+Temperature_n <- nrow(yrk)
+Temperature_years <- nrow(yrk_env_yr)
+high_temp_stress_days <- sum(high_temp_stress_count$high_temp_stress)
+frac_high_temp_stress_days <- high_temp_stress_days/nrow(yrk_env_day)
+
+Mean_Monthly_Temperature_C <- yrk_env_mo %>%
+  filter(!is.na(month)) %>% 
+  group_by(month) %>%
+  summarise(Mean_Temperature = mean(mean_temp))
+
+Mean_min_Monthly_Temperature_C <- yrk_env_mo %>%
+  filter(!is.na(month)) %>% 
+  group_by(month) %>%
+  summarise(Mean_min_Temperature = mean(min_temp))
+
+Mean_max_Monthly_Temperature_C <- yrk_env_mo %>%
+  filter(!is.na(month)) %>% 
+  group_by(month) %>%
+  summarise(Mean_max_Temperature = mean(max_temp))
+
+# Create a data frame to store the temperature results
+yrk_temp <- cbind(site_name, download_date, source_description, lat, lon, firstyear, finalyear, Mean_Annual_Temperature_C, Mean_max_temperature_C, Mean_min_temperature_C, Temperature_st_dev, high_temp_stress_days, frac_high_temp_stress_days, Temperature_n, Temperature_years)
+print(yrk_temp)
+
+yrk_monthly_temp <- cbind(Mean_Monthly_Temperature_C, Mean_min_Monthly_Temperature_C, Mean_max_Monthly_Temperature_C)
+yrk_monthly_temp <- yrk_monthly_temp[, !duplicated(names(yrk_monthly_temp))]
+print(yrk_monthly_temp)
+
+# Write to the combined file with all sites 
+write.table(yrk_temp, paste0("data/EnvDat/exp/all_temperature",Sys.Date(),".csv"), sep = ",", append = TRUE, col.names = FALSE, row.names = FALSE) # The column names should be changed to FALSE after 1st row is added to the data frame
+
+# Write to a unique new CSV file
+write.csv(yrk_temp, paste0("data/EnvDat/exp/yrk_temperature_",Sys.Date(),".csv"))
+
+# Write all montly data to a unique new CSV file
+write.csv(yrk_monthly_temp, paste0("data/EnvDat/exp/yrk_temperature_monthly_",Sys.Date(),".csv"))
+```
+
+Now the salinity variables
+
+```{r}
+#Calculate the salinity variables
+Mean_Annual_Salinity_ppt <- mean(yrk$salinity)
+Mean_max_Salinity_ppt <- mean(yrk_env_yr$max_salinity)
+Mean_min_Salinity_ppt <- mean(yrk_env_yr$min_salinity)
+Salinity_st_dev <- sd(yrk$salinity)
+Salinity_n <- nrow(yrk)
+Salinity_years <- nrow(yrk_env_yr)
+high_sal_stress_days <- sum(high_sal_stress_count$high_sal_stress)
+low_sal_stress_days <- sum(low_sal_stress_count$low_sal_stress)
+frac_high_sal_stress_days <- high_sal_stress_days/nrow(yrk_env_day)
+frac_low_sal_stress_days <- low_sal_stress_days/nrow(yrk_env_day)
+
+Mean_Monthly_Salinity <- yrk_env_mo %>%
+  filter(!is.na(month)) %>%
+  group_by(month) %>%
+  summarise(Mean_Salinity = mean(mean_salinity))
+
+Min_Monthly_Salinity <- yrk_env_mo %>%
+  filter(!is.na(month)) %>%
+  group_by(month) %>%
+  summarise(Min_Salinity = mean(min_salinity))
+
+Max_Monthly_Salinity <- yrk_env_mo %>%
+  filter(!is.na(month)) %>%
+  group_by(month) %>%
+  summarise(Max_Salinity = mean(max_salinity))
+
+#Create a data frame to store the temperature results
+yrk_salinity <- cbind(site_name, download_date, source_description, lat, lon, firstyear, finalyear, Mean_Annual_Salinity_ppt, Mean_max_Salinity_ppt, Mean_min_Salinity_ppt, high_sal_stress_days,low_sal_stress_days, frac_high_sal_stress_days, frac_low_sal_stress_days, Salinity_st_dev, Salinity_n, Salinity_years)
+print(yrk_salinity)
+
+yrk_monthly_sal <- cbind(Mean_Monthly_Salinity, Min_Monthly_Salinity, Max_Monthly_Salinity)
+yrk_monthly_sal <- yrk_monthly_sal[, !duplicated(names(yrk_monthly_sal))]
+print(yrk_monthly_sal)
+
+# Write to the combined file with all sites 
+write.table(yrk_salinity, paste0("data/EnvDat/exp/all_salinity_",Sys.Date(),".csv"), sep = ",", append = TRUE, col.names = FALSE, row.names = FALSE) # The column names should be changed to FALSE after 1st row is added to the data frame
+
+# Write all year data to a unique new CSV file
+write.csv(yrk_salinity, paste0("data/EnvDat/exp/yrk_salinity_",Sys.Date(),".csv"))
+# Write all monthly data to a unique new CSV file
+write.csv(yrk_monthly_sal, paste0("data/EnvDat/exp/yrk_monthly_sal_",Sys.Date(),".csv"))
+```
