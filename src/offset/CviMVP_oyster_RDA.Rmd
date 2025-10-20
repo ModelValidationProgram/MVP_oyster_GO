@@ -248,7 +248,7 @@ popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "DEBY", "LOLA", "NH", "ME",
                      order = 1:10, 
                      latitude = c(28.0841, 29.24916667, 30.44116, 37.211, 37.9803, 37.247284, 43.0524, 43.986, 37.9803, 37.247284),
                      longitude = c(-97.2009, -90.9211111, -81.43908, -76.787, -76.4619, -76.499369, -70.91181, -69.55, -76.4619, -76.499369),
-                     cols = c("#3e4989" ,"#31688e", "#35b779", "#6ece58", "#440154", "#482878", "#fde725", "#b5de2b","slateblue1","slateblue1"),
+                     cols = c("#3e4989" ,"#31688e", "#35b779", "#6ece58", "#440154", "#482878", "#fde725", "#b5de2b","deeppink","deeppink"),
                      shape = c(21,21,21,21,23,23,21,21,24,24),
                      site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME","LEWISETTA","YORKRIVER"))
 
@@ -279,7 +279,7 @@ map_lew <- ggplot(data = world) +
              shape = 21, size = 4)+
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 3.5)) + # double check these values
   geom_point(data = offsets_plotting[offsets_plotting$site_name == "LEWISETTA",], 
-             aes(x = longitude, y = latitude), fill = "slateblue1", shape = 24, size = 3)+
+             aes(x = longitude, y = latitude), fill = "deeppink", shape = 24, size = 3)+
   geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("LEWISETTA", "W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
                                        label = site_name),
                   nudge_x = -3,
@@ -298,7 +298,7 @@ popout_lew <- ggplot(data = world) +
              shape = 21, size = 4)+
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 3.25)) + # double check these values
   geom_point(data = offsets_plotting[offsets_plotting$site_name == "LEWISETTA",], 
-             aes(x = longitude, y = latitude), fill = "slateblue1", shape = 24, size = 3)+
+             aes(x = longitude, y = latitude), fill = "deeppink", shape = 24, size = 3)+
   geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("LEWISETTA", "W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
                                        label = site_name),
                   nudge_x = 2,
@@ -456,7 +456,7 @@ lew_int_rda_inset <- ggplot(data = world) +
              shape = 21, size = 7)+
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 3.2)) + # double check these values
   geom_point(data = offsets_plotting[offsets_plotting$site_name == "LEWISETTA",], 
-             aes(x = longitude, y = latitude), fill = "slateblue1", shape = 24, size = 7)+
+             aes(x = longitude, y = latitude), fill = "deeppink", shape = 24, size = 7)+
   geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("LEWISETTA", "W4_VA"),], aes(x=longitude, y=latitude, label = site_name),
                   nudge_x = 2,
                   nudge_y = 1,
@@ -493,15 +493,15 @@ yrk_int_rda_inset <- ggplot(data = world) +
   scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,3.2)) +
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,3.2)) +
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = offsets_plotting, aes(x=lon, y=lat, 
+  geom_point(data = offsets_plotting[offsets_plotting$site_name == "W4_VA",], aes(x=lon, y=lat, 
                                        fill = offset_yrk), 
              shape = 21, size = 7)+
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 3.2)) + # double check these values
   geom_point(data = offsets_plotting[offsets_plotting$site_name == "YORKRIVER",], 
-             aes(x = longitude, y = latitude), fill = "slateblue1", shape = 24, size = 7)+
+             aes(x = longitude, y = latitude), fill = "deeppink", shape = 24, size = 7)+
   geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("YORKRIVER", "W4_VA"),], aes(x=longitude, y=latitude, label = site_name),
                   nudge_x = 2,
-                  nudge_y = 1,
+                  nudge_y = 0,
                   fill = "white",
                   size = 9)+
   guides(fill = "none")+

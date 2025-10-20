@@ -440,7 +440,7 @@ lew_int_lea_inset <- ggplot(data = world) +
              shape = 21, size = 7)+
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 0.06)) + # double check these values
   geom_point(data = offsets_plotting[offsets_plotting$site_name == "LEWISETTA",], 
-             aes(x = longitude, y = latitude), fill = "slateblue1", shape = 24, size = 7)+
+             aes(x = longitude, y = latitude), fill = "deeppink", shape = 24, size = 7)+
   geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("LEWISETTA", "W4_VA"),], aes(x=longitude, y=latitude, label = site_name),
                   nudge_x = 2,
                   nudge_y = 1,
@@ -480,7 +480,7 @@ yrk_int_lea_inset <- ggplot(data = world) +
              shape = 21, size = 7)+
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 0.06)) + # double check these values
   geom_point(data = offsets_plotting_lea[offsets_plotting_lea$site_name == "YORKRIVER",], 
-             aes(x = longitude, y = latitude), fill = "slateblue1", shape = 24, size = 7)+
+             aes(x = longitude, y = latitude), fill = "deeppink", shape = 24, size = 7)+
   geom_label_repel(data = offsets_plotting_lea[offsets_plotting_lea$site_name %in% c("YORKRIVER", "W4_VA"),], aes(x=longitude, y=latitude, label = site_name),
                   nudge_x = 2,
                   nudge_y = 0,
