@@ -282,7 +282,6 @@ map_lew <- ggplot(data = world) +
              aes(x = longitude, y = latitude), fill = "slateblue1", shape = 24, size = 3)+
   geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("LEWISETTA", "W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
                                        label = site_name),
-                  box_repel = 0.5,
                   nudge_x = -3,
                   nudge_y = 1,
                   fill = "white")+
@@ -302,7 +301,6 @@ popout_lew <- ggplot(data = world) +
              aes(x = longitude, y = latitude), fill = "slateblue1", shape = 24, size = 3)+
   geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("LEWISETTA", "W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
                                        label = site_name),
-                  box_repel = 0.5,
                   nudge_x = 2,
                   nudge_y = 1,
                   fill = "white")+
@@ -432,14 +430,12 @@ map_lew_int_rda <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = interpolated_lew_rda, mapping = aes(col = var1.pred)) +
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
+  geom_point(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
                                        fill = offset_lew), 
              shape = 21, size = 4)+
   scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,3.2)) +
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,3.2)) +
-  geom_point(data = offsets_plotting[offsets_plotting$site_name == "LEWISETTA",], 
-             aes(x = longitude, y = latitude), fill = "slateblue1", shape = 24, size = 3)+
-  geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("LEWISETTA", "W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
+  geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
                                        label = site_name),
                   nudge_x = -3,
                   nudge_y = 1,
@@ -449,26 +445,71 @@ map_lew_int_rda <- ggplot(data = world) +
   labs(title = "Genomic Offset to \nLewisetta (RDA)", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
 (map_lew_int_rda)
 
+lew_int_rda_inset <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = interpolated_lew_rda, mapping = aes(fill = var1.pred, col = var1.pred)) +
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,3.2)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,3.2)) +
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  geom_point(data = offsets_plotting[offsets_plotting$site_name %in% c("W4_VA"),], aes(x=lon, y=lat, 
+                                       fill = offset_lew), 
+             shape = 21, size = 7)+
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 3.2)) + # double check these values
+  geom_point(data = offsets_plotting[offsets_plotting$site_name == "LEWISETTA",], 
+             aes(x = longitude, y = latitude), fill = "slateblue1", shape = 24, size = 7)+
+  geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("LEWISETTA", "W4_VA"),], aes(x=longitude, y=latitude, label = site_name),
+                  nudge_x = 2,
+                  nudge_y = 1,
+                  fill = "white",
+                  size = 9)+
+  guides(fill = "none")+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
+        xlim(-77.856476, -72.762787) +
+        ylim(36.019557, 39.939163)
+lew_int_rda_inset
+
 map_yrk_int_rda <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = interpolated_yrk_rda, mapping = aes(col = var1.pred)) +
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
-                                       fill = offset_yrk), 
+  geom_point(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, fill = offset_yrk), 
              shape = 21, size = 4)+
   scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,3.2)) +
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,3.2)) +
-  geom_point(data = offsets_plotting[offsets_plotting$site_name == "YORKRIVER",], 
-             aes(x = longitude, y = latitude), fill = "slateblue1", shape = 24, size = 3)+
-  geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("YORKRIVER", "W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
+  geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
                                        label = site_name),
                   nudge_x = -3,
                   nudge_y = 1,
                   fill = "white")+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
+        panel.background = element_rect(fill = "aliceblue"), legend.position = "right")+
   labs(title = "Genomic Offset to \nYork River (RDA)", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
 (map_yrk_int_rda)
+
+yrk_int_rda_inset <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = interpolated_yrk_rda, mapping = aes(fill = var1.pred, col = var1.pred)) +
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,3.2)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,3.2)) +
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  geom_point(data = offsets_plotting, aes(x=lon, y=lat, 
+                                       fill = offset_yrk), 
+             shape = 21, size = 7)+
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 3.2)) + # double check these values
+  geom_point(data = offsets_plotting[offsets_plotting$site_name == "YORKRIVER",], 
+             aes(x = longitude, y = latitude), fill = "slateblue1", shape = 24, size = 7)+
+  geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("YORKRIVER", "W4_VA"),], aes(x=longitude, y=latitude, label = site_name),
+                  nudge_x = 2,
+                  nudge_y = 1,
+                  fill = "white",
+                  size = 9)+
+  guides(fill = "none")+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
+        xlim(-77.856476, -72.762787) +
+        ylim(36.019557, 39.939163)
+yrk_int_rda_inset
 ```
 
 
