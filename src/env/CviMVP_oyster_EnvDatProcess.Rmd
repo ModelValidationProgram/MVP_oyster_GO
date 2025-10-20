@@ -13,10 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This script is to process environmental data for both the seascape and experiment by reducing the variable set to retain uncorrelated variables, standardize data, and convert data to the correct formats for downstream analysis. 
 
-The seascape data comes from...
-
-The experimental data comes from...
-
 ## Setup
 
 ```{r}
@@ -39,6 +35,8 @@ exptemp <- read.csv("data/EnvDat/exp/all_temperature.csv")
 expdis <- read.csv("data/EnvDat/exp/sentinel_RFTM_organized_dermo.csv")[,-(6:10)]
 peacrab <- read.csv("data/EnvDat/exp/MVP23-FieldBags - finalTissue.csv")
 sitedate <- read.csv("data/EnvDat/seascape/SeascapeSamples - date.csv")
+yrk_temp <- read.csv("data/EnvDat/exp/yrk_temperature_2025-10-08.csv")[,-1]
+yrk_sal <- read.csv("data/EnvDat/exp/yrk_salinity_2025-10-08.csv")[,-1]
 ```
 
 
@@ -96,6 +94,9 @@ lewyrk_pea_avgs <- as.data.frame(lewyrk_pea_avgs)
 expsal_red <- expsal[,c("site_name","lat","lon","Mean_Annual_Salinity_ppt","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","salinity_quantile_10","salinity_quantile_90")]
 exptemp_red <- exptemp[,c("site_name","lat","lon","Mean_Annual_Temperature_C","Mean_max_temperature_C","Mean_min_temperature_C","temp_quantile_10","temp_quantile_90")]
 expenv_mg <- merge(expsal_red, exptemp_red, by = c("site_name", "lat", "lon"))
+
+# replace york data with more updated info
+yrk_replace <- merge(yrk_temp, yrk_sal)
 
 # experimental site info output
 write.csv(expenv_mg[,c("site_name", "lat", "lon")], "data/EnvDat/exp/exp_site_info.csv")

@@ -1,6 +1,6 @@
 ---
 title: "exp_envdat"
-author: "Camille Rumberger"
+author: "Camille Rumberger & Madeline Eppley"
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
@@ -77,7 +77,7 @@ summary(yrk_exp)
 
 # also store variables that we will include in the final data frame
 site_name <- "YRK"
-download_date <- as.Date(2025-10-08)
+download_date <- "2025-10-08"
 source_description <- "VECOS"
 lat <- 37.247284
 lon <- -76.499369
@@ -108,7 +108,7 @@ Check trends in environment by visualizing.
 salplot <- ggplot(yrk, aes(x = datetime)) +
     geom_line(aes(y = salinity, color = "Salinity (ppt)")) +
     ylim(0,40) +
-    labs(x = "Time", y = "Salinity ppt", title = "Salinity Plot for YRK - Gloucester Point, Virginia") +
+    labs(x = "Time", y = "Salinity ppt", title = "Salinity Plot for York River") +
     scale_color_manual(values = c("Salinity (ppt)" = "lightblue3")) +
     theme_minimal()
 salplot
@@ -116,7 +116,7 @@ salplot
 tempplot <- ggplot(yrk, aes(x = datetime)) +
     geom_line(aes(y = temp, color = "Temperature (C)")) +
     ylim(0, 40) +
-    labs(x = "Time", y = "Temperature C", title = "Temperature Plot for YRK - Gloucester Point, Virginia") +
+    labs(x = "Time", y = "Temperature C", title = "Temperature Plot for York River") +
     scale_color_manual(values = c( "Temperature (C)" = "pink3")) +
     theme_minimal()
 tempplot
