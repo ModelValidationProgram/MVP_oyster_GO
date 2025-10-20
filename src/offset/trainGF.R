@@ -1,5 +1,8 @@
 # script to train models on cluster
 
+# setup
+setwd("~/MVP_oyster_GO")
+
 # packages
 #install.packages("gradientForest")
 library(gradientForest) # for running gradient forest
@@ -37,19 +40,15 @@ seascapeInds_reord2 <- seascapeInds_reord[order(seascapeInds_reord$clean_ID),]
 pops_list_full <- seascapeInds_reord2$ID_SiteDate
 
 # check geno data
-dim(genoMat)
 dim(genoThinMat)
 
 # rotate df so rows are now columns (we want individuals as columns, alleles as rows)
-genoMatT <- as.matrix(t(genoMat))
 genoThinMatT <- as.matrix(t(genoThinMat))
 
 # any missing data?
-sum((genoMatT == 9)) # 0 - good 
 sum((genoThinMatT == 9)) # 0 - good
 
 # add pop data to genomic data
-rownames(genoMat) <- rownames(genoThinMat) <- pops_list_full
 colnames(genoMatT) <- colnames(genoThinMatT) <- pops_list_full
 
 # function to calculate allele frequency @ single locus
@@ -65,18 +64,13 @@ calcfreq <- function(a, pop){
 }
 
 # allele freqs
-freqs <- apply((genoMat), 2, calcfreq, pops_list_full)
-str(freqs)
-
 freqs_thin <- apply((genoThinMat), 2, calcfreq, pops_list_full)
 str(freqs_thin)
 
 # update colnames for gf
-colnames(freqs) <- make.names(as.character(1:ncol(genoMat)))
 colnames(freqs_thin) <- make.names(as.character(1:ncol(genoThinMat)))
 
 # do the same for the full geno matrix, just in case
-colnames(genoMat) <- make.names(as.character(1:ncol(genoMat)))
 colnames(genoThinMat) <- make.names(as.character(1:ncol(genoThinMat)))
 
 # we also need one just per site
