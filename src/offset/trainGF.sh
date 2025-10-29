@@ -9,7 +9,7 @@
 #SBATCH --output=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20250917/TrainGF20250917_%j.out
 #SBATCH --error=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20250917/TrainGF20250917_%j.err
 
-apptainer run containers.rc.northeastern.edu/lotterhos/slim_sims_clonal
+#apptainer run containers.rc.northeastern.edu/lotterhos/slim_sims_clonal
 
 source ~/anaconda3/bin/activate R_env_clones
 
@@ -33,7 +33,7 @@ module load R
 
 Rscript src/offset/trainGF.R
 
-gzip -f "results/lg_results/gf_geno_2025-10-20.RDS"
-gzip -f "results/lg_results/gf_geno_2025-10-20.RDS"
+gzip -f "results/lg_results/gf_geno_2025-10-21.RDS"
+gzip -f "results/lg_results/gf_geno_2025-10-21.RDS"
 
 
