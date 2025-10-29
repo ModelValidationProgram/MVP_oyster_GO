@@ -1,6 +1,6 @@
 ---
 title: "exp_envdat"
-author: "Camille Rumberger & Madeline Eppley"
+author: "Camille Rumberger, Nicole Mongill0, & Madeline Eppley"
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
@@ -21,23 +21,22 @@ library(tidyr) # data cleaning
 library(lubridate) # dealing with dates
 library(readr) # read in data
 library(ggplot2) # plotting
+library(vroom) # data files
 
 # data
 # YORK
 # downloaded 10/08/25 from VIMS http://vecos.vims.edu/StationDetail.aspx?param=YRK005.40&program=CMON
+yrk_03_22 <- vroom(list.files(path = "data/EnvDat/exp/yrk_raw", pattern = "\\.csv$", full.names = TRUE)[1:20])
+
 yrk_23 <- read.csv("data/EnvDat/exp/yrk_raw/York_2023.csv")
 yrk_24 <- read.csv("data/EnvDat/exp/yrk_raw/York_2024.csv")
 yrk_25 <- read.csv("data/EnvDat/exp/yrk_raw/York_2025.csv")
 
-# lew data comes from Willy Reas from Coan River -- still need data from Nov'24-May'25
-setwd("data/EnvDat/exp/lew_raw")
-#merge files into one
-raw_lew <- list.files(path=".") %>% 
-  lapply(read.csv) %>% 
-  bind_rows
-
-# set wd
-setwd("~/Documents/Github/MVP_oyster_GO")
+# lew data comes from Willy Reas from Coan River
+raw_LOLA_env21 <- read.csv("data/EnvDat/exp/lew_raw/Jess_COAN_2021.csv")
+raw_LOLA_env22 <- read.csv("data/EnvDat/exp/lew_raw/Jess_COAN_2022.csv")
+raw_LOLA_env25 <- read.csv("data/EnvDat/exp/lew_raw/Jess_COAN_2025.csv")
+raw_LOLA_env23_24 <- read.csv("data/EnvDat/exp/lew_raw/LEW-raw.csv")
 ```
 
 
@@ -45,44 +44,112 @@ setwd("~/Documents/Github/MVP_oyster_GO")
 
 ```{r}
 # put together data
-raw_yrk <- rbind(yrk_23, yrk_24, yrk_25)
+raw_yrk_exp <- rbind(yrk_23, yrk_24, yrk_25)
 
 # subset relevant data
-yrk_all <- raw_yrk[,c("SAMPLE_DATETIME", "WTEMP", "WTEMP_A", "SALINITY", "SALINITY_A")] 
+yrk_exp0 <- raw_yrk_exp[,c("SAMPLE_DATETIME", "WTEMP", "WTEMP_A", "SALINITY", "SALINITY_A")] 
+yrk_exp0$SAMPLE_DATETIME <- as.POSIXct(yrk_exp0$SAMPLE_DATETIME, "%Y-%m-%d %H:%M:%S", tz = "")
+yrk_sea0 <- yrk_03_22[,c("SAMPLE_DATETIME", "WTEMP", "WTEMP_A", "SALINITY", "SALINITY_A")]
+
+parsed <- strptime(yrk_sea0$SAMPLE_DATETIME, "%m/%d/%Y %H:%M:%S")
+yrk_sea0$SAMPLE_DATETIME <- as.POSIXct(parsed, "%Y/%m/%d %H:%M:%S", tz = "")
+
+yrk_all <- rbind(yrk_sea0, yrk_exp0)
 
 # keep just dates of experiment
-yrk_all$SAMPLE_DATETIME <- as.POSIXct(yrk_all$SAMPLE_DATETIME, "%Y-%m-%d %H:%M:%S", tz = "")
 yrk_all_exp <- subset(yrk_all,
                       SAMPLE_DATETIME >= as.POSIXct("2023-05-01 00:00:00.00",
                                                     tz = "") &
                       SAMPLE_DATETIME <= as.POSIXct("2025-05-28 00:00:00.00",
                                                     tz = ""))
 
-# temp subset, no error codes
-yrk_noerr <- yrk_all_exp[(yrk_all_exp$WTEMP_A %in% c("", NA)), ]
+# temp & sal subset, no error codes
+yrk_noerr <- yrk_all[(yrk_all$WTEMP_A %in% c("", NA)), ]
+yrk_all_sea <- yrk_noerr[(yrk_noerr$SALINITY_A %in% c("",NA)), ]
 
-# sal subset, no error codes
-yrk_exp <- yrk_noerr[(yrk_noerr$SALINITY_A %in% c("", NA)), ]
+yrk_exp_noerr <- yrk_all_exp[(yrk_all_exp$WTEMP_A %in% c("", NA)), ]
+yrk_exp <- yrk_exp_noerr[(yrk_exp_noerr$SALINITY_A %in% c("",NA)), ]
 
 # trim + rename cols
 yrk_exp <- yrk_exp[,c("SAMPLE_DATETIME", "WTEMP", "SALINITY")]
 colnames(yrk_exp) <- c("datetime", "temp", "salinity")
 
+yrk_allyrs <- yrk_all_sea[,c("SAMPLE_DATETIME", "WTEMP", "SALINITY")]
+colnames(yrk_allyrs) <- c("datetime", "temp", "salinity")
+
 # remove NAs
 yrk_exp <- yrk_exp %>%
     filter(!is.na(datetime))
 
+yrk_all_years <- yrk_allyrs %>%
+  filter(!is.na(datetime))
+
 # check
 summary(yrk_exp)
+summary(yrk_all_years)
 
 # also store variables that we will include in the final data frame
-site_name <- "YRK"
-download_date <- "2025-10-08"
-source_description <- "VECOS"
-lat <- 37.247284
-lon <- -76.499369
-firstyear <- 2023
-finalyear <- 2025
+site_name_y <- "YRK"
+download_date_y <- "2025-10-08"
+source_description_y <- "VECOS"
+lat_y <- 37.247284
+lon_y <- -76.499369
+firstyear_y <- 2023
+finalyear_y <- 2025
+
+firstyear_yall <- 2003
+finalyear_yall <- 2025
+```
+
+
+## Pre-processing: Lewisetta
+
+This code comes in part from Nicole Mongillo.
+
+```{r}
+raw_LOLA_env23_24_prep <- raw_LOLA_env23_24[,c("Date","EST.Time","Temp","Salinity")]
+colnames(raw_LOLA_env21) <- colnames(raw_LOLA_env22) <- colnames(raw_LOLA_env23_24) <- colnames(raw_LOLA_env25) <- c("Date","EST.Time","Temp","Salinity")
+raw_LOLA_env <- rbind(raw_LOLA_env21, raw_LOLA_env22, raw_LOLA_env23_24_prep, raw_LOLA_env25)
+
+#The data include separate columns for date and time, which I want to merge into one.
+raw_LOLA_env$datetime <- paste(raw_LOLA_env$Date, raw_LOLA_env$EST.Time)
+
+#Remove Date and EST.Time columns
+raw_LOLA_env <- subset(raw_LOLA_env, select = -c(Date, EST.Time))
+
+#Reorder columns so datetime is first
+raw_LOLA_env <- raw_LOLA_env[, c(3,1,2)]
+
+# View how the data are stored. Note the variable names and the format and units that the data are stored in.  
+summary(raw_LOLA_env)
+
+#rename columns. "datetime" = date and time of data collection, "temp" = water temperature in degrees C, "salinity" = water salinity in parts per thousand (ppt)
+colnames(raw_LOLA_env) <- c("datetime", "temp", "salinity")
+
+#Convert to POSIXct format. Tell R what the current date/time format is so it knows how to convert it. Store it into a column named datetime in the data frame.
+raw_LOLA_env$datetime <- as.POSIXct(raw_LOLA_env$datetime, "%m/%d/%y %H:%M:%S", tz = "")
+
+#add site name and create new data frame with full envr data set
+raw_LOLA_env$site_name <- "LOLA"
+LOLA_env_full <- raw_LOLA_env
+
+#reorder columns with site_name first
+LOLA_env_full <- LOLA_env_full[, c(4, 1, 2, 3)]
+
+#separate out salinity and temp data into new frames for other analyses
+LOLA_temp_full <- LOLA_env_full[, c(1,2,3)]
+
+LOLA_sal_full <- LOLA_env_full[, c(1,2,4)]
+
+#Store variables that we will include in the final data frame
+site_name <- "LEW"
+download_date <- as.Date("2025-10-14")
+source_description <- "KCB hatchery in Coan River as part of CBNERR water quality monitoring, comes from Willy Reay"
+lat <- 37.9803
+lon <- -76.4619
+#Lat and long data are from this site(https://www.vims.edu/cbnerr/monitoring/water_quality/). Data came from the KCB hatchery in the Coan as part of the CBNERR water quality monitoring initiative.
+firstyear_l <- 2021
+finalyear_l <- 2025
 ```
 
 ## Data filtering
@@ -90,36 +157,82 @@ finalyear <- 2025
 Filter any of the variables that have data points outside of normal range. We will use 0-40 as the accepted range for salinity (ppt) and temperature (C) values. Note, in the summer, salinity values can sometimes exceed 40.
 
 ```{r}
-# filter 
-filtered_yrk_sal <- yrk_exp %>%
+# qc filtering yrk
+filtered_yrk_exp_sal <- yrk_exp %>%
+    filter(between(salinity, 0, 40)) 
+filtered_yrk_exp_env <- filtered_yrk_sal %>%
+    filter(between(temp, 0, 40))
+
+filtered_yrk_sal <- yrk_all_years %>%
     filter(between(salinity, 0, 40)) 
 filtered_yrk_env <- filtered_yrk_sal %>%
     filter(between(temp, 0, 40))
 
 # store dat in new obj for ease
 yrk <- filtered_yrk_env
+yrk_exp <- filtered_yrk_exp_env
+
+# filter lew
+# keep just dates of experiment
+LOLA_env_full$datetime <- as.POSIXct(LOLA_env_full$datetime, "%Y-%m-%d %H:%M:%S", tz = "")
+LOLA_env_exp <- subset(LOLA_env_full,
+                      datetime >= as.POSIXct("2023-05-01 00:00:00.00",
+                                                    tz = "") &
+                      datetime <= as.POSIXct("2025-05-28 00:00:00.00",
+                                                    tz = ""))
+
+# qc filtering lew
+filtered_lew_exp_sal <- LOLA_env_exp %>%
+    filter(between(salinity, 0, 40)) 
+filtered_lew_exp_env <- filtered_lew_exp_sal %>%
+    filter(between(temp, 0, 40))
+
+filtered_lew_sal <- LOLA_env_full %>%
+    filter(between(salinity, 0, 40)) 
+filtered_lew_env <- filtered_lew_sal %>%
+    filter(between(temp, 0, 40))
+
+# store dat in new obj for ease
+lew_exp <- filtered_lew_exp_env
+lew <- filtered_lew_env
 ```
 
 ## Plotting Trends
 
-Check trends in environment by visualizing.
+Check trends in environment by visualizing. This code comes in part from N. Mongillo.
 
 ```{r}
-salplot <- ggplot(yrk, aes(x = datetime)) +
+salplot_yrk <- ggplot(yrk, aes(x = datetime)) +
     geom_line(aes(y = salinity, color = "Salinity (ppt)")) +
     ylim(0,40) +
     labs(x = "Time", y = "Salinity ppt", title = "Salinity Plot for York River") +
     scale_color_manual(values = c("Salinity (ppt)" = "lightblue3")) +
     theme_minimal()
-salplot
+salplot_yrk
 
-tempplot <- ggplot(yrk, aes(x = datetime)) +
+tempplot_yrk <- ggplot(yrk, aes(x = datetime)) +
     geom_line(aes(y = temp, color = "Temperature (C)")) +
     ylim(0, 40) +
     labs(x = "Time", y = "Temperature C", title = "Temperature Plot for York River") +
     scale_color_manual(values = c( "Temperature (C)" = "pink3")) +
     theme_minimal()
-tempplot
+tempplot_yrk
+
+salplot_lew <- ggplot(lew, aes(x = datetime)) +
+    geom_line(aes(y = salinity, color = "Salinity (ppt)")) +
+    ylim(0,40) +
+    labs(x = "Time", y = "Salinity ppt", title = "Salinity Plot for Lewisetta") +
+    scale_color_manual(values = c("Salinity (ppt)" = "lightblue3")) +
+    theme_minimal()
+salplot_lew
+
+tempplot_lew <- ggplot(lew, aes(x = datetime)) +
+    geom_line(aes(y = temp, color = "Temperature (C)")) +
+    ylim(0, 40) +
+    labs(x = "Time", y = "Temperature C", title = "Temperature Plot for Lewisetta") +
+    scale_color_manual(values = c( "Temperature (C)" = "pink3")) +
+    theme_minimal()
+tempplot_lew
 ```
 
 ## Summary statistics
@@ -129,6 +242,7 @@ Calculate means, maxes, mins, medians, etc.
 ```{r}
 # this chunk comes modified from environmental processing script written by M. Eppley to retain consistency in variable naming schemes
 
+# YORK RIVER
 # calculate mean, maximum, and minimum values for salinity and temperature for each month. 
 yrk_env_mo <- yrk %>%
     dplyr::mutate(year = year(datetime), month = month(datetime)) %>%
@@ -183,23 +297,164 @@ timeplot <- ggplot(yrk_env_mo, aes(x = year)) +
     ylim(1,12) +
     theme_minimal()
 timeplot
+
+# LEWISETTA
+# calculate mean, maximum, and minimum values for salinity and temperature for each month. 
+lew_env_mo <- lew %>%
+    dplyr::mutate(year = year(datetime), month = month(datetime)) %>%
+    dplyr::group_by(year, month, .drop = FALSE) %>%
+    dplyr::summarise(
+      min_salinity = min(salinity),
+      max_salinity = max(salinity),
+      mean_salinity = mean(salinity),
+      length_salinity = length(salinity),
+      min_temp = min(temp),
+      max_temp = max(temp),
+      mean_temp = mean(temp),
+      length_temp = length(temp))
+  
+print(lew_env_mo)
+
+
+#Calculate the mean, maximum, and minimum values for salinity and temperature for each year. 
+lew_env_yr <- lew %>%
+    dplyr::mutate(year = year(datetime)) %>%
+    dplyr::group_by(year, .drop = FALSE) %>%
+    dplyr::summarise(
+      min_salinity = min(salinity),
+      max_salinity = max(salinity),
+      mean_salinity = mean(salinity),
+      min_temp = min(temp),
+      max_temp = max(temp),
+      mean_temp = mean(temp))
+
+print(lew_env_yr)
+
+#Calculate the mean, maximum, and minimum values for salinity and temperature for each day. 
+lew_env_day <- lew %>%
+    dplyr::mutate(year = year(datetime), month = month(datetime), day = day(datetime)) %>%
+    dplyr::group_by(year, month, day, .drop = FALSE) %>%
+    dplyr::summarise(
+      min_salinity = min(salinity),
+      max_salinity = max(salinity),
+      mean_salinity = mean(salinity),
+      length_salinity = length(salinity),
+      min_temp = min(temp),
+      max_temp = max(temp),
+      mean_temp = mean(temp),
+      length_temp = length(temp))
+  
+print(lew_env_day)
+
+# check plots
+timeplot <- ggplot(lew_env_mo, aes(x = year)) +
+    geom_point(aes(y = month, color = length_salinity), size = 4) +
+    labs(x = "Time", y = "Month", title = "Salinity Timeplot for LEW - Virginia") +
+    ylim(1,12) +
+    theme_minimal()
+timeplot
+
+
+# now for experimental time frame
+# York River
+yrk_envexp_yr <- yrk_exp %>%
+    dplyr::mutate(year = year(datetime)) %>%
+    dplyr::group_by(year, .drop = FALSE) %>%
+    dplyr::summarise(
+      min_salinity = min(salinity),
+      max_salinity = max(salinity),
+      mean_salinity = mean(salinity),
+      min_temp = min(temp),
+      max_temp = max(temp),
+      mean_temp = mean(temp))
+
+yrk_envexp_day <- yrk_exp %>%
+    dplyr::mutate(year = year(datetime), month = month(datetime), day = day(datetime)) %>%
+    dplyr::group_by(year, month, day, .drop = FALSE) %>%
+    dplyr::summarise(
+      min_salinity = min(salinity),
+      max_salinity = max(salinity),
+      mean_salinity = mean(salinity),
+      length_salinity = length(salinity),
+      min_temp = min(temp),
+      max_temp = max(temp),
+      mean_temp = mean(temp),
+      length_temp = length(temp))
+
+yrk_envexp_mo <- yrk_exp %>%
+    dplyr::mutate(year = year(datetime), month = month(datetime)) %>%
+    dplyr::group_by(year, month, .drop = FALSE) %>%
+    dplyr::summarise(
+      min_salinity = min(salinity),
+      max_salinity = max(salinity),
+      mean_salinity = mean(salinity),
+      length_salinity = length(salinity),
+      min_temp = min(temp),
+      max_temp = max(temp),
+      mean_temp = mean(temp),
+      length_temp = length(temp))
+
+
+# Lewisetta
+lew_envexp_yr <- lew_exp %>%
+    dplyr::mutate(year = year(datetime)) %>%
+    dplyr::group_by(year, .drop = FALSE) %>%
+    dplyr::summarise(
+      min_salinity = min(salinity),
+      max_salinity = max(salinity),
+      mean_salinity = mean(salinity),
+      min_temp = min(temp),
+      max_temp = max(temp),
+      mean_temp = mean(temp))
+
+lew_envexp_day <- lew_exp %>%
+    dplyr::mutate(year = year(datetime), month = month(datetime), day = day(datetime)) %>%
+    dplyr::group_by(year, month, day, .drop = FALSE) %>%
+    dplyr::summarise(
+      min_salinity = min(salinity),
+      max_salinity = max(salinity),
+      mean_salinity = mean(salinity),
+      length_salinity = length(salinity),
+      min_temp = min(temp),
+      max_temp = max(temp),
+      mean_temp = mean(temp),
+      length_temp = length(temp))
+  
+lew_envexp_mo <- lew_exp %>%
+    dplyr::mutate(year = year(datetime), month = month(datetime)) %>%
+    dplyr::group_by(year, month, .drop = FALSE) %>%
+    dplyr::summarise(
+      min_salinity = min(salinity),
+      max_salinity = max(salinity),
+      mean_salinity = mean(salinity),
+      length_salinity = length(salinity),
+      min_temp = min(temp),
+      max_temp = max(temp),
+      mean_temp = mean(temp),
+      length_temp = length(temp))
 ```
+
 
 # Calculate days above and below thresholds and plot
 
 ```{r low-sal-stress}
 # blank df spans all 12 months for all years of data collection for this site
 # merge with observations so that we can plot over time 
-complete_year_month <- expand.grid(
-  year = unique(firstyear:finalyear),
+complete_year_month_l <- expand.grid(
+  year = unique(firstyear_l:finalyear_l),
+  month = 1:12
+)
+complete_year_month_y <- expand.grid(
+  year = unique(firstyear_yall:finalyear_yall),
   month = 1:12
 )
 
 # start with low salinity stress 
 # first calculate for low salinity
 yrk$low_sal_stress <- yrk$salinity < 12
+lew$low_sal_stress <- lew$salinity < 12
 
-low_sal_stress_count <- yrk %>%
+low_sal_stress_count_y <- yrk %>%
   dplyr::mutate(year = year(datetime), 
          month = month(datetime), 
          day = day(datetime)) %>% 
@@ -208,7 +463,17 @@ low_sal_stress_count <- yrk %>%
   dplyr::group_by(year, month) %>%
   dplyr::summarise(low_sal_stress = n(), .groups = "drop") # group all occurrences together by month rather than by numeric day
 
-print(low_sal_stress_count) # no low stress days
+low_sal_stress_count_l <- lew %>%
+  dplyr::mutate(year = year(datetime), 
+         month = month(datetime), 
+         day = day(datetime)) %>% 
+  dplyr::filter(low_sal_stress == 1) %>%  
+  dplyr::distinct(year, month, day) %>%  # remove dups
+  dplyr::group_by(year, month) %>%
+  dplyr::summarise(low_sal_stress = n(), .groups = "drop") # group all occurrences together by month rather than by numeric day
+
+print(low_sal_stress_count_y) # 95 stress days
+print(low_sal_stress_count_l) # 735 stress days
 ```
 
 # now calculate for high salinity stress
@@ -217,6 +482,19 @@ print(low_sal_stress_count) # no low stress days
 yrk$high_sal_stress <- yrk$salinity > 35
 
 high_sal_stress_count <- yrk %>%
+  dplyr::mutate(year = year(datetime), 
+         month = month(datetime), 
+         day = day(datetime)) %>% 
+  dplyr::filter(high_sal_stress == 1) %>%  
+  dplyr::distinct(year, month, day) %>%  # remove dups
+  dplyr::group_by(year, month) %>%
+  dplyr::summarise(high_sal_stress = n(), .groups = "drop") # group all occurrences together by month rather than by numeric day
+
+print(high_sal_stress_count) # no high sal stress 
+
+lew$high_sal_stress <- lew$salinity > 35
+
+high_sal_stress_count <- lew %>%
   dplyr::mutate(year = year(datetime), 
          month = month(datetime), 
          day = day(datetime)) %>% 
@@ -235,6 +513,19 @@ print(high_sal_stress_count) # no high sal stress
 yrk$high_temp_stress <- yrk$temp > 28
 
 high_temp_stress_count <- yrk %>%
+  dplyr::mutate(year = year(datetime), 
+         month = month(datetime), 
+         day = day(datetime)) %>% 
+  dplyr::filter(high_temp_stress == 1) %>%  
+  dplyr::distinct(year, month, day) %>%  # remove dups
+  dplyr::group_by(year, month) %>%
+  dplyr::summarise(high_temp_stress = n(), .groups = "drop") # group all occurrences together by month rather than by numeric day
+
+print(high_temp_stress_count)
+
+lew$high_temp_stress <- lew$temp > 28
+
+high_temp_stress_count <- lew %>%
   dplyr::mutate(year = year(datetime), 
          month = month(datetime), 
          day = day(datetime)) %>% 
@@ -301,6 +592,8 @@ Our list of variables includes:
 - Salinity_n: total number of data points
 - Salinity_years: number of years in data set
 
+### York River
+
 Start with the temperature variables
 
 ```{r}
@@ -338,13 +631,57 @@ yrk_monthly_temp <- yrk_monthly_temp[, !duplicated(names(yrk_monthly_temp))]
 print(yrk_monthly_temp)
 
 # Write to the combined file with all sites 
-write.table(yrk_temp, paste0("data/EnvDat/exp/all_temperature",Sys.Date(),".csv"), sep = ",", append = TRUE, col.names = FALSE, row.names = FALSE) # The column names should be changed to FALSE after 1st row is added to the data frame
+write.table(yrk_temp, paste0("data/EnvDat/seascape/all_temperature",Sys.Date(),".csv"), sep = ",", append = TRUE, col.names = FALSE, row.names = FALSE) # The column names should be changed to FALSE after 1st row is added to the data frame
 
 # Write to a unique new CSV file
-write.csv(yrk_temp, paste0("data/EnvDat/exp/yrk_temperature_",Sys.Date(),".csv"))
+write.csv(yrk_temp, paste0("data/EnvDat/seascape/yrk_temperature_",Sys.Date(),".csv"))
 
 # Write all montly data to a unique new CSV file
-write.csv(yrk_monthly_temp, paste0("data/EnvDat/exp/yrk_temperature_monthly_",Sys.Date(),".csv"))
+write.csv(yrk_monthly_temp, paste0("data/EnvDat/seascape/yrk_temperature_monthly_",Sys.Date(),".csv"))
+```
+
+```{r}
+#Calculate temperature variables. 
+Mean_Annual_Temperature_C <- mean(yrk_exp$temp)
+Mean_max_temperature_C <- mean(yrk_envexp_yr$max_temp)
+Mean_min_temperature_C <- mean(yrk_envexp_yr$min_temp)
+Temperature_st_dev <- sd(yrk_exp$temp)
+Temperature_n <- nrow(yrk_exp)
+Temperature_years <- nrow(yrk_exp)
+high_temp_stress_days <- sum(high_temp_stress_count$high_temp_stress)
+frac_high_temp_stress_days <- high_temp_stress_days/nrow(yrk_env_day)
+
+Mean_Monthly_Temperature_C <- yrk_envexp_mo %>%
+  filter(!is.na(month)) %>% 
+  group_by(month) %>%
+  summarise(Mean_Temperature = mean(mean_temp))
+
+Mean_min_Monthly_Temperature_C <- yrk_envexp_mo %>%
+  filter(!is.na(month)) %>% 
+  group_by(month) %>%
+  summarise(Mean_min_Temperature = mean(min_temp))
+
+Mean_max_Monthly_Temperature_C <- yrk_envexp_mo %>%
+  filter(!is.na(month)) %>% 
+  group_by(month) %>%
+  summarise(Mean_max_Temperature = mean(max_temp))
+
+# Create a data frame to store the temperature results
+yrk_exp_temp <- cbind(site_name, download_date, source_description, lat, lon, firstyear, finalyear, Mean_Annual_Temperature_C, Mean_max_temperature_C, Mean_min_temperature_C, Temperature_st_dev, high_temp_stress_days, frac_high_temp_stress_days, Temperature_n, Temperature_years)
+print(yrk_exp_temp)
+
+yrk_monthly_temp_exp <- cbind(Mean_Monthly_Temperature_C, Mean_min_Monthly_Temperature_C, Mean_max_Monthly_Temperature_C)
+yrk_monthly_temp <- yrk_monthly_temp[, !duplicated(names(yrk_monthly_temp))]
+print(yrk_monthly_temp)
+
+# Write to the combined file with all sites 
+write.table(yrk_exp_temp, paste0("data/EnvDat/exp/all_temperature",Sys.Date(),".csv"), sep = ",", append = TRUE, col.names = FALSE, row.names = FALSE) # The column names should be changed to FALSE after 1st row is added to the data frame
+
+# Write to a unique new CSV file
+write.csv(yrk_exp_temp, paste0("data/EnvDat/exp/yrk_temperature_",Sys.Date(),".csv"))
+
+# Write all montly data to a unique new CSV file
+write.csv(yrk_monthly_temp_exp, paste0("data/EnvDat/exp/yrk_temperature_monthly_",Sys.Date(),".csv"))
 ```
 
 Now the salinity variables
@@ -386,10 +723,239 @@ yrk_monthly_sal <- yrk_monthly_sal[, !duplicated(names(yrk_monthly_sal))]
 print(yrk_monthly_sal)
 
 # Write to the combined file with all sites 
-write.table(yrk_salinity, paste0("data/EnvDat/exp/all_salinity_",Sys.Date(),".csv"), sep = ",", append = TRUE, col.names = FALSE, row.names = FALSE) # The column names should be changed to FALSE after 1st row is added to the data frame
+write.table(yrk_salinity, paste0("data/EnvDat/seascape/yrk_all_salinity_",Sys.Date(),".csv"), sep = ",", append = TRUE, col.names = FALSE, row.names = FALSE) # The column names should be changed to FALSE after 1st row is added to the data frame
 
 # Write all year data to a unique new CSV file
-write.csv(yrk_salinity, paste0("data/EnvDat/exp/yrk_salinity_",Sys.Date(),".csv"))
+write.csv(yrk_salinity, paste0("data/EnvDat/seascape/yrk_salinity_",Sys.Date(),".csv"))
 # Write all monthly data to a unique new CSV file
-write.csv(yrk_monthly_sal, paste0("data/EnvDat/exp/yrk_monthly_sal_",Sys.Date(),".csv"))
+write.csv(yrk_monthly_sal, paste0("data/EnvDat/seascape/yrk_monthly_sal_",Sys.Date(),".csv"))
+```
+
+```{r}
+#Calculate the salinity variables
+Mean_Annual_Salinity_ppt <- mean(yrk_exp$salinity)
+Mean_max_Salinity_ppt <- mean(yrk_envexp_yr$max_salinity)
+Mean_min_Salinity_ppt <- mean(yrk_envexp_yr$min_salinity)
+Salinity_st_dev <- sd(yrk_exp$salinity)
+Salinity_n <- nrow(yrk_exp)
+Salinity_years <- nrow(yrk_envexp_yr)
+high_sal_stress_days <- sum(high_sal_stress_count$high_sal_stress)
+low_sal_stress_days <- sum(low_sal_stress_count$low_sal_stress)
+frac_high_sal_stress_days <- high_sal_stress_days/nrow(yrk_envexp_day)
+frac_low_sal_stress_days <- low_sal_stress_days/nrow(yrk_envexp_day)
+
+Mean_Monthly_Salinity <- yrk_envexp_mo %>%
+  filter(!is.na(month)) %>%
+  group_by(month) %>%
+  summarise(Mean_Salinity = mean(mean_salinity))
+
+Min_Monthly_Salinity <- yrk_envexp_mo %>%
+  filter(!is.na(month)) %>%
+  group_by(month) %>%
+  summarise(Min_Salinity = mean(min_salinity))
+
+Max_Monthly_Salinity <- yrk_envexp_mo %>%
+  filter(!is.na(month)) %>%
+  group_by(month) %>%
+  summarise(Max_Salinity = mean(max_salinity))
+
+#Create a data frame to store the temperature results
+yrkexp_salinity <- cbind(site_name, download_date, source_description, lat, lon, firstyear, finalyear, Mean_Annual_Salinity_ppt, Mean_max_Salinity_ppt, Mean_min_Salinity_ppt, high_sal_stress_days,low_sal_stress_days, frac_high_sal_stress_days, frac_low_sal_stress_days, Salinity_st_dev, Salinity_n, Salinity_years)
+print(yrkexp_salinity)
+
+yrk_monthly_sal_exp <- cbind(Mean_Monthly_Salinity, Min_Monthly_Salinity, Max_Monthly_Salinity)
+yrk_monthly_sal_exp <- yrk_monthly_sal_exp[, !duplicated(names(yrk_monthly_sal_exp))]
+print(yrk_monthly_sal_exp)
+
+# Write to the combined file with all sites 
+write.table(yrkexp_salinity, paste0("data/EnvDat/exp/exp_salinity_",Sys.Date(),".csv"), sep = ",", append = TRUE, col.names = FALSE, row.names = FALSE) # The column names should be changed to FALSE after 1st row is added to the data frame
+
+# Write all year data to a unique new CSV file
+write.csv(yrkexp_salinity, paste0("data/EnvDat/exp/exp_yrk_salinity_",Sys.Date(),".csv"))
+# Write all monthly data to a unique new CSV file
+write.csv(yrk_monthly_sal_exp, paste0("data/EnvDat/exp/exp_yrk_monthly_sal_",Sys.Date(),".csv"))
+```
+
+### Lewisetta
+
+Start with the temperature variables
+
+```{r}
+#Calculate temperature variables. 
+Mean_Annual_Temperature_C <- mean(lew$temp)
+Mean_max_temperature_C <- mean(lew_env_yr$max_temp)
+Mean_min_temperature_C <- mean(lew_env_yr$min_temp)
+Temperature_st_dev <- sd(lew$temp)
+Temperature_n <- nrow(lew)
+Temperature_years <- nrow(lew_env_yr)
+high_temp_stress_days <- sum(high_temp_stress_count$high_temp_stress)
+frac_high_temp_stress_days <- high_temp_stress_days/nrow(lew_env_day)
+
+Mean_Monthly_Temperature_C <- lew_env_mo %>%
+  filter(!is.na(month)) %>% 
+  group_by(month) %>%
+  summarise(Mean_Temperature = mean(mean_temp))
+
+Mean_min_Monthly_Temperature_C <- lew_env_mo %>%
+  filter(!is.na(month)) %>% 
+  group_by(month) %>%
+  summarise(Mean_min_Temperature = mean(min_temp))
+
+Mean_max_Monthly_Temperature_C <- lew_env_mo %>%
+  filter(!is.na(month)) %>% 
+  group_by(month) %>%
+  summarise(Mean_max_Temperature = mean(max_temp))
+
+# Create a data frame to store the temperature results
+lew_temp <- cbind(site_name, download_date, source_description, lat, lon, firstyear, finalyear, Mean_Annual_Temperature_C, Mean_max_temperature_C, Mean_min_temperature_C, Temperature_st_dev, high_temp_stress_days, frac_high_temp_stress_days, Temperature_n, Temperature_years)
+print(lew_temp)
+
+lew_monthly_temp <- cbind(Mean_Monthly_Temperature_C, Mean_min_Monthly_Temperature_C, Mean_max_Monthly_Temperature_C)
+lew_monthly_temp <- lew_monthly_temp[, !duplicated(names(lew_monthly_temp))]
+print(lew_monthly_temp)
+
+# Write to the combined file with all sites 
+write.table(lew_temp, paste0("data/EnvDat/seascape/lew_all_temperature",Sys.Date(),".csv"), sep = ",", append = TRUE, col.names = FALSE, row.names = FALSE) # The column names should be changed to FALSE after 1st row is added to the data frame
+
+# Write to a unique new CSV file
+write.csv(lew_temp, paste0("data/EnvDat/seascape/lew_temperature_",Sys.Date(),".csv"))
+
+# Write all montly data to a unique new CSV file
+write.csv(lew_monthly_temp, paste0("data/EnvDat/seascape/lew_temperature_monthly_",Sys.Date(),".csv"))
+```
+
+```{r}
+#Calculate temperature variables. 
+Mean_Annual_Temperature_C <- mean(lew_exp$temp)
+Mean_max_temperature_C <- mean(lew_envexp_yr$max_temp)
+Mean_min_temperature_C <- mean(lew_envexp_yr$min_temp)
+Temperature_st_dev <- sd(lew_exp$temp)
+Temperature_n <- nrow(lew_exp)
+Temperature_years <- nrow(lew_envexp_yr)
+high_temp_stress_days <- sum(high_temp_stress_count$high_temp_stress)
+frac_high_temp_stress_days <- high_temp_stress_days/nrow(lew_envexp_day)
+
+Mean_Monthly_Temperature_C <- lew_envexp_mo %>%
+  filter(!is.na(month)) %>% 
+  group_by(month) %>%
+  summarise(Mean_Temperature = mean(mean_temp))
+
+Mean_min_Monthly_Temperature_C <- lew_envexp_mo %>%
+  filter(!is.na(month)) %>% 
+  group_by(month) %>%
+  summarise(Mean_min_Temperature = mean(min_temp))
+
+Mean_max_Monthly_Temperature_C <- lew_envexp_mo %>%
+  filter(!is.na(month)) %>% 
+  group_by(month) %>%
+  summarise(Mean_max_Temperature = mean(max_temp))
+
+# Create a data frame to store the temperature results
+lew_exp_temp <- cbind(site_name, download_date, source_description, lat, lon, firstyear, finalyear, Mean_Annual_Temperature_C, Mean_max_temperature_C, Mean_min_temperature_C, Temperature_st_dev, high_temp_stress_days, frac_high_temp_stress_days, Temperature_n, Temperature_years)
+print(lew_temp)
+
+lew_monthly_temp_exp <- cbind(Mean_Monthly_Temperature_C, Mean_min_Monthly_Temperature_C, Mean_max_Monthly_Temperature_C)
+lew_monthly_temp <- lew_monthly_temp[, !duplicated(names(lew_monthly_temp))]
+print(lew_monthly_temp)
+
+# Write to the combined file with all sites 
+write.table(lew_exp_temp, paste0("data/EnvDat/exp/all_temperature",Sys.Date(),".csv"), sep = ",", append = TRUE, col.names = FALSE, row.names = FALSE) # The column names should be changed to FALSE after 1st row is added to the data frame
+
+# Write to a unique new CSV file
+write.csv(lew_exp_temp, paste0("data/EnvDat/exp/lew_temperature_",Sys.Date(),".csv"))
+
+# Write all montly data to a unique new CSV file
+write.csv(lew_monthly_temp_exp, paste0("data/EnvDat/exp/lew_temperature_monthly_",Sys.Date(),".csv"))
+```
+
+Now the salinity variables
+
+```{r}
+#Calculate the salinity variables
+Mean_Annual_Salinity_ppt <- mean(lew$salinity)
+Mean_max_Salinity_ppt <- mean(lew_env_yr$max_salinity)
+Mean_min_Salinity_ppt <- mean(lew_env_yr$min_salinity)
+Salinity_st_dev <- sd(lew$salinity)
+Salinity_n <- nrow(lew)
+Salinity_years <- nrow(lew_env_yr)
+high_sal_stress_days <- sum(high_sal_stress_count$high_sal_stress)
+low_sal_stress_days <- sum(low_sal_stress_count$low_sal_stress)
+frac_high_sal_stress_days <- high_sal_stress_days/nrow(lew_env_day)
+frac_low_sal_stress_days <- low_sal_stress_days/nrow(lew_env_day)
+
+Mean_Monthly_Salinity <- lew_env_mo %>%
+  filter(!is.na(month)) %>%
+  group_by(month) %>%
+  summarise(Mean_Salinity = mean(mean_salinity))
+
+Min_Monthly_Salinity <- lew_env_mo %>%
+  filter(!is.na(month)) %>%
+  group_by(month) %>%
+  summarise(Min_Salinity = mean(min_salinity))
+
+Max_Monthly_Salinity <- lew_env_mo %>%
+  filter(!is.na(month)) %>%
+  group_by(month) %>%
+  summarise(Max_Salinity = mean(max_salinity))
+
+#Create a data frame to store the temperature results
+lew_salinity <- cbind(site_name, download_date, source_description, lat, lon, firstyear, finalyear, Mean_Annual_Salinity_ppt, Mean_max_Salinity_ppt, Mean_min_Salinity_ppt, high_sal_stress_days,low_sal_stress_days, frac_high_sal_stress_days, frac_low_sal_stress_days, Salinity_st_dev, Salinity_n, Salinity_years)
+print(lew_salinity)
+
+lew_monthly_sal <- cbind(Mean_Monthly_Salinity, Min_Monthly_Salinity, Max_Monthly_Salinity)
+lew_monthly_sal <- lew_monthly_sal[, !duplicated(names(lew_monthly_sal))]
+print(lew_monthly_sal)
+
+# Write to the combined file with all sites 
+write.table(lew_salinity, paste0("data/EnvDat/seascape/all_salinity_",Sys.Date(),".csv"), sep = ",", append = TRUE, col.names = FALSE, row.names = FALSE) # The column names should be changed to FALSE after 1st row is added to the data frame
+
+# Write all year data to a unique new CSV file
+write.csv(lew_salinity, paste0("data/EnvDat/seascape/lew_salinity_",Sys.Date(),".csv"))
+# Write all monthly data to a unique new CSV file
+write.csv(lew_monthly_sal, paste0("data/EnvDat/seascape/lew_monthly_sal_",Sys.Date(),".csv"))
+```
+
+```{r}
+#Calculate the salinity variables
+Mean_Annual_Salinity_ppt <- mean(lew_exp$salinity)
+Mean_max_Salinity_ppt <- mean(lew_envexp_yr$max_salinity)
+Mean_min_Salinity_ppt <- mean(lew_envexp_yr$min_salinity)
+Salinity_st_dev <- sd(lew_exp$salinity)
+Salinity_n <- nrow(lew_exp)
+Salinity_years <- nrow(lew_envexp_yr)
+high_sal_stress_days <- sum(high_sal_stress_count$high_sal_stress)
+low_sal_stress_days <- sum(low_sal_stress_count$low_sal_stress)
+frac_high_sal_stress_days <- high_sal_stress_days/nrow(lew_envexp_day)
+frac_low_sal_stress_days <- low_sal_stress_days/nrow(lew_envexp_day)
+
+Mean_Monthly_Salinity <- lew_envexp_mo %>%
+  filter(!is.na(month)) %>%
+  group_by(month) %>%
+  summarise(Mean_Salinity = mean(mean_salinity))
+
+Min_Monthly_Salinity <- lew_envexp_mo %>%
+  filter(!is.na(month)) %>%
+  group_by(month) %>%
+  summarise(Min_Salinity = mean(min_salinity))
+
+Max_Monthly_Salinity <- lew_envexp_mo %>%
+  filter(!is.na(month)) %>%
+  group_by(month) %>%
+  summarise(Max_Salinity = mean(max_salinity))
+
+#Create a data frame to store the temperature results
+lewexp_salinity <- cbind(site_name, download_date, source_description, lat, lon, firstyear, finalyear, Mean_Annual_Salinity_ppt, Mean_max_Salinity_ppt, Mean_min_Salinity_ppt, high_sal_stress_days,low_sal_stress_days, frac_high_sal_stress_days, frac_low_sal_stress_days, Salinity_st_dev, Salinity_n, Salinity_years)
+print(lewexp_salinity)
+
+lew_monthly_sal_exp <- cbind(Mean_Monthly_Salinity, Min_Monthly_Salinity, Max_Monthly_Salinity)
+lew_monthly_sal_exp <- lew_monthly_sal_exp[, !duplicated(names(lew_monthly_sal_exp))]
+print(lew_monthly_sal_exp)
+
+# Write to the combined file with all sites 
+write.table(lewexp_salinity, paste0("data/EnvDat/exp/exp_salinity_",Sys.Date(),".csv"), sep = ",", append = TRUE, col.names = FALSE, row.names = FALSE) # The column names should be changed to FALSE after 1st row is added to the data frame
+
+# Write all year data to a unique new CSV file
+write.csv(lewexp_salinity, paste0("data/EnvDat/exp/exp_lew_salinity_",Sys.Date(),".csv"))
+# Write all monthly data to a unique new CSV file
+write.csv(lew_monthly_sal_exp, paste0("data/EnvDat/exp/exp_lew_monthly_sal_",Sys.Date(),".csv"))
 ```
