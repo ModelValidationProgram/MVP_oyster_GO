@@ -30,13 +30,11 @@ library(stringr)
 
 # data
 seascapeEnv <- read.csv("data/EnvDat/seascape/seascape_abiotic_biotic_envr.csv")
-expsal <- read.csv("data/EnvDat/exp/all_salinity.csv")
-exptemp <- read.csv("data/EnvDat/exp/all_temperature.csv")
+expsal <- read.csv("data/EnvDat/exp/exp_salinity.csv")
+exptemp <- read.csv("data/EnvDat/exp/exp_temp.csv")
 expdis <- read.csv("data/EnvDat/exp/sentinel_RFTM_organized_dermo.csv")[,-(6:10)]
 peacrab <- read.csv("data/EnvDat/exp/MVP23-FieldBags - finalTissue.csv")
 sitedate <- read.csv("data/EnvDat/seascape/SeascapeSamples - date.csv")
-yrk_temp <- read.csv("data/EnvDat/exp/yrk_temperature_2025-10-08.csv")[,-1]
-yrk_sal <- read.csv("data/EnvDat/exp/yrk_salinity_2025-10-08.csv")[,-1]
 ```
 
 
@@ -53,11 +51,11 @@ colnames(seascapeEnv)
 
 # check data correlations within each dataset
 # seascape - lots of correlated variables in the quantiles but keep for now, will check vif
-pairs.panels(seascapeEnv[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence","intensity_msx","intensity_dermo","Pea_crab","Boring_sponge")])
-pairs.panels(seascapeEnv[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence","Pea_crab")])
+pairs.panels(seascapeEnv[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence","intensity_msx","intensity_dermo","Pea_Crab","Boring_sponge")])
+pairs.panels(seascapeEnv[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence","Pea_Crab")])
 
 # seascape & env keep maxes & mins, remove all else (need the same variables in both sets)
-seascapeEnv_trim <- seascapeEnv[,c("ID_SiteDate","Site_Order","State_Abbrev","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence","Pea_crab")]
+seascapeEnv_trim <- seascapeEnv[,c("ID_SiteDate","Site_Order","State_Abbrev","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence","Pea_Crab")]
 ```
 
 I need to do some work to put together the experimental data frame
@@ -119,7 +117,7 @@ names(lewyrk_dis_avgs)[names(lewyrk_dis_avgs) == "SITE"] <- names(lewyrk_pea_avg
 lewyrk1 <- merge(lewyrk_quants, lewyrk_dis_avgs[,1:2], by = c("site_name"))
 lewyrkEnv_all <- merge(lewyrk1, lewyrk_pea_avgs, by = c("site_name"))
 
-# the rest of the experimental disease info for experimental pops is in the seascape data; no DEBY or LOLA
+# the rest of the experimental disease info for experimental pops is in the seascape data; DEBY and LOLA are the same as the lewyrk_data, but we won't train the models with them
 seascape2exp <- data.frame(ID_SiteDate = c("CB_TX_2022-6-9", "Sister_Lk_LA_2022-8-9", "KP_FGR_FL_2022-8-23", "WS_CB_VA_2022-10-7", "SR_GB_NH_2022-8-12", "DC_DR_ME_2022-10-25"), site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"))
 
 # merge
@@ -130,41 +128,49 @@ quantile_forVA <- read.csv("data/EnvDat/exp/quantiles_05232025.csv")[,-1]
 VA_only <- quantile_forVA[quantile_forVA$site_name == "W4-VA", c("site_name","salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90")]
 expEnv_all[expEnv_all$site_name == "W4_VA", c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")] <- VA_only[,2:5]
 
+# rename lat long & peacrab
+names(lewyrkEnv_all)[names(lewyrkEnv_all) == "lat"] <- "Latitude_manual"
+names(lewyrkEnv_all)[names(lewyrkEnv_all) == "lon"] <- "Longitude_manual"
+names(lola_deb)[names(lola_deb) == "lat"] <- "Latitude_manual"
+names(lola_deb)[names(lola_deb) == "lon"] <- "Longitude_manual"
+names(lewyrkEnv_all)[names(lewyrkEnv_all) == "Pea_Crab"] <- "Pea_Crab"
+names(expEnv_all)[names(expEnv_all) == "Pea_Crab"] <- "Pea_Crab"
+names(seascapeEnv_trim)[names(seascapeEnv_trim) == "Pea_Crab"] <- "Pea_Crab"
+names(seascapeEnv_trim)[names(seascapeEnv_trim) == "ID_SiteDate"] <- "site_name"
+
+# add lola and deby
+lola_deb <- expenv_trim[expenv_trim$site_name %in% c("S1_LOLA", "S2_DEBY"),]
+lola_deb$ID_SiteDate <- c("LOLA", "DEBY")
+lola_deb$Dermo_Prevalence <- lewyrkEnv_all$Dermo_Prevalence
+lola_deb$Pea_Crab <- lewyrkEnv_all$Pea_Crab
+
 pairs.panels(expEnv_all[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence")]) # don't include pea crab because all are 0
-# these are all reasonably uncorrelated, temp quantile 10/90 are 0.62 and temp quantile 90/MSX are -0.63 but otherwise all are low corr (and all are below |0.7|)
+# these are all reasonably uncorrelated, all are below |0.7|
 
-# trim to just what we have for the other sites - exclude DEBY & LOLA for now until we can get this disease data
-head(seascapeEnv_trim)
-head(expEnv_all)
-head(lewyrkEnv_all)
+# trim to just what we have for the other sites
+seascapeEnv_ready <- seascapeEnv_trim[,c("site_name","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","Pea_Crab")]
+expEnv_ready <- expEnv_all[,c("site_name","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","Pea_Crab")]
+lewyrkEnv_ready <- lewyrkEnv_all[,c("site_name","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","Pea_Crab")]
+lola_deb_ready <- lola_deb[,c("site_name","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","Pea_Crab")]
 
-# rename lat long in lewyrk2
-names(lewyrkEnv_all)[names(lewyrkEnv_all) == "lat.x"] <- "Latitude_manual"
-names(lewyrkEnv_all)[names(lewyrkEnv_all) == "lon.x"] <- "Longitude_manual"
-names(lewyrkEnv_all)[names(lewyrkEnv_all) == "Pea_Crab"] <- "Pea_crab"
-
-# all have the same column names now, but we don't have MSX for lew or york
+# all have the same column names now, but we don't have MSX for lew/lola or york/deby so no MSX
 ```
 
 Everything is looking good! Now I will standardize data to be scaled and centered for downstream analysis. To start this process, I will first put everything into a single data frame. One thing to consider is that I do have individual level disease data, but am standardizing data at the population level and then expanding this scaled data out - I should probably do the expansion first, then scale.
 
 ```{r}
 # quick data inspection
-head(seascapeEnv_trim)
-head(expEnv_all)
-head(lewyrkEnv_all)
-
-# rename columns where relevant
-lewyrkEnv_all <- lewyrkEnv_all %>%
-  rename(Latitude_manual = lat, Longitude_manual = lon)
+head(seascapeEnv_ready)
+head(expEnv_ready)
+head(lewyrkEnv_ready)
+head(lola_deb_ready)
 
 # scale all together
-seascapeEnv_trim$site_name <- seascapeEnv_trim$ID_SiteDate
-allenv <- rbind(na.omit(seascapeEnv_trim[!(seascapeEnv_trim$ID_SiteDate %in% seascape2exp$ID_SiteDate), c("site_name", "Latitude_manual", "Longitude_manual", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")]), expEnv_all[,c("site_name", "Latitude_manual", "Longitude_manual", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")], lewyrkEnv_all[,c("site_name", "Latitude_manual", "Longitude_manual", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab")])
+allenv <- rbind(na.omit(seascapeEnv_ready[!(seascapeEnv_ready$site_name %in% seascape2exp$ID_SiteDate), c("site_name", "Latitude_manual", "Longitude_manual", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_Crab")]), expEnv_ready[,c("site_name", "Latitude_manual", "Longitude_manual", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_Crab")], lola_deb_ready[,c("site_name", "Latitude_manual", "Longitude_manual", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_Crab")], lewyrkEnv_ready[,c("site_name", "Latitude_manual", "Longitude_manual", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_Crab")])
 
 # scale the full env version
 std_allenv <- scale(allenv[,4:ncol(allenv)])
-colnames(std_allenv) <- c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")
+colnames(std_allenv) <- c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")
 allenv_scaled <- as.data.frame(cbind(allenv, std_allenv))
 
 # keep track of scaling factors
@@ -207,7 +213,7 @@ indsSea_redrm <- indsSea_red[!(indsSea_red$ID_SiteDate == "LM_TX_2022-7-10"),]
 
 # split the allenv df into respective datasets
 sea_env_scale <- allenv_scaled[!(allenv_scaled$site_name %in% c("Lewisetta", "YorkRiver")),] # don't take out the expOrg data here, as it is the data for the seascape sites that I removed before scaling
-expOrg_env_scale <- allenv_scaled[allenv_scaled$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"),]
+expOrg_env_scale <- allenv_scaled[allenv_scaled$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME","S1_LOLA","S2_DEBY"),]
 expSite_env_scale <- allenv_scaled[allenv_scaled$site_name %in% c("Lewisetta", "YorkRiver"),]
 
 # rename the expOrg site_names that are still in the sea_env_scale df
@@ -227,8 +233,8 @@ write.csv(site_names_exp, "data/EnvDat/exp_sitenames.csv")
 # the experimental sites Lew & York need to be added to the experimental origin data in a single df
 expSite_env_scale_yrk <- expSite_env_scale[expSite_env_scale$site_name == "YorkRiver",]
 expSite_env_scale_lew <- expSite_env_scale[expSite_env_scale$site_name == "Lewisetta",]
-colnames(expSite_env_scale_lew) <- c("site_name", "Latitude_manual", "Longitude_manual", "lew_salinity_quantile_10", "lew_salinity_quantile_90", "lew_temp_quantile_10", "lew_temp_quantile_90", "lew_Dermo_Prevalence", "lew_Pea_crab", "lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")
-colnames(expSite_env_scale_yrk) <- c("site_name", "Latitude_manual", "Longitude_manual", "yrk_salinity_quantile_10", "yrk_salinity_quantile_90", "yrk_temp_quantile_10", "yrk_temp_quantile_90", "yrk_Dermo_Prevalence", "yrk_Pea_crab", "yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")
+colnames(expSite_env_scale_lew) <- c("site_name", "Latitude_manual", "Longitude_manual", "lew_salinity_quantile_10", "lew_salinity_quantile_90", "lew_temp_quantile_10", "lew_temp_quantile_90", "lew_Dermo_Prevalence", "lew_Pea_Crab", "lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_Crab_scaled")
+colnames(expSite_env_scale_yrk) <- c("site_name", "Latitude_manual", "Longitude_manual", "yrk_salinity_quantile_10", "yrk_salinity_quantile_90", "yrk_temp_quantile_10", "yrk_temp_quantile_90", "yrk_Dermo_Prevalence", "yrk_Pea_Crab", "yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_Crab_scaled")
 
 # add this info to the expOrg df
 nrow(indsExp_red_mut) # 154 rows
@@ -293,11 +299,11 @@ In addition to processing this environmental data, I want to calculate environme
 expenv_dist_df <- allenv_scaled
 
 # reduce variable set
-expenv_dist_red_df <- expenv_dist_df[,c("site_name", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90","Dermo_Prevalence","Pea_crab")]
+expenv_dist_red_df <- expenv_dist_df[,c("site_name", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90","Dermo_Prevalence","Pea_Crab")]
 
 # calculate environmental distance
 library(vegan)
-envdist_std <- round(decostand(expenv_dist_red_df[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90","Dermo_Prevalence","Pea_crab")], method = "standardize"), 4)
+envdist_std <- round(decostand(expenv_dist_red_df[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90","Dermo_Prevalence","Pea_Crab")], method = "standardize"), 4)
 
 env_dist <- round(vegdist(envdist_std, method = "euclidian", 
                           upper = FALSE, diag = TRUE), 4)
@@ -353,184 +359,28 @@ Distance", limits = c(0, 7))+
 envdist_plot
 
 # show just the lew and york comparisons
-env_dist_long_expsite <- env_dist_long_mg2[env_dist_long_mg2$site2 %in% c("LEW", "YRK"),]
-env_dist_long_expsite_red <- env_dist_long_expsite[!(env_dist_long_expsite$site1 %in% c("LEW","YRK")),]
+env_dist_long_expsite <- env_dist_long_mg2[env_dist_long_mg2$site2 %in% c("Lewisetta", "YorkRiver"),]
+env_dist_long_expsite_red <- env_dist_long_expsite[!(env_dist_long_expsite$site1 %in% c("Lewisetta", "YorkRiver")),]
 
 # plot
-# envdist_plot_red <- ggplot(env_dist_long_expsite_red, aes(x = fct_reorder(site1, order1), 
-#                               y = fct_reorder(site2, order2), 
-#                               fill = value))+
-#   theme_classic()+
-#   geom_tile(color = "black") +
-# #  geom_text(aes(label = distances), color = "white", size = 4)+
-#   scale_fill_viridis_c(name = "Euclidean 
-# Distance", limits = c(0, 4))+
-#   theme(plot.title = element_text(size = 20), 
-#         legend.title = element_text(size = 14),
-#         legend.position = "right", legend.justification = "top") +
-#   labs(title = "Environmental Distance between Sites", x = "", y = "") +
-#   theme(plot.title = element_text(size = 18), 
-#         legend.title = element_text(size = 14),
-#         legend.position = "right", legend.justification = "top")
-# envdist_plot_red
+envdist_plot <- ggplot(env_dist_long_expsite_red, aes(x = fct_reorder(site2, order2), 
+                              y = fct_reorder(site1, order1), 
+                              fill = dist))+
+  theme_classic()+
+  geom_tile(color = "black") +
+#  geom_text(aes(label = distances), color = "white", size = 4)+
+  scale_fill_viridis_c(name = "Euclidean 
+Distance", limits = c(0, 5.03))+
+  theme(plot.title = element_text(size = 20), 
+        legend.title = element_text(size = 14),
+        legend.position = "right", legend.justification = "top") +
+  labs(title = "Environmental Distance between Sites", x = "", y = "") +
+  theme(plot.title = element_text(size = 18), 
+        legend.title = element_text(size = 14),
+        legend.position = "right", legend.justification = "top")
+envdist_plot
 ```
 
-
-## Interpolation
-
-To make nice figures, I will interpolate environmental data from the seascape dataset. This is what I will use as the "current" data when making predictions. This should not bias any predictions made for our actual sites of interest since we have exact environmental information for those points - it will just let me make nicer figures!
-
-```{r}
-dat_sf <- st_as_sf(allenv_scaled, 
-                   coords = c("Longitude_manual","Latitude_manual"),
-                   crs = 4326) # for WGS84 projection
-
-# set spherical geometry
-sf::sf_use_s2(FALSE)
-
-# set object
-world <- ne_countries(scale = "medium", returnclass = "sf")
-world_crop <- sf::st_crop(world, c(xmin =-102, xmax = -65, ymin = 24, ymax = 47.05))
-coast <- ne_coastline(scale = "medium", returnclass = "sf")
-coast_crop <- sf::st_crop(coast, c(xmin =-102, xmax = -65, ymin = 24, ymax = 47.05))
-
-# test map
-map_test <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_sf(data = dat_sf, mapping = aes(col = salinity_quantile_10)) +
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Salinity 10% Quantile (PPT)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
-(map_test)
-
-# looks good, now determine area for interpolation
-# start by downloading and cropping oceans data
-oceans110 <- ne_download(scale=110L, type = "ocean", category = "physical")
-oceans_crop <- sf::st_crop(oceans110, c(xmin = -102, xmax = -65, ymin = 24, ymax = 47.05))
-
-# check crs
-st_crs(oceans_crop)
-st_crs(coast_crop)
-st_crs(world_crop) # looks good
-
-# define buffer distance
-dist <- 0.5 # 0.75º difference, approximately 50 miles
-
-# define buffer region - note we need to specify the layer, as there are lots of different coastlines
-buffered_region <- st_buffer(coast_crop, dist)[51,]
-plot(buffered_region, col = "lightblue2")
-
-# crop shapefile to region of interest for interpolation
-# this is the region we will plot, but we need to interpolate the entire buffered region
-int_region <- st_intersection(oceans_crop, buffered_region) 
-
-# define grid across ocean area
-grid <- st_make_grid(buffered_region, cellsize = 0.05, what = "polygons")
-grid_int <- st_intersection(grid, buffered_region)
-grid_int_crop <- sf::st_crop(grid_int, c(xmin = -102, xmax = -65, 
-                                         ymin = 24, ymax = 47.05))
-
-# interpolate
-interpolated_sal10 <- idw(salinity_quantile_10_scaled~1, dat_sf, grid_int)
-saveRDS(interpolated_sal10, "results/lg_results/interpolated_sal10.rds")
-
-interpolated_sal90 <- idw(salinity_quantile_90_scaled~1, dat_sf, grid_int)
-saveRDS(interpolated_sal90, "results/lg_results/interpolated_sal90.rds")
-
-interpolated_temp10 <- idw(temp_quantile_10_scaled~1, dat_sf, grid_int)
-saveRDS(interpolated_temp10, "results/lg_results/interpolated_temp10.rds")
-
-interpolated_temp90 <- idw(temp_quantile_90_scaled~1, dat_sf, grid_int)
-saveRDS(interpolated_temp90, "results/lg_results/interpolated_temp90.rds")
-
-interpolated_dermo <- idw(Dermo_Prevalence_scaled~1, dat_sf, grid_int)
-saveRDS(interpolated_dermo, "results/lg_results/interpolated_dermo.rds")
-
-interpolated_pea <- idw(Pea_crab_scaled~1, dat_sf, grid_int)
-saveRDS(interpolated_pea, "results/lg_results/interpolated_pea.rds")
-
-# empty raster
-ext <- ext(st_bbox(interpolated_sal10)) # get spatial extent
-rast_empty <- rast(ext, resolution = 0.05, crs = "+proj=longlat +datum=WGS84")
-
-# create a raster stack
-# set up
-sf_ls <- list(interpolated_sal10, interpolated_sal90, # sal
-           interpolated_temp10, interpolated_temp90, # temp
-           interpolated_dermo, interpolated_pea) # disease
-rast_ls <- list()
-
-# loop through sf files to rasterize
-for (i in seq_along(sf_ls)) {
-  rast = st_rasterize(sf_ls[[i]] %>% dplyr::select(var1.pred, geometry))
-  rast_ls[[i]] = rast
-}
-
-# combine
-rast_all <- c(rast_ls)
-names(rast_all) <- c("interpolated_sal10", "interpolated_sal90", # sal
-                     "interpolated_temp10", "interpolated_temp90", # temp
-                     "interpolated_dermo", "interpolated_pea") # disease
-
-# save
-saveRDS(rast_all, "data/EnvDat/seascape/raster_interpolated_scaled_env.RDS")
-
-# try mapping again
-map_sal10_int <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = interpolated_sal10, mapping = aes(col = var1.pred)) +
-  geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Salinity 10% Quantile (PPT)", x = "Longitude", y = "Latitude", col = "Salinity \n(scaled)")
-(map_sal10_int)
-
-map_sal90_int <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = interpolated_sal90, mapping = aes(col = var1.pred)) +
-  geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Salinity 90% Quantile (PPT)", x = "Longitude", y = "Latitude", col = "Salinity \n(scaled)")
-(map_sal90_int)
-
-map_temp10_int <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = interpolated_temp10, mapping = aes(col = var1.pred)) +
-  geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Temperature 10% Quantile (ºC)", x = "Longitude", y = "Latitude", col = "Temperature \n(scaled)")
-(map_temp10_int)
-
-map_temp90_int <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = interpolated_temp90, mapping = aes(col = var1.pred)) +
-  geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Temperature 90% Quantile (ºC)", x = "Longitude", y = "Latitude", col = "Temperature \n(scaled)")
-(map_temp90_int)
-
-map_dermo_int <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = interpolated_dermo, mapping = aes(col = var1.pred)) +
-  geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Dermo Weighted Prevalence", x = "Longitude", y = "Latitude", col = "Prevalence \n(scaled)")
-(map_dermo_int)
-
-map_pea_int <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = interpolated_pea, mapping = aes(col = var1.pred)) +
-  geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Pea Crab Prevalence", x = "Longitude", y = "Latitude", col = "Prevalence \n(scaled)")
-(map_pea_int)
-```
 
 ## Formatting for LEA
 
@@ -540,17 +390,11 @@ LEA requires environmental data be formatted as a .env file type.
 # prep as matrix
 sea_mat <- as.matrix(sea_env_scale_mut[,8:13])
 
-env_sea_ordered_mat <- env_sea_ordered[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")]
+env_sea_ordered_mat <- env_sea_ordered[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")]
 
-full_exp_mat <- as.matrix(exp_env_scale[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")])
+full_exp_mat <- as.matrix(exp_env_scale[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled", "lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_Crab_scaled", "yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_Crab_scaled")])
 
-full_exp_expanded_mat <- as.matrix(exp_scaled_expanded[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")])
-
-# also do this with the interpolated data
-sea_df_int <- as.data.frame(rast_all, xy = T)
-sea_df_int_rm <- na.omit(sea_df_int)
-sea_df_int_rm_trim <- sea_df_int_rm[,c("interpolated_sal10.x", "interpolated_sal10.y", "interpolated_sal10.var1.pred", "interpolated_sal90.var1.pred", "interpolated_temp10.var1.pred", "interpolated_temp90.var1.pred", "interpolated_dermo.var1.pred", "interpolated_pea.var1.pred")]
-colnames(sea_df_int_rm_trim) <- c("Longitude_manual", "Latitude_manual", "salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")
+full_exp_expanded_mat <- as.matrix(exp_scaled_expanded[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled", "lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_Crab_scaled", "yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_Crab_scaled")])
 
 # and convert to env format
 write.env(sea_mat, paste0("data/EnvDat/seascape/seascape_scaled_", Sys.Date(), ".env"))
@@ -562,4 +406,4 @@ write.env(full_exp_expanded_mat, paste0("data/EnvDat/exp/exp_scaled_expanded_", 
 
 ## Formatting for RDA & GF
 
-Here, the csv format should work fine so there's no need to go further. I will simply use the csv "data/EnvDat/exp/exp_scaled_expanded_04222025.csv" for the RDA and GF analyses. Could potentially add pcnms here for GF??? - leave that for now.
+Here, the csv format should work fine so there's no need to go further. I will simply use the csv "data/EnvDat/exp/exp_scaled_expanded_2025-10-30.csv" for the RDA and GF analyses.
