@@ -30,14 +30,14 @@ library(stringr) # for data wrangling
 
 # data
 # env
-env_all <- read.csv("data/EnvDat/env_scaled_2025-09-26.csv")
+env_all <- read.csv("data/EnvDat/env_scaled_2025-10-30.csv")
 env_rast <- readRDS("data/EnvDat/seascape/raster_interpolated_scaled_env.RDS")
-env_sea <- read.env("data/EnvDat/seascape/seascape_scaled_expanded_reord_2025-10-03.env")
-env_exp <- read.env("data/EnvDat/exp/exp_scaled_2025-10-01.env")
+env_sea <- read.env("data/EnvDat/seascape/seascape_scaled_expanded_reord_2025-10-30.env")
+env_exp <- read.env("data/EnvDat/exp/exp_scaled_2025-10-30.env")
 
 # sites
-sea_site_full <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-10-01.csv")[,-1]
-exp_site_full <- read.csv("data/EnvDat/exp/exp_scaled_2025-10-01.csv")[,-1]
+sea_site_full <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-10-30.csv")[,-1]
+exp_site_full <- read.csv("data/EnvDat/exp/exp_scaled_2025-10-30.csv")[,-1]
 
 # gen
 genoMat <- read.geno("data/GenDat/geno_seascape_2025-08-14.geno")
@@ -55,13 +55,13 @@ inds_genomat <- read.csv("data/GenDat/inds_genomat.csv")[,-1]
 ### Environmental Data Prep
 
 ```{r}
-# just renaming columns & rows to be more informative
-colnames(env_sea) <- colnames(env_sea_expand) <- c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")
+# rename columns & rows to be more informative
+colnames(env_sea) <- c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")
 
-colnames(env_exp) <- colnames(env_exp_expand) <- c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "lew_sal_quant10_scaled", "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "yrk_sal_quant10_scaled", "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")
+colnames(env_exp) <- c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled", "lew_sal_quant10_scaled", "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_Crab_scaled", "yrk_sal_quant10_scaled", "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_Crab_scaled")
 
-rownames(env_sea) <- env_sea_csv$site_name
-rownames(env_exp) <- env_exp_sites
+rownames(env_sea) <- sea_site_full$site_name
+rownames(env_exp) <- exp_site_full$site_name
 ```
 
 
@@ -160,11 +160,11 @@ points(cand_df_thin$pos[cand_df_thin$qvals < 0.001],
 # check env data
 colnames(env_all)
 colnames(env_exp)
-colnames(env_exp) <- c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")
+colnames(env_exp) <- c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled", "lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_Crab_scaled", "yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_Crab_scaled")
 
 # also want predictions for entire seascape df, so put together this data
 sea_red <- read.csv("data/EnvDat/seascape/sea_scaled_2025-10-01.csv")[,-1]
-exp_sites_data <- do.call("rbind", replicate(nrow(sea_red), unique(env_exp[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")]), simplify = FALSE))
+exp_sites_data <- do.call("rbind", replicate(nrow(sea_red), unique(env_exp[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_Crab_scaled", "yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_Crab_scaled")]), simplify = FALSE))
 rownames(exp_sites_data) <- NULL
 env_sea_forgo <- cbind(sea_red, exp_sites_data)
 env_sea_forgo2 <- as.matrix(env_sea_forgo[,-c(1:3)])
@@ -182,23 +182,23 @@ Bthin <- mod_lfmmthin@B
 # not using candidate loci for now
 # calculate "genetic gap" for all the experimental sites
 gg_lew = NULL
-for (i in 1:nrow(env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
-gg_lew[i] = mean(((env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_exp[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")])[i,]  %*% t(B))^2, na.rm = TRUE)
+for (i in 1:nrow(env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")])){
+gg_lew[i] = mean(((env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")] - env_exp[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_Crab_scaled")])[i,]  %*% t(B))^2, na.rm = TRUE)
 }
 
 gg_yrk = NULL
-for (i in 1:nrow(env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
-gg_yrk[i] = mean(((env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_exp[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")])[i,]  %*% t(B))^2, na.rm = TRUE)
+for (i in 1:nrow(env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")])){
+gg_yrk[i] = mean(((env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")] - env_exp[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_Crab_scaled")])[i,]  %*% t(B))^2, na.rm = TRUE)
 }
 
 gg_lewthin = NULL
-for (i in 1:nrow(env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
-gg_lewthin[i] = mean(((env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_exp[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")])[i,]  %*% t(Bthin))^2, na.rm = TRUE)
+for (i in 1:nrow(env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")])){
+gg_lewthin[i] = mean(((env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")] - env_exp[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_Crab_scaled")])[i,]  %*% t(Bthin))^2, na.rm = TRUE)
 }
 
 gg_yrkthin = NULL
-for (i in 1:nrow(env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
-gg_yrkthin[i] = mean(((env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_exp[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")])[i,]  %*% t(Bthin))^2, na.rm = TRUE)
+for (i in 1:nrow(env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")])){
+gg_yrkthin[i] = mean(((env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")] - env_exp[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_Crab_scaled")])[i,]  %*% t(Bthin))^2, na.rm = TRUE)
 }
 
 # associate predictions with site metadata
@@ -213,23 +213,23 @@ write.csv(gap_df, paste0("results/GO_results/offsets_LEA_",Sys.Date(),".csv", se
 
 # also for the full seascape sample (just for visualization)
 gg_full_lew = NULL
-for (i in 1:nrow(env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
-gg_full_lew[i] = mean(((env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_sea_forgo2[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")])[i,]  %*% t(B))^2, na.rm = TRUE)
+for (i in 1:nrow(env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")])){
+gg_full_lew[i] = mean(((env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")] - env_sea_forgo2[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_Crab_scaled")])[i,]  %*% t(B))^2, na.rm = TRUE)
 }
 
 gg_full_yrk = NULL
-for (i in 1:nrow(env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
-gg_full_yrk[i] = mean(((env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_sea_forgo2[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")])[i,]  %*% t(B))^2, na.rm = TRUE)
+for (i in 1:nrow(env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")])){
+gg_full_yrk[i] = mean(((env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")] - env_sea_forgo2[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_Crab_scaled")])[i,]  %*% t(B))^2, na.rm = TRUE)
 }
 
 gg_full_lewthin = NULL
-for (i in 1:nrow(env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
-gg_full_lewthin[i] = mean(((env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_sea_forgo2[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")])[i,]  %*% t(Bthin))^2, na.rm = TRUE)
+for (i in 1:nrow(env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")])){
+gg_full_lewthin[i] = mean(((env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")] - env_sea_forgo2[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_Crab_scaled")])[i,]  %*% t(Bthin))^2, na.rm = TRUE)
 }
 
 gg_full_yrkthin = NULL
-for (i in 1:nrow(env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
-gg_full_yrkthin[i] = mean(((env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_sea_forgo2[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")])[i,]  %*% t(Bthin))^2, na.rm = TRUE)
+for (i in 1:nrow(env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")])){
+gg_full_yrkthin[i] = mean(((env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")] - env_sea_forgo2[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_Crab_scaled")])[i,]  %*% t(Bthin))^2, na.rm = TRUE)
 }
 
 # associate predictions with site metadata
