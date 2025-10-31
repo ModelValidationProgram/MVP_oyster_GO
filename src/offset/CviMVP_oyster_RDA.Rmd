@@ -23,6 +23,7 @@ setwd("~/Documents/GitHub/MVP_oyster_GO")
 
 # packages
 library(rdadapt) # for offsets
+library(LEA) # read.geno
 library(BiocManager) # needed to download specific packages
 library(readxl) # reading xlsx files
 library(vegan) # for env dat processing
@@ -38,8 +39,8 @@ library(rdadapt) # for rda
 
 # data
 # env
-env_sea <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-10-01.csv")[,-1]
-env_exp <- read.csv("data/EnvDat/exp/exp_scaled_2025-10-01.csv")[,-1]
+env_sea <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-10-30.csv")[,-1]
+env_exp <- read.csv("data/EnvDat/exp/exp_scaled_2025-10-30.csv")[,-1]
 
 # sites
 env_sea_site <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")[,-1]
@@ -70,8 +71,6 @@ env_sea
 env_sea[which(is.na(env_sea$temp_quantile_10)),] # no na
 env_exp
 seascapeInds
-
-# need to find the more complete YRK & LEW data, talk to nicole about this
 
 # keep just relevant data
 seascapeInds_red <- seascapeInds[,c("clean_ID","Label_ind","Key_ind","ID_SiteDate","SiteDate_Key","EstuaryRegion_name","Site_Order","Site_Color","Region","Region_color")]
@@ -104,7 +103,7 @@ While I do not intend to use an outlier dataset to calculate adaptive index/offs
 
 ```{r}
 # reduce size of env data set used for training
-env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")]
+env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")]
 
 # run rda
 print(Sys.time())
@@ -191,11 +190,11 @@ Now, I calculate genomic offset for all of my populations!
 
 ```{r}
 # common garden info
-lew_env <- env_exp[!duplicated(env_exp$site_name) ,c("lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")]
-yrk_env <- env_exp[!duplicated(env_exp$site_name) ,c("yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")]
-colnames(lew_env) <- colnames(yrk_env) <- c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")
+lew_env <- env_exp[!duplicated(env_exp$site_name) ,c("lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_Crab_scaled")]
+yrk_env <- env_exp[!duplicated(env_exp$site_name) ,c("yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_Crab_scaled")]
+colnames(lew_env) <- colnames(yrk_env) <- c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")
 
-env_exp_red <- env_exp[!duplicated(env_exp$site_name) ,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")]
+env_exp_red <- env_exp[!duplicated(env_exp$site_name) ,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")]
 
 # df for predicting to seascape sites
 env_sea_forgo <- read.csv("data/EnvDat/seascape/seascape_environment_predict.csv")
@@ -203,7 +202,7 @@ rownames(env_sea_forgo) <- env_sea_forgo$X
 env_sea_forgo_pres <- env_sea_forgo[,8:13]
 env_sea_forgo_lew <- env_sea_forgo[,14:19]
 env_sea_forgo_yrk <- env_sea_forgo[,20:25]
-colnames(env_sea_forgo_lew) <- colnames(env_sea_forgo_yrk) <- colnames(env_sea_forgo_pres)
+colnames(env_sea_forgo_lew) <- colnames(env_sea_forgo_yrk) <- colnames(env_sea_forgo_pres) <- colnames(env_sea_red)
 
 # Estimate genomic offset
 offset_lew <- genomic_offset(RDA = RDA_sea_thin, 
@@ -229,7 +228,7 @@ offset_yrk_sea <- genomic_offset(RDA = RDA_sea_thin,
                                  method = "loadings")
 
 # reassign the metadata
-offsets_rda_df <- data.frame(site_name = unique(env_exp_latlon$site_name), lat = unique(env_exp_latlon$lat), lon = unique(env_exp_latlon$lon), offset_lew = offset_lew$genomic_offset$Global, offset_yrk = offset_yrk$genomic_offset$Global)
+offsets_rda_df <- data.frame(site_name = env_exp$site_name, lat = env_exp$Latitude_manual, lon = env_exp$Longitude_manual, offset_lew = offset_lew$genomic_offset$Global, offset_yrk = offset_yrk$genomic_offset$Global)
 
 write.csv(offsets_rda_df, paste0("results/GO_results/offsets_RDA_expSites_",Sys.Date(),".csv", sep = ""))
 
@@ -240,7 +239,7 @@ offsets_rda_sea_df
 
 ## Visualization
 
-Now I will plot all genomic offsets. Seascape GOs will be interpolated raster, while the experimental GOs will be overlayed as points.
+Now I will plot all genomic offsets. Seascape GOs will be interpolated raster, while the experimental GOs will be overlayed as points. I will also show seascape GOs as points, but smaller than our experimental sites.
 
 ```{r}
 # add the color palette
@@ -274,16 +273,16 @@ world_chesapeake <- sf::st_crop(world, c(xmin =-77.856476 , xmax = -72.762787, y
 map_lew <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = offsets_plotting, aes(x=lon, y=lat, 
+  geom_point(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, 
                                        fill = offset_lew), 
              shape = 21, size = 4)+
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 3.5)) + # double check these values
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 3.2)) + 
   geom_point(data = offsets_plotting[offsets_plotting$site_name == "LEWISETTA",], 
              aes(x = longitude, y = latitude), fill = "deeppink", shape = 24, size = 3)+
-  geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("LEWISETTA", "W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
+  geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("LEWISETTA", "W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, 
                                        label = site_name),
                   nudge_x = -3,
-                  nudge_y = 1,
+                  nudge_y = 0.5,
                   fill = "white")+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
@@ -293,16 +292,16 @@ map_lew <- ggplot(data = world) +
 popout_lew <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
-  geom_point(data = offsets_plotting, aes(x=lon, y=lat, 
+  geom_point(data = offsets_plotting[offsets_plotting$site_name == "LEWISETTA",], 
+           aes(x = longitude, y = latitude), fill = "deeppink", shape = 24, size = 3)+
+  geom_point(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME", "S1_LOLA", "S2_DEBY"),], aes(x = longitude, y = latitude, 
                                        fill = offset_lew), 
              shape = 21, size = 4)+
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 3.25)) + # double check these values
-  geom_point(data = offsets_plotting[offsets_plotting$site_name == "LEWISETTA",], 
-             aes(x = longitude, y = latitude), fill = "deeppink", shape = 24, size = 3)+
-  geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("LEWISETTA", "W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 3.25), na.value = "red") +
+  geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME", "S1_LOLA", "S2_DEBY", "LEWISETTA"),], aes(x=longitude, y=latitude, 
                                        label = site_name),
-                  nudge_x = 2,
-                  nudge_y = 1,
+                  nudge_x = 1,
+                  nudge_y = 0.2,
                   fill = "white")+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
@@ -313,7 +312,7 @@ popout_lew
 map_yrk <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = offsets_plotting, aes(x=lon, y=lat, 
+  geom_point(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME", "S1_LOLA", "S2_DEBY", "LEWISETTA"),], aes(x=lon, y=lat, 
                                        fill = offset_yrk), 
              shape = 21, size = 4)+
   scale_fill_viridis_c(option = "magma", limits = c(0, 3.5)) + # double check these values
@@ -325,7 +324,7 @@ map_yrk <- ggplot(data = world) +
 popout_york <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
-  geom_point(data = offsets_plotting, aes(x=lon, y=lat, 
+  geom_point(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME", "S1_LOLA", "S2_DEBY", "LEWISETTA"),], aes(x=lon, y=lat, 
                                        fill = offset_yrk), 
              shape = 21, size = 4)+
   scale_fill_viridis_c(option = "magma", limits = c(0, 3.5)) + # double check these values
@@ -335,9 +334,9 @@ popout_york <- ggplot(data = world) +
         ylim(36.019557, 39.939163)
 popout_york
 
-cor(offsets_plotting$offset_lew, offsets_plotting$offset_yrk)
+cor(na.omit(offsets_plotting$offset_lew), na.omit(offsets_plotting$offset_yrk))
 plot(x = offsets_plotting$offset_lew, y = offsets_plotting$offset_yrk)
-abline(offsets_plotting$offset_yrk ~ offsets_plotting$offset_lew)
+abline(na.omit(offsets_plotting$offset_yrk) ~ na.omit(offsets_plotting$offset_lew))
 ```
 
 
@@ -380,7 +379,7 @@ st_crs(coast_crop)
 st_crs(world_crop) # looks good
 
 # define buffer distance
-dist <- 0.25 # 0.5º difference, approximately 30 miles
+dist <- 0.25 # 0.25º difference, approximately 15 miles
 
 # define buffer region - note we need to specify the layer, as there are lots of different coastlines
 buffered_region <- st_buffer(coast_crop, dist)[51,]
@@ -425,16 +424,22 @@ names(rast_all) <- c("interpolated_lew_go","interpolated_yrk_go")
 # save
 saveRDS(rast_all, "results/GO_results/rda_interpolated_go.RDS")
 
+# prep seascape actual sites for plotting
+offsets_sea_plotting <- na.omit(offsets_rda_sea_latlon_df)
+
 # try mapping again
 map_lew_int_rda <- ggplot(data = world) +
   theme_bw()+
-  geom_sf(data = interpolated_lew_rda, mapping = aes(col = var1.pred)) +
+  geom_sf(data = interpolated_lew_rda, mapping = aes(fill = var1.pred, col = var1.pred)) +
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  geom_point(data = offsets_sea_plotting, aes(x = longitude, y = latitude, 
+                                              fill = offset_lew_sea), 
+             shape = 21, size = 2) +
   geom_point(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
                                        fill = offset_lew), 
              shape = 21, size = 4)+
-  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,3.2)) +
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,3.2)) +
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,3.5)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,3.5)) +
   geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
                                        label = site_name),
                   nudge_x = -3,
@@ -448,18 +453,21 @@ map_lew_int_rda <- ggplot(data = world) +
 lew_int_rda_inset <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = interpolated_lew_rda, mapping = aes(fill = var1.pred, col = var1.pred)) +
-  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,3.2)) +
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,3.2)) +
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,3.5)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,3.5)) +
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = offsets_plotting[offsets_plotting$site_name %in% c("W4_VA"),], aes(x=lon, y=lat, 
+  geom_point(data = offsets_sea_plotting, aes(x = longitude, y = latitude, 
+                                              fill = offset_lew_sea), 
+             shape = 21, size = 5) +
+  geom_point(data = offsets_plotting[offsets_plotting$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, 
                                        fill = offset_lew), 
-             shape = 21, size = 7)+
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 3.2)) + # double check these values
+             shape = 21, size = 9)+
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 3.5)) +
   geom_point(data = offsets_plotting[offsets_plotting$site_name == "LEWISETTA",], 
-             aes(x = longitude, y = latitude), fill = "deeppink", shape = 24, size = 7)+
-  geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("LEWISETTA", "W4_VA"),], aes(x=longitude, y=latitude, label = site_name),
-                  nudge_x = 2,
-                  nudge_y = 1,
+             aes(x = longitude-0.2, y = latitude), fill = "deeppink", shape = 24, size = 7)+
+  geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, label = site_name),
+                  nudge_x = 2.5,
+                  nudge_y = 0.5,
                   fill = "white",
                   size = 9)+
   guides(fill = "none")+
@@ -471,12 +479,15 @@ lew_int_rda_inset
 
 map_yrk_int_rda <- ggplot(data = world) +
   theme_bw()+
-  geom_sf(data = interpolated_yrk_rda, mapping = aes(col = var1.pred)) +
+  geom_sf(data = interpolated_yrk_rda, mapping = aes(col = var1.pred, fill = var1.pred)) +
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  geom_point(data = offsets_sea_plotting, aes(x = longitude, y = latitude, 
+                                              fill = offset_yrk_sea), 
+             shape = 21, size = 2) +
   geom_point(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, fill = offset_yrk), 
              shape = 21, size = 4)+
-  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,3.2)) +
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,3.2)) +
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,3.5)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,3.5)) +
   geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
                                        label = site_name),
                   nudge_x = -3,
@@ -490,18 +501,21 @@ map_yrk_int_rda <- ggplot(data = world) +
 yrk_int_rda_inset <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = interpolated_yrk_rda, mapping = aes(fill = var1.pred, col = var1.pred)) +
-  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,3.2)) +
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,3.2)) +
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,3.5)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,3.5)) +
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = offsets_plotting[offsets_plotting$site_name == "W4_VA",], aes(x=lon, y=lat, 
+  geom_point(data = offsets_sea_plotting, aes(x = longitude, y = latitude, 
+                                              fill = offset_yrk_sea), 
+             shape = 21, size = 5) +
+  geom_point(data = offsets_plotting[offsets_plotting$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude,
                                        fill = offset_yrk), 
-             shape = 21, size = 7)+
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 3.2)) + # double check these values
+             shape = 21, size = 9)+
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 3.5)) + # double check these values
   geom_point(data = offsets_plotting[offsets_plotting$site_name == "YORKRIVER",], 
-             aes(x = longitude, y = latitude), fill = "deeppink", shape = 24, size = 7)+
-  geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("YORKRIVER", "W4_VA"),], aes(x=longitude, y=latitude, label = site_name),
-                  nudge_x = 2,
-                  nudge_y = 0,
+             aes(x = longitude, y = latitude+0.2), fill = "deeppink", shape = 24, size = 7)+
+  geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, label = site_name),
+                  nudge_x = 2.5,
+                  nudge_y = 0.7,
                   fill = "white",
                   size = 9)+
   guides(fill = "none")+
