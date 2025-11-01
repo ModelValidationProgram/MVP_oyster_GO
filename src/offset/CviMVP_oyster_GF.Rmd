@@ -35,9 +35,9 @@ library(rnaturalearth) # plotting
 
 # data
 # env
-env_all <- as.data.frame(read.csv("data/EnvDat/env_scaled_2025-08-13.csv")[,-1])
-env_sea <- as.data.frame(read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-08-14.csv")[,-1])
-env_exp <- as.data.frame(read.csv("data/EnvDat/exp/exp_scaled_expanded_2025-08-14.csv")[,-1])
+env_all <- as.data.frame(read.csv("data/EnvDat/env_scaled_2025-10-30.csv")[,-1])
+env_sea <- as.data.frame(read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-10-30.csv")[,-1])
+env_exp <- as.data.frame(read.csv("data/EnvDat/exp/exp_scaled_expanded_2025-10-30.csv")[,-1])
 
 # sites
 env_sea_site <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")[,-1]
@@ -143,11 +143,11 @@ env_sea_pop <- env_sea[!duplicated(env_sea$ID_SiteDate),]
 env_exp_pop <- env_exp[!duplicated(env_exp$site_name),]
 
 # reduced variable set
-env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")]
-env_sea_pop_red <- env_sea_pop[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")]
-env_exp_pop_red <- env_exp_pop[,c("site_name","salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")]
-env_exp_lew_red <- env_exp_pop[,c("site_name", "lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")]
-env_exp_yrk_red <- env_exp_pop[,c("site_name", "yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")]
+env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")]
+env_sea_pop_red <- env_sea_pop[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")]
+env_exp_pop_red <- env_exp_pop[,c("site_name","salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")]
+env_exp_lew_red <- env_exp_pop[,c("site_name", "lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_Crab_scaled")]
+env_exp_yrk_red <- env_exp_pop[,c("site_name", "yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_Crab_scaled")]
 
 # change exp colnames to match up
 colnames(env_exp_lew_red) <- colnames(env_exp_yrk_red) <- colnames(env_exp_pop_red)
@@ -173,7 +173,7 @@ end_time <- Sys.time() # time end
 # geno models
 # crashes on personal laptop, run on cluster
 start_time <- Sys.time() # time start
-gf_geno <- gradientForest(cbind(env_sea, genoThinMat), predictor.vars = colnames(env_sea), response.vars=colnames(genoThinMat), ntree=500, maxLevel=maxLevel, trace=T, corr.threshold=0.50)
+gf_geno <- gradientForest(cbind(env_sea[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")], genoThinMat), predictor.vars = c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled"), response.vars=colnames(genoThinMat), ntree=500, maxLevel=maxLevel, trace=T, corr.threshold=0.50)
 end_time <- Sys.time() # time end
 (end_time - start_time) # about 2hrs on cluster
 
