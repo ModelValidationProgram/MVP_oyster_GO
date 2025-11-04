@@ -51,11 +51,10 @@ colnames(seascapeEnv)
 
 # check data correlations within each dataset
 # seascape - lots of correlated variables in the quantiles but keep for now, will check vif
-pairs.panels(seascapeEnv[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence","intensity_msx","intensity_dermo","Pea_Crab","Boring_sponge")])
-pairs.panels(seascapeEnv[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence","Pea_Crab")])
+pairs.panels(seascapeEnv[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence","Pea_crab")])
 
-# seascape & env keep maxes & mins, remove all else (need the same variables in both sets)
-seascapeEnv_trim <- seascapeEnv[,c("ID_SiteDate","Site_Order","State_Abbrev","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence","Pea_Crab")]
+# seascape & env keep quantiles, remove all else (need the same variables in both sets)
+seascapeEnv_trim <- seascapeEnv[,c("ID_SiteDate","Site_Order","State_Abbrev","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence","Pea_crab")]
 ```
 
 I need to do some work to put together the experimental data frame
@@ -128,21 +127,21 @@ quantile_forVA <- read.csv("data/EnvDat/exp/quantiles_05232025.csv")[,-1]
 VA_only <- quantile_forVA[quantile_forVA$site_name == "W4-VA", c("site_name","salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90")]
 expEnv_all[expEnv_all$site_name == "W4_VA", c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")] <- VA_only[,2:5]
 
-# rename lat long & peacrab
-names(lewyrkEnv_all)[names(lewyrkEnv_all) == "lat"] <- "Latitude_manual"
-names(lewyrkEnv_all)[names(lewyrkEnv_all) == "lon"] <- "Longitude_manual"
-names(lola_deb)[names(lola_deb) == "lat"] <- "Latitude_manual"
-names(lola_deb)[names(lola_deb) == "lon"] <- "Longitude_manual"
-names(lewyrkEnv_all)[names(lewyrkEnv_all) == "Pea_Crab"] <- "Pea_Crab"
-names(expEnv_all)[names(expEnv_all) == "Pea_Crab"] <- "Pea_Crab"
-names(seascapeEnv_trim)[names(seascapeEnv_trim) == "Pea_Crab"] <- "Pea_Crab"
-names(seascapeEnv_trim)[names(seascapeEnv_trim) == "ID_SiteDate"] <- "site_name"
-
 # add lola and deby
 lola_deb <- expenv_trim[expenv_trim$site_name %in% c("S1_LOLA", "S2_DEBY"),]
 lola_deb$ID_SiteDate <- c("LOLA", "DEBY")
 lola_deb$Dermo_Prevalence <- lewyrkEnv_all$Dermo_Prevalence
 lola_deb$Pea_Crab <- lewyrkEnv_all$Pea_Crab
+
+# rename lat long & peacrab
+names(lewyrkEnv_all)[names(lewyrkEnv_all) == "lat"] <- "Latitude_manual"
+names(lewyrkEnv_all)[names(lewyrkEnv_all) == "lon"] <- "Longitude_manual"
+names(lola_deb)[names(lola_deb) == "lat"] <- "Latitude_manual"
+names(lola_deb)[names(lola_deb) == "lon"] <- "Longitude_manual"
+names(lewyrkEnv_all)[names(lewyrkEnv_all) == "Pea_crab"] <- "Pea_Crab"
+names(expEnv_all)[names(expEnv_all) == "Pea_crab"] <- "Pea_Crab"
+names(seascapeEnv_trim)[names(seascapeEnv_trim) == "Pea_crab"] <- "Pea_Crab"
+names(seascapeEnv_trim)[names(seascapeEnv_trim) == "ID_SiteDate"] <- "site_name"
 
 pairs.panels(expEnv_all[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence")]) # don't include pea crab because all are 0
 # these are all reasonably uncorrelated, all are below |0.7|
@@ -153,7 +152,7 @@ expEnv_ready <- expEnv_all[,c("site_name","Latitude_manual","Longitude_manual","
 lewyrkEnv_ready <- lewyrkEnv_all[,c("site_name","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","Pea_Crab")]
 lola_deb_ready <- lola_deb[,c("site_name","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","Pea_Crab")]
 
-# all have the same column names now, but we don't have MSX for lew/lola or york/deby so no MSX
+# all have the same column names now, but we don't have MSX for lew/lola so no MSX in df
 ```
 
 Everything is looking good! Now I will standardize data to be scaled and centered for downstream analysis. To start this process, I will first put everything into a single data frame. One thing to consider is that I do have individual level disease data, but am standardizing data at the population level and then expanding this scaled data out - I should probably do the expansion first, then scale.
@@ -258,7 +257,7 @@ View(seascapeEnv_trim[seascapeEnv_trim$site_name %in% c("DWS_CB_VA_2022-10-7", "
 
 # write these out to .csv
 write.csv(exp_env_scale, paste0("data/EnvDat/exp/exp_scaled_", Sys.Date(), ".csv"))
-write.csv(as.data.frame(sea_env_scale_mut), paste0("data/EnvDat/exp/sea_scaled_", Sys.Date(), ".csv"))
+write.csv(as.data.frame(sea_env_scale_mut), paste0("data/EnvDat/seascape/sea_scaled_", Sys.Date(), ".csv"))
 write.csv(exp_scaled_expanded, paste0("data/EnvDat/exp/exp_scaled_expanded_", Sys.Date(), ".csv"))
 write.csv(sea_scaled_expanded, paste0("data/EnvDat/seascape/sea_scaled_expanded_", Sys.Date(), ".csv"))
 ```
@@ -370,7 +369,7 @@ envdist_plot <- ggplot(env_dist_long_expsite_red, aes(x = fct_reorder(site2, ord
   geom_tile(color = "black") +
 #  geom_text(aes(label = distances), color = "white", size = 4)+
   scale_fill_viridis_c(name = "Euclidean 
-Distance", limits = c(0, 5.03))+
+Distance", limits = c(0, 5.5))+
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
         legend.position = "right", legend.justification = "top") +
@@ -379,6 +378,202 @@ Distance", limits = c(0, 5.03))+
         legend.title = element_text(size = 14),
         legend.position = "right", legend.justification = "top")
 envdist_plot
+```
+
+
+## Interpolated Environmental Distance
+
+```{r}
+library(sf)
+library(terra)
+library(stars)
+library(gstat)
+library(rnaturalearth)
+library(ggrepel)
+
+# check data
+env_dist_mat$site_name <- env_dist_mat$`rownames(env_dist_df)`
+env_dist_expsites <- merge(allenv_scaled[,c("site_name","Latitude_manual","Longitude_manual")], env_dist_mat[,c("site_name","Lewisetta","YorkRiver")])
+
+# create sf
+sea_sf_envdist <- st_as_sf(env_dist_expsites, 
+                   coords = c("Longitude_manual","Latitude_manual"),
+                   crs = 4326) # for WGS84 projection
+
+# set spherical geometry
+sf::sf_use_s2(FALSE)
+
+# set object
+world <- ne_countries(scale = "medium", returnclass = "sf")
+world_crop <- sf::st_crop(world, c(xmin =-102, xmax = -65, ymin = 24, ymax = 47.05))
+coast <- ne_coastline(scale = "medium", returnclass = "sf")
+coast_crop <- sf::st_crop(coast, c(xmin =-102, xmax = -65, ymin = 24, ymax = 47.05))
+
+# start by downloading and cropping oceans data
+oceans110 <- ne_download(scale=110L, type = "ocean", category = "physical")
+oceans_crop <- sf::st_crop(oceans110, c(xmin = -102, xmax = -65, ymin = 24, ymax = 47.05))
+
+# check crs
+st_crs(oceans_crop)
+st_crs(coast_crop)
+st_crs(world_crop) # looks good
+
+# define buffer distance
+dist <- 0.25 # 0.25º difference, approximately 15 miles
+
+# define buffer region - note we need to specify the layer, as there are lots of different coastlines
+buffered_region <- st_buffer(coast_crop, dist)[51,]
+plot(buffered_region, col = "lightblue2")
+
+# crop shapefile to region of interest for interpolation
+# this is the region we will plot, but we need to interpolate the entire buffered region
+int_region <- st_intersection(oceans_crop, buffered_region) 
+
+# define grid across ocean area
+grid <- st_make_grid(buffered_region, cellsize = 0.1, what = "polygons")
+grid_int <- st_intersection(grid, buffered_region)
+grid_int_crop <- sf::st_crop(grid_int, c(xmin = -102, xmax = -65, 
+                                         ymin = 24, ymax = 47.05))
+
+# interpolate
+interpolated_lew_envdist <- idw(Lewisetta~1, sea_sf_envdist, grid_int)
+saveRDS(interpolated_lew_envdist, "results/lg_results/interpolated_envdist_lew.rds")
+
+interpolated_yrk_envdist <- idw(YorkRiver~1, sea_sf_envdist, grid_int)
+saveRDS(interpolated_yrk_envdist, "results/lg_results/interpolated_envdist_yrk.rds")
+
+# empty raster
+ext <- ext(st_bbox(interpolated_lew_envdist)) # get spatial extent
+rast_empty <- rast(ext, resolution = 0.1, crs = "+proj=longlat +datum=WGS84")
+
+# create a raster stack
+# set up
+sf_ls <- list(interpolated_lew_envdist, interpolated_yrk_envdist)
+rast_ls <- list()
+
+# loop through sf files to rasterize
+for (i in seq_along(sf_ls)) {
+  rast = st_rasterize(sf_ls[[i]] %>% dplyr::select(var1.pred, geometry))
+  rast_ls[[i]] = rast
+}
+
+# combine
+rast_all <- c(rast_ls)
+names(rast_all) <- c("interpolated_lew_envdist","interpolated_yrk_envdist")
+
+# save
+saveRDS(rast_all, "results/GO_results/envdist_interpolated.RDS")
+
+# plot
+# prep seascape actual sites for plotting
+envdist_sea_plotting <- na.omit(env_dist_expsites)
+
+# add the color palette
+popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "DEBY", "LOLA", "NH", "ME", "LEWISETTA","YORKRIVER"), 
+                     order = 1:10, 
+                     latitude = c(28.0841, 29.24916667, 30.44116, 37.211, 37.9803, 37.247284, 43.0524, 43.986, 37.9803, 37.247284),
+                     longitude = c(-97.2009, -90.9211111, -81.43908, -76.787, -76.4619, -76.499369, -70.91181, -69.55, -76.4619, -76.499369),
+                     cols = c("#3e4989" ,"#31688e", "#35b779", "#6ece58", "#440154", "#482878", "#fde725", "#b5de2b","deeppink","deeppink"),
+                     shape = c(21,21,21,21,23,23,21,21,24,24),
+                     site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME","Lewisetta","YorkRiver"))
+
+envdist_plotting <- merge(envdist_sea_plotting, popsdf, by = c("site_name"), all = T)
+
+# try mapping
+map_lew_int_envdist <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = interpolated_lew_envdist, mapping = aes(fill = var1.pred, col = var1.pred)) +
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  geom_point(data = envdist_sea_plotting, aes(x = Longitude_manual, y = Latitude_manual, 
+                                              fill = Lewisetta), 
+             shape = 21, size = 2) +
+  geom_point(data = envdist_plotting[envdist_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x = longitude, y = latitude, 
+                                       fill = Lewisetta), 
+             shape = 21, size = 4)+
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,6)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,6)) +
+  geom_label_repel(data = envdist_plotting[envdist_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=Longitude_manual, y=Latitude_manual, label = site_name),
+                  nudge_x = -3,
+                  nudge_y = 1,
+                  fill = "white")+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
+  labs(title = "Environmental Distance to \nLewisetta", x = "Longitude", y = "Latitude", col = "Environmental \nDistance", fill = "Environmental \nDistance")
+(map_lew_int_envdist)
+
+lew_int_envdist_inset <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = interpolated_lew_envdist, mapping = aes(fill = var1.pred, col = var1.pred)) +
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,6)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,6)) +
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  geom_point(data = envdist_sea_plotting, aes(x = Longitude_manual, y = Latitude_manual, 
+                                              fill = Lewisetta), 
+             shape = 21, size = 5) +
+  geom_point(data = envdist_plotting[envdist_plotting$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x = longitude, y = latitude, 
+                                       fill = Lewisetta), 
+             shape = 21, size = 9)+
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 6)) +
+  geom_point(data = envdist_plotting[envdist_plotting$site_name == "Lewisetta",], 
+             aes(x = longitude-0.2, y = latitude), fill = "deeppink", shape = 24, size = 7)+
+  geom_label_repel(data = envdist_plotting[envdist_plotting$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x = longitude, y = latitude, label = site_name),
+                  nudge_x = 2.5,
+                  nudge_y = 0.5,
+                  fill = "white",
+                  size = 9)+
+  guides(fill = "none")+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
+        xlim(-77.856476, -72.762787) +
+        ylim(36.019557, 39.939163)
+lew_int_envdist_inset
+
+map_yrk_int_envdist <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = interpolated_yrk_envdist, mapping = aes(col = var1.pred, fill = var1.pred)) +
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  geom_point(data = envdist_sea_plotting, aes(x = Longitude_manual, y = Latitude_manual, 
+                                              fill = YorkRiver), 
+             shape = 21, size = 2) +
+  geom_point(data = envdist_plotting[envdist_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x = longitude, y = latitude, fill = YorkRiver), 
+             shape = 21, size = 4)+
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,6)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,6)) +
+  geom_label_repel(data = envdist_plotting[envdist_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x = longitude, y = latitude, 
+                                       label = site_name),
+                  nudge_x = -3,
+                  nudge_y = 1,
+                  fill = "white")+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = "right")+
+  labs(title = "Environmental Distance to \nYork River", x = "Longitude", y = "Latitude", col = "Environmental \nDistance", fill = "Environmental \nDistance")
+(map_yrk_int_envdist)
+
+yrk_int_envdist_inset <- ggplot(data = world) +
+  theme_bw()+
+  geom_sf(data = interpolated_yrk_envdist, mapping = aes(fill = var1.pred, col = var1.pred)) +
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,6)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,6)) +
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  geom_point(data = envdist_sea_plotting, aes(x = Longitude_manual, y = Latitude_manual, 
+                                              fill = YorkRiver), 
+             shape = 21, size = 5) +
+  geom_point(data = envdist_plotting[envdist_plotting$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, fill = YorkRiver), 
+             shape = 21, size = 9)+
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 6)) + # double check these values
+  geom_point(data = envdist_plotting[envdist_plotting$site_name == "YorkRiver",], 
+             aes(x = longitude, y = latitude+0.2), fill = "deeppink", shape = 24, size = 7)+
+  geom_label_repel(data = envdist_plotting[envdist_plotting$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, label = site_name),
+                  nudge_x = 2.5,
+                  nudge_y = 0.7,
+                  fill = "white",
+                  size = 9)+
+  guides(fill = "none")+
+  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
+        xlim(-77.856476, -72.762787) +
+        ylim(36.019557, 39.939163)
+yrk_int_envdist_inset
 ```
 
 

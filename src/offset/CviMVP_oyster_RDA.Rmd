@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# LEA Genomic offsets
+# RDA Genomic offsets
 
 This script is a RDA-based pipeline for calculating genomic offset. I am using rdadapt, a package developed for genome scans for selection, adaptive index projection on the landscape, estimation of genomic offsets, identification of co-varying modules of adaptive loci, and/or identification of adaptive groups of individual or populations. I first calculate "adaptive index" across seascape sites, then calculate offset for a subset of 8 populations from this dataset and 2 selection lines used in a common garden experiment. Offset is calculated from the environment of origin to common garden conditions.
 
