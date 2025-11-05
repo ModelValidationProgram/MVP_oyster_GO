@@ -152,6 +152,7 @@ firstyear_l <- 2021
 finalyear_l <- 2025
 ```
 
+
 ## Data filtering
 
 Filter any of the variables that have data points outside of normal range. We will use 0-40 as the accepted range for salinity (ppt) and temperature (C) values. Note, in the summer, salinity values can sometimes exceed 40.
@@ -160,7 +161,7 @@ Filter any of the variables that have data points outside of normal range. We wi
 # qc filtering yrk
 filtered_yrk_exp_sal <- yrk_exp %>%
     filter(between(salinity, 0, 40)) 
-filtered_yrk_exp_env <- filtered_yrk_sal %>%
+filtered_yrk_exp_env <- filtered_yrk_exp_sal %>%
     filter(between(temp, 0, 40))
 
 filtered_yrk_sal <- yrk_all_years %>%
@@ -195,6 +196,9 @@ filtered_lew_env <- filtered_lew_sal %>%
 # store dat in new obj for ease
 lew_exp <- filtered_lew_exp_env
 lew <- filtered_lew_env
+
+# write out
+write.csv(lew, "data/EnvDat/exp/lew_raw/lewisetta_coandat.csv")
 ```
 
 ## Plotting Trends
@@ -251,10 +255,14 @@ yrk_env_mo <- yrk %>%
       min_salinity = min(salinity),
       max_salinity = max(salinity),
       mean_salinity = mean(salinity),
+      salinity_quantile10 = quantile(salinity, 0.1),
+      salinity_quantile90 = quantile(salinity, 0.9),
       length_salinity = length(salinity),
       min_temp = min(temp),
       max_temp = max(temp),
       mean_temp = mean(temp),
+      temp_quantile10 = quantile(temp, 0.1),
+      temp_quantile90 = quantile(temp, 0.9),
       length_temp = length(temp))
   
 print(yrk_env_mo)
@@ -268,9 +276,13 @@ yrk_env_yr <- yrk %>%
       min_salinity = min(salinity),
       max_salinity = max(salinity),
       mean_salinity = mean(salinity),
+      salinity_quantile10 = quantile(salinity, 0.1),
+      salinity_quantile90 = quantile(salinity, 0.9),
       min_temp = min(temp),
       max_temp = max(temp),
-      mean_temp = mean(temp))
+      mean_temp = mean(temp),
+      temp_quantile10 = quantile(temp, 0.1),
+      temp_quantile90 = quantile(temp, 0.9))
 
 print(yrk_env_yr)
 
@@ -282,10 +294,14 @@ yrk_env_day <- yrk %>%
       min_salinity = min(salinity),
       max_salinity = max(salinity),
       mean_salinity = mean(salinity),
+      salinity_quantile10 = quantile(salinity, 0.1),
+      salinity_quantile90 = quantile(salinity, 0.9),
       length_salinity = length(salinity),
       min_temp = min(temp),
       max_temp = max(temp),
       mean_temp = mean(temp),
+      temp_quantile10 = quantile(temp, 0.1),
+      temp_quantile90 = quantile(temp, 0.9),
       length_temp = length(temp))
   
 print(yrk_env_day)
@@ -307,12 +323,15 @@ lew_env_mo <- lew %>%
       min_salinity = min(salinity),
       max_salinity = max(salinity),
       mean_salinity = mean(salinity),
+      salinity_quantile10 = quantile(salinity, 0.1),
+      salinity_quantile90 = quantile(salinity, 0.9),
       length_salinity = length(salinity),
       min_temp = min(temp),
       max_temp = max(temp),
       mean_temp = mean(temp),
+      temp_quantile10 = quantile(temp, 0.1),
+      temp_quantile90 = quantile(temp, 0.9),
       length_temp = length(temp))
-  
 print(lew_env_mo)
 
 
@@ -324,9 +343,13 @@ lew_env_yr <- lew %>%
       min_salinity = min(salinity),
       max_salinity = max(salinity),
       mean_salinity = mean(salinity),
+      salinity_quantile10 = quantile(salinity, 0.1),
+      salinity_quantile90 = quantile(salinity, 0.9),
       min_temp = min(temp),
       max_temp = max(temp),
-      mean_temp = mean(temp))
+      mean_temp = mean(temp),
+      temp_quantile10 = quantile(temp, 0.1),
+      temp_quantile90 = quantile(temp, 0.9))
 
 print(lew_env_yr)
 
@@ -338,10 +361,14 @@ lew_env_day <- lew %>%
       min_salinity = min(salinity),
       max_salinity = max(salinity),
       mean_salinity = mean(salinity),
+      salinity_quantile10 = quantile(salinity, 0.1),
+      salinity_quantile90 = quantile(salinity, 0.9),
       length_salinity = length(salinity),
       min_temp = min(temp),
       max_temp = max(temp),
       mean_temp = mean(temp),
+      temp_quantile10 = quantile(temp, 0.1),
+      temp_quantile90 = quantile(temp, 0.9),
       length_temp = length(temp))
   
 print(lew_env_day)
@@ -364,9 +391,13 @@ yrk_envexp_yr <- yrk_exp %>%
       min_salinity = min(salinity),
       max_salinity = max(salinity),
       mean_salinity = mean(salinity),
+      salinity_quantile10 = quantile(salinity, 0.1),
+      salinity_quantile90 = quantile(salinity, 0.9),
       min_temp = min(temp),
       max_temp = max(temp),
-      mean_temp = mean(temp))
+      mean_temp = mean(temp),
+      temp_quantile10 = quantile(temp, 0.1),
+      temp_quantile90 = quantile(temp, 0.9))
 
 yrk_envexp_day <- yrk_exp %>%
     dplyr::mutate(year = year(datetime), month = month(datetime), day = day(datetime)) %>%
@@ -375,10 +406,14 @@ yrk_envexp_day <- yrk_exp %>%
       min_salinity = min(salinity),
       max_salinity = max(salinity),
       mean_salinity = mean(salinity),
+      salinity_quantile10 = quantile(salinity, 0.1),
+      salinity_quantile90 = quantile(salinity, 0.9),
       length_salinity = length(salinity),
       min_temp = min(temp),
       max_temp = max(temp),
       mean_temp = mean(temp),
+      temp_quantile10 = quantile(temp, 0.1),
+      temp_quantile90 = quantile(temp, 0.9),
       length_temp = length(temp))
 
 yrk_envexp_mo <- yrk_exp %>%
@@ -388,10 +423,14 @@ yrk_envexp_mo <- yrk_exp %>%
       min_salinity = min(salinity),
       max_salinity = max(salinity),
       mean_salinity = mean(salinity),
+      salinity_quantile10 = quantile(salinity, 0.1),
+      salinity_quantile90 = quantile(salinity, 0.9),
       length_salinity = length(salinity),
       min_temp = min(temp),
       max_temp = max(temp),
       mean_temp = mean(temp),
+      temp_quantile10 = quantile(temp, 0.1),
+      temp_quantile90 = quantile(temp, 0.9),
       length_temp = length(temp))
 
 
@@ -403,9 +442,13 @@ lew_envexp_yr <- lew_exp %>%
       min_salinity = min(salinity),
       max_salinity = max(salinity),
       mean_salinity = mean(salinity),
+      salinity_quantile10 = quantile(salinity, 0.1),
+      salinity_quantile90 = quantile(salinity, 0.9),
       min_temp = min(temp),
       max_temp = max(temp),
-      mean_temp = mean(temp))
+      mean_temp = mean(temp),
+      temp_quantile10 = quantile(temp, 0.1),
+      temp_quantile90 = quantile(temp, 0.9))
 
 lew_envexp_day <- lew_exp %>%
     dplyr::mutate(year = year(datetime), month = month(datetime), day = day(datetime)) %>%
@@ -414,10 +457,14 @@ lew_envexp_day <- lew_exp %>%
       min_salinity = min(salinity),
       max_salinity = max(salinity),
       mean_salinity = mean(salinity),
+      salinity_quantile10 = quantile(salinity, 0.1),
+      salinity_quantile90 = quantile(salinity, 0.9),
       length_salinity = length(salinity),
       min_temp = min(temp),
       max_temp = max(temp),
       mean_temp = mean(temp),
+      temp_quantile10 = quantile(temp, 0.1),
+      temp_quantile90 = quantile(temp, 0.9),
       length_temp = length(temp))
   
 lew_envexp_mo <- lew_exp %>%
@@ -427,11 +474,141 @@ lew_envexp_mo <- lew_exp %>%
       min_salinity = min(salinity),
       max_salinity = max(salinity),
       mean_salinity = mean(salinity),
+      salinity_quantile10 = quantile(salinity, 0.1),
+      salinity_quantile90 = quantile(salinity, 0.9),
       length_salinity = length(salinity),
       min_temp = min(temp),
       max_temp = max(temp),
       mean_temp = mean(temp),
+      temp_quantile10 = quantile(temp, 0.1),
+      temp_quantile90 = quantile(temp, 0.9),
       length_temp = length(temp))
+```
+
+
+## Ground-truthing Lewisetta
+
+```{r}
+# directory for files
+lew_sonde <- "data/EnvDat/exp/lew_raw/lew_sonde" 
+pot_sonde <- "data/EnvDat/exp/lew_raw/potomac_sonde"
+
+# Get a list of all .txt files in the directory
+files_lew <- list.files(path = lew_sonde, pattern = "\\.txt$", full.names = T)
+files_pot <- list.files(path = pot_sonde, pattern = "\\.txt$", full.names = T)
+
+# Read each file into a list of data frames
+lew_sonde_df <- lapply(files_lew, function(file) {
+  read.table(file, sep = " ")
+})
+pot_sonde_df <- lapply(files_pot, function(file) {
+  read.table(file, sep = " ")
+})
+
+# Combine all data frames in the list into a single data frame
+lew_check <- bind_rows(lew_sonde_df)
+pot_check <- bind_rows(pot_sonde_df)
+
+# colnames
+colnames(lew_check) <- c("YY", "MM", "DD", "hh", "mm", "WDIR", "WSPD", "GST", "WVHT", "DPD", "APD", "MWD", "PRES", "ATMP", "temp", "DEWP", "VIS", "TIDE")
+colnames(pot_check) <- c("YY", "MM", "DD", "hh", "mm", "DEPTH", "OTMP", "COND", "sal", "O2%", "O2PPM", "CLCON", "TURB", "PH", "EH")
+
+# just relevant data
+lew_check_red <- lew_check[,c("YY","MM","DD", "hh", "mm","temp")]
+pot_check_red <- pot_check[,c("YY","MM","DD", "hh", "mm", "sal")]
+
+# put together datetime
+lew_check_red$datetime <- paste0(lew_check_red$YY, "-", lew_check_red$MM, "-", lew_check_red$DD, " ", lew_check_red$hh, ":", lew_check_red$mm, ":00 EST")
+pot_check_red$datetime <- paste0(pot_check_red$YY, "-", pot_check_red$MM, "-", pot_check_red$DD, " ", pot_check_red$hh, ":", pot_check_red$mm, ":00 EST")
+
+lew_check_red$datetime <- as.POSIXct(lew_check_red$datetime, "%Y-%m-%d %H:%M:%S", tz = "")
+pot_check_red$datetime <- as.POSIXct(pot_check_red$datetime, "%Y-%m-%d %H:%M:%S", tz = "")
+
+# merge these datesets
+check_lewisetta <- merge(lew_check_red[,c("datetime","temp")], pot_check_red[,c("datetime","sal")], by = "datetime", all = T)
+
+# check data
+check_lewisetta$temp[check_lewisetta$temp == 999] <- NA
+check_lewisetta$sal[check_lewisetta$sal == 99] <- NA
+summary(check_lewisetta)
+
+# qc filter
+filtered_check_lewisetta <- check_lewisetta %>%
+    filter(between(sal, 0, 40)) 
+filtered_check_lewisetta <- filtered_check_lewisetta %>%
+    filter(between(temp, 0, 40))
+
+# vims data is every 15 mins vs more every hour at noaa buoys -- use daily averages to calculate the other summary stats
+filtered_check_lewisetta$date <- as.Date(filtered_check_lewisetta$datetime, tz = "EST")
+daily_check_lewisetta <- filtered_check_lewisetta %>% 
+  group_by(date) %>% 
+  mutate(mean_daily_temp = mean(temp), mean_daily_sal = mean(sal))
+
+# do the same with other lewisetta data
+lew_daily <- lew
+lew_daily$date <- as.Date(lew$datetime, tz = "EST")
+daily_lewisetta <- lew_daily %>% 
+  group_by(date) %>% 
+  mutate(mean_daily_temp = mean(temp), mean_daily_sal = mean(salinity))
+
+#filter so each day is represented once
+day_check_lewisetta <- daily_check_lewisetta[match(unique(daily_check_lewisetta$date), daily_check_lewisetta$date),]
+noaa_day_filtered <- day_check_lewisetta[day_check_lewisetta$date %in% as.Date(daily_lewisetta$datetime, tz = "EST"),]
+lola_day_filtered <- daily_lewisetta[as.Date(daily_lewisetta$datetime, tz = "EST") %in% day_check_lewisetta$date,]
+
+# put together full dataset
+colnames(noaa_day_filtered) <- c("datetime", "temp_noaa", "sal_noaa", "date", "mean_daily_temp_noaa", "mean_daily_sal_noaa")
+lew_mg <- merge(noaa_day_filtered, lola_day_filtered, by = c("datetime", "date"), all = T) 
+
+# plot to look at differences
+filter_tempplot <- ggplot(lew_mg, aes(x=datetime, y = mean_daily_temp, color = "VIMS")) +
+    geom_line()+
+    geom_line(data = lew_mg, aes(x=datetime, y = mean_daily_temp_noaa, color = "NOAA"))+
+  scale_color_manual(values=c("black", "red"))+
+  labs(x = "Time", y = "Temperature C", title = "Temperature Plot for NOAA and VIMS Data Sets") 
+filter_tempplot # basically right on top of each other
+
+filter_salplot <- ggplot(lew_mg, aes(x=datetime, y = mean_daily_sal, color = "VIMS")) +
+    geom_line()+
+    geom_line(data = lew_mg, aes(x=datetime, y = mean_daily_sal_noaa, color = "NOAA"))+
+  scale_color_manual(values=c("black", "blue"))+
+  labs(x = "Time", y = "Salinity psu", title = "Salinity Plot for NOAA and VIMS Data Sets") 
+filter_salplot # trends follow, but need a large correction
+
+# corrections
+lew_mg <- lew_mg %>% 
+  mutate(temp_diff = mean_daily_temp-mean_daily_temp_noaa, sal_diff = mean_daily_sal -mean_daily_sal_noaa)
+
+temp_correction <- mean(lew_mg$temp_diff)
+# VIMS data (from Willy Coan) is 0.09287575ºC above NOAA data, apply this correction to past NOAA data (2014-2020)
+
+sal_correction <- mean(lew_mg$sal_diff)
+# VIMS data (from Willy Coan) is -1.192284 below NOAA data, apply this correction to past NOAA data (2014-2020)
+
+# apply correction
+day_check_lewisetta$temp_corrected <- day_check_lewisetta$mean_daily_temp + 0.09287575
+day_check_lewisetta$sal_corrected <- day_check_lewisetta$mean_daily_sal - 1.192284
+
+# write it out
+lew_correct <- day_check_lewisetta
+lew_correct <- lew_correct[!(is.na(lew_correct$datetime)),]
+write.csv(lew_correct, "data/EnvDat/exp/lew_raw/lewisetta_corrected.csv", row.names = F)
+
+# summary of these data
+lew_correct_yr <- lew_correct %>%
+    dplyr::mutate(year = year(datetime)) %>%
+    dplyr::group_by(year, .drop = FALSE) %>%
+    dplyr::summarise(
+      min_salinity = min(sal_corrected),
+      max_salinity = max(sal_corrected),
+      mean_salinity = mean(sal_corrected),
+      salinity_quantile10 = quantile(sal_corrected, 0.1),
+      salinity_quantile90 = quantile(sal_corrected, 0.9),
+      min_temp = min(temp_corrected),
+      max_temp = max(temp_corrected),
+      mean_temp = mean(temp_corrected),
+      temp_quantile10 = quantile(temp_corrected, 0.1),
+      temp_quantile90 = quantile(temp_corrected, 0.9))
 ```
 
 
@@ -441,7 +618,7 @@ lew_envexp_mo <- lew_exp %>%
 # blank df spans all 12 months for all years of data collection for this site
 # merge with observations so that we can plot over time 
 complete_year_month_l <- expand.grid(
-  year = unique(firstyear_l:finalyear_l),
+  year = unique(2014:finalyear_l),
   month = 1:12
 )
 complete_year_month_y <- expand.grid(
@@ -452,7 +629,7 @@ complete_year_month_y <- expand.grid(
 # start with low salinity stress 
 # first calculate for low salinity
 yrk$low_sal_stress <- yrk$salinity < 12
-lew$low_sal_stress <- lew$salinity < 12
+lew_correct$low_sal_stress <- lew_correct$sal_corrected < 12
 
 low_sal_stress_count_y <- yrk %>%
   dplyr::mutate(year = year(datetime), 
@@ -463,7 +640,7 @@ low_sal_stress_count_y <- yrk %>%
   dplyr::group_by(year, month) %>%
   dplyr::summarise(low_sal_stress = n(), .groups = "drop") # group all occurrences together by month rather than by numeric day
 
-low_sal_stress_count_l <- lew %>%
+low_sal_stress_count_l <- lew_correct %>%
   dplyr::mutate(year = year(datetime), 
          month = month(datetime), 
          day = day(datetime)) %>% 
@@ -472,8 +649,8 @@ low_sal_stress_count_l <- lew %>%
   dplyr::group_by(year, month) %>%
   dplyr::summarise(low_sal_stress = n(), .groups = "drop") # group all occurrences together by month rather than by numeric day
 
-print(low_sal_stress_count_y) # 95 stress days
-print(low_sal_stress_count_l) # 735 stress days
+print(low_sal_stress_count_y) # 126 stress days
+print(low_sal_stress_count_l) # 1156 stress days
 ```
 
 # now calculate for high salinity stress
@@ -492,9 +669,9 @@ high_sal_stress_count <- yrk %>%
 
 print(high_sal_stress_count) # no high sal stress 
 
-lew$high_sal_stress <- lew$salinity > 35
+lew_correct$high_sal_stress <- lew_correct$sal_corrected > 35
 
-high_sal_stress_count <- lew %>%
+high_sal_stress_count <- lew_correct %>%
   dplyr::mutate(year = year(datetime), 
          month = month(datetime), 
          day = day(datetime)) %>% 
@@ -521,11 +698,9 @@ high_temp_stress_count <- yrk %>%
   dplyr::group_by(year, month) %>%
   dplyr::summarise(high_temp_stress = n(), .groups = "drop") # group all occurrences together by month rather than by numeric day
 
-print(high_temp_stress_count)
+lew_correct$high_temp_stress <- lew_correct$temp_corrected > 28
 
-lew$high_temp_stress <- lew$temp > 28
-
-high_temp_stress_count <- lew %>%
+high_temp_stress_count <- lew_correct %>%
   dplyr::mutate(year = year(datetime), 
          month = month(datetime), 
          day = day(datetime)) %>% 
@@ -533,41 +708,6 @@ high_temp_stress_count <- lew %>%
   dplyr::distinct(year, month, day) %>%  # remove dups
   dplyr::group_by(year, month) %>%
   dplyr::summarise(high_temp_stress = n(), .groups = "drop") # group all occurrences together by month rather than by numeric day
-
-print(high_temp_stress_count)
-
-ggplot(high_temp_stress_count, aes(x = factor(month), y = high_temp_stress, fill = factor(month))) +
-  geom_bar(stat = "identity", fill = "#DD4124FF") +
-  facet_wrap(~ year) +
-  labs(title = "YRK: count of high temperature (> 28 C) days per month",
-       x = "month",
-       y = "count of days") +
-  theme_minimal()
-
-high_temp_complete_data <- complete_year_month %>%
-  left_join(high_temp_stress_count, by = c("year", "month")) %>%
-  mutate(high_temp_stress = ifelse(is.na(high_temp_stress), 0, high_temp_stress))
-
-high_temp_complete_data$month <- as.numeric(high_temp_complete_data$month)
-
-# bars
-ggplot(high_temp_complete_data, aes(x = factor(month), y = high_temp_stress)) +
-  geom_bar(stat = "identity", fill = "#DD4124FF") + 
-  facet_wrap(~ year) +
-  labs(title = "YRK: count of high temperature (> 28 C) days per month",
-       x = "month",
-       y = "count of days") +
-  theme_minimal()
-
-# points
-ggplot(high_temp_complete_data, aes(x = factor(month), y = high_temp_stress)) +
-  geom_point(color = "#DD4124FF", size = 2) + 
-  facet_wrap(~ year) +  
-  labs(title = "YRK: count of high temperature (> 28 C) days per month",
-       x = "month",
-       y = "count of days") +
-  theme_minimal()
-
 ```
 
 ## Putting it all together
@@ -610,7 +750,7 @@ high_temp_stress_days <- sum(high_temp_stress_count$high_temp_stress)
 frac_high_temp_stress_days <- high_temp_stress_days/nrow(yrk_env_day)
 
 # Create a data frame to store the temperature results
-yrk_temp <- cbind(data.frame(dataset = "sea", site_name = "S2_DEBY"), download_date, source_description, lat, lon, firstyear, finalyear, Mean_Annual_Temperature_C, Mean_max_temperature_C, Mean_min_temperature_C, temp_quantile_10, temp_quantile_90, Temperature_st_dev, high_temp_stress_days, frac_high_temp_stress_days, Temperature_n, Temperature_years)
+yrk_temp <- cbind(data.frame(dataset = "sea", site_name = "S2_DEBY"), download_date, source_description, lat, lon, 2003, 2025, Mean_Annual_Temperature_C, Mean_max_temperature_C, Mean_min_temperature_C, temp_quantile_10, temp_quantile_90, Temperature_st_dev, high_temp_stress_days, frac_high_temp_stress_days, Temperature_n, Temperature_years)
 print(yrk_temp)
 
 # Write to a unique new CSV file
@@ -631,7 +771,7 @@ high_temp_stress_days <- sum(high_temp_stress_count$high_temp_stress)
 frac_high_temp_stress_days <- high_temp_stress_days/nrow(yrk_env_day)
 
 # Create a data frame to store the temperature results
-yrk_exp_temp <- cbind(data.frame(dataset = "exp", site_name = "YRK"), download_date, source_description, lat, lon, firstyear, finalyear, Mean_Annual_Temperature_C, Mean_max_temperature_C, Mean_min_temperature_C, temp_quantile_10, temp_quantile_90, Temperature_st_dev, high_temp_stress_days, frac_high_temp_stress_days, Temperature_n, Temperature_years)
+yrk_exp_temp <- cbind(data.frame(dataset = "exp", site_name = "YRK"), download_date, source_description, lat, lon, 2022, 2025, Mean_Annual_Temperature_C, Mean_max_temperature_C, Mean_min_temperature_C, temp_quantile_10, temp_quantile_90, Temperature_st_dev, high_temp_stress_days, frac_high_temp_stress_days, Temperature_n, Temperature_years)
 print(yrk_exp_temp)
 
 # Write to a unique new CSV file
@@ -650,13 +790,9 @@ salinity_quantile_90 <- quantile(yrk$salinity, 0.9)
 Salinity_st_dev <- sd(yrk$salinity)
 Salinity_n <- nrow(yrk)
 Salinity_years <- nrow(yrk_env_yr)
-high_sal_stress_days <- sum(high_sal_stress_count$high_sal_stress)
-low_sal_stress_days <- sum(low_sal_stress_count$low_sal_stress)
-frac_high_sal_stress_days <- high_sal_stress_days/nrow(yrk_env_day)
-frac_low_sal_stress_days <- low_sal_stress_days/nrow(yrk_env_day)
 
 #Create a data frame to store the temperature results
-yrk_salinity <- cbind(data.frame(dataset = "sea", site_name = "S2_DEBY"), download_date, source_description, lat, lon, firstyear, finalyear, Mean_Annual_Salinity_ppt, Mean_max_Salinity_ppt, Mean_min_Salinity_ppt, salinity_quantile_10, salinity_quantile_90, high_sal_stress_days,low_sal_stress_days, frac_high_sal_stress_days, frac_low_sal_stress_days, Salinity_st_dev, Salinity_n, Salinity_years)
+yrk_salinity <- cbind(data.frame(dataset = "sea", site_name = "S2_DEBY"), download_date, source_description, lat, lon, 2003, 2025, Mean_Annual_Salinity_ppt, Mean_max_Salinity_ppt, Mean_min_Salinity_ppt, salinity_quantile_10, salinity_quantile_90, Salinity_st_dev, Salinity_n, Salinity_years)
 print(yrk_salinity)
 
 # Write all year data to a unique new CSV file
@@ -673,13 +809,9 @@ salinity_quantile_90 <- quantile(yrk_exp$salinity, 0.9)
 Salinity_st_dev <- sd(yrk_exp$salinity)
 Salinity_n <- nrow(yrk_exp)
 Salinity_years <- nrow(yrk_envexp_yr)
-high_sal_stress_days <- sum(high_sal_stress_count$high_sal_stress)
-low_sal_stress_days <- sum(low_sal_stress_count$low_sal_stress)
-frac_high_sal_stress_days <- high_sal_stress_days/nrow(yrk_envexp_day)
-frac_low_sal_stress_days <- low_sal_stress_days/nrow(yrk_envexp_day)
 
 #Create a data frame to store the temperature results
-yrkexp_salinity <- cbind(data.frame(dataset = "exp", site_name = "YRK"), download_date, source_description, lat, lon, firstyear, finalyear, Mean_Annual_Salinity_ppt, Mean_max_Salinity_ppt, Mean_min_Salinity_ppt, salinity_quantile_10, salinity_quantile_90,  high_sal_stress_days,low_sal_stress_days, frac_high_sal_stress_days, frac_low_sal_stress_days, Salinity_st_dev, Salinity_n, Salinity_years)
+yrkexp_salinity <- cbind(data.frame(dataset = "exp", site_name = "YRK"), download_date, source_description, lat, lon, 2022, 2025, Mean_Annual_Salinity_ppt, Mean_max_Salinity_ppt, Mean_min_Salinity_ppt, salinity_quantile_10, salinity_quantile_90, Salinity_st_dev, Salinity_n, Salinity_years)
 print(yrkexp_salinity)
 
 # Write all year data to a unique new CSV file
@@ -692,19 +824,17 @@ Start with the temperature variables
 
 ```{r}
 #Calculate temperature variables. 
-Mean_Annual_Temperature_C <- mean(lew$temp)
-Mean_max_temperature_C <- mean(lew_env_yr$max_temp)
-Mean_min_temperature_C <- mean(lew_env_yr$min_temp)
-temp_quantile_10 <- quantile(lew$temp, 0.1)
-temp_quantile_90 <- quantile(lew$temp, 0.9)
-Temperature_st_dev <- sd(lew$temp)
-Temperature_n <- nrow(lew)
-Temperature_years <- nrow(lew_env_yr)
-high_temp_stress_days <- sum(high_temp_stress_count$high_temp_stress)
-frac_high_temp_stress_days <- high_temp_stress_days/nrow(lew_env_day)
+Mean_Annual_Temperature_C <- mean(lew_correct$temp_corrected)
+Mean_max_temperature_C <- mean(lew_correct_yr$max_temp)
+Mean_min_temperature_C <- mean(lew_correct_yr$min_temp)
+temp_quantile_10 <- quantile(lew_correct$temp_corrected, 0.1)
+temp_quantile_90 <- quantile(lew_correct$temp_corrected, 0.9)
+Temperature_st_dev <- sd(lew_correct$temp_corrected)
+Temperature_n <- nrow(lew_correct)
+Temperature_years <- nrow(lew_correct_yr)
 
 # Create a data frame to store the temperature results
-lew_temp <- cbind(data.frame(dataset = "sea", site_name = "S1_LOLA"), download_date, source_description, lat, lon, firstyear, finalyear, Mean_Annual_Temperature_C, Mean_max_temperature_C, Mean_min_temperature_C, temp_quantile_10, temp_quantile_90, Temperature_st_dev, high_temp_stress_days, frac_high_temp_stress_days, Temperature_n, Temperature_years)
+lew_temp <- cbind(data.frame(dataset = "sea", site_name = "S1_LOLA"), download_date, source_description, lat, lon, 2014, 2024, Mean_Annual_Temperature_C, Mean_max_temperature_C, Mean_min_temperature_C, temp_quantile_10, temp_quantile_90, Temperature_st_dev, Temperature_n, Temperature_years)
 print(lew_temp)
 
 # Write to a unique new CSV file
@@ -725,7 +855,7 @@ high_temp_stress_days <- sum(high_temp_stress_count$high_temp_stress)
 frac_high_temp_stress_days <- high_temp_stress_days/nrow(lew_envexp_day)
 
 # Create a data frame to store the temperature results
-lew_exp_temp <- cbind(data.frame(dataset = "exp", site_name = "LEW"), download_date, source_description, lat, lon, firstyear, finalyear, Mean_Annual_Temperature_C, Mean_max_temperature_C, Mean_min_temperature_C, temp_quantile_10, temp_quantile_90, Temperature_st_dev, high_temp_stress_days, frac_high_temp_stress_days, Temperature_n, Temperature_years)
+lew_exp_temp <- cbind(data.frame(dataset = "exp", site_name = "LEW"), download_date, source_description, lat, lon, 2022, 2025, Mean_Annual_Temperature_C, Mean_max_temperature_C, Mean_min_temperature_C, temp_quantile_10, temp_quantile_90, Temperature_st_dev, high_temp_stress_days, frac_high_temp_stress_days, Temperature_n, Temperature_years)
 print(lew_exp_temp)
 
 # Write to a unique new CSV file
@@ -736,21 +866,17 @@ Now the salinity variables
 
 ```{r}
 #Calculate the salinity variables
-Mean_Annual_Salinity_ppt <- mean(lew$salinity)
-Mean_max_Salinity_ppt <- mean(lew_env_yr$max_salinity)
-Mean_min_Salinity_ppt <- mean(lew_env_yr$min_salinity)
-salinity_quantile_10 <- quantile(lew$salinity, 0.1)
-salinity_quantile_90 <- quantile(lew$salinity, 0.9)
-Salinity_st_dev <- sd(lew$salinity)
-Salinity_n <- nrow(lew)
-Salinity_years <- nrow(lew_env_yr)
-high_sal_stress_days <- sum(high_sal_stress_count$high_sal_stress)
-low_sal_stress_days <- sum(low_sal_stress_count$low_sal_stress)
-frac_high_sal_stress_days <- high_sal_stress_days/nrow(lew_env_day)
-frac_low_sal_stress_days <- low_sal_stress_days/nrow(lew_env_day)
+Mean_Annual_Salinity_ppt <- mean(lew_correct$salinity)
+Mean_max_Salinity_ppt <- mean(lew_correct_yr$max_salinity)
+Mean_min_Salinity_ppt <- mean(lew_correct_yr$min_salinity)
+salinity_quantile_10 <- quantile(lew_correct$salinity, 0.1)
+salinity_quantile_90 <- quantile(lew_correct$salinity, 0.9)
+Salinity_st_dev <- sd(lew_correct$salinity)
+Salinity_n <- nrow(lew_correct)
+Salinity_years <- nrow(lew_correct_yr)
 
 #Create a data frame to store the temperature results
-lew_salinity <- cbind(data.frame(dataset = "sea", site_name = "S1_LOLA"), download_date, source_description, lat, lon, firstyear, finalyear, Mean_Annual_Salinity_ppt, Mean_max_Salinity_ppt, Mean_min_Salinity_ppt, salinity_quantile_10, salinity_quantile_90, high_sal_stress_days,low_sal_stress_days, frac_high_sal_stress_days, frac_low_sal_stress_days, Salinity_st_dev, Salinity_n, Salinity_years)
+lew_salinity <- cbind(data.frame(dataset = "sea", site_name = "S1_LOLA"), download_date, source_description, lat, lon, 2014, 2024, Mean_Annual_Salinity_ppt, Mean_max_Salinity_ppt, Mean_min_Salinity_ppt, salinity_quantile_10, salinity_quantile_90, Salinity_st_dev, Salinity_n, Salinity_years)
 print(lew_salinity)
 
 # Write all year data to a unique new CSV file
@@ -767,13 +893,9 @@ salinity_quantile_90 <- quantile(lew_exp$salinity, 0.9)
 Salinity_st_dev <- sd(lew_exp$salinity)
 Salinity_n <- nrow(lew_exp)
 Salinity_years <- nrow(lew_envexp_yr)
-high_sal_stress_days <- sum(high_sal_stress_count$high_sal_stress)
-low_sal_stress_days <- sum(low_sal_stress_count$low_sal_stress)
-frac_high_sal_stress_days <- high_sal_stress_days/nrow(lew_envexp_day)
-frac_low_sal_stress_days <- low_sal_stress_days/nrow(lew_envexp_day)
 
 #Create a data frame to store the temperature results
-lewexp_salinity <- cbind(data.frame(dataset = "exp", site_name = "LEW"), download_date, source_description, lat, lon, firstyear, finalyear, Mean_Annual_Salinity_ppt, Mean_max_Salinity_ppt, Mean_min_Salinity_ppt, salinity_quantile_10, salinity_quantile_90, high_sal_stress_days,low_sal_stress_days, frac_high_sal_stress_days, frac_low_sal_stress_days, Salinity_st_dev, Salinity_n, Salinity_years)
+lewexp_salinity <- cbind(data.frame(dataset = "exp", site_name = "LEW"), download_date, source_description, lat, lon, 2022, 2025, Mean_Annual_Salinity_ppt, Mean_max_Salinity_ppt, Mean_min_Salinity_ppt, salinity_quantile_10, salinity_quantile_90, Salinity_st_dev, Salinity_n, Salinity_years)
 print(lewexp_salinity)
 
 # Write all year data to a unique new CSV file
