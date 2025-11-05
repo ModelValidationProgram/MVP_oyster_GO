@@ -1,2 +1,2 @@
-"","dataset","site_name","download_date","source_description","lat","lon","2003","2025","Mean_Annual_Salinity_ppt","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","salinity_quantile_10","salinity_quantile_90","Salinity_st_dev","Salinity_n","Salinity_years"
+"","dataset","site_name","download_date","source_description","lat","lon","firstyear","finalyear","Mean_Annual_Salinity_ppt","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","salinity_quantile_10","salinity_quantile_90","Salinity_st_dev","Salinity_n","Salinity_years"
 "10%","sea","S2_DEBY",2025-10-14,"KCB hatchery in Coan River as part of CBNERR water quality monitoring, comes from Willy Reay",37.9803,-76.4619,2003,2025,19.32016791863,24.2991304347826,12.8417391304348,15.75,22.34,2.54885302714355,713679,23
