@@ -27,6 +27,15 @@ library(ggplot2) # for plotting
 library(vegan) # for env dat processing
 library(dplyr) # for data wrangling
 library(stringr) # for data wrangling
+library(s2) # mapping
+library(rnaturalearth) # mapping
+library(rnaturalearthdata) # mapping
+library(maps) # mapping
+library(ggspatial) # mapping
+library(ggrepel) # mapping
+library(terra) # interpolation
+library(stars) # interpolation
+library(gstat) # interpolation
 
 # data
 # env
@@ -34,6 +43,7 @@ env_all <- read.csv("data/EnvDat/env_scaled_2025-10-30.csv")
 env_rast <- readRDS("data/EnvDat/seascape/raster_interpolated_scaled_env.RDS")
 env_sea <- read.env("data/EnvDat/seascape/seascape_scaled_expanded_reord_2025-10-30.env")
 env_exp <- read.env("data/EnvDat/exp/exp_scaled_2025-10-30.env")
+sea_red <- read.csv("data/EnvDat/seascape/sea_scaled_2025-11-04.csv")[,-1]
 
 # sites
 sea_site_full <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-10-30.csv")[,-1]
@@ -91,12 +101,6 @@ mod_lfmmthin <- lfmm2(input = genoThinLfmm,
                       K = 2,
                       effect.sizes = T)
 
-# no pea crab
-mod_lfmmthin_np <- lfmm2(input = genoThinLfmm,
-                      env = subset(env_sea, select = -c(Pea_crab_scaled)),
-                      K = 2,
-                      effect.sizes = T)
-
 # perform test
 pv_lfmm <- lfmm2.test(object = mod_lfmm,
                       input = genoLfmm,
@@ -106,21 +110,15 @@ pv_lfmmthin <- lfmm2.test(object = mod_lfmmthin,
                       input = genoThinLfmm,
                       env = env_sea, 
                       full = TRUE)
-pv_lfmmthin_np <- lfmm2.test(object = mod_lfmmthin_np,
-                      input = genoThinLfmm,
-                      env = subset(env_sea, select = -c(Pea_crab_scaled)), 
-                      full = TRUE)
 
 # pvalues
 pv <- pv_lfmm$pvalues
 pvthin <- pv_lfmmthin$pvalues
-pvthinnp <- pv_lfmmthin_np$pvalues
 
 # qvalues
 library(qvalue)
 qv <- qvalue(pv, fdr.level = 0.01)
 qvthin <- qvalue(pvthin, fdr.level = 0.01)
-qvthinnp <- qvalue(pvthinnp, fdr.level = 0.01)
 
 # candidates
 candidates <- which(qv$significant)
@@ -129,26 +127,19 @@ candidates_pvals <- (pv)[candidates]
 candidatesthin <- which(qvthin$significant)
 candidates_pvalsthin <- (pvthin)[candidatesthin]
 
-candidatesthin_np <- which(qvthinnp$significant)
-candidates_pvalsthin_np <- (pvthinnp)[candidatesthin_np]
-
 # using FDR to filter out false positives
 length(which(qv$qvalues < 0.001)) # 12455
 length(which(qvthin$qvalues < 0.001)) # 5430
-length(which(qvthinnp$qvalues <0.001)) # 4879
 
 # identify which SNPs have FDR less than 1%
 fdr_cands <- colnames(genoLfmm)[which(qv$qvalues < 0.001)]
 fdr_candsthin <- colnames(genoThinLfmm)[which(qvthin$qvalues < 0.001)]
-fdr_candsthin_np <- colnames(genoThinLfmm)[which(qvthinnp$qvalues < 0.001)]
 
 # df for candidates
 cand_df <- data.frame(index = colnames(genoLfmm), pos = 1:length(pv),
                       pvals = pv, qvals = qv$qvalues)
 cand_df_thin <- data.frame(index = colnames(genoThinLfmm), pos = 1:length(pvthin),
                       pvals = pvthin, qvals= qvthin$qvalues)
-cand_df_thin_np <- data.frame(index = colnames(genoThinLfmm), pos = 1:length(pvthinnp),
-                              pvals = pvthinnp, qvals= qvthinnp$qvalues)
 
 # manhattan plot - unnecessary but just a quick visualization
 plot(cand_df$pos, -log10(cand_df$pvals), 
@@ -170,16 +161,6 @@ points(cand_df_thin$pos[cand_df_thin$qvals < 0.001],
        -log10(cand_df_thin$pvals[cand_df_thin$qvals < 0.001]),
        pch = 19,
        col = "hotpink")
-
-plot(cand_df_thin_np$pos, -log10(cand_df_thin_np$pvals), 
-     pch = 19, col = "darkslategray4",
-     main = "Candidate SNPs (Thinned)",
-     xlab = "Position",
-     ylab = "-log10(Pvals)")
-points(cand_df_thin_np$pos[cand_df_thin_np$qvals < 0.001], 
-       -log10(cand_df_thin_np$pvals[cand_df_thin_np$qvals < 0.001]),
-       pch = 19,
-       col = "hotpink")
 ```
 
 
@@ -192,7 +173,6 @@ colnames(env_exp)
 colnames(env_exp) <- c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")
 
 # also want predictions for entire seascape df, so put together this data
-sea_red <- read.csv("data/EnvDat/seascape/sea_scaled_2025-11-04.csv")[,-1]
 exp_sites_data <- do.call("rbind", replicate(nrow(sea_red), unique(env_exp[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")]), simplify = FALSE))
 rownames(exp_sites_data) <- NULL
 env_sea_forgo <- cbind(sea_red, exp_sites_data)
@@ -232,20 +212,6 @@ gg_yrkthin = NULL
 for (i in 1:nrow(env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
 gg_yrkthin[i] = mean(((env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_exp[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")])[i,]  %*% t(Bthin))^2, na.rm = TRUE)
 }
-
-gg_lewthin_np = NULL
-for (i in 1:nrow(env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled")])){
-gg_lewthin_np[i] = mean(((env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled")] - env_exp[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled")])[i,]  %*% t(Bthinnp))^2, na.rm = TRUE)
-}
-
-gg_yrkthin_np = NULL
-for (i in 1:nrow(env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled")])){
-gg_yrkthin_np[i] = mean(((env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled")] - env_exp[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled")])[i,]  %*% t(Bthinnp))^2, na.rm = TRUE)
-}
-
-# cor between predictions w/wo pea crabs - highly correlated, so leave it for now?
-cor(gg_yrkthin_np, gg_yrkthin)
-cor(gg_lewthin_np, gg_lewthin)
 
 # associate predictions with site metadata
 gap_df <- env_all[env_all$site_name %in% rownames(env_exp), c("site_name", "Latitude_manual", "Longitude_manual")]
@@ -305,13 +271,6 @@ offsets_plotting_lea <- merge(gap_df, popsdf, by = c("site_name"), all = T)
 
 # save popdf object
 write.csv(popsdf, "data/IndDat/popsdf.csv")
-
-# try mapping the offsets
-library(s2) # mapping
-library(rnaturalearth) # mapping
-library(rnaturalearthdata) # mapping
-library(maps) # mapping
-library(ggspatial) # mapping
 
 # map
 sf::sf_use_s2(FALSE) # sf package doesn't work
@@ -384,11 +343,6 @@ plot(x = offsets_plotting_lea$lew_gothin, y = offsets_plotting_lea$yrk_gothin)
 I would also like to visualize an interpolated GO landscape, for which I will use an inverse distance weighting algorithm
 
 ```{r}
-library(sf)
-library(terra)
-library(stars)
-library(gstat)
-
 sea_sf <- st_as_sf(gap_full_df, 
                    coords = c("Longitude_manual","Latitude_manual"),
                    crs = 4326) # for WGS84 projection
