@@ -174,13 +174,6 @@ end_time <- Sys.time() # time end
 # crashes on personal laptop, run on cluster
 start_time <- Sys.time() # time start
 gf_geno <- gradientForest(cbind(env_sea[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")], genoThinMat), predictor.vars = c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled"), response.vars=colnames(genoThinMat), ntree=500, maxLevel=maxLevel, trace=T, corr.threshold=0.50)
-## In randomForest.default(x = X, y = spec_vec, maxLevel = maxLevel,  :
-#  The response has five or fewer unique values.  Are you sure you want to do regression?
-#.Error in randomForest.default(x = X, y = spec_vec, maxLevel = maxLevel,  : 
-#  NA not permitted in predictors
-#In addition: Warning message:
-#In randomForest.default(x = X, y = spec_vec, maxLevel = maxLevel,  :
-#  The response has five or fewer unique values.  Are you sure you want to do regression?
 end_time <- Sys.time() # time end
 (end_time - start_time) # about 2hrs on cluster
 

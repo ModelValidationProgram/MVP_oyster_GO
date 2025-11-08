@@ -1,7 +1,7 @@
 # script to train models on cluster
 
 # setup
-setwd("~/MVP_oyster_GO")
+setwd("/projects/lotterhos/MVP_oyster_GO")
 
 # packages
 #install.packages("gradientForest")
@@ -9,9 +9,9 @@ library(gradientForest) # for running gradient forest
 
 # data
 # env
-env_all <- as.data.frame(read.csv("data/EnvDat/env_scaled_2025-08-13.csv")[,-1])
-env_sea <- as.data.frame(read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-08-14.csv")[,-1])
-env_exp <- as.data.frame(read.csv("data/EnvDat/exp/exp_scaled_expanded_2025-08-14.csv")[,-1])
+env_all <- as.data.frame(read.csv("data/EnvDat/env_scaled_2025-10-30.csv")[,-1])
+env_sea <- as.data.frame(read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-10-30.csv")[,-1])
+env_exp <- as.data.frame(read.csv("data/EnvDat/exp/exp_scaled_expanded_2025-10-30.csv")[,-1])
 
 # sites
 env_sea_site <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")[,-1]
@@ -20,7 +20,7 @@ env_exp_site <- read.csv("data/EnvDat/exp_sitenames.csv")[,-1]
 exp_site_latlon <- read.csv("data/EnvDat/exp/exp_site_info.csv")[,-1]
 
 # gen
-genoMat <- readRDS("data/GenDat/genoMatFull.RDS")
+#genoMat <- readRDS("data/GenDat/genoMatFull.RDS")
 genoThinMat <- readRDS("data/GenDat/genoMatThin.RDS")
 
 # individuals
@@ -49,7 +49,7 @@ genoThinMatT <- as.matrix(t(genoThinMat))
 sum((genoThinMatT == 9)) # 0 - good
 
 # add pop data to genomic data
-colnames(genoMatT) <- colnames(genoThinMatT) <- pops_list_full
+colnames(genoThinMatT) <- pops_list_full
 
 # function to calculate allele frequency @ single locus
 calc_freq <- function(x){
@@ -73,24 +73,17 @@ colnames(freqs_thin) <- make.names(as.character(1:ncol(genoThinMat)))
 # do the same for the full geno matrix, just in case
 colnames(genoThinMat) <- make.names(as.character(1:ncol(genoThinMat)))
 
-# we also need one just per site
-env_sea_pop <- env_sea[!duplicated(env_sea$ID_SiteDate),]
-
-# now experimental data
-# no need to order this by any geno data
-# should get pop level info 
-env_exp_pop <- env_exp[!duplicated(env_exp$site_name),]
-
 # reduced variable set
-env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")]
-env_sea_pop_red <- env_sea_pop[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")]
-env_exp_pop_red <- env_exp_pop[,c("site_name","salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")]
-env_exp_lew_red <- env_exp_pop[,c("site_name", "lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")]
-env_exp_yrk_red <- env_exp_pop[,c("site_name", "yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")]
+env_sea_pop <- env_sea[!duplicated(env_sea$ID_SiteDate),]
+env_exp_pop <- env_exp[!duplicated(env_exp$site_name),]
+env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")]
+env_sea_pop_red <- env_sea_pop[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")]
+env_exp_pop_red <- env_exp_pop[,c("site_name","salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")]
+env_exp_lew_red <- env_exp_pop[,c("site_name", "lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_Crab_scaled")]
+env_exp_yrk_red <- env_exp_pop[,c("site_name", "yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_Crab_scaled")]
 
 # change exp colnames to match up
 colnames(env_exp_lew_red) <- colnames(env_exp_yrk_red) <- colnames(env_exp_pop_red)
-
 # start by defining a maximum number of splits
 maxLevel <- log2(0.368*nrow(env_sea_pop_red)/2)
 
@@ -107,7 +100,6 @@ gf_af <- gradientForest(cbind(env_sea_pop_red, freqs_thin),
 end_time <- Sys.time() # time end
 (end_time - start_time) # about 1.5hrs
 
-## COME BACK TO THIS ON CLUSTER, DOESN'T RUN ON PERSONAL COMPUTER
 # geno models
 # crashes on personal laptop, run on cluster
 start_time <- Sys.time() # time start

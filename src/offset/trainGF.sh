@@ -1,17 +1,17 @@
 #!/bin/bash
-#SBATCH --job-name=TrainGF091725
+#SBATCH --job-name=TrainGF110425
 #SBATCH --mail-user=rumberger.c@northeastern.edu
 #SBATCH --mail-type=FAIL
 #SBATCH --partition=lotterhos
-#SBATCH --mem=20G
+#SBATCH --mem=40G
 #SBATCH --nodes=1
-#SBATCH --array=2-952%70
-#SBATCH --output=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20250917/TrainGF20250917_%j.out
-#SBATCH --error=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20250917/TrainGF20250917_%j.err
+#SBATCH --array=2-2%2
+#SBATCH --output=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20251104/TrainGF20251104_%j.out
+#SBATCH --error=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20251104/TrainGF20251104_%j.err
 
-#apptainer run containers.rc.northeastern.edu/lotterhos/slim_sims_clonal
+apptainer run -B "/projects:/projects,/scratch:/scratch" slims_test.sif Rscript src/offset/trainGF.R
 
-source ~/anaconda3/bin/activate R_env_clones
+#source ~/anaconda3/bin/activate R_env_clones
 
 # setting up error protocols
 set -e
