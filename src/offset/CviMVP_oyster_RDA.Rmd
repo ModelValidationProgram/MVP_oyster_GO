@@ -36,6 +36,9 @@ library(stringr) # for data wrangling
 library(ggplot2) # for data vis
 library(viridis) # for data vis
 library(rdadapt) # for rda
+library(foreach) # for rdadapt functions
+library(qvalue) # for rdadapt functions
+library(robust) # for rdadapt functions
 
 # data
 # env
@@ -99,7 +102,497 @@ rownames(genoMat) <- rownames(genoThinMat) <- inds_genomat
 
 ## Outlier Detection
 
-While I do not intend to use an outlier dataset to calculate adaptive index/offset, I will still go through the process of outlier detection with RDA. This process is also part of training the RDA model for offsets later.
+While I do not intend to use an outlier dataset to calculate adaptive index/offset, I will still go through the process of outlier detection with RDA. This process is also part of training the RDA model for offsets later. First, though, there are a few functions I need from rdadapt, but the package seems to be broken currently as it is still in development.
+
+```{r}
+## rdadapt isn't installing correctly, this is the function i need directly from the git repo
+
+##' 
+##' @export
+##' 
+
+## Class not exported by vegan, so initialized here
+setClass("rda", slots = c("colsum", "tot.chi", "Ybar"
+                          , "method", "call"
+                          , "pCCA", "CCA", "CA", "inertia"
+                          , "regularization", "terms", "terminfo"))
+
+##########################################################################################
+setGeneric("rdadapt", def = function(RDA, K, scores) { standardGeneric( "rdadapt") })
+
+##'
+##' @rdname rdadapt
+##' @export
+##'
+
+setMethod('rdadapt', signature(RDA = "rda"), function(RDA, K)
+{
+  ## CHECKS -------------------------------------------------------------------
+  if (!inherits(RDA, "rda")) { stop("\n RDA must be a 'rda' object") }
+  if (!("CCA" %in% names(RDA)) || !("v" %in% names(RDA$CCA))) {
+    stop("\n RDA$CCA$v seems not to exist")
+  }
+  if (K > ncol(RDA$CCA$v)) {
+    K = ncol(RDA$CCA$v)
+    warning("\n Not enough RDA axis available, K is set to ncol(RDA$CCA$v)")
+  }
+  
+  ## FUNCTION -----------------------------------------------------------------
+  scores <- RDA$CCA$v[, 1:as.numeric(K)]
+  return(rdadapt(scores = scores))
+})
+
+##'
+##' @rdname rdadapt
+##' @export
+##'
+
+setMethod('rdadapt', signature(scores = "data.frame", RDA = "missing", K = "missing"), function(scores)
+{
+  scores <- as.matrix(scores)
+  return(rdadapt(scores = scores))
+})
+
+##'
+##' @rdname rdadapt
+##' @export
+##'
+
+setMethod('rdadapt', signature(scores = "matrix", RDA = "missing", K = "missing"), function(scores)
+{
+  K <- ncol(scores)
+  resscale <- apply(scores, 2, scale)
+  resmaha <- covRob(resscale, distance = TRUE, na.action = na.omit, estim = "pairwiseGK")$dist
+  lambda <- median(resmaha) / qchisq(0.5, df = K)
+  reschi2test <- pchisq(resmaha / lambda, K, lower.tail = FALSE)
+  qval <- qvalue(reschi2test)
+  q.values_rdadapt <- qval$qvalues
+  return(data.frame(p.values = reschi2test, q.values = q.values_rdadapt))
+})
+
+library(qvalue)
+library(robust)
+##########################################################################################
+
+###################################################################################################
+##' @name adaptive_index
+##' @author Thibaut Capblancq
+##' 
+##' @title Project adaptive variation across space onto current or future landscapes
+##' 
+##' @description The \code{adaptive_index} function allows the user to estimate the optimal 
+##' adaptive genetic component for any combination of environmental conditions, and project it 
+##' onto the landscape.
+##' 
+##' @param RDA a \code{RDA} model from which to extract loci and environmental variable scores
+##' @param K an \code{integer} specifying the number of RDA axes to use for the projection
+##' @param env a \code{RasterStack} object or a \code{data.frame} with the environmental 
+##' conditions of the sites to predict
+##' @param env_mask (\emph{optional, default} \code{NULL}) \cr a \code{Raster} object to 
+##' limit the projection to a specific area
+##' @param method  (\emph{default} \code{'loadings'}) \cr a \code{character} defining whether 
+##' the function is to use weighted averages (scaling type 1, \code{loadings}) or linear 
+##' combinations (scaling type 2, \code{predict}) of the projected environmental variables 
+##' to predict site scores (i.e., adaptive index)
+##' 
+##' @return  
+##' 
+##' A \code{RasterStack} object or a \code{data.frame} containing the projections for the 
+##' \code{K} first RDA axes
+##' 
+##' @details
+##' 
+##' The \emph{adaptive index} provides an estimate of adaptive genetic similarity or difference 
+##' of all pixels on the landscape as a function of the values of the environmental predictors 
+##' at that location. 
+##' When projected on a map, it allows visualizing the different adaptive gradients across a 
+##' species range.
+##' 
+##' 
+##' @keywords RDA, adaptive index, genetic similarity, genetic difference, projection
+## 
+## @seealso 
+## 
+## @examples
+##' 
+##' 
+##' @importFrom foreach foreach %do%
+##' @importFrom terra crs rast as.data.frame mask
+##' @include rda_class.R
+##' 
+##' @export
+##' 
+##'
+###################################################################################################
+
+setGeneric("adaptive_index", def = function(RDA, K, env, env_mask = NULL, method = "loadings") { standardGeneric("adaptive_index") })
+
+##'
+##' @rdname adaptive_index
+##' @export
+##'
+
+setMethod('adaptive_index', signature(RDA = "rda", env = "SpatRaster"), function(RDA, K, env, env_mask = NULL, method = "loadings")
+{
+  ## CHECKS -------------------------------------------------------------------
+  if (!inherits(RDA, "rda")) { stop("\n RDA must be a 'rda' object") }
+  if (!("CCA" %in% names(RDA)) || !("biplot" %in% names(RDA$CCA))) {
+    stop("\n RDA$CCA$biplot seems not to exist")
+  }
+  if (K > ncol(RDA$CCA$biplot)) {
+    K <- ncol(RDA$CCA$biplot)
+    warning("\n Not enough RDA axis available, K is set to ncol(RDA$CCA$biplot)")
+  }
+  if (!inherits(env, c("SpatRaster", "RasterLayer", "RasterStack"))) {
+    stop("\n env must be a 'SpatRaster', 'RasterLayer' or 'RasterStack' object")
+  } else if (inherits(env, c("RasterLayer", "RasterStack"))) {
+    env <- rast(env)
+  }
+  if (nlyr(env) != nrow(RDA$CCA$biplot) || any(! names(env) %in% rownames(RDA$CCA$biplot))) {
+    stop("\n env must contain same variables as the ones used in RDA (see rownames(RDA$CCA$biplot))")
+  }
+  if (!is.null(env_mask)) {
+    if (!inherits(env_mask, c("SpatRaster", "RasterLayer"))) {
+      stop("\n env_mask must be a 'SpatRaster' or 'RasterLayer' object")
+    } else if (inherits(env_mask, "RasterLayer")) {
+      env_mask <- rast(env_mask)
+    }
+    if (nlyr(env_mask) > 1) {
+      stop("\n env_mask must contain only one layer")
+    }
+  }
+  if (!(method %in% c("loadings", "predict"))) {
+    stop("\n method must be 'loadings' or 'predict'")
+  }
+  
+  
+  ## FUNCTION -----------------------------------------------------------------
+  
+  ## Get RDA information -----------------------------------------------------
+  RDA_biplot <- RDA$CCA$biplot
+  var_names <- rownames(RDA_biplot)
+  
+  ## Transform environmental raster for prediction
+  if (!is.null(env_mask)) { ## Mask with env_mask
+    env <- try(mask(env, env_mask))
+    if (inherits(env, "try-error")) {
+      stop("\n env and env_mask must match in terms of extent, origin, crs")
+    }
+  }
+  env_crs <- crs(env)
+  env_df <- as.data.frame(env[[var_names]], xy = TRUE)
+  if (any(is.na(env_df))) {
+    env_df <- na.exclude(env_df)
+    warning("\n env contained NA values which have been removed")
+  }
+  env_xy <- env_df[, c("x", "y")]
+  env_var <- env_df[, var_names]
+  
+  
+  ## Make predictions ---------------------------------------------------------
+  if (method == "predict") {
+    pred <- predict(RDA, env_var, type = "lc")
+  }
+  Proj <- foreach(i = 1:K) %do%
+    {
+      if (method == "loadings") { ## Predict pixels genetic component based on RDA axes
+        tmp_df <- data.frame(env_xy, z = as.vector(apply(env_var, 1, function(x) sum(x * RDA_biplot[, i]))))
+      } else if (method == "predict") { ## Predict with RDA model and linear combinations
+        tmp_df <- data.frame(env_xy, z = as.vector(pred[, i]))
+      }
+      ras <- rast(tmp_df, type = "xyz", crs = crs(env))
+      names(ras) <- paste0("RDA", i)
+      return(ras)
+    }
+  Proj <- rast(Proj)
+  
+  ## Return predictions for each RDA axis
+  return(Proj)
+})
+
+
+##'
+##' @rdname adaptive_index
+##' @export
+##'
+
+setMethod('adaptive_index', signature(RDA = "rda", env = "data.frame", env_mask = "missing"), function(RDA, K, env, method = "loadings")
+{
+  ## CHECKS -------------------------------------------------------------------
+  if (!inherits(RDA, "rda")) { stop("\n RDA must be a 'rda' object") }
+  if (!("CCA" %in% names(RDA)) || !("biplot" %in% names(RDA$CCA))) {
+    stop("\n RDA$CCA$biplot seems not to exist")
+  }
+  if (K > ncol(RDA$CCA$biplot)) {
+    K <- ncol(RDA$CCA$biplot)
+    warning("\n Not enough RDA axis available, K is set to ncol(RDA$CCA$biplot)")
+  }
+  if (ncol(env) != nrow(RDA$CCA$biplot) || any(! colnames(env) %in% rownames(RDA$CCA$biplot))) {
+    stop("\n env must contain same variables as the ones used in RDA (see rownames(RDA$CCA$biplot))")
+  }
+  if (!(method %in% c("loadings", "predict"))) {
+    stop("\n method must be 'loadings' or 'predict'")
+  }
+  
+  
+  ## FUNCTION -----------------------------------------------------------------
+  
+  ## Get RDA information -----------------------------------------------------
+  RDA_biplot <- RDA$CCA$biplot
+  var_names <- rownames(RDA_biplot)
+  env_var <- env[, var_names]
+  
+  ## Make predictions ---------------------------------------------------------
+  if (method == "predict") {
+    pred <- predict(RDA, env_var, type = "lc")
+  }
+  AI <- foreach(i = 1:K) %do%
+    {
+      if (method == "loadings") { ## Predict genetic component based on RDA axes
+        tmp_vec <- as.vector(apply(env_var, 1, function(x) sum(x * RDA_biplot[, i])))
+      } else if (method == "predict") { ## Predict with RDA model and linear combinations
+        tmp_vec <- as.vector(pred[, i])
+      }
+      return(tmp_vec)
+    }
+  names(AI) <- paste0("RDA", 1:K)
+  AI <- as.data.frame(do.call(cbind, AI))
+  
+  ## Return predictions for each RDA axis
+  return(AI)
+})
+
+###################################################################################################
+##' @name genomic_offset
+##' @author Thibaut Capblancq
+##' 
+##' @title Predict temporal or geographic genomic offset
+##' 
+##' @description The \code{genomic_offset} function allows the user to predict genomic offset 
+##' from a RDA model. The \code{genomic_offset} function can estimate both temporal or spatial 
+##' genomic offset and accommodates raster data or discrete populations.
+##' 
+##' @param RDA a \code{RDA} model from which to extract loci and environmental variable scores
+##' @param K an \code{integer} specifying the number of RDA axes to use for the projection
+##' @param env_pres a \code{RasterStack} object or a \code{data.frame} with the environmental 
+##' conditions in the present
+##' @param env_fut a \code{RasterStack} object or a \code{data.frame} with the environmental 
+##' conditions in the future
+##' @param env_mask (\emph{optional, default} \code{NULL}) \cr a \code{Raster} object to limit 
+##' the projection to a specific area
+##' @param method  (\emph{default} \code{'loadings'}) \cr a \code{character} defining whether 
+##' the function is to use weighted averages (scaling type 1, \code{loadings}) or linear 
+##' combinations (scaling type 2, \code{predict}) of the projected environmental variables 
+##' to predict site scores (i.e., adaptive index)
+##' 
+##' 
+##' @return  
+##' 
+##' A \code{list} containing :
+##' \itemize{
+##'   \item \code{genomic_offset} : a \code{RasterStack} or a \code{data.frame} containing 
+##'   the genomic offset predictions for the \code{K} first RDA axes, as well as the overall 
+##'   genomic offset prediction
+##'   \item \code{weights} : the weights associated with each RDA axis used for the predictions
+##' }
+##' 
+##' 
+##' @details
+##' 
+##' This RDA-based method to predict \emph{genomic offset} is relatively simple. 
+##' RDA is first used to predict the \emph{optimal adaptive genetic composition} for each 
+##' environmental pixel under consideration (see \code{\link{adaptive_index}} function), 
+##' using both current and future environmental conditions. 
+##' The \emph{euclidean distance} between these two predictions in the RDA space provides an 
+##' estimate of the change in genetic composition that would be required to track climate change.
+##' 
+##' 
+##' @keywords RDA, genomic offset, adaptive index, projection
+## 
+##' @seealso \code{\link{adaptive_index}}
+## 
+## @examples
+##' 
+##' 
+##' @importFrom stats dist
+##' @importFrom raster rasterToPoints rasterFromXYZ mask
+##' @include rda_class.R
+##'  
+##' @export
+##' 
+##'
+###################################################################################################
+
+setGeneric("genomic_offset", def = function(RDA, K, env_pres, env_fut, env_mask = NULL, env_gar, method = "loadings") { standardGeneric("genomic_offset") })
+
+##'
+##' @rdname genomic_offset
+##' @export
+##'
+
+setMethod('genomic_offset', signature(RDA = "rda", env_pres = "SpatRaster", env_gar = "missing"), function(RDA, K, env_pres, env_fut, env_mask = NULL, method = "loadings")
+{
+  ## CHECKS -------------------------------------------------------------------
+  if (!inherits(RDA, "rda")) { stop("\n RDA must be a 'rda' object") }
+  if (!("CCA" %in% names(RDA)) || !("eig" %in% names(RDA$CCA))) {
+    stop("\n RDA$CCA$eig seems not to exist")
+  }
+  if (K > length(RDA$CCA$eig)) {
+    K <- length(RDA$CCA$eig)
+    warning("\n Not enough RDA axis available, K is set to length(RDA$CCA$eig)")
+  }
+  
+  ## FUNCTION -----------------------------------------------------------------
+  
+  ## Make predictions
+  AI_pres <- adaptive_index(RDA = RDA
+                            , K = K
+                            , env = env_pres
+                            , env_mask = env_mask
+                            , method = method)
+  AI_fut <- adaptive_index(RDA = RDA
+                           , K = K
+                           , env = env_fut
+                           , env_mask = env_mask
+                           , method = method)
+  
+  ## Single axis genetic offset -----------------------------------------------
+  offset <- foreach(i = 1:K) %do%
+    {
+      ras <- abs(AI_pres[[i]] - AI_fut[[i]])
+      names(ras) <- paste0("RDA", i)
+      return(ras)
+    }
+  offset <- rast(offset)
+  
+  ## Weight current and future adaptive indices based on eigen values of associated axes
+  weights <- RDA$CCA$eig / sum(RDA$CCA$eig)
+  weights <- weights[1:K]
+  AI_pres_w <- AI_pres * weights
+  AI_fut_w <- AI_fut * weights
+  
+  ## Predict a global genetic offset
+  offset_global <- offset[[1]]
+  offset_global[!is.na(offset_global)] <- sapply(1:ncell(AI_pres_w), function(x) {
+    tmp_mat <- rbind(AI_pres_w[x], AI_fut_w[x])
+    return(dist(tmp_mat, method = "euclidean"))
+  })
+  names(offset_global) <- "Global_offset"
+  
+  
+  return(list(Proj_pres = AI_pres,
+              Proj_fut = AI_fut,
+              Proj_offset = offset,
+              Proj_offset_global = offset_global,
+              weights = weights))
+})
+
+
+##'
+##' @rdname genomic_offset
+##' @export
+##'
+
+setMethod('genomic_offset', signature(RDA = "rda", env_pres = "data.frame", env_mask = "missing", env_gar = "missing"), function(RDA, K, env_pres, env_fut, method = "loadings")
+{
+  ## CHECKS -------------------------------------------------------------------
+  if (!inherits(RDA, "rda")) { stop("\n RDA must be a 'rda' object") }
+  if (!("CCA" %in% names(RDA)) || !("eig" %in% names(RDA$CCA))) {
+    stop("\n RDA$CCA$eig seems not to exist")
+  }
+  if (K > length(RDA$CCA$eig)) {
+    K <- length(RDA$CCA$eig)
+    warning("\n Not enough RDA axis available, K is set to length(RDA$CCA$eig)")
+  }
+  
+  ## FUNCTION -----------------------------------------------------------------
+  
+  ## Make predictions
+  AI_pres <- adaptive_index(RDA = RDA
+                            , K = K
+                            , env = env_pres
+                            , method = method)
+  AI_fut <- adaptive_index(RDA = RDA
+                           , K = K
+                           , env = env_fut
+                           , method = method)
+  
+  ## Single axis genetic offset -----------------------------------------------
+  offset <- foreach(i = 1:K) %do%
+    {
+      vec <- abs(AI_pres[,i] - AI_fut[,i])
+      return(vec)
+    }
+  offset <- as.data.frame(do.call(cbind, offset))
+  
+  ## Weight offset based on eigen values of associated axes
+  weights <- RDA$CCA$eig / sum(RDA$CCA$eig)
+  weights <- weights[1:K]
+  offset <- data.frame(do.call(cbind, lapply(1:ncol(offset), function(x) offset[,x]*weights[x])))
+  colnames(offset) <- paste0("RDA", 1:K)
+  
+  ## Predict a global genetic offset
+  offset$Global <- apply(offset, 1, function(x) sqrt(sum(x*x)))
+  
+  return(list(Proj_pres = AI_pres,
+              Proj_fut = AI_fut,
+              genomic_offset = offset,
+              weights = weights))
+})
+
+
+##'
+##' @rdname genomic_offset
+##' @export
+##'
+
+setMethod('genomic_offset', signature(RDA = "rda", env_pres = "data.frame", env_mask = "missing", env_fut = "missing"), function(RDA, K, env_pres, env_gar, method = "loadings")
+{
+  ## CHECKS -------------------------------------------------------------------
+  if (!inherits(RDA, "rda")) { stop("\n RDA must be a 'rda' object") }
+  if (!("CCA" %in% names(RDA)) || !("eig" %in% names(RDA$CCA))) {
+    stop("\n RDA$CCA$eig seems not to exist")
+  }
+  if (K > length(RDA$CCA$eig)) {
+    K <- length(RDA$CCA$eig)
+    warning("\n Not enough RDA axis available, K is set to length(RDA$CCA$eig)")
+  }
+  
+  ## FUNCTION -----------------------------------------------------------------
+  
+  ## Make predictions
+  AI_pres <- adaptive_index(RDA = RDA
+                            , K = K
+                            , env = env_pres
+                            , method = method)
+  
+  AI_gar <- adaptive_index(RDA = RDA
+                           , K = K
+                           , env = env_gar
+                           , method = method)
+  
+  ## Single axis genetic offset -----------------------------------------------
+  offset <- foreach(i = 1:K) %do%
+    {
+      vec <- abs(AI_pres[,i] - AI_gar[,i])
+      return(vec)
+    }
+  offset <- as.data.frame(do.call(cbind, offset))
+  
+  ## Weight offset based on eigen values of associated axes
+  weights <- RDA$CCA$eig / sum(RDA$CCA$eig)
+  weights <- weights[1:K]
+  offset <- data.frame(do.call(cbind, lapply(1:ncol(offset), function(x) offset[,x]*weights[x])))
+  colnames(offset) <- paste0("RDA", 1:K)
+  
+  ## Predict a global genetic offset
+  offset$Global <- apply(offset, 1, function(x) sqrt(sum(x*x)))
+  
+  return(list(genomic_offset = offset,
+              weights = weights))
+})
+```
+
 
 ```{r}
 # reduce size of env data set used for training
@@ -150,7 +643,6 @@ TAB_loci_thin$type[outliers_thin] <- "Outliers"
 TAB_loci_thin$type <- factor(TAB_loci_thin$type, levels = c("Neutral", "Outliers"))
 TAB_loci_thin <- TAB_loci_thin[order(TAB_loci_thin$type),]
 TAB_var_thin <- as.data.frame(scores(RDA_sea_thin, choices=c(1,2), display="bp")) 
-
 
 # Biplot of RDA loci and variables scores
 ggplot() +
@@ -233,8 +725,9 @@ offsets_rda_df <- data.frame(site_name = env_exp$site_name, lat = env_exp$Latitu
 write.csv(offsets_rda_df, paste0("results/GO_results/offsets_RDA_expSites_",Sys.Date(),".csv", sep = ""))
 
 # now with the seascape
-offsets_rda_sea_df <- data.frame(site_name = env_sea_forgo$X, offset_lew_sea = offset_lew_sea$genomic_offset$Global, offset_yrk_sea = offset_yrk_sea$genomic_offset$Global)
+offsets_rda_sea_df <- data.frame(site_name = env_sea_forgo$site_name, offset_lew_sea = offset_lew_sea$genomic_offset$Global, offset_yrk_sea = offset_yrk_sea$genomic_offset$Global)
 offsets_rda_sea_df
+write.csv(offsets_rda_df, paste0("results/GO_results/offsets_RDA_fullseascape_",Sys.Date(),".csv", sep = ""))
 ```
 
 ## Visualization
