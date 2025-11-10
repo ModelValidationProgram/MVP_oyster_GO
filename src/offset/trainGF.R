@@ -100,6 +100,9 @@ gf_af <- gradientForest(cbind(env_sea_pop_red, freqs_thin),
 end_time <- Sys.time() # time end
 (end_time - start_time) # about 1.5hrs
 
+# save trained af model
+saveRDS(gf_af, paste0("results/lg_results/gf_af_",Sys.Date(),".RDS"))
+
 # geno models
 # crashes on personal laptop, run on cluster
 start_time <- Sys.time() # time start
@@ -113,6 +116,5 @@ gf_geno <- gradientForest(cbind(env_sea_red, genoThinMat),
 end_time <- Sys.time() # time end
 (end_time - start_time) # over 24 on cluster
 
-# save trained models
-saveRDS(gf_af, paste0("results/lg_results/af_geno_",Sys.Date(),".RDS"))
+# save trained geno model
 saveRDS(gf_geno, paste0("results/lg_results/gf_geno_",Sys.Date(),".RDS"))
