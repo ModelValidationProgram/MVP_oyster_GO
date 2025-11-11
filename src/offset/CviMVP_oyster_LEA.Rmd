@@ -189,7 +189,6 @@ env_sea_forgo2 <- read.csv("data/EnvDat/seascape/seascape_environment_predict.cs
 # first, I need to get environmental effect sizes from the trained models
 B <- mod_lfmm@B
 Bthin <- mod_lfmmthin@B
-Bthinnp <- mod_lfmmthin_np@B
 
 # not using candidate loci for now
 # calculate "genetic gap" for all the experimental sites

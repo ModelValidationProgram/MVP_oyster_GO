@@ -30,8 +30,8 @@ library(plotrix)
 
 # data
 # offset predictions
-lea_go <- read.csv("results/GO_results/offsets_LEA_expsites_2025-11-04.csv")[,-1]
-rda_go <- read.csv("results/GO_results/offsets_RDA_expsites_2025-10-09.csv")[,-1]
+lea_go <- read.csv("results/GO_results/offsets_LEA_expsites_2025-11-10.csv")[,-1]
+rda_go <- read.csv("results/GO_results/offsets_RDA_expsites_2025-11-10.csv")[,-1]
 gf_go <- read.csv("results/GO_results/offsets_GF_expSites_2025-08-27.csv")[,-1]
 
 # fitness metrics
@@ -127,9 +127,9 @@ ord_fitness_popsite$site_name <- ord_fitness_popsite$pop
 map = c("TX"="W1_TX", "LA"="W2_LA", "FL"="W3_FL", "LOLA"="S1_LOLA", "DEBY"="S2_DEBY", "JR"="W4_VA", "NH"="W5_NH", "ME"="W6_ME")
 ord_fitness_popsite$site_name <- recode(ord_fitness_popsite$site_name,
                                            "TX"="W1_TX", "LA"="W2_LA", "FL"="W3_FL",
-                                           "LOLA"="S1_LOLA", "DEBY"="S2_DEBY", "JR"="W4_VA",
+                                           "LOLA"="S1_LOLA", "DEBY"="S2_DEBY",
+                                           "JR"="W4_VA",
                                            "NH"="W5_NH", "ME"="W6_ME")
-
 
 # do bag level data as well
 colnames(mort_bags) <- c("bag","event","surv")
@@ -146,7 +146,7 @@ bagfullfit <- merge(ord_fitness_popsite, bagfit, by = c("pop","event"))
 # need to align naming conventions to merge
 # LEA
 # colnames
-colnames(lea_go) <- c("site_name","lew_go_lea","yrk_go_lea","lew_gothin_lea","yrk_gothin_lea")
+colnames(lea_go) <- c("site_name", "lat", "lon", "lew_go_lea","yrk_go_lea","lew_gothin_lea","yrk_gothin_lea")
 
 # add order
 order_lew_lea <- as.data.frame(lea_go[order(lea_go$lew_go_lea, decreasing = T),]$site_name)
@@ -177,16 +177,17 @@ colnames(rda_go) <- c("site_name","lat","lon","offset_lew_rda","offset_yrk_rda")
 # add order
 order_lew_rda <- as.data.frame(rda_go[order(rda_go$offset_lew, decreasing = T),]$site_name)
 colnames(order_lew_rda) <- c("site_name")
-order_lew_rda$order_lew_rda <- 1:length(order_lew_af$site_name)
+order_lew_rda$order_lew_rda <- 1:length(order_lew_rda$site_name)
 order_yrk_rda <- as.data.frame(rda_go[order(rda_go$offset_yrk, decreasing = T),]$site_name)
 colnames(order_yrk_rda) <- c("site_name")
 order_yrk_rda$order_yrk_rda <- 1:length(order_yrk_rda$site_name)
 orders_rda <- merge(order_lew_rda, order_yrk_rda, by = c("site_name"))
 rda_go1 <- merge(rda_go, orders_rda, by = c("site_name"))
+colnames(rda_go1) <- c("site_name","lat","lon","offset_lew_rda","offset_yrk_rda","order_lew_rda","order_yrk_rda")
 
 # put together full go & fitness df
-go <- merge(rda_go1, gf_go1, by = "site_name")
-go1 <- merge(go, lea_go1, by = "site_name")
+#go <- merge(rda_go1, gf_go1, by = "site_name") # commented out while waiting on gf results
+go1 <- merge(rda_go1, lea_go1, by = c("site_name", "lat", "lon")) # once gf results are in, rda_go1 becomes go
 fullfit <- merge(bagfullfit, go1, by = "site_name")
 ```
 
@@ -204,22 +205,30 @@ Here I calculate the R^2 and pearson's correlation between fitness and GO for ea
 #################################################
 # function for correlations
 cor_fit <- function(site, go_method) {
-  cor_df <- data.frame(corr_mort = NA, r2_mort = NA, corr_len = NA, r2_len = NA, corrpop_mort = NA, r2pop_mort = NA, corrpop_len = NA, r2pop_len = NA, method = NA, bag_site = NA, event = NA)
-  go_metric <- ifelse(go_method == "lea" & site == "Lewisetta", "lew_go_lea", ifelse(go_method == "gf" & site == "Lewisetta", "offset_gf_af_lew", ifelse(go_method == "rda" & site == "Lewisetta", "offset_lew_rda", ifelse(go_method == "lea" & site == "YorkRiver", "yrk_go_lea", ifelse(go_method == "gf" & site == "YorkRiver", "offset_gf_af_yrk", ifelse(go_method == "rda" & site == "YorkRiver", "offset_yrk_rda", NULL))))))
+  cor_df <- data.frame(pearson_mort = NA, spearman_mort = NA, kendall_mort = NA, r2_mort = NA, r2_mort_rankings = NA, pearson_len = NA, spearman_len = NA, kendall_len = NA, r2_len = NA, r2_len_rankings = NA, method = NA, bag_site = NA, event = NA)
+  
+  go_metric <- ifelse(go_method == "lea" & site == "Lewisetta", "lew_gothin_lea", ifelse(go_method == "gf" & site == "Lewisetta", "offset_gf_af_lew", ifelse(go_method == "rda" & site == "Lewisetta", "offset_lew_rda", ifelse(go_method == "lea" & site == "YorkRiver", "yrk_gothin_lea", ifelse(go_method == "gf" & site == "YorkRiver", "offset_gf_af_yrk", ifelse(go_method == "rda" & site == "YorkRiver", "offset_yrk_rda", NULL))))))
+  
+  go_metric_rank <- ifelse(go_method == "lea" & site == "Lewisetta", "order_lew_lea", ifelse(go_method == "gf" & site == "Lewisetta", "order_lew_gf_af", ifelse(go_method == "rda" & site == "Lewisetta", "order_lew_rda", ifelse(go_method == "lea" & site == "YorkRiver", "order_yrk_lea", ifelse(go_method == "gf" & site == "YorkRiver", "order_yrk_gf_af", ifelse(go_method == "rda" & site == "YorkRiver", "order_yrk_rda", NULL))))))
 
   for (i in 1:4) {
-    cor_df[i,]$corr_mort <- cor(fullfit[fullfit$bag_site == (site) & fullfit$event == i, c(go_metric)], fullfit[fullfit$bag_site == (site) & fullfit$event == i,]$surv)
-    cor_df[i,]$r2_mort <- summary(lm(fullfit[fullfit$bag_site == (site) & fullfit$event == i,]$surv ~ fullfit[fullfit$bag_site == (site) & fullfit$event == i, c(go_metric)]))$r.squared
+    fitdat <- fullfit[fullfit$bag_site == (site) & fullfit$event == i,]
     
-    cor_df[i,]$corrpop_mort <- cor(fullfit[fullfit$bag_site == (site) & fullfit$event == i, c(go_metric)], fullfit[fullfit$bag_site == (site) & fullfit$event == i,]$mean_surv)
-    cor_df[i,]$r2pop_mort <- summary(lm(fullfit[fullfit$bag_site == (site) & fullfit$event == i,]$mean_surv ~ fullfit[fullfit$bag_site == (site) & fullfit$event == i, c(go_metric)]))$r.squared
+    # survival
+    cor_df[i,]$pearson_mort <- cor(fitdat[,go_metric], fitdat$surv, method = "pearson")
+    cor_df[i,]$spearman_mort <- cor(fitdat[,go_metric], fitdat$surv, method = "spearman")
+    cor_df[i,]$kendall_mort <- cor(as.numeric(fitdat[,go_metric_rank]), as.numeric(fitdat$order_mort), method = "kendall")
+    cor_df[i,]$r2_mort <- summary(lm(fitdat$surv ~ fitdat[,go_metric]))$r.squared
+    cor_df[i,]$r2_mort_rankings <- summary(lm(fitdat$order_mort ~ fitdat[,go_metric_rank]))$r.squared
     
-    cor_df[i,]$corr_len <- cor(fullfit[fullfit$bag_site == (site) & fullfit$event == i, c(go_metric)], fullfit[fullfit$bag_site == (site) & fullfit$event == i,]$length)
-    cor_df[i,]$r2_len <- summary(lm(fullfit[fullfit$bag_site == (site) & fullfit$event == i,]$length ~ fullfit[fullfit$bag_site == (site) & fullfit$event == i, c(go_metric)]))$r.squared
+    # length
+    cor_df[i,]$pearson_len <- cor(fitdat[,go_metric], fitdat$length, method = "pearson")
+    cor_df[i,]$spearman_len <- cor(fitdat[,go_metric], fitdat$length, method = "spearman")
+    cor_df[i,]$kendall_len <- cor(as.numeric(fitdat[,go_metric_rank]), as.numeric(fitdat$order_len), method = "kendall")
+    cor_df[i,]$r2_len <- summary(lm(fitdat$length ~ fitdat[,go_metric]))$r.squared
+    cor_df[i,]$r2_len_rankings <- summary(lm(fitdat$order_len ~ fitdat[,go_metric_rank]))$r.squared
     
-    cor_df[i,]$corrpop_len <- cor(fullfit[fullfit$bag_site == (site) & fullfit$event == i, c(go_metric)], fullfit[fullfit$bag_site == (site) & fullfit$event == i,]$mean_len)
-    cor_df[i,]$r2pop_len <- summary(lm(fullfit[fullfit$bag_site == (site) & fullfit$event == i,]$mean_len ~ fullfit[fullfit$bag_site == (site) & fullfit$event == i, c(go_metric)]))$r.squared
-    
+    # metadata
     cor_df[i,]$method <- as.character(go_method)
     cor_df[i,]$bag_site <- as.character(site)
     cor_df[i,]$event <- i
@@ -228,12 +237,12 @@ cor_fit <- function(site, go_method) {
 }
 
 # correlations
-cor_lea_lew <- cor_fit("Lewisetta","lea")
-cor_lea_yrk <- cor_fit("YorkRiver","lea")
-cor_gf_af_lew <- cor_fit("Lewisetta","gf")
-cor_gf_af_yrk <- cor_fit("YorkRiver","gf")
-cor_rda_lew <- cor_fit("Lewisetta","rda")
-cor_rda_yrk <- cor_fit("YorkRiver","rda")
+(cor_lea_lew <- cor_fit("Lewisetta","lea"))
+(cor_lea_yrk <- cor_fit("YorkRiver","lea"))
+(cor_gf_af_lew <- cor_fit("Lewisetta","gf"))
+(cor_gf_af_yrk <- cor_fit("YorkRiver","gf"))
+(cor_rda_lew <- cor_fit("Lewisetta","rda"))
+(cor_rda_yrk <- cor_fit("YorkRiver","rda"))
 
 corrs_df <- rbind(cor_lea_lew, cor_lea_yrk, cor_gf_af_lew, cor_gf_af_yrk, cor_rda_lew, cor_rda_yrk)
 rownames(corrs_df) <- NULL
