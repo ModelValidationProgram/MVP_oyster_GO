@@ -32,6 +32,12 @@ library(doParallel) # for parallelizing processes
 library(gradientForest) # for running gradient forest
 library(sf) # plotting
 library(rnaturalearth) # plotting
+library(maps) # mapping
+library(ggspatial) # mapping
+library(ggrepel) # mapping
+library(terra) # interpolation
+library(stars) # interpolation
+library(gstat) # interpolation
 
 # data
 # env
@@ -293,6 +299,38 @@ offsets_mvp <- merge(geno_offsets_red, af_offsets, by = c("site_name"))
 
 # write these offsets to results
 write.csv(offsets_mvp, paste0("results/GO_results/offsets_GF_expSites_", Sys.Date(), ".csv"))
+
+# also seascape offsets for plotting
+# expand seascape common garden env for prediction
+env_sea_pop_for_pred <- rbind(unique(env_exp_lew_red[,2:7]), unique(env_exp_yrk_red[,2:7]))
+env_sea_pop_for_pred$exp_site <- c("Lewisetta", "YorkRiver")
+env_sea_pop_for_pred <- env_sea_pop_for_pred[rep(seq_len(nrow(env_sea_pop_for_pred)), nrow(env_sea_pop_red)),]
+
+# af
+pred_af_sea <- predict(gf_af, env_sea_pop_red)
+pred_af_lew_sea <- predict(gf_af, env_sea_pop_for_pred[env_sea_pop_for_pred$exp_site == "Lewisetta",1:(ncol(env_sea_pop_for_pred) - 1)])
+pred_af_yrk_sea <- predict(gf_af, env_sea_pop_for_pred[env_sea_pop_for_pred$exp_site == "YorkRiver",-which(names(env_sea_pop_for_pred) == "exp_site")])
+
+# We now compute the euclidean distance between current and new cumulative importance
+nb_ind_sea <- nrow(pred_af_sea)
+
+# lew
+df_af_lew_sea <- data.frame() # df
+for (i in 1:nb_ind_sea){ # calc offset
+  ec_dist <- as.data.frame(euclidean(pred_af_sea[i,], pred_af_lew_sea[i,]))
+  df_af_lew_sea <- rbind(df_af_lew_sea, ec_dist)
+}
+af_offset_lew_sea <- cbind(env_sea_pop$site_name, env_sea_pop$Latitude_manual, env_sea_pop$Longitude_manual, df_af_lew_sea) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
+colnames(af_offset_lew_sea) <- c("site_name", "lat", "lon", "offset_gf_af_lew")
+
+# york
+df_af_yrk_sea <- data.frame() # df
+for (i in 1:nb_ind_sea){ # calc offset
+  ec_dist <- as.data.frame(euclidean(pred_af_sea[i,], pred_af_yrk_sea[i,]))
+  df_af_yrk_sea <- rbind(df_af_yrk_sea, ec_dist)
+}
+af_offset_yrk_sea <- cbind(env_sea_pop$site_name, env_sea_pop$Latitude_manual, env_sea_pop$Longitude_manual, df_af_yrk_sea) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
+colnames(af_offset_yrk_sea) <- c("site_name", "lat", "lon", "offset_gf_af_yrk")
 ```
 
 ### Plotting
@@ -301,133 +339,184 @@ I've got my offsets, and now want to plot them on a map!
 
 ```{r}
 # prep data for plotting
-offsets_mvp
-# for now just allele frequency stuff
+offsets_mvp_plot <- merge(af_offset_lew_sea, af_offset_yrk_sea, by = c("site_name","lat","lon"))
+
 af_offsets
 env_exp_pop_red
 exp_site_latlon
-popsdf <- read.csv("data/IndDat/popsdf.csv")[,-1]
-#colnames(offsets_mvp) <- c("site_name", "Label_ind", "offset_gf_geno_lew", "offset_gf_geno_yrk", "offset_gf_af_lew", "offset_gf_af_yrk")
+
+# exp site latlon has lola and deby coded wrong
+exp_site_latlon[exp_site_latlon$site_name == "S1-LOLA", "site_name"] <- "S1_LOLA"
+exp_site_latlon[exp_site_latlon$site_name == "S2-DEBY", "site_name"] <- "S2_DEBY"
+
 popsplot <- merge(popsdf, exp_site_latlon, by = "site_name")
 popsplot1 <- merge(popsplot, env_exp_pop_red, by = "site_name")
 popsplot2 <- merge(popsplot1, af_offsets, by = "site_name")
 
 # map
-sf::sf_use_s2(FALSE) # sf package doesn't work
+sea_sf <- st_as_sf(offsets_mvp_plot[,c("offset_gf_af_lew","offset_gf_af_yrk","lat","lon")], 
+                   coords = c("lon","lat"),
+                   crs = 4326) # for WGS84 projection
+
+# set spherical geometry
+sf::sf_use_s2(FALSE)
 
 # set object
 world <- ne_countries(scale = "medium", returnclass = "sf")
-world_crop <- sf::st_crop(world, c(xmin =-102 , xmax = -68, ymin = 24, ymax = 47.049130))
+world_crop <- sf::st_crop(world, c(xmin =-102, xmax = -65, ymin = 24, ymax = 47.05))
+coast <- ne_coastline(scale = "medium", returnclass = "sf")
+coast_crop <- sf::st_crop(coast, c(xmin =-102, xmax = -65, ymin = 24, ymax = 47.05))
 
-# bottom right: 24.353558, -55.373595
-# top left: 60.109743, 9.489737
+# start by downloading and cropping oceans data
+oceans110 <- ne_download(scale=110L, type = "ocean", category = "physical")
+oceans_crop <- sf::st_crop(oceans110, c(xmin = -102, xmax = -65, ymin = 24, ymax = 47.05))
 
-# offset to lew geno
-map_lew_geno <- ggplot(data = world) +
+# check crs
+st_crs(oceans_crop)
+st_crs(coast_crop)
+st_crs(world_crop) # looks good
+
+# define buffer distance
+dist <- 0.25 # 0.25º difference, approximately 15 miles
+
+# define buffer region - note we need to specify the layer, as there are lots of different coastlines
+buffered_region <- st_buffer(coast_crop, dist)[51,]
+plot(buffered_region, col = "lightblue2")
+
+# crop shapefile to region of interest for interpolation
+# this is the region we will plot, but we need to interpolate the entire buffered region
+int_region <- st_intersection(oceans_crop, buffered_region) 
+
+# define grid across ocean area
+grid <- st_make_grid(buffered_region, cellsize = 0.1, what = "polygons")
+grid_int <- st_intersection(grid, buffered_region)
+grid_int_crop <- sf::st_crop(grid_int, c(xmin = -102, xmax = -65, 
+                                         ymin = 24, ymax = 47.05))
+
+# interpolate
+interpolated_lew <- idw(offset_gf_af_lew~1, sea_sf, grid_int)
+saveRDS(interpolated_lew, "results/lg_results/interpolated_gf_af_lew.rds")
+
+interpolated_yrk <- idw(offset_gf_af_yrk~1, sea_sf, grid_int)
+saveRDS(interpolated_yrk, "results/lg_results/interpolated_gf_af_yrk.rds")
+
+# empty raster
+ext <- ext(st_bbox(interpolated_lew)) # get spatial extent
+rast_empty <- rast(ext, resolution = 0.1, crs = "+proj=longlat +datum=WGS84")
+
+# create a raster stack
+# set up
+sf_ls <- list(interpolated_lew, interpolated_yrk)
+rast_ls <- list()
+
+# loop through sf files to rasterize
+for (i in seq_along(sf_ls)) {
+  rast = st_rasterize(sf_ls[[i]] %>% dplyr::select(var1.pred, geometry))
+  rast_ls[[i]] = rast
+}
+
+# combine
+rast_all <- c(rast_ls)
+names(rast_all) <- c("interpolated_lew_go","interpolated_yrk_go")
+
+# prep seascape sites for plotting
+offsets_sea_plotting_gf_af <- na.omit(offsets_mvp_plot)
+offsets_plotting_gf_af <- na.omit(popsplot2)
+
+# try mapping again
+map_lew_int_gf_af <- ggplot(data = world) +
   theme_bw()+
+  geom_sf(data = interpolated_lew, mapping = aes(fill = var1.pred, col = var1.pred)) +
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = popsplot2, aes(x=lon, y=lat, 
-                                   fill = offset_gf_geno_lew), 
+  geom_point(data = offsets_sea_plotting_gf_af, aes(x = lon, y = lat, 
+                                              fill = offset_gf_af_lew), 
+             shape = 21, size = 2) +
+  geom_point(data = offsets_plotting_gf_af[offsets_plotting_gf_af$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
+                                       fill = offset_gf_af_lew), 
              shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.045))+
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.021)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.021)) +
+  geom_label_repel(data = offsets_plotting_gf_af[offsets_plotting_gf_af$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
+                                       label = site_name),
+                  nudge_x = -3,
+                  nudge_y = 1,
+                  fill = "white")+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-        labs(title = "Genomic Offset of Oysters \n to Lewisetta (GF, Geno)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
-(map_lew_geno)
+  labs(title = "Genomic Offset to \nLewisetta (GF AF)", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
+(map_lew_int_gf_af)
 
-world_chesapeake <- sf::st_crop(world, c(xmin =-77.856476 , xmax = -72.762787, ymin = 36.019557, ymax = 39.939163))
-
-# top left: 39.939163, -77.856476
-# bottom right: 36.019557, -72.762787
-
-popout_lew_geno <- ggplot(data = world) +
+lew_int_gf_af_inset <- ggplot(data = world) +
   theme_bw()+
-  geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
-  geom_point(data = popsplot2, aes(x=lon, y=lat, 
-                                   fill = offset_gf_geno_lew), 
-             shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.045))+
+  geom_sf(data = interpolated_yrk, mapping = aes(fill = var1.pred, col = var1.pred)) +
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.021)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.021)) +
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  geom_point(data = offsets_sea_plotting_gf_af, aes(x = lon, y = lat, 
+                                              fill = offset_gf_af_lew), 
+             shape = 21, size = 5) +
+  geom_point(data = offsets_plotting_gf_af[offsets_plotting_gf_af$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, fill = offset_gf_af_lew), 
+             shape = 21, size = 7)+
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 0.021)) + # double check these values
+  geom_point(data = exp_site_latlon[exp_site_latlon$site_name == "LEW",], 
+             aes(x = lon-0.2, y = lat), fill = "deeppink", shape = 24, size = 7)+
+  geom_label_repel(data = offsets_plotting_gf_af[offsets_plotting_gf_af$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, label = site_name),
+                  nudge_x = 2.5,
+                  nudge_y = 0.4,
+                  fill = "white",
+                  size = 9)+
+  guides(fill = "none")+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
         xlim(-77.856476, -72.762787) +
         ylim(36.019557, 39.939163)
-popout_lew_geno
+lew_int_gf_af_inset
 
-# offset to lew af
-map_lew_af <- ggplot(data = world) +
+map_yrk_int_gf_af <- ggplot(data = world) +
   theme_bw()+
+  geom_sf(data = interpolated_yrk, mapping = aes(fill = var1.pred, col = var1.pred)) +
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = popsplot2, aes(x=lon, y=lat, 
-                                   fill = offset_gf_af_lew), 
+  geom_point(data = offsets_sea_plotting_gf_af, aes(x = lon, y = lat, 
+                                              fill = offset_gf_af_yrk), 
+             shape = 21, size = 2) +
+  geom_point(data = offsets_plotting_gf_af[offsets_plotting_gf_af$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
+                                       fill = offset_gf_af_yrk), 
              shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.02))+
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.021)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.021)) +
+  geom_label_repel(data = offsets_plotting_gf_af[offsets_plotting_gf_af$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
+                                       label = site_name),
+                  nudge_x = -3,
+                  nudge_y = 1,
+                  fill = "white")+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-        labs(title = "Genomic Offset of Oysters \n to Lewisetta (GF, AF)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
-(map_lew_af)
+  labs(title = "Genomic Offset to \nYork River (GF AF)", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
+(map_yrk_int_gf_af)
 
-popout_lew_af <- ggplot(data = world) +
+yrk_int_gf_af_inset <- ggplot(data = world) +
   theme_bw()+
-  geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
-  geom_point(data = popsplot2, aes(x=lon, y=lat, 
-                                   fill = offset_gf_af_lew), 
-             shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.02))+
+  geom_sf(data = interpolated_yrk, mapping = aes(fill = var1.pred, col = var1.pred)) +
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.021)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.021)) +
+  geom_sf(data = world_crop, fill = 'antiquewhite1') +
+  geom_point(data = offsets_sea_plotting_gf_af, aes(x = lon, y = lat, 
+                                              fill = offset_gf_af_yrk), 
+             shape = 21, size = 5) +
+  geom_point(data = offsets_plotting_gf_af[offsets_plotting_gf_af$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, fill = offset_gf_af_yrk), 
+             shape = 21, size = 7)+
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 0.021)) + # double check these values
+  geom_point(data = exp_site_latlon[exp_site_latlon$site_name == "YRK",], 
+             aes(x = lon-0.2, y = lat), fill = "deeppink", shape = 24, size = 7)+
+  geom_label_repel(data = offsets_plotting_gf_af[offsets_plotting_gf_af$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, label = site_name),
+                  nudge_x = 2.5,
+                  nudge_y = 0.4,
+                  fill = "white",
+                  size = 9)+
+  guides(fill = "none")+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
         xlim(-77.856476, -72.762787) +
         ylim(36.019557, 39.939163)
-popout_lew_af
-
-# offset to york geno
-map_york_geno <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = popsplot2, aes(x=lon, y=lat, 
-                                   fill = offset_gf_geno_yrk), 
-             shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.045))+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-        labs(title = "Genomic Offset of Oysters \n to York River (GF, Geno)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
-(map_york_geno)
-
-popout_york_geno <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
-  geom_point(data = popsplot2, aes(x=lon, y=lat, 
-                                   fill = offset_gf_geno_yrk), 
-             shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.07))+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
-        xlim(-77.856476, -72.762787) +
-        ylim(36.019557, 39.939163)
-popout_york_geno
-
-# offset to york af
-map_york_af <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = popsplot2, aes(x=lon, y=lat, 
-                                   fill = offset_gf_af_yrk), 
-             shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.02))+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-        labs(title = "Genomic Offset of Oysters \n to York River (GF, AF)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
-(map_york_af)
-
-popout_york_af <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
-  geom_point(data = popsplot2, aes(x=lon, y=lat, 
-                                   fill = offset_gf_af_yrk), 
-             shape = 21, size = 4)+
-  scale_fill_gradient(low = "green", high = "red", space = "Lab", limits = c(0,.02))+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
-        xlim(-77.856476, -72.762787) +
-        ylim(36.019557, 39.939163)
-popout_york_af
+yrk_int_gf_af_inset
 ```
