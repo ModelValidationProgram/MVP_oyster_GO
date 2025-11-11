@@ -140,8 +140,11 @@ bagfit <- merge(mort_bags, len, by = c("bag","event"))
 bagfit$pop <- str_split_fixed(bagfit$bag, "-", 3)[,2]
 bagfit
 
+# site info
+bagfit$bag_site <- ifelse(str_split_fixed(bagfit$bag, "-", 3)[,3] %in% c(1,2,3), "Lewisetta","YorkRiver")
+
 # add this to other fitness data
-bagfullfit <- merge(ord_fitness_popsite, bagfit, by = c("pop","event"))
+bagfullfit <- merge(ord_fitness_popsite, bagfit, by = c("pop","event","bag_site"))
 
 # need to align naming conventions to merge
 # LEA
