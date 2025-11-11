@@ -167,9 +167,8 @@ maxLevel <- log2(0.368*nrow(env_sea_pop_red)/2)
 start_time <- Sys.time() # time start
 gf_af <- gradientForest(cbind(env_sea_pop_red, freqs_thin), predictor.vars = colnames(env_sea_pop_red), response.vars = (colnames(freqs_thin)), ntree = 500, maxLevel = maxLevel, trace = T, corr.threshold=0.50) # tons of warnings here, "response has five or fewer unique values. Are you sure you want to do regression?" - warning doesn't appear on the cluster
 end_time <- Sys.time() # time end
-(end_time - start_time) # about 1.5hrs
+(end_time - start_time) # about 1hrs
 
-## COME BACK TO THIS ON CLUSTER, DOESN'T RUN ON PERSONAL COMPUTER
 # geno models
 # crashes on personal laptop, run on cluster
 start_time <- Sys.time() # time start
@@ -179,9 +178,13 @@ end_time <- Sys.time() # time end
 
 # plot bar graphs depicting importance of each spatial and climate variable
 plot(gf_af)
+importance(gf_af)
 #plot(gf_geno)
-saveRDS(gf_af, paste0("results/lg_results/af_geno_",Sys.Date(),".RDS"))
+#importance(gf_geno)
+saveRDS(gf_af, paste0("results/lg_results/gf_af_",Sys.Date(),".RDS"))
+gf_af <- readRDS("results/lg_results/gf_af_2025-11-10.RDS")
 #saveRDS(gf_geno, paste0("results/GO_results/gf_geno_",Sys.Date(),".RDS"))
+#gf_geno <- readRDS("results/lg_results/gf_geno_2025-11-10.RDS")
 
 # plots of turnover functions for individual loci - now having issues with ylim
 plot(gf_af, plot.type = "C", imp.vars = gf_af$imp.vars, show.overall = T, legend = T, leg.posn = "topleft", leg.nspecies = 5, ylim = c(0,0.5)) # ylim error, if i provide none I get "need finite ylim" if I provide one I get "formal argument "ylim" matched by multiple actual arguments"
@@ -246,7 +249,7 @@ for (i in 1:nb_ind_af){ # calc offset
   ec_dist <- as.data.frame(euclidean(pred_af_home[i,], pred_af_lew[i,]))
   df_af_lew <- rbind(df_af_lew, ec_dist)
 }
-af_offset_lew <- cbind(pops_list1[3:8], df_af_lew) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
+af_offset_lew <- cbind(pops_list1, df_af_lew) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
 colnames(af_offset_lew) <- c("site_name", "offset_gf_af_lew")
 
 # york
@@ -255,7 +258,7 @@ for (i in 1:nb_ind_af){ # calc offset
   ec_dist <- as.data.frame(euclidean(pred_af_home[i,], pred_af_yrk[i,]))
   df_af_yrk <- rbind(df_af_yrk, ec_dist)
 }
-af_offset_yrk <- cbind(pops_list1[3:8], df_af_yrk) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
+af_offset_yrk <- cbind(pops_list1, df_af_yrk) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
 colnames(af_offset_yrk) <- c("site_name", "offset_gf_af_yrk")
 
 # merge
