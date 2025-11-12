@@ -530,6 +530,7 @@ goFitLEA_plotfinalTlen <- ggplot(data = fullfit) +
 goFitLEA_plotfinalTlen
 ```
 
+
 GF AF GO vs length: 
 
 ```{r}
