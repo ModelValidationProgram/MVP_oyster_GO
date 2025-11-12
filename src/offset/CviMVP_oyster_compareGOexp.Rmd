@@ -32,7 +32,7 @@ library(plotrix)
 # offset predictions
 lea_go <- read.csv("results/GO_results/offsets_LEA_expsites_2025-11-10.csv")[,-1]
 rda_go <- read.csv("results/GO_results/offsets_RDA_expsites_2025-11-10.csv")[,-1]
-gf_go <- read.csv("results/GO_results/offsets_GF_expSites_2025-08-27.csv")[,-1]
+gf_go <- read.csv("results/GO_results/offsets_GF_expSites_2025-11-11.csv")[,-1]
 
 # fitness metrics
 mort_bags <- read.csv("results/exp_results/mortality_long_bags_2025-06-06.csv")[,-1]
@@ -78,30 +78,30 @@ len_bags$bagnum <- as.numeric(len_bags$bagnum)
 len_bags$site <- ifelse(len_bags$bagnum > 3, "YorkRiver", "Lewisetta")
 len_all <- merge(len_bags[,c("bag","pop","site")], len, by = c("bag"))
 
-len_t1 <- len_all[len_all$monitoring_event == 1,]
+len_t1 <- len_all[len_all$event == 1,]
 t1_lens <- aggregate(length ~ pop + site, data = len_t1, FUN = mean)
 t1_sd <- aggregate(length ~ pop + site, data = len_t1, FUN = sd)
 colnames(t1_sd) <- c("pop", "site", "len_sd")
 t1_lens_popsite <- merge(t1_lens, t1_sd, by = c("pop", "site"))
-t1_lens_popsite$monitoring_event <- 1
-len_t2 <- len_all[len_all$monitoring_event == 2,]
+t1_lens_popsite$event <- 1
+len_t2 <- len_all[len_all$event == 2,]
 t2_lens <- aggregate(length ~ pop + site, data = len_t2, FUN = mean)
 t2_sd <- aggregate(length ~ pop + site, data = len_t2, FUN = sd)
 colnames(t2_sd) <- c("pop", "site", "len_sd")
 t2_lens_popsite <- merge(t2_lens, t2_sd, by = c("pop", "site"))
-t2_lens_popsite$monitoring_event <- 2
-len_t3 <- len_all[len_all$monitoring_event == 3,]
+t2_lens_popsite$event <- 2
+len_t3 <- len_all[len_all$event == 3,]
 t3_lens <- aggregate(length ~ pop + site, data = len_t3, FUN = mean)
 t3_sd <- aggregate(length ~ pop + site, data = len_t3, FUN = sd)
 colnames(t3_sd) <- c("pop", "site", "len_sd")
 t3_lens_popsite <- merge(t3_lens, t3_sd, by = c("pop", "site"))
-t3_lens_popsite$monitoring_event <- 3
-len_t4 <- len_all[len_all$monitoring_event == 4,]
+t3_lens_popsite$event <- 3
+len_t4 <- len_all[len_all$event == 4,]
 t4_lens <- aggregate(length ~ pop + site, data = len_t4, FUN = mean)
 t4_sd <- aggregate(length ~ pop + site, data = len_t4, FUN = sd)
 colnames(t4_sd) <- c("pop", "site", "len_sd")
 t4_lens_popsite <- merge(t4_lens, t4_sd, by = c("pop", "site"))
-t4_lens_popsite$monitoring_event <- 4
+t4_lens_popsite$event <- 4
 
 lens_popsite <- rbind(t1_lens_popsite, t2_lens_popsite, t3_lens_popsite, t4_lens_popsite)
 colnames(lens_popsite) <- c("pop","bag_site","mean_len","sd_len","event")
@@ -162,7 +162,6 @@ orders_lea <- merge(order_lew_lea, order_yrk_lea, by = c("site_name"))
 lea_go1 <- merge(lea_go, orders_lea, by = c("site_name"))
 
 # GF
-# colnames are fine
 # add order
 order_lew_af <- as.data.frame(gf_go[order(gf_go$offset_gf_af_lew, decreasing = T),]$site_name)
 colnames(order_lew_af) <- c("site_name")
@@ -188,10 +187,24 @@ orders_rda <- merge(order_lew_rda, order_yrk_rda, by = c("site_name"))
 rda_go1 <- merge(rda_go, orders_rda, by = c("site_name"))
 colnames(rda_go1) <- c("site_name","lat","lon","offset_lew_rda","offset_yrk_rda","order_lew_rda","order_yrk_rda")
 
+# environmental distance
+env_dist <- read.csv("data/EnvDat/exp/distance_matrix_2025-10-30.csv")[28:35,c("X","Lewisetta","YorkRiver")]
+colnames(env_dist) <- c("site_name", "env_dist_lew", "env_dist_yrk")
+# add order
+order_lew_envdist <- as.data.frame(env_dist[order(env_dist$env_dist_lew, decreasing = T),]$site_name)
+colnames(order_lew_envdist) <- "site_name"
+order_lew_envdist$order_lew_envdist <- 1:length(order_lew_envdist$site_name)
+order_yrk_envdist <- as.data.frame(env_dist[order(env_dist$env_dist_yrk, decreasing = T),]$site_name)
+colnames(order_yrk_envdist) <- "site_name"
+order_yrk_envdist$order_yrk_envdist <- 1:length(order_yrk_envdist$site_name)
+orders_envdist <- merge(order_lew_envdist, order_yrk_envdist, by = "site_name")
+env_dist1 <- merge(env_dist, orders_envdist, by = "site_name")
+
 # put together full go & fitness df
-#go <- merge(rda_go1, gf_go1, by = "site_name") # commented out while waiting on gf results
-go1 <- merge(rda_go1, lea_go1, by = c("site_name", "lat", "lon")) # once gf results are in, rda_go1 becomes go
-fullfit <- merge(bagfullfit, go1, by = "site_name")
+go <- merge(rda_go1, gf_go1, by = "site_name") # commented out while waiting on gf results
+go1 <- merge(go, lea_go1, by = c("site_name", "lat", "lon")) # once gf results are in, rda_go1 becomes go
+go2 <- merge(go1, env_dist1, by = "site_name")
+fullfit <- merge(bagfullfit, go2, by = "site_name")
 ```
 
 
@@ -207,27 +220,45 @@ Here I calculate the R^2 and pearson's correlation between fitness and GO for ea
 # correlations between go/fit at each time point
 #################################################
 # function for correlations
-cor_fit <- function(site, go_method) {
-  cor_df <- data.frame(pearson_mort = NA, spearman_mort = NA, kendall_mort = NA, r2_mort = NA, r2_mort_rankings = NA, pearson_len = NA, spearman_len = NA, kendall_len = NA, r2_len = NA, r2_len_rankings = NA, method = NA, bag_site = NA, event = NA)
+cor_fit <- function(site, go_method, df) {
+  cor_df <- data.frame(pearson_mort = NA, pearson_mort_pval = NA, spearman_mort = NA, spearman_mort_pval = NA, kendall_mort = NA, kendall_mort_pval = NA, r2_mort = NA, r2_mort_rankings = NA, pearson_len = NA, pearson_len_pval = NA, spearman_len = NA, spearman_len_pval = NA, kendall_len = NA, kendall_len_pval = NA, r2_len = NA, r2_len_rankings = NA, method = NA, bag_site = NA, event = NA)
   
-  go_metric <- ifelse(go_method == "lea" & site == "Lewisetta", "lew_gothin_lea", ifelse(go_method == "gf" & site == "Lewisetta", "offset_gf_af_lew", ifelse(go_method == "rda" & site == "Lewisetta", "offset_lew_rda", ifelse(go_method == "lea" & site == "YorkRiver", "yrk_gothin_lea", ifelse(go_method == "gf" & site == "YorkRiver", "offset_gf_af_yrk", ifelse(go_method == "rda" & site == "YorkRiver", "offset_yrk_rda", NULL))))))
-  
-  go_metric_rank <- ifelse(go_method == "lea" & site == "Lewisetta", "order_lew_lea", ifelse(go_method == "gf" & site == "Lewisetta", "order_lew_gf_af", ifelse(go_method == "rda" & site == "Lewisetta", "order_lew_rda", ifelse(go_method == "lea" & site == "YorkRiver", "order_yrk_lea", ifelse(go_method == "gf" & site == "YorkRiver", "order_yrk_gf_af", ifelse(go_method == "rda" & site == "YorkRiver", "order_yrk_rda", NULL))))))
+  lookup_metric <- list(
+  Lewisetta = list(lea = "lew_gothin_lea", gf = "offset_gf_af_lew", 
+                   rda = "offset_lew_rda", env_dist = "env_dist_lew"),
+  YorkRiver = list(lea = "yrk_gothin_lea", gf = "offset_gf_af_yrk", 
+                   rda = "offset_yrk_rda", env_dist = "env_dist_yrk")
+  )
+
+  lookup_rank <- list(Lewisetta = list(lea = "order_lew_lea", gf = "offset_gf_af_lew",
+                   rda = "order_lew_rda", env_dist = "order_lew_envdist"),
+  YorkRiver = list(lea = "order_yrk_lea", gf = "offset_gf_af_yrk", 
+                   rda = "order_yrk_rda", env_dist = "order_yrk_envdist"))
+
+# Use them (returns single values)
+  go_metric <- lookup_metric[[site]][[go_method]]
+  go_metric_rank <- lookup_rank[[site]][[go_method]]
 
   for (i in 1:4) {
-    fitdat <- fullfit[fullfit$bag_site == (site) & fullfit$event == i,]
+    fitdat <- df[df$bag_site == (site) & df$event == i,]
     
     # survival
-    cor_df[i,]$pearson_mort <- cor(fitdat[,go_metric], fitdat$surv, method = "pearson")
-    cor_df[i,]$spearman_mort <- cor(fitdat[,go_metric], fitdat$surv, method = "spearman")
-    cor_df[i,]$kendall_mort <- cor(as.numeric(fitdat[,go_metric_rank]), as.numeric(fitdat$order_mort), method = "kendall")
+    cor_df[i,]$pearson_mort <- cor.test(fitdat[,go_metric], fitdat$surv, method = "pearson")$estimate
+    cor_df[i,]$pearson_mort_pval <- cor.test(fitdat[,go_metric], fitdat$surv, method = "pearson", exact = T)$p.value
+    cor_df[i,]$spearman_mort <- cor.test(fitdat[,go_metric], fitdat$surv, method = "spearman")$estimate
+    cor_df[i,]$spearman_mort_pval <- cor.test(fitdat[,go_metric], fitdat$surv, method = "spearman", exact = T)$p.value
+    cor_df[i,]$kendall_mort <- cor.test(as.numeric(fitdat[,go_metric_rank]), as.numeric(fitdat$order_mort), method = "kendall")$estimate
+    cor_df[i,]$kendall_mort_pval <- cor.test(fitdat[,go_metric], fitdat$surv, method = "kendall", exact = T)$p.value
     cor_df[i,]$r2_mort <- summary(lm(fitdat$surv ~ fitdat[,go_metric]))$r.squared
     cor_df[i,]$r2_mort_rankings <- summary(lm(fitdat$order_mort ~ fitdat[,go_metric_rank]))$r.squared
     
     # length
-    cor_df[i,]$pearson_len <- cor(fitdat[,go_metric], fitdat$length, method = "pearson")
-    cor_df[i,]$spearman_len <- cor(fitdat[,go_metric], fitdat$length, method = "spearman")
-    cor_df[i,]$kendall_len <- cor(as.numeric(fitdat[,go_metric_rank]), as.numeric(fitdat$order_len), method = "kendall")
+    cor_df[i,]$pearson_len <- cor.test(fitdat[,go_metric], fitdat$length, method = "pearson")$estimate
+    cor_df[i,]$pearson_len_pval <- cor.test(fitdat[,go_metric], fitdat$length, method = "pearson", exact = T)$p.value
+    cor_df[i,]$spearman_len <- cor.test(fitdat[,go_metric], fitdat$length, method = "spearman")$estimate
+    cor_df[i,]$spearman_len_pval <- cor.test(fitdat[,go_metric], fitdat$length, method = "spearman", exact = T)$p.value
+    cor_df[i,]$kendall_len <- cor.test(as.numeric(fitdat[,go_metric_rank]), as.numeric(fitdat$order_len), method = "kendall")$estimate
+    cor_df[i,]$kendall_len_pval <- cor.test(fitdat[,go_metric], fitdat$length, method = "kendall", exact = T)$p.value
     cor_df[i,]$r2_len <- summary(lm(fitdat$length ~ fitdat[,go_metric]))$r.squared
     cor_df[i,]$r2_len_rankings <- summary(lm(fitdat$order_len ~ fitdat[,go_metric_rank]))$r.squared
     
@@ -240,18 +271,36 @@ cor_fit <- function(site, go_method) {
 }
 
 # correlations
-(cor_lea_lew <- cor_fit("Lewisetta","lea"))
-(cor_lea_yrk <- cor_fit("YorkRiver","lea"))
-(cor_gf_af_lew <- cor_fit("Lewisetta","gf"))
-(cor_gf_af_yrk <- cor_fit("YorkRiver","gf"))
-(cor_rda_lew <- cor_fit("Lewisetta","rda"))
-(cor_rda_yrk <- cor_fit("YorkRiver","rda"))
+(cor_lea_lew <- cor_fit("Lewisetta","lea", fullfit))
+(cor_lea_yrk <- cor_fit("YorkRiver","lea", fullfit))
+(cor_gf_af_lew <- cor_fit("Lewisetta","gf", fullfit))
+(cor_gf_af_yrk <- cor_fit("YorkRiver","gf", fullfit))
+(cor_rda_lew <- cor_fit("Lewisetta","rda", fullfit))
+(cor_rda_yrk <- cor_fit("YorkRiver","rda", fullfit))
+(cor_envdist_lew <- cor_fit("Lewisetta", "env_dist", fullfit))
+(cor_envdist_yrk <- cor_fit("YorkRiver", "env_dist", fullfit))
 
-corrs_df <- rbind(cor_lea_lew, cor_lea_yrk, cor_gf_af_lew, cor_gf_af_yrk, cor_rda_lew, cor_rda_yrk)
+corrs_df <- rbind(cor_lea_lew, cor_lea_yrk, cor_gf_af_lew, cor_gf_af_yrk, cor_rda_lew, cor_rda_yrk, cor_envdist_lew, cor_envdist_yrk)
 rownames(corrs_df) <- NULL
 
 # save this
 write.csv(corrs_df, paste0("results/GO_results/go_fit_corrs_",Sys.Date(),".csv"), row.names = F)
+
+# what about without selection lines?
+(cor_lea_lew_ns <- cor_fit("Lewisetta","lea", fullfit[!fullfit$site_name %in% c("S1_LOLA", "S2_DEBY"),]))
+(cor_lea_yrk_ns <- cor_fit("YorkRiver","lea", fullfit[!fullfit$site_name %in% c("S1_LOLA", "S2_DEBY"),]))
+(cor_gf_af_lew_ns <- cor_fit("Lewisetta","gf", fullfit[!fullfit$site_name %in% c("S1_LOLA", "S2_DEBY"),]))
+(cor_gf_af_yrk_ns <- cor_fit("YorkRiver","gf", fullfit[!fullfit$site_name %in% c("S1_LOLA", "S2_DEBY"),]))
+(cor_rda_lew_ns <- cor_fit("Lewisetta","rda", fullfit[!fullfit$site_name %in% c("S1_LOLA", "S2_DEBY"),]))
+(cor_rda_yrk_ns <- cor_fit("YorkRiver","rda", fullfit[!fullfit$site_name %in% c("S1_LOLA", "S2_DEBY"),]))
+(cor_envdist_lew_ns <- cor_fit("Lewisetta", "env_dist", fullfit[!fullfit$site_name %in% c("S1_LOLA", "S2_DEBY"),]))
+(cor_envdist_yrk_ns <- cor_fit("YorkRiver", "env_dist", fullfit[!fullfit$site_name %in% c("S1_LOLA", "S2_DEBY"),]))
+
+corrs_df_ns <- rbind(cor_lea_lew_ns, cor_lea_yrk_ns, cor_gf_af_lew_ns, cor_gf_af_yrk_ns, cor_rda_lew_ns, cor_rda_yrk_ns, cor_envdist_lew_ns, cor_envdist_yrk_ns)
+rownames(corrs_df_ns) <- NULL
+
+cor(corrs_df$spearman_mort, corrs_df_ns$spearman_mort) # .96667 cor sel/no sel
+cor(corrs_df$spearman_len, corrs_df_ns$spearman_len) # .92388 cor sel/no sel
 #################################################
 ```
 
@@ -271,7 +320,7 @@ goFitLEA_lew_plotbag <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",])
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = lew_go_lea, y = surv), col = "slateblue", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = lew_go_lea, y = surv, col = "Spring'25")) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = lew_go_lea, y = surv), col = "purple4", se = T) +
-  labs(title = "Predicted GO (LEA) vs Mortality at Lewisetta", x = "LEA Offset", y = "Survival") +
+  labs(title = "Predicted GO (LEA) vs Survival at Lewisetta", x = "LEA Offset", y = "Survival") +
   scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitLEA_lew_plotbag
@@ -285,7 +334,7 @@ goFitLEA_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = yrk_go_lea, y = surv), col = "slateblue", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = yrk_go_lea, y = surv, col = "Spring'25")) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = yrk_go_lea, y = surv), col = "purple4", se = T) +
-  labs(title = "Predicted GO (LEA) vs Mortality at York River", x = "LEA Offset", y = "Survival") +
+  labs(title = "Predicted GO (LEA) vs Survival at York River", x = "LEA Offset", y = "Survival") +
   scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitLEA_yrk_plot
@@ -296,7 +345,7 @@ goFitLEA_plotfinalT <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = lew_go_lea, y = surv), col = "mediumspringgreen", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = yrk_go_lea, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = yrk_go_lea, y = surv), col = "dodgerblue", se = T) +
-  labs(title = "Predicted GO (LEA) vs Mortality at Final Time Point", x = "LEA Offset", y = "Survival") +
+  labs(title = "Predicted GO (LEA) vs Survival at Final Time Point", x = "LEA Offset", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitLEA_plotfinalT
@@ -316,7 +365,7 @@ goFitGF_lew_plotbag <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) 
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_af_lew, y = surv), col = "slateblue", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = surv, col = "Spring'25")) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = surv), col = "purple4", se = T) +
-  labs(title = "Predicted GO (GFaf) vs Mortality at Lewisetta", x = "GF Offset", y = "Survival") +
+  labs(title = "Predicted GO (GFaf) vs Survival at Lewisetta", x = "GF Offset", y = "Survival") +
   scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitGF_lew_plotbag
@@ -330,7 +379,7 @@ goFitGF_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_af_yrk, y = surv), col = "slateblue", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv, col = "Spring'25")) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv), col = "purple4", se = T) +
-  labs(title = "Predicted GO (GFaf) vs Mortality at York River", x = "GF Offset", y = "Survival") +
+  labs(title = "Predicted GO (GFaf) vs Survival at York River", x = "GF Offset", y = "Survival") +
   scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitGF_yrk_plot
@@ -341,14 +390,14 @@ goFitGF_plotfinalT <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = surv), col = "mediumspringgreen", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv), col = "dodgerblue", se = T) +
-  labs(title = "Predicted GO (GFaf) vs Mortality at Final Time Point", x = "GF Offset", y = "Survival") +
+  labs(title = "Predicted GO (GFaf) vs Survival at Final Time Point", x = "GF Offset", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitGF_plotfinalT
 ```
 
 
-Finally, I'll plot rda results:
+Then I'll plot rda results:
 
 ```{r}
 # plot lea vs mort at each site/time point
@@ -361,7 +410,7 @@ goFitRDA_lew_plotbag <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",])
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_lew_rda, y = surv), col = "slateblue", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lew_rda, y = surv, col = "Spring'25")) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lew_rda, y = surv), col = "purple4", se = T) +
-  labs(title = "Predicted GO (RDA) vs Mortality at Lewisetta", x = "RDA Offset", y = "Survival") +
+  labs(title = "Predicted GO (RDA) vs Survival at Lewisetta", x = "RDA Offset", y = "Survival") +
   scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitRDA_lew_plotbag
@@ -375,7 +424,7 @@ goFitRDA_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_yrk_rda, y = surv), col = "slateblue", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_yrk_rda, y = surv, col = "Spring'25")) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_yrk_rda, y = surv), col = "purple4", se = T) +
-  labs(title = "Predicted GO (RDA) vs Mortality at York River", x = "RDA Offset", y = "Survival") +
+  labs(title = "Predicted GO (RDA) vs Survival at York River", x = "RDA Offset", y = "Survival") +
   scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitRDA_yrk_plot
@@ -386,10 +435,54 @@ goFitRDA_plotfinalT <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lew_rda, y = surv), col = "mediumspringgreen", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_yrk_rda, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_yrk_rda, y = surv), col = "dodgerblue", se = T) +
-  labs(title = "Predicted GO (RDA) vs Mortality at Final Time Point", x = "RDA Offset", y = "Survival") +
+  labs(title = "Predicted GO (RDA) vs Survival at Final Time Point", x = "RDA Offset", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitRDA_plotfinalT
+```
+
+And finally, environmental distance:
+
+```{r}
+# plot lea vs mort at each site/time point
+goFitEnvdist_lew_plotbag <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = env_dist_lew, y = surv, col = "Fall'23")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = env_dist_lew, y = surv), col = "cadetblue3", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = env_dist_lew, y = surv, col = "Spring'24")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = env_dist_lew, y = surv), col = "cornflowerblue", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = env_dist_lew, y = surv, col = "Fall'24")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = env_dist_lew, y = surv), col = "slateblue", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = surv, col = "Spring'25")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = surv), col = "purple4", se = T) +
+  labs(title = "Environmental Distance vs Survival at Lewisetta", x = "Environmental Distance", y = "Survival") +
+  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  theme_classic()
+goFitEnvdist_lew_plotbag
+
+goFitEnvdist_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = env_dist_yrk, y = surv, col = "Fall'23")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = env_dist_yrk, y = surv), col = "cadetblue3", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = env_dist_yrk, y = surv, col = "Spring'24")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = env_dist_yrk, y = surv), col = "cornflowerblue", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = env_dist_yrk, y = surv, col = "Fall'24")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = env_dist_yrk, y = surv), col = "slateblue", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = surv, col = "Spring'25")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = surv), col = "purple4", se = T) +
+  labs(title = "Environmental Distance vs Survival at York River", x = "Environmental Distance", y = "Survival") +
+  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  theme_classic()
+goFitEnvdist_yrk_plot
+
+# plot go gf vs mort at both sites just final time point
+goFitEnvdist_plotfinalT <- ggplot(data = fullfit) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = surv, fill = "Lewisetta"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = surv), col = "mediumspringgreen", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv), col = "dodgerblue", se = T) +
+  labs(title = "Environmental Distance vs Survival at Final Time Point", x = "Environmental Distance", y = "Survival") +
+  scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
+  theme_classic()
+goFitEnvdist_plotfinalT
 ```
 
 
