@@ -624,40 +624,40 @@ Environmental distance vs length:
 ```{r}
 # plot env dist vs length at each site/time point
 goFitEnvdist_lew_plotbag <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = env_dist_lew, y = surv, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = env_dist_lew, y = surv), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = env_dist_lew, y = surv, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = env_dist_lew, y = surv), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = env_dist_lew, y = surv, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = env_dist_lew, y = surv), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = surv, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = surv), col = "purple4", se = T) +
-  labs(title = "Environmental Distance vs Survival at Lewisetta", x = "Environmental Distance", y = "Survival") +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = env_dist_lew, y = length, col = "Fall'23")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = env_dist_lew, y = length), col = "cadetblue3", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = env_dist_lew, y = length, col = "Spring'24")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = env_dist_lew, y = length), col = "cornflowerblue", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = env_dist_lew, y = length, col = "Fall'24")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = env_dist_lew, y = length), col = "slateblue", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length, col = "Spring'25")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length), col = "purple4", se = T) +
+  labs(title = "Environmental Distance vs Size at Lewisetta", x = "Environmental Distance", y = "Length (mm)") +
   scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitEnvdist_lew_plotbag
 
 goFitEnvdist_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = env_dist_yrk, y = surv, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = env_dist_yrk, y = surv), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = env_dist_yrk, y = surv, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = env_dist_yrk, y = surv), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = env_dist_yrk, y = surv, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = env_dist_yrk, y = surv), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = surv, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = surv), col = "purple4", se = T) +
-  labs(title = "Environmental Distance vs Survival at York River", x = "Environmental Distance", y = "Survival") +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = env_dist_yrk, y = length, col = "Fall'23")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = env_dist_yrk, y = length), col = "cadetblue3", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = env_dist_yrk, y = length, col = "Spring'24")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = env_dist_yrk, y = length), col = "cornflowerblue", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = env_dist_yrk, y = length, col = "Fall'24")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = env_dist_yrk, y = length), col = "slateblue", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length, col = "Spring'25")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length), col = "purple4", se = T) +
+  labs(title = "Environmental Distance vs Size at York River", x = "Environmental Distance", y = "Length (mm)") +
   scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitEnvdist_yrk_plot
 
-# plot go gf vs mort at both sites just final time point
+# plot go gf vs len at both sites just final time point
 goFitEnvdist_plotfinalT <- ggplot(data = fullfit) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = surv, fill = "Lewisetta"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = surv), col = "mediumspringgreen", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv), col = "dodgerblue", se = T) +
-  labs(title = "Environmental Distance vs Survival at Final Time Point", x = "Environmental Distance", y = "Survival") +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length, fill = "Lewisetta"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length), col = "mediumspringgreen", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length), col = "dodgerblue", se = T) +
+  labs(title = "Environmental Distance vs Size at Final Time Point", x = "Environmental Distance", y = "Length (mm)") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitEnvdist_plotfinalT
