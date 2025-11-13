@@ -221,7 +221,7 @@ Here I calculate the R^2 and pearson's correlation between fitness and GO for ea
 #################################################
 # function for correlations
 cor_fit <- function(site, go_method, df) {
-  cor_df <- data.frame(pearson_mort = NA, pearson_mort_pval = NA, spearman_mort = NA, spearman_mort_pval = NA, kendall_mort = NA, kendall_mort_pval = NA, r2_mort = NA, r2_mort_rankings = NA, pearson_len = NA, pearson_len_pval = NA, spearman_len = NA, spearman_len_pval = NA, kendall_len = NA, kendall_len_pval = NA, r2_len = NA, r2_len_rankings = NA, method = NA, bag_site = NA, event = NA)
+  cor_df <- data.frame(pearson_surv = NA, pearson_surv_pval = NA, spearman_surv = NA, spearman_surv_pval = NA, kendall_surv = NA, kendall_surv_pval = NA, r2_surv = NA, r2_surv_rankings = NA, pearson_len = NA, pearson_len_pval = NA, spearman_len = NA, spearman_len_pval = NA, kendall_len = NA, kendall_len_pval = NA, r2_len = NA, r2_len_rankings = NA, method = NA, bag_site = NA, event = NA)
   
   lookup_metric <- list(
   Lewisetta = list(lea = "lew_gothin_lea", gf = "offset_gf_af_lew", 
@@ -243,14 +243,14 @@ cor_fit <- function(site, go_method, df) {
     fitdat <- df[df$bag_site == (site) & df$event == i,]
     
     # survival
-    cor_df[i,]$pearson_mort <- cor.test(fitdat[,go_metric], fitdat$surv, method = "pearson")$estimate
-    cor_df[i,]$pearson_mort_pval <- cor.test(fitdat[,go_metric], fitdat$surv, method = "pearson", exact = T)$p.value
-    cor_df[i,]$spearman_mort <- cor.test(fitdat[,go_metric], fitdat$surv, method = "spearman")$estimate
-    cor_df[i,]$spearman_mort_pval <- cor.test(fitdat[,go_metric], fitdat$surv, method = "spearman", exact = T)$p.value
-    cor_df[i,]$kendall_mort <- cor.test(as.numeric(fitdat[,go_metric_rank]), as.numeric(fitdat$order_mort), method = "kendall")$estimate
-    cor_df[i,]$kendall_mort_pval <- cor.test(fitdat[,go_metric], fitdat$surv, method = "kendall", exact = T)$p.value
-    cor_df[i,]$r2_mort <- summary(lm(fitdat$surv ~ fitdat[,go_metric]))$r.squared
-    cor_df[i,]$r2_mort_rankings <- summary(lm(fitdat$order_mort ~ fitdat[,go_metric_rank]))$r.squared
+    cor_df[i,]$pearson_surv <- cor.test(fitdat[,go_metric], fitdat$surv, method = "pearson")$estimate
+    cor_df[i,]$pearson_surv_pval <- cor.test(fitdat[,go_metric], fitdat$surv, method = "pearson", exact = T)$p.value
+    cor_df[i,]$spearman_surv <- cor.test(fitdat[,go_metric], fitdat$surv, method = "spearman")$estimate
+    cor_df[i,]$spearman_surv_pval <- cor.test(fitdat[,go_metric], fitdat$surv, method = "spearman", exact = T)$p.value
+    cor_df[i,]$kendall_surv <- cor.test(as.numeric(fitdat[,go_metric_rank]), as.numeric(fitdat$order_mort), method = "kendall")$estimate
+    cor_df[i,]$kendall_surv_pval <- cor.test(fitdat[,go_metric], fitdat$surv, method = "kendall", exact = T)$p.value
+    cor_df[i,]$r2_surv <- summary(lm(fitdat$surv ~ fitdat[,go_metric]))$r.squared
+    cor_df[i,]$r2_surv_rankings <- summary(lm(fitdat$order_mort ~ fitdat[,go_metric_rank]))$r.squared
     
     # length
     cor_df[i,]$pearson_len <- cor.test(fitdat[,go_metric], fitdat$length, method = "pearson")$estimate
@@ -282,6 +282,8 @@ cor_fit <- function(site, go_method, df) {
 
 corrs_df <- rbind(cor_lea_lew, cor_lea_yrk, cor_gf_af_lew, cor_gf_af_yrk, cor_rda_lew, cor_rda_yrk, cor_envdist_lew, cor_envdist_yrk)
 rownames(corrs_df) <- NULL
+corrs_df$signif_surv <- ifelse(corrs_df$spearman_surv_pval < .05, T, F)
+corrs_df$signif_len <- ifelse(corrs_df$spearman_len_pval < .05, T, F)
 
 # save this
 write.csv(corrs_df, paste0("results/GO_results/go_fit_corrs_",Sys.Date(),".csv"), row.names = F)
