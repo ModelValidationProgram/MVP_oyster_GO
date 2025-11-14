@@ -342,15 +342,15 @@ goFitLEA_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
 goFitLEA_yrk_plot
 
 # plot go lea vs mort at both sites just final time point
-goFitLEA_plotfinalT <- ggplot(data = fullfit) +
+goFitLEA_plotfinalTsurv <- ggplot(data = fullfit) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = lew_go_lea, y = surv, fill = "Lewisetta"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = lew_go_lea, y = surv), col = "mediumspringgreen", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = yrk_go_lea, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = yrk_go_lea, y = surv), col = "dodgerblue", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = yrk_go_lea, y = surv), col = "dodgerblue", linetype = "dashed", se = T) +
   labs(title = "Predicted GO (LEA) vs Survival at Final Time Point", x = "LEA Offset", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
-goFitLEA_plotfinalT
+goFitLEA_plotfinalTsurv
 ```
 
 Next, I'll plot gradient forest results:
@@ -386,15 +386,15 @@ goFitGF_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
 goFitGF_yrk_plot
 
 # plot gf vs mort at both sites just final time point
-goFitGF_plotfinalT <- ggplot(data = fullfit) +
+goFitGF_plotfinalTsurv <- ggplot(data = fullfit) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = surv, fill = "Lewisetta"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = surv), col = "mediumspringgreen", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv), col = "dodgerblue", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv), col = "dodgerblue", linetype = "dashed", se = T) +
   labs(title = "Predicted GO (GFaf) vs Survival at Final Time Point", x = "GF Offset", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
-goFitGF_plotfinalT
+goFitGF_plotfinalTsurv
 ```
 
 Then I'll plot rda results:
@@ -430,15 +430,15 @@ goFitRDA_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
 goFitRDA_yrk_plot
 
 # plot rda vs mort at both sites just final time point
-goFitRDA_plotfinalT <- ggplot(data = fullfit) +
+goFitRDA_plotfinalTsurv <- ggplot(data = fullfit) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lew_rda, y = surv, fill = "Lewisetta"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lew_rda, y = surv), col = "mediumspringgreen", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lew_rda, y = surv), col = "mediumspringgreen", linetype = "dashed", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_yrk_rda, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_yrk_rda, y = surv), col = "dodgerblue", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_yrk_rda, y = surv), col = "dodgerblue", linetype = "dashed", se = T) +
   labs(title = "Predicted GO (RDA) vs Survival at Final Time Point", x = "RDA Offset", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
-goFitRDA_plotfinalT
+goFitRDA_plotfinalTsurv
 ```
 
 And finally, environmental distance:
@@ -474,15 +474,15 @@ goFitEnvdist_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",
 goFitEnvdist_yrk_plot
 
 # plot env dist vs mort at both sites just final time point
-goFitEnvdist_plotfinalT <- ggplot(data = fullfit) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = surv, fill = "Lewisetta"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = surv), col = "mediumspringgreen", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv), col = "dodgerblue", se = T) +
+goFitEnvdist_plotfinalTsurv <- ggplot(data = fullfit) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = surv, fill = "Lewisetta"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = surv), col = "mediumspringgreen", linetype = "dashed", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = surv), col = "dodgerblue", linetype = "dashed", se = T) +
   labs(title = "Environmental Distance vs Survival at Final Time Point", x = "Environmental Distance", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
-goFitEnvdist_plotfinalT
+goFitEnvdist_plotfinalTsurv
 ```
 
 
@@ -570,7 +570,7 @@ goFitGF_plotfinalTlen <- ggplot(data = fullfit) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = length, fill = "Lewisetta"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = length), col = "mediumspringgreen", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = length), col = "dodgerblue", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = length), col = "dodgerblue", linetype = "dashed", se = T) +
   labs(title = "Predicted GO (GF) vs Size at Final Time Point", x = "GF Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
@@ -612,9 +612,9 @@ goFitRDA_yrk_len
 # plot rda vs len at both sites just final time point
 goFitRDA_plotfinalTlen <- ggplot(data = fullfit) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lew_rda, y = length, fill = "Lewisetta"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lew_rda, y = length), col = "mediumspringgreen", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lew_rda, y = length), col = "mediumspringgreen", linetype = "dashed", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_yrk_rda, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_yrk_rda, y = length), col = "dodgerblue", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_yrk_rda, y = length), col = "dodgerblue", linetype = "dashed", se = T) +
   labs(title = "Predicted GO (RDA) vs Size at Final Time Point", x = "RDA Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
@@ -625,7 +625,7 @@ Environmental distance vs length:
 
 ```{r}
 # plot env dist vs length at each site/time point
-goFitEnvdist_lew_plotbag <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
+goFitEnvdist_len_lew_plot <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = env_dist_lew, y = length, col = "Fall'23")) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = env_dist_lew, y = length), col = "cadetblue3", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = env_dist_lew, y = length, col = "Spring'24")) +
@@ -637,9 +637,9 @@ goFitEnvdist_lew_plotbag <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta
   labs(title = "Environmental Distance vs Size at Lewisetta", x = "Environmental Distance", y = "Length (mm)") +
   scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
-goFitEnvdist_lew_plotbag
+goFitEnvdist_len_lew_plot
 
-goFitEnvdist_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
+goFitEnvdist_len_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = env_dist_yrk, y = length, col = "Fall'23")) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = env_dist_yrk, y = length), col = "cadetblue3", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = env_dist_yrk, y = length, col = "Spring'24")) +
@@ -651,20 +651,36 @@ goFitEnvdist_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",
   labs(title = "Environmental Distance vs Size at York River", x = "Environmental Distance", y = "Length (mm)") +
   scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
-goFitEnvdist_yrk_plot
+goFitEnvdist_len_yrk_plot
 
 # plot go gf vs len at both sites just final time point
-goFitEnvdist_plotfinalT <- ggplot(data = fullfit) +
+goFitEnvdist_plotfinalTlen <- ggplot(data = fullfit) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length, fill = "Lewisetta"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length), col = "mediumspringgreen", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length), col = "mediumspringgreen", linetype = "dashed", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length), col = "dodgerblue", se = T) +
   labs(title = "Environmental Distance vs Size at Final Time Point", x = "Environmental Distance", y = "Length (mm)") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
-goFitEnvdist_plotfinalT
+goFitEnvdist_plotfinalTlen
 ```
 
+
+Export all of these plots to pdf:
+
+```{r}
+pdf(file = "results/figures/GO_comparisons.pdf", 
+    width = 9, height = 6)
+goFitLEA_plotfinalTsurv
+goFitGF_plotfinalTsurv
+goFitRDA_plotfinalTsurv
+goFitEnvdist_plotfinalTsurv
+goFitLEA_plotfinalTlen
+goFitGF_plotfinalTlen
+goFitRDA_plotfinalTlen
+goFitEnvdist_plotfinalTlen
+dev.off()
+```
 
 ## Compare Offset Methods
 
