@@ -189,12 +189,12 @@ importance(gf_af)
 #importance(gf_geno)
 saveRDS(gf_af, paste0("results/lg_results/gf_af_",Sys.Date(),".RDS"))
 gf_af <- readRDS("results/lg_results/gf_af_2025-11-10.RDS")
-#saveRDS(gf_geno, paste0("results/GO_results/gf_geno_",Sys.Date(),".RDS"))
-#gf_geno <- readRDS("results/lg_results/gf_geno_2025-11-10.RDS")
+saveRDS(gf_geno, paste0("results/GO_results/gf_geno_",Sys.Date(),".RDS"))
+gf_geno <- readRDS("results/lg_results/gf_geno_2025-11-15.RDS")
 
 # plots of turnover functions for individual loci - now having issues with ylim
 plot(gf_af, plot.type = "C", imp.vars = gf_af$imp.vars, show.overall = T, legend = T, leg.posn = "topleft", leg.nspecies = 5, ylim = c(0,0.5)) # ylim error, if i provide none I get "need finite ylim" if I provide one I get "formal argument "ylim" matched by multiple actual arguments"
-#plot(gf_geno, plot.type = "C", imp.vars = gf_geno$imp.vars, show.overall = T, legend = T, leg.posn = "topleft", leg.nspecies = 5, ylim = c(0,0.5)) # doesn't finish running, had to interrupt
+plot(gf_geno, plot.type = "C", imp.vars = gf_geno$imp.vars, show.overall = T, legend = T, leg.posn = "topleft", leg.nspecies = 5, ylim = c(0,0.5)) # doesn't finish running, had to interrupt
 ```
 
 It looks like for the allele frequency based model, sal_quant90 is the most important climate variable, followed by either dermo prevalence/temp_quant90 (accuracy importance/R2 weighted importance), then dermo prevalence/sal_quantile10, then temp_quantil10, and finally pea crabs. 
@@ -214,13 +214,16 @@ Now that we have trained our gradient forest models, we need to use these to pre
 
 ```{r Predict Offset Prep}
 # check everything again
-gf_af
-gf_geno
+#gf_af
+#gf_geno
 
-# use exp data to predict from/to, seascape just to train the gf
+# use exp data to predict from/to
 env_exp_pop_red
 env_exp_lew_red
 env_exp_yrk_red
+
+# seascape for visualization
+env_sea_pop_red
 
 # pops list experimental groups
 pops_list1 <- c("S1_LOLA", "S2_DEBY", "W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME")
@@ -232,14 +235,14 @@ Now I can predict offset using these different methods (genotype and allele freq
 ```{r Predict Offset}
 # prediction to home site
 pred_af_home <- predict(gf_af, env_exp_pop_red[,-1])
-#pred_geno_home <- predict(gf_geno, expEnv_red[,2:5])
+pred_geno_home <- predict(gf_geno, env_exp_pop_red[,-1])
 
 # prediction to common gardens
 pred_af_lew <- predict(gf_af, env_exp_lew_red[,-1])
 pred_af_yrk <- predict(gf_af, env_exp_yrk_red[,-1])
 
-#pred_geno_lew <- predict(gf_geno, geno_lewenv_comp[,3:6])
-#pred_geno_yrk <- predict(gf_geno, geno_yrkenv_comp[,3:6])
+pred_geno_lew <- predict(gf_geno, env_exp_lew_red[,-1])
+pred_geno_yrk <- predict(gf_geno, env_exp_lew_red[,-1])
 
 # We now compute the euclidean distance between current and new cumulative importance
 nb_ind_af <- nrow(pred_af_lew)
@@ -311,6 +314,11 @@ pred_af_sea <- predict(gf_af, env_sea_pop_red)
 pred_af_lew_sea <- predict(gf_af, env_sea_pop_for_pred[env_sea_pop_for_pred$exp_site == "Lewisetta",1:(ncol(env_sea_pop_for_pred) - 1)])
 pred_af_yrk_sea <- predict(gf_af, env_sea_pop_for_pred[env_sea_pop_for_pred$exp_site == "YorkRiver",-which(names(env_sea_pop_for_pred) == "exp_site")])
 
+# geno
+pred_geno_sea <- predict(gf_geno, env_sea_pop_red)
+pred_geno_lew_sea <- predict(gf_geno, env_sea_pop_for_pred[env_sea_pop_for_pred$exp_site == "Lewisetta",1:(ncol(env_sea_pop_for_pred) - 1)])
+pred_geno_yrk_sea <- predict(gf_geno, env_sea_pop_for_pred[env_sea_pop_for_pred$exp_site == "YorkRiver",-which(names(env_sea_pop_for_pred) == "exp_site")])
+
 # We now compute the euclidean distance between current and new cumulative importance
 nb_ind_sea <- nrow(pred_af_sea)
 
@@ -323,6 +331,14 @@ for (i in 1:nb_ind_sea){ # calc offset
 af_offset_lew_sea <- cbind(env_sea_pop$site_name, env_sea_pop$Latitude_manual, env_sea_pop$Longitude_manual, df_af_lew_sea) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
 colnames(af_offset_lew_sea) <- c("site_name", "lat", "lon", "offset_gf_af_lew")
 
+df_geno_lew_sea <- data.frame()
+for (i in 1:nb_ind_sea) {
+  ec_dist <- as.data.frame(euclidean(pred_geno_sea[i,], pred_geno_lew_sea[i,]))
+  df_geno_lew_sea <- rbind(df_geno_lew_sea, ec_dist)
+}
+geno_offset_lew_sea <- cbind(env_sea_pop$site_name, env_sea_pop$Latitude_manual, env_sea_pop$Longitude_manual, df_geno_lew_sea) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
+colnames(geno_offset_lew_sea) <- c("site_name", "lat", "lon", "offset_gf_geno_lew")
+
 # york
 df_af_yrk_sea <- data.frame() # df
 for (i in 1:nb_ind_sea){ # calc offset
@@ -331,6 +347,14 @@ for (i in 1:nb_ind_sea){ # calc offset
 }
 af_offset_yrk_sea <- cbind(env_sea_pop$site_name, env_sea_pop$Latitude_manual, env_sea_pop$Longitude_manual, df_af_yrk_sea) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
 colnames(af_offset_yrk_sea) <- c("site_name", "lat", "lon", "offset_gf_af_yrk")
+
+df_geno_yrk_sea <- data.frame()
+for (i in 1:nb_ind_sea){ # calc offset
+  ec_dist <- as.data.frame(euclidean(pred_geno_sea[i,], pred_geno_yrk_sea[i,]))
+  df_geno_yrk_sea <- rbind(df_geno_yrk_sea, ec_dist)
+}
+geno_offset_yrk_sea <- cbind(env_sea_pop$site_name, env_sea_pop$Latitude_manual, env_sea_pop$Longitude_manual, df_geno_yrk_sea) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
+colnames(geno_offset_yrk_sea) <- c("site_name", "lat", "lon", "offset_gf_geno_yrk")
 ```
 
 ### Plotting
