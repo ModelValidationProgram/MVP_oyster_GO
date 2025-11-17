@@ -1,5 +1,0 @@
-Error in colnames(genoMatT) <- colnames(genoThinMatT) <- pops_list_full : 
-  object 'genoMatT' not found
-Execution halted
-Error: object 'genoMatT' not found
-Execution halted
