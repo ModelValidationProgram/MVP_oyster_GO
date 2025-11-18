@@ -245,8 +245,7 @@ pred_geno_lew <- predict(gf_geno, env_exp_lew_red[,-1])
 pred_geno_yrk <- predict(gf_geno, env_exp_lew_red[,-1])
 
 # We now compute the euclidean distance between current and new cumulative importance
-nb_ind_af <- nrow(pred_af_lew)
-#nb_ind_geno <- nrow(pred_geno_lew)
+nb_ind <- nrow(pred_af_lew)
 
 # calculate offsets
 euclidean <- function(a, b) sqrt(sum((a - b)^2)) # Euclidean distance for genetic offset
@@ -254,7 +253,7 @@ euclidean <- function(a, b) sqrt(sum((a - b)^2)) # Euclidean distance for geneti
 # af
 # lew
 df_af_lew <- data.frame() # df
-for (i in 1:nb_ind_af){ # calc offset
+for (i in 1:nb_ind){ # calc offset
   ec_dist <- as.data.frame(euclidean(pred_af_home[i,], pred_af_lew[i,]))
   df_af_lew <- rbind(df_af_lew, ec_dist)
 }
@@ -263,7 +262,7 @@ colnames(af_offset_lew) <- c("site_name", "offset_gf_af_lew")
 
 # york
 df_af_yrk <- data.frame() # df
-for (i in 1:nb_ind_af){ # calc offset
+for (i in 1:nb_ind) { # calc offset
   ec_dist <- as.data.frame(euclidean(pred_af_home[i,], pred_af_yrk[i,]))
   df_af_yrk <- rbind(df_af_yrk, ec_dist)
 }
@@ -276,29 +275,26 @@ af_offsets <- merge(af_offset_lew, af_offset_yrk, by = c("site_name"))
 # geno
 # lew
 df_geno_lew <- data.frame() # df
-for (i in 1:nb_ind_geno){ # calc offset
+for (i in 1:nb_ind){ # calc offset
   ec_dist <- as.data.frame(euclidean(pred_geno_home[i,], pred_geno_lew[i,]))
   df_geno_lew <- rbind(df_geno_lew, ec_dist)
 }
-geno_offset_lew <- cbind(as.data.frame(expEnv[c("site_name","Label_ind")]), df_geno_lew) # associate metadata with offset calculation
-colnames(geno_offset_lew) <- c("site_name", "Label_ind", "offset_gf_geno_lew")
+geno_offset_lew <- cbind(as.data.frame(env_exp_pop[,c("site_name","Latitude_manual","Longitude_manual")]), df_geno_lew) # associate metadata with offset calculation
+colnames(geno_offset_lew) <- c("site_name", "lat", "lon", "offset_gf_geno_lew")
 
 # york
 df_geno_yrk <- data.frame() # df
-for (i in 1:nb_ind_geno){ # calc offset
+for (i in 1:nb_ind){ # calc offset
   ec_dist <- as.data.frame(euclidean(pred_geno_home[i,], pred_geno_yrk[i,]))
   df_geno_yrk <- rbind(df_geno_yrk, ec_dist)
 }
-geno_offset_yrk <- cbind(as.data.frame(expEnv[c("site_name","Label_ind")]), df_geno_yrk) # associate metadata with offset calculation
-colnames(geno_offset_yrk) <- c("site_name", "Label_ind", "offset_gf_geno_yrk")
+geno_offset_yrk <- cbind(as.data.frame(env_exp_pop[,c("site_name","Latitude_manual","Longitude_manual")]), df_geno_yrk) # associate metadata with offset calculation
+colnames(geno_offset_yrk) <- c("site_name", "lat", "lon", "offset_gf_geno_yrk")
 
 # merge
-geno_offsets <- merge(geno_offset_lew, geno_offset_yrk, by = c("site_name","Label_ind"))
+geno_offsets <- merge(geno_offset_lew, geno_offset_yrk, by = c("site_name","lat","lon"))
 
-# only one actual prediction for the geno offsets, so reduce the df
-geno_offsets_red <- geno_offsets[!duplicated(geno_offsets$site_name),]
-
-offsets_mvp <- merge(geno_offsets_red, af_offsets, by = c("site_name"))
+offsets_mvp <- merge(geno_offsets, af_offsets, by = c("site_name"))
 
 # write these offsets to results
 write.csv(offsets_mvp, paste0("results/GO_results/offsets_GF_expSites_", Sys.Date(), ".csv"))
