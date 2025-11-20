@@ -92,9 +92,6 @@ expsal_red <- expsal[,c("site_name","lat","lon","Mean_Annual_Salinity_ppt","Mean
 exptemp_red <- exptemp[,c("site_name","lat","lon","Mean_Annual_Temperature_C","Mean_max_temperature_C","Mean_min_temperature_C","temp_quantile_10","temp_quantile_90")]
 expenv_mg <- merge(expsal_red, exptemp_red, by = c("site_name", "lat", "lon"))
 
-# replace york data with more updated info
-yrk_replace <- merge(yrk_temp, yrk_sal)
-
 # experimental site info output
 write.csv(expenv_mg[,c("site_name", "lat", "lon")], "data/EnvDat/exp/exp_site_info.csv")
 
