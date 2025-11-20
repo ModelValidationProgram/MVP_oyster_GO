@@ -580,7 +580,7 @@ map_lew_int_gf_geno <- ggplot(data = world) +
 
 lew_int_gf_geno_inset <- ggplot(data = world) +
   theme_bw()+
-  geom_sf(data = interpolated_yrk_af, mapping = aes(fill = var1.pred, col = var1.pred)) +
+  geom_sf(data = interpolated_lew_geno, mapping = aes(fill = var1.pred, col = var1.pred)) +
   scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.04)) +
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.04)) +
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
