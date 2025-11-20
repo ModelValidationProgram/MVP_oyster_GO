@@ -19,6 +19,11 @@ library(lme4) # for lmm
 library(performance) # for lmm
 library(lmerTest) # for lmm
 library(car) # for avPlots(), Anova()
+
+# data
+surv_long <- read.csv("results/exp_results/mortality_long_bags_052925.csv")[,-1]
+bags <- read.csv("data/ExpDat/MVP23-FieldBags - bags.csv")
+lengths <- read.csv("results/exp_results/lengths_long_2025-06-03.csv")[,-1]
 ```
 
 This script is for modeling differences in survival and length amongst bags/populations/sites/time points in the MVP Field Experiment. 
@@ -29,13 +34,9 @@ This script will also be split at some point to separate some of the modeling.
 
 ## Modeling differences in survival
 
-First I'll read in and process survival data
+First I'll process survival data:
 
 ```{r}
-# read in data
-surv_long <- read.csv("results/exp_results/mortality_long_bags_052925.csv")[,-1]
-bags <- read.csv("data/ExpDat/MVP23-FieldBags - bags.csv")
-
 # split bags to have more detailed bag data
 bags[,5:6] <- str_split_fixed(bags$bags_label, "-", 3)[,2:3]
 colnames(bags) <- c("bags_key","bag_site","bag","SpawnTrt_Key","pop","bagnum")
@@ -46,7 +47,7 @@ surv_for_mod$pop <- str_split_fixed(surv_for_mod$bag, "-", 3)[,2]
 surv_mod_ord <- surv_for_mod[,c("bag_site","pop","bag","event","surv")]
 
 # rename populations
-map=c("TX"="W1-TX","LA"="W2-LA","FL"="W3-FL","LOLA"="S1-LOLA","DEBY"="S2-DEBY","JR"="W4-VA","NH"="W5-NH","ME"="W6-ME")
+map=c("TX"="W1_TX","LA"="W2_LA","FL"="W3_FL","LOLA"="S1_LOLA","DEBY"="S2_DEBY","JR"="W4_VA","NH"="W5_NH","ME"="W6_ME")
 surv_mod_ord_rename <- surv_mod_ord %>% mutate(pop = ifelse(pop %in% names(map), map[pop], pop))
 
 # remove any NAs
@@ -58,6 +59,7 @@ surv_mod_ord_rm <- surv_mod_ord_rename_nona %>% filter(!pop %in% c("LARMIX","SEE
 colnames(surv_mod_ord_rm) <- c("bag_site","pop","bags_label","t","surv")
 ```
 
+
 Now I can use LMMs to look at differences in survival by group.
 
 ```{r}
@@ -68,21 +70,17 @@ anova(lm(surv ~ pop + bag_site + t, data = surv_mod_ord_rm)) # all significant
 surv_mod_ord_rm$t <- as.factor(surv_mod_ord_rm$t)
 
 # start with full model, then subtract each interaction, then subtract two of the interaction
-lmm1 <- lmer(surv ~ bag_site * pop * t + (1|bags_label), data = surv_mod_ord_rm)
-plot(lmm1)
-Anova(lmm1, type = "III")
-drop1(lmm1) # keep all
-summary(lmm1)
-
-# would be good to create line plot - this is final thing to report, could create supplemental table of results, lots of two way interactions and changes in survival through time in different "populations" and which "populations" have highest survival at different time points changes through time
-avPlots(lmm1) # these are added variable plots, not sure if this was the plot type we wanted
-# i guess we technically have a line plot of survival through time already, those are what I produced earlier from raw survival proportion data
+surv_lmm <- lmer(surv ~ bag_site * pop * t + (1|bags_label), data = surv_mod_ord_rm)
+plot(surv_lmm)
+Anova(surv_lmm, type = "III")
+drop1(surv_lmm) # keep all
+summary(surv_lmm)
 
 # one more model on final time point only
-lmm2 <- lm(surv ~ bag_site * pop, data = surv_mod_ord_rm[surv_mod_ord_rm$t == 4,]) # no random effect here because there is only one observation per bag label
-plot(lmm2)
-Anova(lmm2, type = "III") # make sure to always use this method if two categorical predictors and  interaction and unbalanced design ; type III may have to set the contrast, check biostats notes
-TukeyHSD(aov(lmm2)) # anova doesn't use Type III SS, so use aov - look into aov vs anova
+surv_lm <- lm(surv ~ bag_site * pop, data = surv_mod_ord_rm[surv_mod_ord_rm$t == 4,]) # no random effect here because there is only one observation per bag label
+plot(surv_lm)
+Anova(surv_lm, type = "III") # make sure to always use this method if two categorical predictors and  interaction and unbalanced design ; type III may have to set the contrast, check biostats notes
+TukeyHSD(aov(surv_lm))
 
 # plot survival at last time point
 surv_t4 <- surv_mod_ord_rm[surv_mod_ord_rm$t == 4,]
@@ -99,19 +97,19 @@ surv_t4_plot_pop <- ggplot(surv_t4, aes(x = bag_site, y = surv, fill = pop)) +
 surv_t4_plot_pop
 
 #extract significant letters from TK test and store
-# try adding a different pop column that's split
-surv_t4$oldpop <- str_split_fixed(surv_t4$pop,"-",2)[,2]
+# add a different pop column that's split
+surv_t4$oldpop <- str_split_fixed(surv_t4$pop,"_",2)[,2]
 
 # now redo model
-lmm2.1 <- lm(surv ~ bag_site * oldpop, data = surv_t4)
-plot(lmm2.1)
-Anova(lmm2.1, type = "III") # make sure to always use this method if two categorical predictors and interaction and unbalanced design ; type III may have to set the contrast, check biostats notes
+surv_lm2 <- lm(surv ~ bag_site * oldpop, data = surv_t4)
+plot(surv_lm2)
+Anova(surv_lm2, type = "III") # make sure to always use this method if two categorical predictors and interaction and unbalanced design ; type III may have to set the contrast, check biostats notes
 library(multcompView)
-tuk_surv_t4 <- TukeyHSD(aov(lmm2.1), conf.level = 0.95)
-cld_surv_t4 <- multcompLetters4(aov(lmm2.1), tuk_surv_t4)
+tuk_surv_t4 <- TukeyHSD(aov(surv_lm2), conf.level = 0.95)
+cld_surv_t4 <- multcompLetters4(aov(surv_lm2), tuk_surv_t4)
 
 # can paste pops with sites to line up with letters output
-surv_t4$popsite <- paste0(surv_t4$bag_site,":",str_split_fixed(surv_t4$pop,"-",2)[,2])
+surv_t4$popsite <- paste0(surv_t4$bag_site,":",str_split_fixed(surv_t4$pop,"_",2)[,2])
 
 # multcomp letters to get letters
 letters_surv_t4_df <- data.frame(letters = as.data.frame.list(cld_surv_t4$`bag_site:oldpop`), popsite = names((cld_surv_t4$`bag_site:oldpop`)$Letters))
@@ -119,13 +117,13 @@ letters_surv_t4_df_red <- letters_surv_t4_df[,c("letters.Letters","popsite")]
 colnames(letters_surv_t4_df_red) <- c("letters","popsite")
 
 # save these outputs too
-sink(paste0("results/survival_model_results_", Sys.Date(), ".txt"))
-Anova(lmm1, type = "III")
-summary(lmm1)
-Anova(lmm2, type = "III")
-summary(lmm2)
-Anova(lmm2.1, type = "III")
-summary(lmm2.1)
+sink(paste0("results/exp_results/survival_model_results_", Sys.Date(), ".txt"))
+Anova(surv_lmm, type = "III")
+summary(surv_lmm)
+Anova(surv_lm, type = "III")
+summary(surv_lm)
+Anova(surv_lm2, type = "III")
+summary(surv_lm2)
 letters_surv_t4_df_red
 sink()
 
@@ -142,17 +140,14 @@ surv_t4_plot_site <- ggplot(surv_final_time_rename_mg, aes(x = pop, y = surv, fi
 surv_t4_plot_site
 
 # pop color scheme
-pop_colors <- data.frame(pop = c("W1-TX","W2-LA","W3-FL","W4-VA","S1-LOLA","S2-DEBY","W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"), hex = c("#3e4989","#31688e","#26828e","#1f9e89","#440154","#482878","#35b779","#6ece58","#fde725","#b5de2b"), order = 1:10)
+pop_colors <- data.frame(pop = c("W1_TX","W2_LA","W3_FL","W4_VA","S1_LOLA","S2_DEBY","W5_NH","W6_ME"), hex = c("#365C8DFF","#277F8EFF","#1FA187FF","#4AC16DFF","#440154FF","#46337EFF","#9FDA3AFF","#FDE725FF"), order = 1:8)
 
-# pop colors H1/H2 removed
-pop_colors_rm <- data.frame(pop = c("W1-TX","W2-LA","W3-FL","W4-VA","S1-LOLA","S2-DEBY","W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"), hex = c("#365C8DFF","#277F8EFF","#1FA187FF","#4AC16DFF","#440154FF","#46337EFF","#9FDA3AFF","#FDE725FF","black","white"), order = 1:10)
-
-surv_final_time_plotting <- merge(surv_final_time_rename_mg, pop_colors_rm, by = "pop")
+surv_final_time_plotting <- merge(surv_final_time_rename_mg, pop_colors, by = "pop")
 
 # plot by pop
 surv_t4_plot_pop <- ggplot(surv_final_time_plotting, aes(x = bag_site, y = surv, fill = fct_reorder(pop, order))) + 
   geom_boxplot(position=position_dodge(1.0)) +  
-  scale_fill_manual(name = "Broodstock Group", label = pop_colors_rm$pop, values = pop_colors_rm$hex)+
+  scale_fill_manual(name = "Broodstock Group", label = pop_colors$pop, values = pop_colors$hex)+
   geom_text(aes(label = letters, y = 1), vjust = -0.5, position=position_dodge(1)) +
   labs(title = "Final Survival at Lewisetta and York River", x = "Experimental Site", y = "Survival") +
   theme_classic()
@@ -165,8 +160,7 @@ surv_t4_plot_pop
 Now I'll try modeling differences in length. I'll start by reading in and processing the length data.
 
 ```{r}
-# read in and trim data
-lengths <- read.csv("results/exp_results/lengths_long_2025-06-03.csv")[,-1]
+# trim data
 head(lengths)
 lengths_mod <- lengths[,c("bag_site","pop","event","bags_label","tags_label","length","width")]
 colnames(lengths_mod) <- c("bag_site","pop","t","bags_label","tags_label","length","width")
@@ -176,50 +170,57 @@ map=c("TX"="W1-TX","LA"="W2-LA","FL"="W3-FL","LOLA"="S1-LOLA","DEBY"="S2-DEBY",
       "JR"="W4-VA","NH"="W5-NH","ME"="W6-ME")
 lengths_mod_rename <- lengths_mod %>% mutate(pop = ifelse(pop %in% names(map), map[pop], pop))
 
-# we should also remove seedmix and larmix for now
+# we should also remove seedmix and larmix
 lengths_mod_rm <- lengths_mod_rename %>% filter(!pop %in% c("LARMIX","SEEDMIX"))
 
+# check data
+summary(lengths_mod_rm) # we have NAs, and a massive outlier
+lengths_mod_rm_clean <- lengths_mod_rm[which(lengths_mod_rm$width < 200),]
+lengths_mod_rm_clean0 <- lengths_mod_rm_clean[which(lengths_mod_rm_clean$length < 200),]
+
 # some individuals died/went missing and have "0" in length/width - rm these
-lengths_mod_rm_nodead <- lengths_mod_rm[!lengths_mod_rm$length == 0 | !(complete.cases(lengths_mod_rm)),]
-sum(!(complete.cases(lengths_mod_rm_nodead))) # use which to inspect those rows
-lengths_mod_rm_nodead[which(!(complete.cases(lengths_mod_rm_nodead))),] # they're all rows containing na
-rows_to_rm <- as.numeric(rownames(lengths_mod_rm_nodead[which(!(complete.cases(lengths_mod_rm_nodead))),]))
+lengths_mod_rm_nodead <- lengths_mod_rm_clean0[!lengths_mod_rm_clean0$length == 0 | !(complete.cases(lengths_mod_rm_clean0)),]
+sum(!(complete.cases(lengths_mod_rm_nodead)))
 lengths_mod_rm_nodead[which(is.na(lengths_mod_rm_nodead$width)),]
 lengths_mod_narm_nodead <- lengths_mod_rm_nodead[!(is.na(lengths_mod_rm_nodead$width)),]
+
+# ensure correct coding of variables
+lengths_mod_narm_nodead$bag_site <- as.factor(lengths_mod_narm_nodead$bag_site)
+lengths_mod_narm_nodead$pop <- as.factor(lengths_mod_narm_nodead$pop)
+lengths_mod_narm_nodead$t <- as.factor(lengths_mod_narm_nodead$t)
 ```
 
 I will now use LMMs to look at differences in length by grouping.
 
 ```{r}
 # analysis of fixed effects
-lengths_mod_narm_nodead$t <- as.factor(lengths_mod_narm_nodead$t)
-modtemp0.1 <- lm(length ~ pop * bag_site * t, data = lengths_mod_narm_nodead)
-modtemp.1 <- Anova(lm(length ~ pop * bag_site * t, data = lengths_mod_narm_nodead), type = "III") # all significant
-boxplot(residuals(modtemp0.1) ~ lengths_mod_narm_nodead$bags_label) # looks good!
+length_lm <- lm(length ~ pop * bag_site * t, data = lengths_mod_narm_nodead)
+Anova(length_lm, type = "III") # all significant
+boxplot(residuals(length_lm) ~ lengths_mod_narm_nodead$bags_label)
 
 # with interactions
 # using REML
-lmm3 <- lmer(length ~ bag_site * pop * t + (1|bags_label), data = lengths_mod_narm_nodead)
-Anova(lmm3, type = "III") # all signif
+length_lmm <- lmer(length ~ bag_site * pop * t + (1|bags_label), data = lengths_mod_narm_nodead)
+Anova(length_lmm, type = "III") # all signif
 
 # start with full model, then subtract each interaction, then subtract two of the interaction
-drop1(lmm3) # keep all
+drop1(length_lmm) # keep all
 
 # one more model on final time point only
-lmm4 <- lmer(length ~ bag_site * pop + (1|bags_label), data = lengths_mod_narm_nodead[lengths_mod_narm_nodead$t == 4,])
-plot(lmm4)
-Anova(lmm4, type = "III") # all signif
-drop1(lmm4)
+length_lmm_final <- lmer(length ~ bag_site * pop + (1|bags_label), data = lengths_mod_narm_nodead[lengths_mod_narm_nodead$t == 4,])
+plot(length_lmm_final)
+Anova(length_lmm_final, type = "III") # all signif
+drop1(length_lmm_final)
 
 library(emmeans)
-emmeans_lmm4 <- emmeans(lmm4, ~bag_site * pop) # get estimated marginal means
-(pairwise_contrasts_lmm4 <- emmeans(lmm4, pairwise ~ bag_site * pop) )
+emmeans_length_lmm_final <- emmeans(length_lmm_final, ~bag_site * pop) # get estimated marginal means
+(pairwise_contrasts_length_lmm_final <- emmeans(length_lmm_final, pairwise ~ bag_site * pop) )
 
-pairs(emmeans_lmm4, simple = "bag_site")
-pairs(emmeans_lmm4, simple = "pop")
+pairs(emmeans_length_lmm_final, simple = "bag_site")
+pairs(emmeans_length_lmm_final, simple = "pop")
 
-test(pairs(emmeans_lmm4, by = "bag_site"), by = NULL, adjust = "mvt")
-test(pairs(emmeans_lmm4, by = "pop"), by = NULL, adjust = "mvt")
+test(pairs(emmeans_length_lmm_final, by = "bag_site"), by = NULL, adjust = "mvt")
+test(pairs(emmeans_length_lmm_final, by = "pop"), by = NULL, adjust = "mvt")
 
 # can paste pops with sites to do a traditional Tukey - this is separate from the rest of the modeling
 lengths_final_time <- lengths_mod_narm_nodead[lengths_mod_narm_nodead$t == 4,]
@@ -250,8 +251,8 @@ summary_len_t4 <- lengths_final_time_rename_mg %>%
 
 # save all this 
 sink(paste0("results/exp_results/length_model_results_", Sys.Date(), ".txt"))
-Anova(lmm3, type = "III")
-Anova(lmm4, type = "III")
+Anova(length_lmm, type = "III")
+Anova(length_lmm_final, type = "III")
 anova_len_t4
 letters_len_t4
 sink()
@@ -263,12 +264,6 @@ len_t4_plot_site <- ggplot(lengths_final_time_rename_mg, aes(x = pop, y = length
   geom_text(aes(label = letters, y = 127), vjust = -0.5, position=position_dodge(1)) +
   theme_classic()
 len_t4_plot_site
-
-# pop color scheme
-pop_colors <- data.frame(pop = c("W1-TX","W2-LA","W3-FL","W4-VA","S1-LOLA","S2-DEBY","W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"), hex = c("#3e4989","#31688e","#26828e","#1f9e89","#440154","#482878","#35b779","#6ece58","#fde725","#b5de2b"), order = 1:10)
-
-# pop colors H1/H2 removed
-pop_colors_rm <- data.frame(pop = c("W1-TX","W2-LA","W3-FL","W4-VA","S1-LOLA","S2-DEBY","W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"), hex = c("#365C8DFF","#277F8EFF","#1FA187FF","#4AC16DFF","#440154FF","#46337EFF","#9FDA3AFF","#FDE725FF","black","white"), order = 1:10)
 
 len_final_time_plotting <- merge(lengths_final_time_rename_mg, pop_colors_rm, by = "pop")
 
@@ -282,302 +277,4 @@ len_t4_plot_pop <- ggplot(len_final_time_plotting, aes(x = bag_site, y = length,
 len_t4_plot_pop
 
 #ggsave("results/figures/length_t4.pdf", plot = len_t4_plot_pop, width = 10, height = 6, dpi = 300)
-```
-
-
-## Modeling drivers of differences in survival
-
-For the H2F paper, we want to know how environment and genetics are impacting differential survival. I'll start by putting together the complete dataframe.
-
-```{r}
-# start by putting together a complete dataframe
-# genetic data
-gen_parents <- read.csv("data/ExpDat/parent_genetic_effects.csv")
-colnames(gen_parents) <- c("pop","ho","exp_hs","ar")
-surv_mod_gen <- merge(surv_mod_ord_rm, gen_parents, by = "pop")
-
-# environmental data
-env_parents <- read.csv("data/EnvDat/exp/envr_summary_stats.csv")[,-1]
-colnames(env_parents) <- c("pop","mean_temp","max_temp","min_temp","sd_temp","mean_sal","max_sal","min_sal","sd_sal")
-surv_mod_gen_env <- merge(surv_mod_gen, env_parents, by = c("pop"))
-```
-
-Now look at how survival changes with genetics/environment at each time point. These are multiple regressions, so remove interactions here - they are not interpretable in the same way.
-
-```{r}
-# full model time point 1
-# start with lew
-surv_GE1.lew <- lm(surv ~ ho + ar + max_temp + min_temp + max_sal + min_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 1 & surv_mod_gen_env$bag_site == "Lewisetta",])
-
-surv_GE1.lew
-#plot(surv_GE1.lew) 
-summary(surv_GE1.lew) # none signif
-drop1(surv_GE1.lew) # get rid of ho
-
-surv_GE1.0.lew <- lm(surv ~ ar + max_temp + min_temp + max_sal + min_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 1 & surv_mod_gen_env$bag_site == "Lewisetta",])
-#plot(surv_GE1.0.lew) 
-summary(surv_GE1.0.lew) # none signif
-drop1(surv_GE1.0.lew) # get rid of ar
-
-surv_GE1.1.lew <- lm(surv ~ max_temp + min_temp + max_sal + min_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 1 & surv_mod_gen_env$bag_site == "Lewisetta",])
-#plot(surv_GE1.1.lew)
-summary(surv_GE1.1.lew) # none signif
-drop1(surv_GE1.1.lew) # get rid of min_sal
-
-surv_GE1.2.lew <- lm(surv ~ max_temp + min_temp + max_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 1 & surv_mod_gen_env$bag_site == "Lewisetta",])
-#plot(surv_GE1.2.lew)
-summary(surv_GE1.2.lew) # min temp, max_sal signif
-drop1(surv_GE1.2.lew) # get rid of max_temp
-
-surv_GE1.3.lew <- lm(surv ~ min_temp + max_sal , data = surv_mod_gen_env[surv_mod_gen_env$t == 1 & surv_mod_gen_env$bag_site == "Lewisetta",])
-#plot(surv_GE1.3.lew)
-summary(surv_GE1.3.lew) # all signif
-drop1(surv_GE1.3.lew) # this is final model
-
-# now we go to york
-surv_GE1.york <- lm(surv ~ ho + ar + max_temp + min_temp + max_sal + min_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 1 & surv_mod_gen_env$bag_site == "YorkRiver",])
-#plot(surv_GE1.york)
-summary(surv_GE1.york) # min_sal signif
-drop1(surv_GE1.york) # drop ar
-
-surv_GE1.0.york <- lm(surv ~ ho + max_temp + min_temp + max_sal + min_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 1 & surv_mod_gen_env$bag_site == "YorkRiver",])
-#plot(surv_GE1.0.york)
-summary(surv_GE1.0.york) # min_sal signif
-drop1(surv_GE1.0.york) # drop max_temp
-
-surv_GE1.1.york <- lm(surv ~ ho + min_temp + max_sal + min_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 1 & surv_mod_gen_env$bag_site == "YorkRiver",])
-#plot(surv_GE1.1.york)
-summary(surv_GE1.1.york) # min_sal, min_temp signif
-drop1(surv_GE1.1.york) # drop max_sal
-
-surv_GE1.2.york <- lm(surv ~ ho + min_temp + min_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 1 & surv_mod_gen_env$bag_site == "YorkRiver",])
-#plot(surv_GE1.2.york)
-summary(surv_GE1.2.york) # all signif
-drop1(surv_GE1.2.york) # final model
-
-# lew t2
-surv_GE2.lew <- lm(surv ~ ho + ar + min_temp + max_sal + min_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 2 & surv_mod_gen_env$bag_site == "Lewisetta",])
-#plot(surv_GE2.lew)
-summary(surv_GE2.lew) # none signif
-drop1(surv_GE2.lew) # get rid of min_sal
-
-surv_GE2.0.lew <- lm(surv ~ ar + ho + min_temp + max_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 2 & surv_mod_gen_env$bag_site == "Lewisetta",])
-#plot(surv_GE2.0.lew)
-summary(surv_GE2.0.lew) # none signif
-drop1(surv_GE2.0.lew) # get rid of ar
-
-surv_GE2.1.lew <- lm(surv ~ ho + min_temp + max_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 2 & surv_mod_gen_env$bag_site == "Lewisetta",])
-#plot(surv_GE2.1.lew)
-summary(surv_GE2.1.lew) # min_temp, max_sal signif
-drop1(surv_GE2.1.lew) # final model
-
-# york t2
-surv_GE2.york <- lm(surv ~ ho + ar + min_temp + max_sal + min_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 2 & surv_mod_gen_env$bag_site == "YorkRiver",])
-#plot(surv_GE2.york) # qq still ugly
-summary(surv_GE2.york) # min_temp, min_sal signif
-drop1(surv_GE2.york) # get rid of ho
-
-surv_GE2.0.york <- lm(surv ~ ar + min_temp + max_sal + min_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 2 & surv_mod_gen_env$bag_site == "YorkRiver",])
-#plot(surv_GE2.0.york) 
-summary(surv_GE2.0.york) # min_temp, max_sal, min_sal signif
-drop1(surv_GE2.0.york) # final model
-
-# lew t3
-surv_GE3.lew <- lm(surv ~ ho + ar + min_temp + max_sal + min_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 3 & surv_mod_gen_env$bag_site == "Lewisetta",])
-#plot(surv_GE3.lew)
-summary(surv_GE3.lew) # min_temp, max_sal signif
-drop1(surv_GE3.lew) # get rid of min_sal
-
-surv_GE3.0.lew <- lm(surv ~ ho + ar + min_temp + max_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 3 & surv_mod_gen_env$bag_site == "Lewisetta",])
-#plot(surv_GE3.0.lew)
-summary(surv_GE3.0.lew) # ar, min_temp, max_sal signif
-drop1(surv_GE3.0.lew) # get rid of ho
-
-surv_GE3.1.lew <- lm(surv ~ ar + min_temp + max_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 3 & surv_mod_gen_env$bag_site == "Lewisetta",])
-#plot(surv_GE3.1.lew)
-summary(surv_GE3.1.lew) # ar, min_temp, max_sal signif
-drop1(surv_GE3.1.lew) # final model
-
-# york t3
-surv_GE3.york <- lm(surv ~ ar + ho + min_temp + max_temp + min_sal + max_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 3 & surv_mod_gen_env$bag_site == "YorkRiver",])
-#plot(surv_GE3.york)
-summary(surv_GE3.york) # ar, max_temp, min_sal, intercept signif
-drop1(surv_GE3.york) # get rid of min_temp
-
-surv_GE3.0.york <- lm(surv ~ ar + ho + max_temp + max_sal + min_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 3 & surv_mod_gen_env$bag_site == "YorkRiver",])
-#plot(surv_GE3.0.york)
-summary(surv_GE3.0.york) # ar, ho, min_sal, max_temp, max_sal, intercept signif
-drop1(surv_GE3.0.york) # final model
-
-# lew t4
-surv_GE4.lew <- lm(surv ~ ho + ar + max_temp + min_temp + max_sal + min_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 4 & surv_mod_gen_env$bag_site == "Lewisetta",])
-#plot(surv_GE4.lew)
-summary(surv_GE4.lew) # max_temp, min_temp, max_sal signif
-drop1(surv_GE4.lew) # get rid of ar
-
-surv_GE4.0.lew <- lm(surv ~ ho + max_temp + min_temp + max_sal + min_sal, data = surv_mod_gen_env[surv_mod_gen_env$t == 4 & surv_mod_gen_env$bag_site == "Lewisetta",])
-#plot(surv_GE4.0.lew)
-summary(surv_GE4.0.lew) # max_temp, min_temp, max_sal signif
-drop1(surv_GE4.0.lew) # this is final model
-
-# york t4
-surv_GE4.york <- lm(surv ~ ho + ar + max_temp + min_temp + max_sal + min_sal, data = c[surv_mod_gen_env$t == 4 & surv_mod_gen_env$bag_site == "YorkRiver",])
-#plot(surv_GE4.york)
-summary(surv_GE4.york) # intercept, ho, ar, max_temp, min_temp, min_sal signif
-drop1(surv_GE4.york) # this is final model
-
-sink(paste0("results/exp_results/survival_GE_model_results_",Sys.Date(),".txt"))
-summary(surv_GE1.3.lew)
-summary(surv_GE1.2.york)
-summary(surv_GE2.1.lew)
-summary(surv_GE2.0.york)
-summary(surv_GE3.1.lew)
-summary(surv_GE3.0.york)
-summary(surv_GE4.0.lew)
-summary(surv_GE4.york)
-sink()
-```
-
-
-## Modeling drivers of differences in length
-
-
-```{r}
-library(car)
-
-# start by putting together a complete dataframe
-# genetic data
-len_mod_gen <- merge(lengths_mod_rm_nodead, gen_parents, by = "pop")
-len_mod_gen_env <- merge(len_mod_gen, env_parents, by = c("pop"))
-(len_mod_gen_env)
-
-# fixed effects
-(anova(lm(length ~ ho + ar + max_temp + min_temp + max_sal + min_sal, data = len_mod_gen_env[len_mod_gen_env$t == 1 & len_mod_gen_env$bag_site == "Lewisetta",]))) # all signif
-(anova(lm(length ~ ho + ar + max_temp + min_temp + max_sal + min_sal, data = len_mod_gen_env[len_mod_gen_env$t == 2 & len_mod_gen_env$bag_site == "Lewisetta",]))) # ho, min_temp, max_sal, min_sal signif
-(anova(lm(length ~ ho + ar + max_temp + min_temp + max_sal + min_sal, data = len_mod_gen_env[len_mod_gen_env$t == 3 & len_mod_gen_env$bag_site == "Lewisetta",]))) # ho, max_temp, max_sal, min_sal signif
-(anova(lm(length ~ ho + ar + max_temp + min_temp + max_sal + min_sal, data = len_mod_gen_env[len_mod_gen_env$t == 4 & len_mod_gen_env$bag_site == "Lewisetta",]))) # ho, max_temp, max_sal, min_sal signif
-
-anova(lm(length ~ ho + ar + max_temp + min_temp + max_sal + min_sal, data = len_mod_gen_env[len_mod_gen_env$t == 1 & len_mod_gen_env$bag_site == "YorkRiver",])) # all but ho & ar signif
-anova(lm(length ~ ho + ar + max_temp + min_temp + max_sal + min_sal, data = len_mod_gen_env[len_mod_gen_env$t == 2 & len_mod_gen_env$bag_site == "YorkRiver",])) # ar, min_temp, max_sal, min_sal signif
-anova(lm(length ~ ho + ar + max_temp + min_temp + max_sal + min_sal, data = len_mod_gen_env[len_mod_gen_env$t == 3 & len_mod_gen_env$bag_site == "YorkRiver",])) # ho, min_temp, max_sal, min_sal signif
-anova(lm(length ~ ho + ar + max_temp + min_temp + max_sal + min_sal, data = len_mod_gen_env[len_mod_gen_env$t == 4 & len_mod_gen_env$bag_site == "YorkRiver",])) # ho, ar, max_sal, min_sal min_temp signif
-
-# full model time point 1 - lew
-len_GE1.lew <- lmerTest::lmer(length ~ ho + ar + max_temp + min_temp + max_sal + min_sal + (1|bags_label), data = len_mod_gen_env[len_mod_gen_env$t == 1 & len_mod_gen_env$bag_site == "Lewisetta",]) 
-len_GE1.lew
-plot(len_GE1.lew) 
-Anova(len_GE1.lew, type = "III") # max_temp, min_temp, min_sal signif
-summary(len_GE1.lew) # gives just min_temp & min_sal
-step(len_GE1.lew) # trying different model selection method
-
-len_GE1.0.lew <- lmerTest::lmer(length ~ max_temp + min_temp + max_sal + (1|bags_label), data = len_mod_gen_env[len_mod_gen_env$t == 1 & len_mod_gen_env$bag_site == "Lewisetta",]) 
-plot(len_GE1.0.lew) 
-Anova(len_GE1.0.lew, type = "III") # all signif
-summary(len_GE1.0.lew)
-step(len_GE1.0.lew) # final model
-
-# york t1
-len_GE1.york <- lmerTest::lmer(length ~ ho + ar + max_temp + min_temp + max_sal + min_sal + (1|bags_label), data = len_mod_gen_env[len_mod_gen_env$t == 1 & len_mod_gen_env$bag_site == "YorkRiver",]) 
-len_GE1.york
-plot(len_GE1.york) 
-Anova(len_GE1.york, type = "III") # max_temp, min_temp, min_sal signif
-summary(len_GE1.york) # safe signif
-step(len_GE1.york) # get rid of ho and ar
-
-len_GE1.0.york <- lmerTest::lmer(length ~ max_temp + min_temp + max_sal + min_sal + (1|bags_label), data = len_mod_gen_env[len_mod_gen_env$t == 1 & len_mod_gen_env$bag_site == "YorkRiver",]) 
-plot(len_GE1.0.york) 
-Anova(len_GE1.0.york, type = "III") # all signif
-summary(len_GE1.0.york)
-step(len_GE1.0.york) # final model
-
-# full model time point 2
-# lew t2
-len_GE2.lew <- lmer(length ~ ho + ar + max_temp + min_temp + max_sal + min_sal + (1|bags_label), data = len_mod_gen_env[len_mod_gen_env$t == 2 & len_mod_gen_env$bag_site == "Lewisetta",])
-len_GE2.lew
-plot(len_GE2.lew)
-Anova(len_GE2.lew, type = "III") # min sal
-step(len_GE2.lew) # drop min_temp, max_sal, ar, max_temp
-
-len_GE2.0.lew <- lmer(length ~ ho + min_sal + (1|bags_label), data = len_mod_gen_env[len_mod_gen_env$t == 2 & len_mod_gen_env$bag_site == "Lewisetta",])
-len_GE2.0.lew
-plot(len_GE2.0.lew)
-Anova(len_GE2.0.lew, type = "III") # all signif
-step(len_GE2.0.lew) # final model
-
-# york t2
-len_GE2.york <- lmer(length ~ ho + ar + max_temp + min_temp + max_sal + min_sal + (1|bags_label), data = len_mod_gen_env[len_mod_gen_env$t == 2 & len_mod_gen_env$bag_site == "YorkRiver",])
-len_GE2.york
-plot(len_GE2.york)
-Anova(len_GE2.york, type = "III") # max_temp, min_temp, min_sal signif
-step(len_GE2.york) # drop max_sal, ar
-
-len_GE2.0.york <- lmer(length ~ ho + max_temp + min_temp + min_sal + (1|bags_label), data = len_mod_gen_env[len_mod_gen_env$t == 2 & len_mod_gen_env$bag_site == "YorkRiver",])
-len_GE2.0.york
-plot(len_GE2.0.york)
-Anova(len_GE2.0.york, type = "III") # all signif except intercept
-step(len_GE2.0.york) # final model
-
-# full model time point 3
-# lew t3
-len_GE3.lew <- lmer(length ~ ho + ar + max_temp + min_temp + max_sal + min_sal + (1|bags_label), data = len_mod_gen_env[len_mod_gen_env$t == 3 & len_mod_gen_env$bag_site == "Lewisetta",])
-len_GE3.lew
-plot(len_GE3.lew)
-Anova(len_GE3.lew, type = "III") # intercept, min_temp, max_sal signif
-step(len_GE3.lew) # drop everything except min_temp, max_sal
-
-len_GE3.0.lew <- lmer(length ~ min_temp + max_sal + (1|bags_label), data = len_mod_gen_env[len_mod_gen_env$t == 3 & len_mod_gen_env$bag_site == "Lewisetta",])
-len_GE3.0.lew
-plot(len_GE3.0.lew)
-Anova(len_GE3.0.lew, type = "III") # all signif
-step(len_GE3.0.lew) # final model
-
-# york t3
-len_GE3.york <- lmer(length ~ ho + ar + max_temp + min_temp + max_sal + min_sal + (1|bags_label), data = len_mod_gen_env[len_mod_gen_env$t == 3 & len_mod_gen_env$bag_site == "YorkRiver",])
-len_GE3.york
-plot(len_GE3.york)
-Anova(len_GE3.york, type = "III") # intercept, max_temp, max_sal, min_sal signif
-step(len_GE3.york) # drop ho, min_temp
-
-len_GE3.0.york <- lmer(length ~ ar + max_temp + min_sal + max_sal + (1|bags_label), data = len_mod_gen_env[len_mod_gen_env$t == 3 & len_mod_gen_env$bag_site == "YorkRiver",])
-len_GE3.0.york
-plot(len_GE3.0.york)
-Anova(len_GE3.0.york, type = "III") # all signif except ar
-step(len_GE3.0.york) # final model
-
-# lew t4
-len_GE4.lew <- lmer(length ~ ho + ar + max_temp + min_temp + max_sal + min_sal + (1|bags_label), data = len_mod_gen_env[len_mod_gen_env$t == 4 & len_mod_gen_env$bag_site == "Lewisetta",])
-len_GE4.lew
-plot(len_GE4.lew)
-Anova(len_GE4.lew, type = "III") # intercept, min_temp, max_sal signif
-step(len_GE4.lew) # drop ho, max_temp, ar
-
-len_GE4.0.lew <- lmer(length ~ min_temp + max_sal + min_sal + (1|bags_label), data = len_mod_gen_env[len_mod_gen_env$t == 4 & len_mod_gen_env$bag_site == "Lewisetta",])
-len_GE4.0.lew
-plot(len_GE4.0.lew)
-Anova(len_GE4.0.lew, type = "III") # intercept, min_temp, max_sal, min_sal signif
-step(len_GE4.0.lew) # this is final model
-
-# york t4
-len_GE4.york <- lmer(length ~ ar + ho + min_temp + max_temp + min_sal + max_sal + (1|bags_label), data = len_mod_gen_env[len_mod_gen_env$t == 4 & len_mod_gen_env$bag_site == "YorkRiver",])
-len_GE4.york
-plot(len_GE4.york)
-Anova(len_GE4.york, type = "III") # all signif except ho
-step(len_GE4.york) # drop ho, min_temp
-
-len_GE4.0.york <- lmer(length ~ ar + max_temp + min_sal + max_sal + (1|bags_label), data = len_mod_gen_env[len_mod_gen_env$t == 4 & len_mod_gen_env$bag_site == "YorkRiver",])
-len_GE4.0.york
-plot(len_GE4.0.york)
-Anova(len_GE4.0.york, type = "III") # all signif
-step(len_GE4.0.york) # final model
-
-sink(paste0("results/exp_results/len_GE_model_results_", Sys.Date(), ".txt"))
-Anova(len_GE1.0.lew, type = "III")
-Anova(len_GE1.0.york, type = "III")
-Anova(len_GE2.0.lew, type = "III")
-Anova(len_GE2.0.york, type = "III")
-Anova(len_GE3.0.lew, type = "III")
-Anova(len_GE3.0.york, type = "III")
-Anova(len_GE4.lew, type = "III")
-Anova(len_GE4.0.york, type = "III")
-sink()
 ```

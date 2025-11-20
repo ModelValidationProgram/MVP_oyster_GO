@@ -1,0 +1,40 @@
+Analysis of Deviance Table (Type III Wald chisquare tests)
+
+Response: length
+                   Chisq Df Pr(>Chisq)    
+(Intercept)    1127.0252  1  < 2.2e-16 ***
+bag_site          8.9459  1   0.002781 ** 
+pop             124.8803  7  < 2.2e-16 ***
+t              2415.6269  3  < 2.2e-16 ***
+bag_site:pop     42.5636  7  4.049e-07 ***
+bag_site:t      174.0701  3  < 2.2e-16 ***
+pop:t           564.1725 21  < 2.2e-16 ***
+bag_site:pop:t  124.5785 21  < 2.2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Analysis of Deviance Table (Type III Wald chisquare tests)
+
+Response: length
+                Chisq Df Pr(>Chisq)    
+(Intercept)  2305.455  1  < 2.2e-16 ***
+bag_site       63.512  1  1.594e-15 ***
+pop           151.398  7  < 2.2e-16 ***
+bag_site:pop   27.779  7  0.0002411 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Anova Table (Type II tests)
+
+Response: length
+          Sum Sq  Df F value    Pr(>F)    
+popsite   120676  15  49.557 < 2.2e-16 ***
+Residuals 130520 804                      
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+$popsite
+LOLA_Lewisetta   LA_Lewisetta DEBY_Lewisetta   TX_Lewisetta   VA_Lewisetta   FL_Lewisetta 
+           "a"           "ab"           "bc"           "cd"          "cde"          "def" 
+  ME_Lewisetta DEBY_YorkRiver LOLA_YorkRiver   FL_YorkRiver   VA_YorkRiver   LA_YorkRiver 
+        "defg"           "fg"           "gh"           "hi"           "hi"           "hi" 
+  ME_YorkRiver   TX_YorkRiver   NH_Lewisetta   NH_YorkRiver 
+       "efghi"            "i"            "i"            "i" 
+
