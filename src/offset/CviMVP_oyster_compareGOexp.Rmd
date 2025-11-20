@@ -602,7 +602,7 @@ GF AF GO vs length:
 
 ```{r}
 # plot gf vs len at each site/time point
-goFitGF_lew_len <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
+goFitGFaf_lew_len <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_af_lew, y = length, col = "Fall'23")) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_af_lew, y = length), col = "cadetblue3", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_af_lew, y = length, col = "Spring'24")) +
@@ -614,9 +614,9 @@ goFitGF_lew_len <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
   labs(title = "Predicted GO (GF) vs Size at Lewisetta", x = "GF Offset", y = "Length (mm)") +
   scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
-goFitGF_lew_len
+goFitGFaf_lew_len
 
-goFitGF_yrk_len <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
+goFitGFaf_yrk_len <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_af_yrk, y = length, col = "Fall'23")) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_af_yrk, y = length), col = "cadetblue3", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_af_yrk, y = length, col = "Spring'24")) +
@@ -628,10 +628,10 @@ goFitGF_yrk_len <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
   labs(title = "Predicted GO (GF) vs Size at York River", x = "GF Offset", y = "Length (mm)") +
   scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
-goFitGF_yrk_len
+goFitGFaf_yrk_len
 
 # plot gf vs len at both sites just final time point
-goFitGF_plotfinalTlen <- ggplot(data = fullfit) +
+goFitGFaf_plotfinalTlen <- ggplot(data = fullfit) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = length, fill = "Lewisetta"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = length), col = "mediumspringgreen", se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
@@ -639,8 +639,54 @@ goFitGF_plotfinalTlen <- ggplot(data = fullfit) +
   labs(title = "Predicted GO (GF) vs Size at Final Time Point", x = "GF Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
-goFitGF_plotfinalTlen
+goFitGFaf_plotfinalTlen
 ```
+
+
+GF geno GO vs length: 
+
+```{r}
+# plot gf vs len at each site/time point
+goFitGFgeno_lew_len <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_geno_lew, y = length, col = "Fall'23")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_geno_lew, y = length), col = "cadetblue3", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_geno_lew, y = length, col = "Spring'24")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_geno_lew, y = length), col = "cornflowerblue", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_geno_lew, y = length, col = "Fall'24")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_geno_lew, y = length), col = "slateblue", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = length, col = "Spring'25")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = length), col = "purple4", se = T) +
+  labs(title = "Predicted GO (GF) vs Size at Lewisetta", x = "GF Offset", y = "Length (mm)") +
+  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  theme_classic()
+goFitGFgeno_lew_len
+
+goFitGFgeno_yrk_len <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_geno_yrk, y = length, col = "Fall'23")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_geno_yrk, y = length), col = "cadetblue3", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_geno_yrk, y = length, col = "Spring'24")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_geno_yrk, y = length), col = "cornflowerblue", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_geno_yrk, y = length, col = "Fall'24")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_geno_yrk, y = length), col = "slateblue", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length, col = "Spring'25")) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length), col = "purple4", se = T) +
+  labs(title = "Predicted GO (GF) vs Size at York River", x = "GF Offset", y = "Length (mm)") +
+  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  theme_classic()
+goFitGFgeno_yrk_len
+
+# plot gf vs len at both sites just final time point
+goFitGFgeno_plotfinalTlen <- ggplot(data = fullfit) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = length, fill = "Lewisetta"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = length), col = "mediumspringgreen", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length), col = "dodgerblue", linetype = "dashed", se = T) +
+  labs(title = "Predicted GO (GF) vs Size at Final Time Point", x = "GF Offset", y = "Length (mm)") +
+  scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
+  theme_classic()
+goFitGFgeno_plotfinalTlen
+```
+
 
 RDA GO vs length:
 
