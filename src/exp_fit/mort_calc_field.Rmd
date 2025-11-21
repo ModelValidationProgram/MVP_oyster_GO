@@ -26,15 +26,15 @@ First I need to read in and merge together relevant data. I will then clean this
 ```{r}
 # read in data
 bags <- read.csv("data/ExpDat/MVP23-FieldBags - bags.csv")
-mort <- read.csv("data/ExpDat/MVP23-FieldBags - mortality.csv")
+surv <- read.csv("data/ExpDat/MVP23-FieldBags - mortality.csv")
 expsites <- read.csv("data/ExpDat/MVP23-FieldBags - sites.csv")
 spawntrt <- read.csv("data/ExpDat/MVP23-FieldBags - spawn_trt2.csv")
 
 # merging bags and mortality
 head(bags)
 colnames(bags) <- c("bags_key", "bag_site", "bags_label", "SpawnTrt_Key")
-head(mort)
-merge1 <- merge(bags, mort, by = c("bags_key"), all = T)
+head(surv)
+merge1 <- merge(bags, surv, by = c("bags_key"), all = T)
 head(merge1)
 
 # add spawntrt data
@@ -239,10 +239,10 @@ e3$event <- 3
 e4 <- as.data.frame(site_pop_surv)[,c("bag_site","pop","mean_t4","sd_t4","se_t4")]
 e4$event <- 4
 colnames(e0) <- colnames(e1) <- colnames(e2) <- colnames(e3) <- colnames(e4) <-  c("bag_site","pop","mean_surv","sd","se","event")
-mort_df <- rbind(e0, e1, e2, e3, e4)
+surv_df <- rbind(e0, e1, e2, e3, e4)
 
 # save all these dataframes
-write.csv(mort_df, paste0("results/exp_results/mortality_long_popsite_",Sys.Date(),".csv"))
+write.csv(surv_df, paste0("results/exp_results/mortality_long_popsite_",Sys.Date(),".csv"))
 write.csv(surv_long_narm, paste0("results/exp_results/mortality_long_bags_",Sys.Date(),".csv"))
 write.csv(surv_df_ord, paste0("results/exp_results/mortality_bags_", Sys.Date(), ".csv"))
 ```
@@ -252,56 +252,62 @@ All of my survival data is calculated, now I want to visualize trends in surviva
 
 ```{r}
 # pops df for plotting
-popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "DEBY", "LOLA", "NH", "ME", "LARMIX", "SEEDMIX"), 
-                     order = 1:10, 
-                     cols = c("#3e4989" ,"#31688e", "#26828e", "#1f9e89", "#440154", "#482878", "#35b779", "#6ece58", "#fde725", "#b5de2b"),
-                     shape = c(21,21,21,21,23,23,21,21,24,24),
-                     label = c("W1-TX", "W2-LA", "W3-FL", "W4-VA", "S1-LOLA", "S2-DEBY", "W5-NH", "W6-ME", "H1-LARMIX", "H2-SEEDMIX"))
-mort_df_full <- merge(mort_df, popsdf, by = c("pop"))
-
-# york river
-york_surv <- ggplot(data = mort_df_full[mort_df_full$bag_site == "YorkRiver",]) + 
-  geom_line(aes(x = event, y = mean_surv, color = fct_reorder(pop,order))) + 
-  scale_color_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
-  geom_point(aes(x = event, y = mean_surv, fill = fct_reorder(pop,order), 
-                 shape = fct_reorder(pop,order)),
-             size = 4) + 
-  scale_shape_manual(name = "Population", label = popsdf$label, values = popsdf$shape)+
-  scale_fill_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
-  #  geom_errorbar(aes(x = event, ymin = mean_surv-se, ymax = mean_surv+se), width = 0.05) + # error bars look terrible
-  ylim(0,1) + 
-  labs(color = "Population") +
-  ylab("Survival") +
-  scale_x_continuous("Monitoring Event", breaks = c(0,1,2,3,4),
-                     labels = c("Spring '23", "Fall '23", "Spring '24", "Fall '24","Spring'25")) +
-  theme_classic() + 
-  theme(plot.title = element_text(size = 20), 
-        legend.title = element_text(size = 14),
-        legend.justification = "top") +
-  ggtitle("York River: Oyster Survival thru Time")
-york_surv
-ggsave(paste0("results/figures/oyster_surv_all_yrk_",Sys.Date(),".png"))
+popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "LOLA", "DEBY", "NH", "ME"), 
+                     order = 1:8, 
+                     cols = c("#365C8DFF", "#277F8EFF", "#1FA187FF", "#4AC16DFF", "#440154FF", "#46337EFF", "#9FDA3AFF", "#FDE725FF"),
+                     shape = c(21,21,21,21,23,23,21,21),
+                     site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME"))
+surv_df_full <- merge(surv_df, popsdf, by = c("pop"))
 
 # lewisetta
-lew_surv <- ggplot(data = mort_df_full[mort_df_full$bag_site == "Lewisetta",]) + 
-  geom_line(aes(x = event, y = mean_surv, color = fct_reorder(pop,order))) + 
-  scale_color_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
-  geom_point(aes(x = event, y = mean_surv, fill = fct_reorder(pop,order), 
-                 shape = fct_reorder(pop,order)),
+lew_surv <- ggplot(data = surv_df_full[surv_df_full$bag_site == "Lewisetta",]) + 
+  geom_line(aes(x = event, y = mean_surv, color = fct_reorder(pop, order))) + 
+  geom_point(aes(x = event, y = mean_surv, fill = fct_reorder(pop, order), 
+                 shape = fct_reorder(pop, order)),
              size = 4) + 
-  scale_shape_manual(name = "Population", label = popsdf$label, values = popsdf$shape)+
-  scale_fill_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
-  #  geom_errorbar(aes(x = event, ymin = mean_surv-se, ymax = mean_surv+se), width = 0.05) + # error bars look terrible
+  scale_color_manual(name = "Population", 
+                     labels = setNames(popsdf$site_name, popsdf$pop),
+                     values = setNames(popsdf$cols, popsdf$pop)) +
+  scale_shape_manual(name = "Population", 
+                     labels = setNames(popsdf$site_name, popsdf$pop),
+                     values = setNames(popsdf$shape, popsdf$pop)) +
+  scale_fill_manual(name = "Population", 
+                    labels = setNames(popsdf$site_name, popsdf$pop),
+                    values = setNames(popsdf$cols, popsdf$pop)) +
   ylim(0,1) + 
-  labs(color = "Population") +
-  ylab("Survival") +
-  scale_x_continuous("Monitoring Event", breaks = c(0,1,2,3,4),
-                     labels = c("Spring '23", "Fall '23", "Spring '24", "Fall '24","Spring'25")) +
+  labs(title = "Lewisetta: Oyster Survival thru Time", 
+       x = "Monitoring Event", 
+       y = "Survival") +
+  scale_x_continuous("Monitoring Event", breaks = c(1, 2, 3, 4),
+                     labels = c("Fall '23", "Spring '24", "Fall '24", "Spring '25")) +
   theme_classic() + 
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
-        legend.justification = "top") +
-  ggtitle("Lewisetta: Oyster Survival thru Time")
-lew_surv
-ggsave(paste0("results/figures/oyster_surv_all_lew_",Sys.Date(),".png"))
+        legend.justification = "top")
+
+# york river
+yrk_surv <- ggplot(data = surv_df_full[surv_df_full$bag_site == "YorkRiver",]) + 
+  geom_line(aes(x = event, y = mean_surv, color = fct_reorder(pop, order))) + 
+  geom_point(aes(x = event, y = mean_surv, fill = fct_reorder(pop, order), 
+                 shape = fct_reorder(pop, order)),
+             size = 4) + 
+  scale_color_manual(name = "Population", 
+                     labels = setNames(popsdf$site_name, popsdf$pop),
+                     values = setNames(popsdf$cols, popsdf$pop)) +
+  scale_shape_manual(name = "Population", 
+                     labels = setNames(popsdf$site_name, popsdf$pop),
+                     values = setNames(popsdf$shape, popsdf$pop)) +
+  scale_fill_manual(name = "Population", 
+                    labels = setNames(popsdf$site_name, popsdf$pop),
+                    values = setNames(popsdf$cols, popsdf$pop)) +
+  ylim(0,1) + 
+  labs(title = "York River: Oyster Survival thru Time", 
+       x = "Monitoring Event", 
+       y = "Survival") +
+  scale_x_continuous("Monitoring Event", breaks = c(1, 2, 3, 4),
+                     labels = c("Fall '23", "Spring '24", "Fall '24", "Spring '25")) +
+  theme_classic() + 
+  theme(plot.title = element_text(size = 20), 
+        legend.title = element_text(size = 14),
+        legend.justification = "top")
 ```
