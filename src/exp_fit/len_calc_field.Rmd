@@ -169,13 +169,13 @@ df3 <- data.frame(site = "Lewisetta", pop = rownames(event1_lew),
                   monitoring_event = 3, length = event3_lew, t3 = event3_lew)
 df4 <- data.frame(site = "Lewisetta", pop = rownames(event1_lew),
                   monitoring_event = 4, length = event4_lew, t4 = event4_lew)
-df5 <- data.frame(site = "York", pop = rownames(event1_york), 
+df5 <- data.frame(site = "YorkRiver", pop = rownames(event1_york), 
                   monitoring_event = 1, length = event1_york, t1 = event1_york)
-df6 <- data.frame(site = "York", pop = rownames(event1_york),
+df6 <- data.frame(site = "YorkRiver", pop = rownames(event1_york),
                   monitoring_event = 2, length = event2_york, t2 = event2_york)
-df7 <- data.frame(site = "York", pop = rownames(event1_york),
+df7 <- data.frame(site = "YorkRiver", pop = rownames(event1_york),
                   monitoring_event = 3, length = event3_york, t3 = event3_york)
-df8 <- data.frame(site = "York", pop = rownames(event1_york),
+df8 <- data.frame(site = "YorkRiver", pop = rownames(event1_york),
                   monitoring_event = 4, length = event4_york, t4 = event4_york)
 df9 <- data.frame(site = "Overall", pop = rownames(event1_tot), 
                   monitoring_event = 1, length = event1_tot, t1 = event1_tot)
@@ -197,10 +197,10 @@ lew4 <- len_summary[len_summary$monitoring_event == 4 & len_summary$site == "Lew
 lew3 <- len_summary[len_summary$monitoring_event == 3 & len_summary$site == "Lewisetta",]
 lew2 <- len_summary[len_summary$monitoring_event == 2 & len_summary$site == "Lewisetta",]
 lew1 <- len_summary[len_summary$monitoring_event == 1 & len_summary$site == "Lewisetta",]
-york4 <- len_summary[len_summary$monitoring_event == 4 & len_summary$site == "York",]
-york3 <- len_summary[len_summary$monitoring_event == 3 & len_summary$site == "York",]
-york2 <- len_summary[len_summary$monitoring_event == 2 & len_summary$site == "York",]
-york1 <- len_summary[len_summary$monitoring_event == 1 & len_summary$site == "York",]
+york4 <- len_summary[len_summary$monitoring_event == 4 & len_summary$site == "YorkRiver",]
+york3 <- len_summary[len_summary$monitoring_event == 3 & len_summary$site == "YorkRiver",]
+york2 <- len_summary[len_summary$monitoring_event == 2 & len_summary$site == "YorkRiver",]
+york1 <- len_summary[len_summary$monitoring_event == 1 & len_summary$site == "YorkRiver",]
 
 sink(paste0("results/exp_results/len_sites_", Sys.Date(), ".txt"))
 york1
@@ -217,48 +217,61 @@ sink()
 Now visualize some of these trends.
 
 ```{r}
-# NEED TO UPDATE POPS DF WITH MORE CURRENT NAMING AND COLOR SCHEMES
-popsdf <- data.frame(pop = c("TX","LA","FL","JR","DEBY","LOLA","NH","ME","LARMIX","SEEDMIX"), 
-                     order = 1:10, 
-#                     cols = c("#6f1926","#de324c","#f4895f","#f8e16f","#95cf92","#369acc",
-#                              "#9656a2","#cbabd1","black","gray"),
-                     cols = c("#440154FF", "#482878FF", "#3E4A89FF", "#31688EFF", "#26828EFF", "#1F9E89FF", "#35B779FF", "#6DCD59FF", "#B4DE2CFF", "#FDE725FF"),
-                     shape = c(21,21,21,21,23,23,21,21,24,24),
-                     label = c("W1-TX","W2-LA","W3-FL","W4-VA","S1-LOLA","S2-DEBY",
-                               "W5-NH","W6-ME","H1-LARMIX","H2-SEEDMIX"))
+# color scheme
+popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "LOLA", "DEBY", "NH", "ME"), 
+                     order = 1:8, 
+                     cols = c("#365C8DFF", "#277F8EFF", "#1FA187FF", "#4AC16DFF", "#440154FF", "#46337EFF", "#9FDA3AFF", "#FDE725FF"),
+                     shape = c(21,21,21,21,23,23,21,21),
+                     site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME"))
 
 # merge with popsdf
 lengths_mg <- merge(lengths, popsdf, by = c("pop"))
 
 # plot
 lew_len <- ggplot(data = lengths_mg[lengths_mg$site == "Lewisetta",]) + 
-  geom_line(aes(x = monitoring_event, y = length, color = fct_reorder(pop,order))) + 
-  scale_color_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
-  geom_point(aes(x = monitoring_event, y = length, fill = fct_reorder(pop,order), 
-                 shape = fct_reorder(pop,order)),
+  geom_line(aes(x = monitoring_event, y = length, color = fct_reorder(pop, order))) + 
+  geom_point(aes(x = monitoring_event, y = length, fill = fct_reorder(pop, order), 
+                 shape = fct_reorder(pop, order)),
              size = 4) + 
-  scale_shape_manual(name = "Population", label = popsdf$label, values = popsdf$shape)+
-  scale_fill_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
-  ylim(20,100) + 
-  labs(color = "Population", title = "Lewisetta: Oyster Shell Length thru Time", x = "Monitoring Event", y = "Shell Length (mm)") +
-  scale_x_continuous("Monitoring Event", breaks = c(1,2,3,4),
+  scale_color_manual(name = "Population", 
+                     labels = setNames(popsdf$site_name, popsdf$pop),
+                     values = setNames(popsdf$cols, popsdf$pop)) +
+  scale_shape_manual(name = "Population", 
+                     labels = setNames(popsdf$site_name, popsdf$pop),
+                     values = setNames(popsdf$shape, popsdf$pop)) +
+  scale_fill_manual(name = "Population", 
+                    labels = setNames(popsdf$site_name, popsdf$pop),
+                    values = setNames(popsdf$cols, popsdf$pop)) +
+  ylim(20, 100) + 
+  labs(title = "Lewisetta: Oyster Shell Length thru Time", 
+       x = "Monitoring Event", 
+       y = "Shell Length (mm)") +
+  scale_x_continuous("Monitoring Event", breaks = c(1, 2, 3, 4),
                      labels = c("Fall '23", "Spring '24", "Fall '24", "Spring '25")) +
   theme_classic() + 
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
         legend.justification = "top")
 
-york_len <- ggplot(data = lengths_mg[lengths_mg$site == "York",]) + 
-  geom_line(aes(x = monitoring_event, y = length, color = fct_reorder(pop,order))) + 
-  scale_color_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
-  geom_point(aes(x = monitoring_event, y = length, fill = fct_reorder(pop,order), 
-                 shape = fct_reorder(pop,order)),
+yrk_len <- ggplot(data = lengths_mg[lengths_mg$site == "YorkRiver",]) + 
+  geom_line(aes(x = monitoring_event, y = length, color = fct_reorder(pop, order))) + 
+  geom_point(aes(x = monitoring_event, y = length, fill = fct_reorder(pop, order), 
+                 shape = fct_reorder(pop, order)),
              size = 4) + 
-  scale_shape_manual(name = "Population", label = popsdf$label, values = popsdf$shape)+
-  scale_fill_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
-  ylim(20,100) + 
-  labs(color = "Population", title = "York River: Oyster Shell Length thru Time", x = "Monitoring Event", y = "Shell Length (mm)") +
-  scale_x_continuous("Monitoring Event", breaks = c(1,2,3,4),
+  scale_color_manual(name = "Population", 
+                     labels = setNames(popsdf$site_name, popsdf$pop),
+                     values = setNames(popsdf$cols, popsdf$pop)) +
+  scale_shape_manual(name = "Population", 
+                     labels = setNames(popsdf$site_name, popsdf$pop),
+                     values = setNames(popsdf$shape, popsdf$pop)) +
+  scale_fill_manual(name = "Population", 
+                    labels = setNames(popsdf$site_name, popsdf$pop),
+                    values = setNames(popsdf$cols, popsdf$pop)) +
+  ylim(20, 100) + 
+  labs(title = "York River: Oyster Shell Length thru Time", 
+       x = "Monitoring Event", 
+       y = "Shell Length (mm)") +
+  scale_x_continuous("Monitoring Event", breaks = c(1, 2, 3, 4),
                      labels = c("Fall '23", "Spring '24", "Fall '24", "Spring '25")) +
   theme_classic() + 
   theme(plot.title = element_text(size = 20), 
@@ -266,22 +279,33 @@ york_len <- ggplot(data = lengths_mg[lengths_mg$site == "York",]) +
         legend.justification = "top")
 
 all_len <- ggplot(data = lengths_mg[lengths_mg$site == "Overall",]) + 
-  geom_line(aes(x = monitoring_event, y = length, color = fct_reorder(pop,order))) + 
-  scale_color_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
-  geom_point(aes(x = monitoring_event, y = length, fill = fct_reorder(pop,order), 
-                 shape = fct_reorder(pop,order)),
+  geom_line(aes(x = monitoring_event, y = length, color = fct_reorder(pop, order))) + 
+  geom_point(aes(x = monitoring_event, y = length, fill = fct_reorder(pop, order), 
+                 shape = fct_reorder(pop, order)),
              size = 4) + 
-  scale_shape_manual(name = "Population", label = popsdf$label, values = popsdf$shape)+
-  scale_fill_manual(name = "Population", label = popsdf$label, values = popsdf$cols)+
-  ylim(20,100) + 
-  labs(color = "Population", title = "Overall Oyster Shell Length thru Time", x = "Monitoring Event", y = "Shell Length (mm)") +
-  scale_x_continuous("Monitoring Event", breaks = c(1,2,3,4),
+  scale_color_manual(name = "Population", 
+                     labels = setNames(popsdf$site_name, popsdf$pop),
+                     values = setNames(popsdf$cols, popsdf$pop)) +
+  scale_shape_manual(name = "Population", 
+                     labels = setNames(popsdf$site_name, popsdf$pop),
+                     values = setNames(popsdf$shape, popsdf$pop)) +
+  scale_fill_manual(name = "Population", 
+                    labels = setNames(popsdf$site_name, popsdf$pop),
+                    values = setNames(popsdf$cols, popsdf$pop)) +
+  ylim(20, 100) + 
+  labs(title = "Oyster Shell Length thru Time", 
+       x = "Monitoring Event", 
+       y = "Shell Length (mm)") +
+  scale_x_continuous("Monitoring Event", breaks = c(1, 2, 3, 4),
                      labels = c("Fall '23", "Spring '24", "Fall '24", "Spring '25")) +
-  theme_classic()
+  theme_classic() + 
+  theme(plot.title = element_text(size = 20), 
+        legend.title = element_text(size = 14),
+        legend.justification = "top")
 
 all_len
 lew_len
-york_len
+yrk_len
 ```
 
 
