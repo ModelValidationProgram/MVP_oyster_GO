@@ -68,10 +68,8 @@ I will start by double checking that I have my genomic and environmental data in
 ```{r}
 # env data
 ##########
-#   TEXAS GETS REMOVED FROM THIS DF, NEED TO ADD IT BACK
 # check data
 env_sea
-env_sea[which(is.na(env_sea$temp_quantile_10)),] # no na
 env_exp
 seascapeInds
 
@@ -593,39 +591,41 @@ setMethod('genomic_offset', signature(RDA = "rda", env_pres = "data.frame", env_
 })
 ```
 
+Now I can start the process of training models:
 
 ```{r}
 # reduce size of env data set used for training
 env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")]
+env_sea_red_nb <- env_sea_red %>% dplyr::select(-"Dermo_Prevalence_scaled",-"Pea_Crab_scaled")
 
 # run rda
 print(Sys.time())
-RDA_sea <- rda(genoMat ~ ., as.data.frame(env_sea_red))
+RDA_sea <- rda(genoThinMat ~ ., as.data.frame(env_sea_red))
 plot(RDA_sea)
 screeplot(RDA_sea, main = "Eigenvalues of constrained axes")
 print(Sys.time())
 
 print(Sys.time())
-RDA_sea_thin <- rda(genoThinMat ~ ., as.data.frame(env_sea_red))
-plot(RDA_sea_thin)
-screeplot(RDA_sea_thin, main = "Eigenvalues of constrained axes")
+RDA_sea_nb <- rda(genoThinMat ~ ., as.data.frame(env_sea_red_nb))
+plot(RDA_sea_nb)
+screeplot(RDA_sea_nb, main = "Eigenvalues of constrained axes")
 print(Sys.time())
 
 # run rdadapt with K = 2 for first two axes
 rdadapt_sea <- rdadapt(RDA = RDA_sea, K = 2)
-rdadapt_sea_thin <- rdadapt(RDA = RDA_sea_thin, K = 2)
+rdadapt_sea_nb <- rdadapt(RDA = RDA_sea_nb, K = 2)
 
 # bonferroni correction
 # P-values threshold after Bonferroni correction
 thres_env <- 0.01 / length(rdadapt_sea$p.values)
-thres_env_thin <- 0.01 / length(rdadapt_sea_thin$p.values)
+thres_env_nb <- 0.01 / length(rdadapt_sea_nb$p.values)
 
 # Identifying the loci that are below the p-value threshold
 outliers <- (1:ncol(genoMat))[which(rdadapt_sea$p.values < thres_env)]
-length(outliers) # 2863 outliers
+length(outliers) # 1203 outliers
 
-outliers_thin <- (1:ncol(genoThinMat))[which(rdadapt_sea_thin$p.values < thres_env_thin)]
-length(outliers_thin) # 1203 outliers
+outliers_nb <- (1:ncol(genoThinMat))[which(rdadapt_sea_nb$p.values < thres_env_nb)]
+length(outliers_nb) # 1252 outliers
 
 # Formatting table for ggplot
 locus_scores <- as.data.frame(scores(RDA_sea, choices=c(1:2), display="species", scaling="none"))
@@ -636,13 +636,13 @@ TAB_loci$type <- factor(TAB_loci$type, levels = c("Neutral", "Outliers"))
 TAB_loci <- TAB_loci[order(TAB_loci$type),]
 TAB_var <- as.data.frame(scores(RDA_sea, choices=c(1,2), display="bp")) 
 
-locus_scores_thin <- as.data.frame(scores(RDA_sea_thin, choices=c(1:2), display="species", scaling="none"))
-TAB_loci_thin <- data.frame(names = row.names(locus_scores_thin), locus_scores_thin)
-TAB_loci_thin$type <- "Neutral"
-TAB_loci_thin$type[outliers_thin] <- "Outliers"
-TAB_loci_thin$type <- factor(TAB_loci_thin$type, levels = c("Neutral", "Outliers"))
-TAB_loci_thin <- TAB_loci_thin[order(TAB_loci_thin$type),]
-TAB_var_thin <- as.data.frame(scores(RDA_sea_thin, choices=c(1,2), display="bp")) 
+locus_scores_nb <- as.data.frame(scores(RDA_sea_nb, choices=c(1:2), display="species", scaling="none"))
+TAB_loci_nb <- data.frame(names = row.names(locus_scores_nb), locus_scores_nb)
+TAB_loci_nb$type <- "Neutral"
+TAB_loci_nb$type[outliers_nb] <- "Outliers"
+TAB_loci_nb$type <- factor(TAB_loci_nb$type, levels = c("Neutral", "Outliers"))
+TAB_loci_nb <- TAB_loci_nb[order(TAB_loci_nb$type),]
+TAB_var_nb <- as.data.frame(scores(RDA_sea_nb, choices=c(1,2), display="bp")) 
 
 # Biplot of RDA loci and variables scores
 ggplot() +
@@ -653,22 +653,22 @@ ggplot() +
   geom_segment(data = TAB_var, aes(xend=RDA1, yend=RDA2, x=0, y=0), colour="black", size=0.15, linetype=1, arrow=arrow(length = unit(0.02, "npc"))) +
   geom_text(data = TAB_var, aes(x=1.1*RDA1, y=1.1*RDA2, label = row.names(TAB_var)), size = 2.5, family = "Times") +
   guides(color=guide_legend(title="Locus type")) +
-  labs(x = "RDA 1 (83.4%)", y = "RDA 2 (10.4%)", subtitle = "RDA space") +
+  labs(x = "RDA 1 (73.7%)", y = "RDA 2 (14.2%)", subtitle = "RDA space") +
   theme_bw(base_size = 11, base_family = "Times") +
   theme(panel.grid = element_blank()
         , plot.background = element_blank()
         , panel.background = element_blank())
 
-# plot on thinned geno dat
+# plot on abiotic only
 ggplot() +
   geom_hline(yintercept=0, linetype="dashed", color = gray(.80), linewidth=0.6) +
   geom_vline(xintercept=0, linetype="dashed", color = gray(.80), linewidth=0.6) +
-  geom_point(data = TAB_loci_thin, aes(x=RDA1*20, y=RDA2*20, colour = type), size = 1.4, alpha = 0.7) +
+  geom_point(data = TAB_loci_nb, aes(x=RDA1*20, y=RDA2*20, colour = type), size = 1.4, alpha = 0.7) +
   scale_color_manual(values = c("gray90", "#EB8055FF")) +
-  geom_segment(data = TAB_var_thin, aes(xend=RDA1, yend=RDA2, x=0, y=0), colour="black", size=0.15, linetype=1, arrow=arrow(length = unit(0.02, "npc"))) +
-  geom_text(data = TAB_var_thin, aes(x=1.1*RDA1, y=1.1*RDA2, label = row.names(TAB_var_thin)), size = 2.5, family = "Times") +
+  geom_segment(data = TAB_var_nb, aes(xend=RDA1, yend=RDA2, x=0, y=0), colour="black", size=0.15, linetype=1, arrow=arrow(length = unit(0.02, "npc"))) +
+  geom_text(data = TAB_var_nb, aes(x=1.1*RDA1, y=1.1*RDA2, label = row.names(TAB_var_nb)), size = 2.5, family = "Times") +
   guides(color=guide_legend(title="Locus type")) +
-  labs(x = "RDA 1 (73.7%)", y = "RDA 2 (14.2%)", subtitle = "RDA space") +
+  labs(x = "RDA 1 (76.1%)", y = "RDA 2 (15.8%)", subtitle = "RDA space") +
   theme_bw(base_size = 11, base_family = "Times") +
   theme(panel.grid = element_blank()
         , plot.background = element_blank()
@@ -740,96 +740,13 @@ popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "DEBY", "LOLA", "NH", "ME",
                      order = 1:10, 
                      latitude = c(28.0841, 29.24916667, 30.44116, 37.211, 37.9803, 37.247284, 43.0524, 43.986, 37.9803, 37.247284),
                      longitude = c(-97.2009, -90.9211111, -81.43908, -76.787, -76.4619, -76.499369, -70.91181, -69.55, -76.4619, -76.499369),
-                     cols = c("#3e4989" ,"#31688e", "#35b779", "#6ece58", "#440154", "#482878", "#fde725", "#b5de2b","deeppink","deeppink"),
+                     cols = c("#365C8DFF", "#277F8EFF", "#1FA187FF", "#4AC16DFF", "#440154FF", "#46337EFF", "#9FDA3AFF", "#FDE725FF","deeppink","deeppink"),
                      shape = c(21,21,21,21,23,23,21,21,24,24),
                      site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME","LEWISETTA","YORKRIVER"))
 
+offsets_plotting_lea <- merge(gap_df, popsdf, by = c("site_name"), all = T)
+
 offsets_plotting <- merge(offsets_rda_df, popsdf, by = c("site_name"), all = T)
-
-# map offsets
-library(s2) # mapping
-library(rnaturalearth) # mapping
-library(rnaturalearthdata) # mapping
-library(maps) # mapping
-library(ggspatial) # mapping
-library(ggrepel)
-
-# map
-sf::sf_use_s2(FALSE) # sf package doesn't work
-
-# set object
-world <- ne_countries(scale = "medium", returnclass = "sf")
-world_crop <- sf::st_crop(world, c(xmin =-102, xmax = -65, ymin = 24, ymax = 47.05))
-world_chesapeake <- sf::st_crop(world, c(xmin =-77.856476 , xmax = -72.762787, ymin = 36.019557, ymax = 39.939163))
-
-# offset to lew
-map_lew <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, 
-                                       fill = offset_lew), 
-             shape = 21, size = 4)+
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 3.2)) + 
-  geom_point(data = offsets_plotting[offsets_plotting$site_name == "LEWISETTA",], 
-             aes(x = longitude, y = latitude), fill = "deeppink", shape = 24, size = 3)+
-  geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("LEWISETTA", "W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, 
-                                       label = site_name),
-                  nudge_x = -3,
-                  nudge_y = 0.5,
-                  fill = "white")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-        labs(title = "Genomic Offset of Oysters \n to Lewisetta (RDA)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
-(map_lew)
-
-popout_lew <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
-  geom_point(data = offsets_plotting[offsets_plotting$site_name == "LEWISETTA",], 
-           aes(x = longitude, y = latitude), fill = "deeppink", shape = 24, size = 3)+
-  geom_point(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME", "S1_LOLA", "S2_DEBY"),], aes(x = longitude, y = latitude, 
-                                       fill = offset_lew), 
-             shape = 21, size = 4)+
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 3.25), na.value = "red") +
-  geom_label_repel(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME", "S1_LOLA", "S2_DEBY", "LEWISETTA"),], aes(x=longitude, y=latitude, 
-                                       label = site_name),
-                  nudge_x = 1,
-                  nudge_y = 0.2,
-                  fill = "white")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
-        xlim(-77.856476, -72.762787) +
-        ylim(36.019557, 39.939163)
-popout_lew
-
-map_yrk <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME", "S1_LOLA", "S2_DEBY", "LEWISETTA"),], aes(x=lon, y=lat, 
-                                       fill = offset_yrk), 
-             shape = 21, size = 4)+
-  scale_fill_viridis_c(option = "magma", limits = c(0, 3.5)) + # double check these values
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-        labs(title = "Genomic Offset of Oysters \n to York (RDA)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
-(map_yrk)
-
-popout_york <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
-  geom_point(data = offsets_plotting[offsets_plotting$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME", "S1_LOLA", "S2_DEBY", "LEWISETTA"),], aes(x=lon, y=lat, 
-                                       fill = offset_yrk), 
-             shape = 21, size = 4)+
-  scale_fill_viridis_c(option = "magma", limits = c(0, 3.5)) + # double check these values
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
-        xlim(-77.856476, -72.762787) +
-        ylim(36.019557, 39.939163)
-popout_york
-
-cor(na.omit(offsets_plotting$offset_lew), na.omit(offsets_plotting$offset_yrk))
-plot(x = offsets_plotting$offset_lew, y = offsets_plotting$offset_yrk)
-abline(na.omit(offsets_plotting$offset_yrk) ~ na.omit(offsets_plotting$offset_lew))
 ```
 
 
@@ -853,6 +770,15 @@ sea_sf_rda <- st_as_sf(offsets_rda_sea_latlon_df_narm,
                    coords = c("longitude","latitude"),
                    crs = 4326) # for WGS84 projection
 
+# map offsets
+library(s2) # mapping
+library(rnaturalearth) # mapping
+library(rnaturalearthdata) # mapping
+library(maps) # mapping
+library(ggspatial) # mapping
+library(ggrepel)
+
+# map
 # set spherical geometry
 sf::sf_use_s2(FALSE)
 
@@ -861,6 +787,7 @@ world <- ne_countries(scale = "medium", returnclass = "sf")
 world_crop <- sf::st_crop(world, c(xmin =-102, xmax = -65, ymin = 24, ymax = 47.05))
 coast <- ne_coastline(scale = "medium", returnclass = "sf")
 coast_crop <- sf::st_crop(coast, c(xmin =-102, xmax = -65, ymin = 24, ymax = 47.05))
+world_chesapeake <- sf::st_crop(world, c(xmin =-77.856476 , xmax = -72.762787, ymin = 36.019557, ymax = 39.939163))
 
 # start by downloading and cropping oceans data
 oceans110 <- ne_download(scale=110L, type = "ocean", category = "physical")
