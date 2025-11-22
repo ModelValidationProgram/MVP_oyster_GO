@@ -130,24 +130,21 @@ sink()
 # merge
 surv_final_time_rename_mg <- merge(surv_t4, letters_surv_t4_df_red, by = "popsite")
 (surv_final_time_rename_mg)
-
-# plot
-surv_t4_plot_site <- ggplot(surv_final_time_rename_mg, aes(x = pop, y = surv, fill = bag_site)) + 
-  geom_boxplot(position=position_dodge(1)) +
-  ggtitle("Survival at Final Time Point") +
-  geom_text(aes(label = letters, y = 1), vjust = -0.5, position=position_dodge(1)) +
-  theme_classic()
-surv_t4_plot_site
+surv_final_time_rename_mg$site_name <- surv_final_time_rename_mg$pop
 
 # pop color scheme
-pop_colors <- data.frame(pop = c("W1_TX","W2_LA","W3_FL","W4_VA","S1_LOLA","S2_DEBY","W5_NH","W6_ME"), hex = c("#365C8DFF","#277F8EFF","#1FA187FF","#4AC16DFF","#440154FF","#46337EFF","#9FDA3AFF","#FDE725FF"), order = 1:8)
+popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "LOLA", "DEBY", "NH", "ME"), 
+                     order = 1:8, 
+                     cols = c("#365C8DFF", "#277F8EFF", "#1FA187FF", "#4AC16DFF", "#440154FF", "#46337EFF", "#9FDA3AFF", "#FDE725FF"),
+                     shape = c(21,21,21,21,23,23,21,21),
+                     site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME"))
 
-surv_final_time_plotting <- merge(surv_final_time_rename_mg, pop_colors, by = "pop")
+surv_final_time_plotting <- merge(surv_final_time_rename_mg, popsdf, by = "site_name")
 
 # plot by pop
-surv_t4_plot_pop <- ggplot(surv_final_time_plotting, aes(x = bag_site, y = surv, fill = fct_reorder(pop, order))) + 
+surv_t4_plot_pop <- ggplot(surv_final_time_plotting, aes(x = bag_site, y = surv, fill = fct_reorder(site_name, order))) + 
   geom_boxplot(position=position_dodge(1.0)) +  
-  scale_fill_manual(name = "Broodstock Group", label = pop_colors$pop, values = pop_colors$hex)+
+  scale_fill_manual(name = "Broodstock Group", label = popsdf$site_name, values = popsdf$cols)+
   geom_text(aes(label = letters, y = 1), vjust = -0.5, position=position_dodge(1)) +
   labs(title = "Final Survival at Lewisetta and York River", x = "Experimental Site", y = "Survival") +
   theme_classic()
@@ -166,8 +163,8 @@ lengths_mod <- lengths[,c("bag_site","pop","event","bags_label","tags_label","le
 colnames(lengths_mod) <- c("bag_site","pop","t","bags_label","tags_label","length","width")
 
 # rename pops
-map=c("TX"="W1-TX","LA"="W2-LA","FL"="W3-FL","LOLA"="S1-LOLA","DEBY"="S2-DEBY",
-      "JR"="W4-VA","NH"="W5-NH","ME"="W6-ME")
+map=c("TX"="W1_TX","LA"="W2_LA","FL"="W3_FL","LOLA"="S1_LOLA","DEBY"="S2_DEBY",
+      "JR"="W4_VA","NH"="W5_NH","ME"="W6_ME")
 lengths_mod_rename <- lengths_mod %>% mutate(pop = ifelse(pop %in% names(map), map[pop], pop))
 
 # we should also remove seedmix and larmix
@@ -212,33 +209,20 @@ plot(length_lmm_final)
 Anova(length_lmm_final, type = "III") # all signif
 drop1(length_lmm_final)
 
-library(emmeans)
-emmeans_length_lmm_final <- emmeans(length_lmm_final, ~bag_site * pop) # get estimated marginal means
-(pairwise_contrasts_length_lmm_final <- emmeans(length_lmm_final, pairwise ~ bag_site * pop) )
-
-pairs(emmeans_length_lmm_final, simple = "bag_site")
-pairs(emmeans_length_lmm_final, simple = "pop")
-
-test(pairs(emmeans_length_lmm_final, by = "bag_site"), by = NULL, adjust = "mvt")
-test(pairs(emmeans_length_lmm_final, by = "pop"), by = NULL, adjust = "mvt")
-
-# can paste pops with sites to do a traditional Tukey - this is separate from the rest of the modeling
+# can paste pops with sites to do a traditional Tukey
 lengths_final_time <- lengths_mod_narm_nodead[lengths_mod_narm_nodead$t == 4,]
 lengths_final_time$popsite <- paste0(lengths_final_time$pop, "_", lengths_final_time$bag_site)
 
 # rename pops
 lengths_final_time_rename <- lengths_final_time
-lengths_final_time_rename$popsite <- paste0(str_split_fixed(lengths_final_time$pop,"-",2)[,2],"_",lengths_final_time$bag_site)
-
 (aov_len_t4 <- aov(lm(length ~ popsite, data = lengths_final_time_rename)))
 plot(aov_len_t4) # looks good!
 (tukey_len_t4 <- TukeyHSD(aov_len_t4, conf.level = 0.95))
 
-# multcomp letters to get letters
+# Now use multcompLetters
 library(multcompView)
 anova_len_t4 <- (Anova(lm(length ~ popsite, data = lengths_final_time_rename)))
 letters_len_t4 <- multcompLetters4(aov_len_t4, tukey_len_t4)
-
 letters_len_t4_df <- data.frame(letters = as.data.frame.list(letters_len_t4$popsite)$Letters, popsite = rownames(as.data.frame.list(letters_len_t4$popsite)))
 
 lengths_final_time_rename_mg <- merge(lengths_final_time_rename, letters_len_t4_df, by = "popsite")
