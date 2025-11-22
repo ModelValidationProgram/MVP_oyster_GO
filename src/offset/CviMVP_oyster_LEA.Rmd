@@ -72,6 +72,10 @@ colnames(env_exp) <- c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10
 
 rownames(env_sea) <- sea_site_full$site_name
 rownames(env_exp) <- exp_site_full$site_name
+
+# create a dataset with no biotic variables - nb for "no biotic"
+env_sea_nb <- env_sea[, c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]
+env_exp_nb <- env_exp[, c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "lew_sal_quant10_scaled", "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "yrk_sal_quant10_scaled", "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled")]
 ```
 
 
@@ -85,82 +89,19 @@ rownames(genoMat) <- rownames(genoLfmm) <- rownames(genoThinMat) <- rownames(gen
 
 ## Seascape Training
 
-Now that I have prepped and cleaned my data, I will use it to train LFMM models later used to predict genomic offset to some other (in this case experimental) climate. Importantly, I do not need to trim or impute my genomic data, or determine ancestry - Madeline has already done this. The data has been LD thinned, trimmed for MAF, and ancestry analysis has recovered K=2.
-Madeline also compiled the environmental data, which I further processed in the script "CviMVP_oyster_EnvDatProcess."
-
-May decide to train both genotype-based models and allele frequency based models - for now genotype models only.
+Now that I have prepped and cleaned my data, I will use it to train LFMM models later used to predict genomic offset to some other (in this case experimental) climate. Importantly, I do not need to trim or impute my genomic data, or determine ancestry - Madeline has already done this. The data has been LD thinned, trimmed for MAF, and ancestry analysis has recovered K=2. 
+The seascape environmental data was compiled by Madeline, as well as the qPCR results used to calculate pea crab prevalence. The data processing pipeline can be found in "CviMVP_oyster_EnvDatProcess.Rmd"
 
 ```{r}
 # fit model
-mod_lfmm <- lfmm2(input = genoLfmm,
+mod_lfmm <- lfmm2(input = genoThinLfmm,
                   env = env_sea, 
                   K = 2, # this was number from Madeline's snmf analysis
                   effect.sizes = T) 
-mod_lfmmthin <- lfmm2(input = genoThinLfmm,
-                      env = env_sea,
+mod_lfmm_nb <- lfmm2(input = genoThinLfmm,
+                      env = env_sea_nb,
                       K = 2,
                       effect.sizes = T)
-
-# perform test
-pv_lfmm <- lfmm2.test(object = mod_lfmm,
-                      input = genoLfmm,
-                      env = env_sea, 
-                      full = TRUE)
-pv_lfmmthin <- lfmm2.test(object = mod_lfmmthin,
-                      input = genoThinLfmm,
-                      env = env_sea, 
-                      full = TRUE)
-
-# pvalues
-pv <- pv_lfmm$pvalues
-pvthin <- pv_lfmmthin$pvalues
-
-# qvalues
-library(qvalue)
-qv <- qvalue(pv, fdr.level = 0.01)
-qvthin <- qvalue(pvthin, fdr.level = 0.01)
-
-# candidates
-candidates <- which(qv$significant)
-candidates_pvals <- (pv)[candidates]
-
-candidatesthin <- which(qvthin$significant)
-candidates_pvalsthin <- (pvthin)[candidatesthin]
-
-# using FDR to filter out false positives
-length(which(qv$qvalues < 0.001)) # 12455
-length(which(qvthin$qvalues < 0.001)) # 5430
-
-# identify which SNPs have FDR less than 1%
-fdr_cands <- colnames(genoLfmm)[which(qv$qvalues < 0.001)]
-fdr_candsthin <- colnames(genoThinLfmm)[which(qvthin$qvalues < 0.001)]
-
-# df for candidates
-cand_df <- data.frame(index = colnames(genoLfmm), pos = 1:length(pv),
-                      pvals = pv, qvals = qv$qvalues)
-cand_df_thin <- data.frame(index = colnames(genoThinLfmm), pos = 1:length(pvthin),
-                      pvals = pvthin, qvals= qvthin$qvalues)
-
-# manhattan plot - unnecessary but just a quick visualization
-plot(cand_df$pos, -log10(cand_df$pvals), 
-     pch = 19, col = "darkslategray4",
-     main = "Candidate SNPs",
-     xlab = "Position",
-     ylab = "-log10(Pvals)")
-points(cand_df$pos[cand_df$qvals < 0.001], 
-       -log10(cand_df$pvals[cand_df$qvals < 0.001]),
-       pch = 19,
-       col = "hotpink")
-
-plot(cand_df_thin$pos, -log10(cand_df_thin$pvals), 
-     pch = 19, col = "darkslategray4",
-     main = "Candidate SNPs (Thinned)",
-     xlab = "Position",
-     ylab = "-log10(Pvals)")
-points(cand_df_thin$pos[cand_df_thin$qvals < 0.001], 
-       -log10(cand_df_thin$pvals[cand_df_thin$qvals < 0.001]),
-       pch = 19,
-       col = "hotpink")
 ```
 
 
@@ -188,36 +129,36 @@ env_sea_forgo2 <- read.csv("data/EnvDat/seascape/seascape_environment_predict.cs
 
 # first, I need to get environmental effect sizes from the trained models
 B <- mod_lfmm@B
-Bthin <- mod_lfmmthin@B
+B_nb <- mod_lfmm_nb@B
 
 # not using candidate loci for now
 # calculate "genetic gap" for all the experimental sites
 gg_lew = NULL
-for (i in 1:nrow(env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
-gg_lew[i] = mean(((env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_exp[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")])[i,]  %*% t(B))^2, na.rm = TRUE)
+for (i in 1:nrow(env_exp[,c("sal_quant10_scaled",  "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
+gg_lew[i] = mean(((env_exp[,c("sal_quant10_scaled",  "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_exp[,c("lew_sal_quant10_scaled",  "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")])[i,]  %*% t(B))^2, na.rm = TRUE)
 }
 
 gg_yrk = NULL
-for (i in 1:nrow(env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
-gg_yrk[i] = mean(((env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_exp[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")])[i,]  %*% t(B))^2, na.rm = TRUE)
+for (i in 1:nrow(env_exp[,c("sal_quant10_scaled",  "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
+gg_yrk[i] = mean(((env_exp[,c("sal_quant10_scaled",  "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_exp[,c("yrk_sal_quant10_scaled",  "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")])[i,]  %*% t(B))^2, na.rm = TRUE)
 }
 
-gg_lewthin = NULL
-for (i in 1:nrow(env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
-gg_lewthin[i] = mean(((env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_exp[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")])[i,]  %*% t(Bthin))^2, na.rm = TRUE)
+gg_lew_nb = NULL
+for (i in 1:nrow(env_exp_nb[,c("sal_quant10_scaled",  "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")])){
+gg_lew_nb[i] = mean(((env_exp_nb[,c("sal_quant10_scaled",  "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")] - env_exp_nb[,c("lew_sal_quant10_scaled",  "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled")])[i,]  %*% t(B_nb))^2, na.rm = TRUE)
 }
 
-gg_yrkthin = NULL
-for (i in 1:nrow(env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
-gg_yrkthin[i] = mean(((env_exp[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_exp[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")])[i,]  %*% t(Bthin))^2, na.rm = TRUE)
+gg_yrk_nb = NULL
+for (i in 1:nrow(env_exp_nb[,c("sal_quant10_scaled",  "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")])){
+gg_yrk_nb[i] = mean(((env_exp_nb[,c("sal_quant10_scaled",  "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")] - env_exp_nb[,c("yrk_sal_quant10_scaled",  "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled")])[i,]  %*% t(B_nb))^2, na.rm = TRUE)
 }
 
 # associate predictions with site metadata
 gap_df <- env_all[env_all$site_name %in% rownames(env_exp), c("site_name", "Latitude_manual", "Longitude_manual")]
 gap_df$lew_go <- gg_lew
 gap_df$yrk_go <- gg_yrk
-gap_df$lew_gothin <- gg_lewthin
-gap_df$yrk_gothin <- gg_yrkthin
+gap_df$lew_go_nb <- gg_lew_nb
+gap_df$yrk_go_nb <- gg_yrk_nb
 
 # output results
 write.csv(gap_df, paste0("results/GO_results/offsets_LEA_expsites_",Sys.Date(),".csv", sep = ""))
@@ -233,22 +174,22 @@ for (i in 1:nrow(env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_qua
 gg_full_yrk[i] = mean(((env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_sea_forgo2[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")])[i,]  %*% t(B))^2, na.rm = TRUE)
 }
 
-gg_full_lewthin = NULL
-for (i in 1:nrow(env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
-gg_full_lewthin[i] = mean(((env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_sea_forgo2[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled")])[i,]  %*% t(Bthin))^2, na.rm = TRUE)
+gg_full_lew_nb = NULL
+for (i in 1:nrow(env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled")])){
+gg_full_lew_nb[i] = mean(((env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled")] - env_sea_forgo2[,c("lew_salinity_quantile_10_scaled",  "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled")])[i,]  %*% t(B_nb))^2, na.rm = TRUE)
 }
 
-gg_full_yrkthin = NULL
-for (i in 1:nrow(env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")])){
-gg_full_yrkthin[i] = mean(((env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled")] - env_sea_forgo2[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled")])[i,]  %*% t(Bthin))^2, na.rm = TRUE)
+gg_full_yrk_nb = NULL
+for (i in 1:nrow(env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled")])){
+gg_full_yrk_nb[i] = mean(((env_sea_forgo2[,c("salinity_quantile_10_scaled",  "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled")] - env_sea_forgo2[,c("yrk_salinity_quantile_10_scaled",  "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled")])[i,]  %*% t(B_nb))^2, na.rm = TRUE)
 }
 
 # associate predictions with site metadata
 gap_full_df <- sea_red[, c("site_name", "Latitude_manual", "Longitude_manual")]
 gap_full_df$lew_go <- gg_full_lew
 gap_full_df$yrk_go <- gg_full_yrk
-gap_full_df$lew_gothin <- gg_full_lewthin
-gap_full_df$yrk_gothin <- gg_full_yrkthin
+gap_full_df$lew_go_nb <- gg_full_lew_nb
+gap_full_df$yrk_go_nb <- gg_full_yrk_nb
 
 # save
 write.csv(gap_full_df, paste0("results/GO_results/offsets_LEA_fullseascape_",Sys.Date(),".csv", sep = ""))
@@ -256,13 +197,15 @@ write.csv(gap_full_df, paste0("results/GO_results/offsets_LEA_fullseascape_",Sys
 
 ## Offset Visualization
 
+I start by putting together the population information. 
+
 ```{r}
 # add the color palette
 popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "DEBY", "LOLA", "NH", "ME", "LEWISETTA","YORKRIVER"), 
                      order = 1:10, 
                      latitude = c(28.0841, 29.24916667, 30.44116, 37.211, 37.9803, 37.247284, 43.0524, 43.986, 37.9803, 37.247284),
                      longitude = c(-97.2009, -90.9211111, -81.43908, -76.787, -76.4619, -76.499369, -70.91181, -69.55, -76.4619, -76.499369),
-                     cols = c("#3e4989" ,"#31688e", "#35b779", "#6ece58", "#440154", "#482878", "#fde725", "#b5de2b","slateblue1","slateblue1"),
+                     cols = c("#365C8DFF", "#277F8EFF", "#1FA187FF", "#4AC16DFF", "#440154FF", "#46337EFF", "#9FDA3AFF", "#FDE725FF","slateblue1","slateblue1"),
                      shape = c(21,21,21,21,23,23,21,21,24,24),
                      site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME","LEWISETTA","YORKRIVER"))
 
@@ -270,76 +213,9 @@ offsets_plotting_lea <- merge(gap_df, popsdf, by = c("site_name"), all = T)
 
 # save popdf object
 write.csv(popsdf, "data/IndDat/popsdf.csv")
-
-# map
-sf::sf_use_s2(FALSE) # sf package doesn't work
-
-# set object
-world <- ne_countries(scale = "medium", returnclass = "sf")
-world_crop <- sf::st_crop(world, c(xmin =-102, xmax = -65, ymin = 24, ymax = 47.05))
-
-# offset to lew
-map_lew <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = offsets_plotting_lea[!(offsets_plotting_lea$site_name %in% c("LEWISETTA","YORKRIVER")),], aes(x=longitude, y=latitude, 
-                                       fill = lew_gothin), 
-             shape = 21, size = 4)+
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.08)) +
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-        labs(title = "Genomic Offset of Oysters \n to Lewisetta (LEA)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
-(map_lew)
-
-world_chesapeake <- sf::st_crop(world, c(xmin =-77.856476 , xmax = -72.762787, ymin = 36.019557, ymax = 39.939163))
-
-# top left: 39.939163, -77.856476
-# bottom right: 36.019557, -72.762787
-
-popout_lew <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
-  geom_point(data = offsets_plotting_lea[!(offsets_plotting_lea$site_name %in% c("LEWISETTA","YORKRIVER")),], aes(x=longitude, y=latitude, 
-                                       fill = lew_gothin), 
-             shape = 21, size = 4)+
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.08)) +
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
-        xlim(-77.856476, -72.762787) +
-        ylim(36.019557, 39.939163)
-popout_lew
-
-# offset to york
-map_york <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = offsets_plotting_lea[!(offsets_plotting_lea$site_name %in% c("LEWISETTA","YORKRIVER")),], aes(x=longitude, y=latitude, 
-                                       fill = yrk_gothin), 
-             shape = 21, size = 4)+
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.08)) +
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-        labs(title = "Genomic Offset of Oysters \n to York River (LEA)", x = "Longitude", y = "Latitude", fill = "Genomic \n Offset")
-(map_york)
-
-popout_york <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
-  geom_point(data = offsets_plotting_lea[!(offsets_plotting_lea$site_name %in% c("LEWISETTA","YORKRIVER")),], aes(x=longitude, y=latitude, 
-                                       fill = yrk_gothin), 
-             shape = 21, size = 4)+
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.08)) +
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
-        xlim(-77.856476, -72.762787) +
-        ylim(36.019557, 39.939163)
-popout_york
-
-cor(na.omit(offsets_plotting_lea$lew_gothin), na.omit(offsets_plotting_lea$yrk_gothin))
-plot(x = offsets_plotting_lea$lew_gothin, y = offsets_plotting_lea$yrk_gothin)
 ```
 
-I would also like to visualize an interpolated GO landscape, for which I will use an inverse distance weighting algorithm
+Then, I interpolate genomic offset across the seascape.
 
 ```{r}
 sea_sf <- st_as_sf(gap_full_df, 
@@ -382,10 +258,10 @@ grid_int_crop <- sf::st_crop(grid_int, c(xmin = -102, xmax = -65,
                                          ymin = 24, ymax = 47.05))
 
 # interpolate
-interpolated_lew <- idw(lew_gothin~1, sea_sf, grid_int)
+interpolated_lew <- idw(lew_go~1, sea_sf, grid_int)
 saveRDS(interpolated_lew, "results/lg_results/interpolated_lea_lew.rds")
 
-interpolated_yrk <- idw(yrk_gothin~1, sea_sf, grid_int)
+interpolated_yrk <- idw(yrk_go~1, sea_sf, grid_int)
 saveRDS(interpolated_yrk, "results/lg_results/interpolated_lea_yrk.rds")
 
 # empty raster
@@ -419,10 +295,10 @@ map_lew_int_lea <- ggplot(data = world) +
   geom_sf(data = interpolated_lew, mapping = aes(fill = var1.pred, col = var1.pred)) +
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
   geom_point(data = offsets_sea_plotting_lea, aes(x = Longitude_manual, y = Latitude_manual, 
-                                              fill = lew_gothin), 
+                                              fill = lew_go), 
              shape = 21, size = 2) +
   geom_point(data = offsets_plotting_lea[offsets_plotting_lea$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=Longitude_manual, y=Latitude_manual, 
-                                       fill = lew_gothin), 
+                                       fill = lew_go), 
              shape = 21, size = 4)+
   scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.08)) +
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.08)) +
@@ -443,9 +319,9 @@ lew_int_lea_inset <- ggplot(data = world) +
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.08)) +
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
   geom_point(data = offsets_sea_plotting_lea, aes(x = Longitude_manual, y = Latitude_manual, 
-                                              fill = lew_gothin), 
+                                              fill = lew_go), 
              shape = 21, size = 5) +
-  geom_point(data = offsets_plotting_lea[offsets_plotting_lea$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, fill = lew_gothin), 
+  geom_point(data = offsets_plotting_lea[offsets_plotting_lea$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, fill = lew_go), 
              shape = 21, size = 7)+
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 0.08)) + # double check these values
   geom_point(data = offsets_plotting_lea[offsets_plotting_lea$site_name == "LEWISETTA",], 
@@ -467,9 +343,9 @@ map_yrk_int_lea <- ggplot(data = world) +
   geom_sf(data = interpolated_yrk, mapping = aes(col = var1.pred)) +
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
   geom_point(data = offsets_sea_plotting_lea, aes(x = Longitude_manual, y = Latitude_manual, 
-                                              fill = lew_gothin), 
+                                              fill = lew_go), 
              shape = 21, size = 2) +
-  geom_point(data = offsets_plotting_lea[offsets_plotting_lea$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, fill = yrk_gothin), 
+  geom_point(data = offsets_plotting_lea[offsets_plotting_lea$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, fill = yrk_go), 
              shape = 21, size = 4)+
   scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.08)) +
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.08)) +
@@ -489,9 +365,9 @@ yrk_int_lea_inset <- ggplot(data = world) +
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.08)) +
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
   geom_point(data = offsets_sea_plotting_lea, aes(x = Longitude_manual, y = Latitude_manual, 
-                                              fill = lew_gothin), 
+                                              fill = lew_go), 
              shape = 21, size = 5) +
-  geom_point(data = offsets_plotting_lea[offsets_plotting_lea$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, fill = yrk_gothin), 
+  geom_point(data = offsets_plotting_lea[offsets_plotting_lea$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, fill = yrk_go), 
              shape = 21, size = 9)+
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 0.08)) + # double check these values
   geom_point(data = offsets_plotting_lea[offsets_plotting_lea$site_name == "YORKRIVER",], 
