@@ -802,18 +802,20 @@ Now that I have predictions from different methods, I will look at how offset pr
 
 ```{r Offset Comparison}
 # create a correlation matrix for offsets
-go_forcorrs <- fullfit %>% distinct(site_name, bag_site, event, .keep_all = TRUE) %>% filter(event == 4) %>% dplyr::select(site_name, pop, bag_site, offset_lew_rda, offset_yrk_rda, order_lew_rda, order_yrk_rda, offset_gf_af_lew, offset_gf_af_yrk, order_lew_af_gf, order_yrk_af_gf, lew_gothin_lea, yrk_gothin_lea, order_lew_lea, order_yrk_lea, env_dist_lew, env_dist_yrk, order_lew_envdist, order_yrk_envdist)
+go_forcorrs <- fullfit %>% distinct(site_name, bag_site, event, .keep_all = TRUE) %>% filter(event == 4) %>% dplyr::select(site_name, pop, bag_site, offset_lew_rda, offset_yrk_rda, order_lew_rda, order_yrk_rda, offset_gf_af_lew, offset_gf_af_yrk, order_lew_af_gf, order_yrk_af_gf, offset_gf_geno_lew, offset_gf_geno_yrk, order_lew_geno_gf, order_yrk_geno_gf, lew_gothin_lea, yrk_gothin_lea, order_lew_lea, order_yrk_lea, env_dist_lew, env_dist_yrk, order_lew_envdist, order_yrk_envdist)
 
 # check correlations
-cor_go_raw <- cor(go_forcorrs[,c("offset_lew_rda", "lew_gothin_lea", "offset_gf_af_lew", "env_dist_lew", "offset_yrk_rda", "yrk_gothin_lea", "offset_gf_af_yrk", "env_dist_yrk")])
-cor_go_raw_pmat <- cor_pmat(go_forcorrs[,c("offset_lew_rda", "lew_gothin_lea", "offset_gf_af_lew", "env_dist_lew", "offset_yrk_rda", "yrk_gothin_lea", "offset_gf_af_yrk", "env_dist_yrk")])
-cor_go_ord <- cor(go_forcorrs[,c("order_lew_rda", "order_lew_lea", "order_lew_af_gf",  "order_lew_envdist", "order_yrk_rda", "order_yrk_lea", "order_yrk_af_gf", "order_yrk_envdist")])
-cor_go_ord_pmat <- cor_pmat(go_forcorrs[,c("order_lew_rda", "order_lew_lea", "order_lew_af_gf",  "order_lew_envdist", "order_yrk_rda", "order_yrk_lea", "order_yrk_af_gf", "order_yrk_envdist")])
+library(ggcorrplot)
+cor_go_raw <- cor(go_forcorrs[,c("offset_lew_rda", "lew_gothin_lea", "offset_gf_af_lew", "offset_gf_geno_lew", "env_dist_lew", "offset_yrk_rda", "yrk_gothin_lea", "offset_gf_af_yrk", "offset_gf_geno_yrk", "env_dist_yrk")])
+cor_go_raw_pmat <- cor_pmat(go_forcorrs[,c("offset_lew_rda", "lew_gothin_lea", "offset_gf_af_lew", "offset_gf_geno_lew", "env_dist_lew", "offset_yrk_rda", "yrk_gothin_lea", "offset_gf_af_yrk",  "offset_gf_geno_yrk", "env_dist_yrk")])
+cor_go_ord <- cor(go_forcorrs[,c("order_lew_rda", "order_lew_lea", "order_lew_af_gf", "order_lew_geno_gf", "order_lew_envdist", "order_yrk_rda", "order_yrk_lea", "order_yrk_af_gf", "order_yrk_geno_gf", "order_yrk_envdist")])
+cor_go_ord_pmat <- cor_pmat(go_forcorrs[,c("order_lew_rda", "order_lew_lea", "order_lew_af_gf", "order_lew_geno_gf", "order_lew_envdist", "order_yrk_rda", "order_yrk_lea", "order_yrk_af_gf", "order_yrk_geno_gf", "order_yrk_envdist")])
 
 # plot these correlations
-library(ggcorrplot)
 # raw go
 corrs_go_raw_all <- ggcorrplot(cor_go_raw, 
+                               p.mat = cor_go_raw_pmat,
+                               insig = "blank",
                                lab = T,
                                colors = c("#6D9EC1", "white", "#E46726")) + 
   theme_classic() + 
@@ -823,20 +825,10 @@ corrs_go_raw_all <- ggcorrplot(cor_go_raw,
        y = NULL)
 corrs_go_raw_all
 
-corrs_go_raw_nons <- ggcorrplot(cor_go_raw,
-                                lab = T, 
-                                p.mat = cor_go_raw_pmat, 
-                                insig = "blank",
-                                colors = c("#6D9EC1", "white", "#E46726")) + 
-  theme_classic() + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(title = "Genomic Offset Correlations (Significant)",
-       x = NULL,
-       y = NULL)
-corrs_go_raw_nons
-
 # go orders
 corrs_go_ord_all <- ggcorrplot(cor_go_ord, 
+                               p.mat = cor_go_ord_pmat,
+                               insig = "blank",
                                lab = T,
                                colors = c("#6D9EC1", "white", "#E46726")) + 
   theme_classic() + 
@@ -845,17 +837,5 @@ corrs_go_ord_all <- ggcorrplot(cor_go_ord,
        x = NULL,
        y = NULL)
 corrs_go_ord_all
-
-corrs_go_ord_nons <- ggcorrplot(cor_go_ord, 
-                                lab = T, 
-                                p.mat = cor_go_ord_pmat, 
-                                insig = "blank",
-                                colors = c("#6D9EC1", "white", "#E46726")) + 
-  theme_classic() + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(title = "Genomic Offset Correlations (Rank, Significant)",
-       x = NULL,
-       y = NULL)
-corrs_go_ord_nons
 ```
 
