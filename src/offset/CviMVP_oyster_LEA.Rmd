@@ -205,7 +205,7 @@ popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "DEBY", "LOLA", "NH", "ME",
                      order = 1:10, 
                      latitude = c(28.0841, 29.24916667, 30.44116, 37.211, 37.9803, 37.247284, 43.0524, 43.986, 37.9803, 37.247284),
                      longitude = c(-97.2009, -90.9211111, -81.43908, -76.787, -76.4619, -76.499369, -70.91181, -69.55, -76.4619, -76.499369),
-                     cols = c("#365C8DFF", "#277F8EFF", "#1FA187FF", "#4AC16DFF", "#440154FF", "#46337EFF", "#9FDA3AFF", "#FDE725FF","slateblue1","slateblue1"),
+                     cols = c("#365C8DFF", "#277F8EFF", "#1FA187FF", "#4AC16DFF", "#440154FF", "#46337EFF", "#9FDA3AFF", "#FDE725FF","deeppink","deeppink"),
                      shape = c(21,21,21,21,23,23,21,21,24,24),
                      site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME","LEWISETTA","YORKRIVER"))
 
