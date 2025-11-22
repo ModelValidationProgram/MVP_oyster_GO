@@ -75,15 +75,11 @@ colnames(genoThinMat) <- make.names(as.character(1:ncol(genoThinMat)))
 
 # reduced variable set
 env_sea_pop <- env_sea[!duplicated(env_sea$ID_SiteDate),]
-env_exp_pop <- env_exp[!duplicated(env_exp$site_name),]
 env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")]
+env_sea_red_nb <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled")]
 env_sea_pop_red <- env_sea_pop[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")]
-env_exp_pop_red <- env_exp_pop[,c("site_name","salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")]
-env_exp_lew_red <- env_exp_pop[,c("site_name", "lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_Crab_scaled")]
-env_exp_yrk_red <- env_exp_pop[,c("site_name", "yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_Crab_scaled")]
+env_sea_pop_red_nb <- env_sea_pop[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled")]
 
-# change exp colnames to match up
-colnames(env_exp_lew_red) <- colnames(env_exp_yrk_red) <- colnames(env_exp_pop_red)
 # start by defining a maximum number of splits
 maxLevel <- log2(0.368*nrow(env_sea_pop_red)/2)
 
@@ -104,17 +100,47 @@ maxLevel <- log2(0.368*nrow(env_sea_pop_red)/2)
 # saveRDS(gf_af, paste0("results/lg_results/gf_af_",Sys.Date(),".RDS"))
 
 # geno models
-# crashes on personal laptop, run on cluster
+# start_time <- Sys.time() # time start
+# gf_geno <- gradientForest(cbind(env_sea_red, genoThinMat), 
+#                           predictor.vars = colnames(env_sea_red), 
+#                           response.vars=colnames(genoThinMat), 
+#                           ntree=500, 
+#                           maxLevel=maxLevel, 
+#                           trace=T, 
+#                           corr.threshold=0.50)
+# end_time <- Sys.time() # time end
+# (end_time - start_time) # over 24 on cluster
+
+# save trained geno model
+# saveRDS(gf_geno, paste0("results/lg_results/gf_geno_",Sys.Date(),".RDS"))
+
+# without biotic variables (nb)
+# allele freq models
 start_time <- Sys.time() # time start
-gf_geno <- gradientForest(cbind(env_sea_red, genoThinMat), 
-                          predictor.vars = colnames(env_sea_red), 
-                          response.vars=colnames(genoThinMat), 
-                          ntree=500, 
-                          maxLevel=maxLevel, 
-                          trace=T, 
+gf_af_nb <- gradientForest(cbind(env_sea_pop_red_nb, freqs_thin),
+                        predictor.vars = colnames(env_sea_pop_red_nb),
+                        response.vars = (colnames(freqs_thin)),
+                        ntree = 500,
+                        maxLevel = maxLevel,
+                        trace = T,
+                        corr.threshold=0.50) # tons of warnings here, "response has five or fewer unique values. Are you sure you want to do regression?" - warning doesn't appear on the cluster
+end_time <- Sys.time() # time end
+(end_time - start_time) # about 1.5hrs
+
+# save trained af model
+saveRDS(gf_af_nb, paste0("results/lg_results/gf_af_abiotic_",Sys.Date(),".RDS"))
+
+# geno models
+start_time <- Sys.time() # time start
+gf_geno_nb <- gradientForest(cbind(env_sea_red_nb, genoThinMat),
+                          predictor.vars = colnames(env_sea_red_nb),
+                          response.vars=colnames(genoThinMat),
+                          ntree=500,
+                          maxLevel=maxLevel,
+                          trace=T,
                           corr.threshold=0.50)
 end_time <- Sys.time() # time end
 (end_time - start_time) # over 24 on cluster
 
 # save trained geno model
-saveRDS(gf_geno, paste0("results/lg_results/gf_geno_",Sys.Date(),".RDS"))
+saveRDS(gf_geno_nb, paste0("results/lg_results/gf_geno_abiotic_",Sys.Date(),".RDS"))
