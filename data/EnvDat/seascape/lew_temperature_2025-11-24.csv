@@ -1,0 +1,2 @@
+"","dataset","site_name","download_date","source_description","lat","lon","firstyear","finalyear","Mean_Annual_Temperature_C","Mean_max_temperature_C","Mean_min_temperature_C","temp_quantile_10","temp_quantile_90","Temperature_st_dev","Temperature_n","Temperature_years"
+"10%","sea","S1_LOLA",2025-10-14,"KCB hatchery in Coan River as part of CBNERR water quality monitoring, comes from Willy Reay",37.9803,-76.4619,2014,2024,15.8587997858531,28.8450297064993,1.3440869229879,5.0345031055959,27.7325858920329,8.73244626481173,3158,11
