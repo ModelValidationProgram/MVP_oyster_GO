@@ -165,32 +165,44 @@ colnames(env_exp_lew_red) <- colnames(env_exp_yrk_red) <- colnames(env_exp_pop_r
 To train the models, I will be using the seascape genomic dataset that we processed in the previous chunk, as well as the current environmental data files produced using "CviMVP_oyster_EnvDatProcess.Rmd."
 
 ```{r GO Model Training}
-# start by defining a maximum number of splits
-maxLevel <- log2(0.368*nrow(env_sea_pop_red)/2)
+# # start by defining a maximum number of splits
+# maxLevel <- log2(0.368*nrow(env_sea_pop_red)/2)
+# 
+# # run gradient forest
+# # allele freq models
+# start_time <- Sys.time() # time start
+# gf_af <- gradientForest(cbind(env_sea_pop_red, freqs_thin), predictor.vars = colnames(env_sea_pop_red), response.vars = (colnames(freqs_thin)), ntree = 500, maxLevel = maxLevel, trace = T, corr.threshold=0.50) # tons of warnings here, "response has five or fewer unique values. Are you sure you want to do regression?" - warning doesn't appear on the cluster
+# end_time <- Sys.time() # time end
+# (end_time - start_time) # about 1hrs
+# 
+# # geno models
+# # crashes on personal laptop, run on cluster
+# start_time <- Sys.time() # time start
+# gf_geno <- gradientForest(cbind(env_sea[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")], genoThinMat), predictor.vars = c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled"), response.vars=colnames(genoThinMat), ntree=500, maxLevel=maxLevel, trace=T, corr.threshold=0.50)
+# end_time <- Sys.time() # time end
+# (end_time - start_time) # about 2hrs on cluster
 
-# run gradient forest
-# allele freq models
-start_time <- Sys.time() # time start
-gf_af <- gradientForest(cbind(env_sea_pop_red, freqs_thin), predictor.vars = colnames(env_sea_pop_red), response.vars = (colnames(freqs_thin)), ntree = 500, maxLevel = maxLevel, trace = T, corr.threshold=0.50) # tons of warnings here, "response has five or fewer unique values. Are you sure you want to do regression?" - warning doesn't appear on the cluster
-end_time <- Sys.time() # time end
-(end_time - start_time) # about 1hrs
+# saveRDS(gf_af, paste0("results/lg_results/gf_af_",Sys.Date(),".RDS"))
+# saveRDS(gf_geno, paste0("results/GO_results/gf_geno_",Sys.Date(),".RDS"))
 
-# geno models
-# crashes on personal laptop, run on cluster
-start_time <- Sys.time() # time start
-gf_geno <- gradientForest(cbind(env_sea[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")], genoThinMat), predictor.vars = c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled"), response.vars=colnames(genoThinMat), ntree=500, maxLevel=maxLevel, trace=T, corr.threshold=0.50)
-end_time <- Sys.time() # time end
-(end_time - start_time) # about 2hrs on cluster
+# read in models trained in trainGF.R / trainGF.sh
+gf_af <- readRDS("results/lg_results/gf_af_2025-11-10.RDS")
+gf_geno <- readRDS("results/lg_results/gf_geno_2025-11-15.RDS")
+gf_af_nb <- readRDS("results/lg_results/gf_af_abiotic_2025-11-22.RDS")
+gf_geno_nb <- readRDS("results/lg_results/gf_geno_abiotic_2025-11-24.RDS")
 
 # plot bar graphs depicting importance of each spatial and climate variable
 plot(gf_af)
-importance(gf_af)
 plot(gf_geno)
+plot(gf_af_nb)
+plot(gf_geno_nb)
+
+sink("results/GO_results/gf_importance.txt")
+importance(gf_af)
 importance(gf_geno)
-saveRDS(gf_af, paste0("results/lg_results/gf_af_",Sys.Date(),".RDS"))
-gf_af <- readRDS("results/lg_results/gf_af_2025-11-10.RDS")
-saveRDS(gf_geno, paste0("results/GO_results/gf_geno_",Sys.Date(),".RDS"))
-gf_geno <- readRDS("results/lg_results/gf_geno_2025-11-15.RDS")
+importance(gf_af_nb)
+importance(gf_geno_nb)
+sink()
 
 # plots of turnover functions for individual loci - now having issues with ylim
 plot(gf_af, plot.type = "C", imp.vars = gf_af$imp.vars, show.overall = T, legend = T, leg.posn = "topleft", leg.nspecies = 5, ylim = c(0,0.5))
@@ -236,13 +248,19 @@ Now I can predict offset using these different methods (genotype and allele freq
 # prediction to home site
 pred_af_home <- predict(gf_af, env_exp_pop_red[,-1])
 pred_geno_home <- predict(gf_geno, env_exp_pop_red[,-1])
+pred_af_home_nb <- predict(gf_af_nb, env_exp_pop_red[,2:5])
+pred_geno_home_nb <- predict(gf_geno_nb, env_exp_pop_red[,2:5])
 
 # prediction to common gardens
 pred_af_lew <- predict(gf_af, env_exp_lew_red[,-1])
 pred_af_yrk <- predict(gf_af, env_exp_yrk_red[,-1])
+pred_af_lew_nb <- predict(gf_af_nb, env_exp_lew_red[,2:5])
+pred_af_yrk_nb <- predict(gf_af_nb, env_exp_yrk_red[,2:5])
 
 pred_geno_lew <- predict(gf_geno, env_exp_lew_red[,-1])
 pred_geno_yrk <- predict(gf_geno, env_exp_yrk_red[,-1])
+pred_geno_lew_nb <- predict(gf_geno_nb, env_exp_lew_red[,2:5])
+pred_geno_yrk_nb <- predict(gf_geno_nb, env_exp_yrk_red[,2:5])
 
 # We now compute the euclidean distance between current and new cumulative importance
 nb_ind <- nrow(pred_af_lew)
@@ -260,6 +278,14 @@ for (i in 1:nb_ind){ # calc offset
 af_offset_lew <- cbind(pops_list1, df_af_lew) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
 colnames(af_offset_lew) <- c("site_name", "offset_gf_af_lew")
 
+df_af_lew_nb <- data.frame() # df
+for (i in 1:nb_ind){ # calc offset
+  ec_dist <- as.data.frame(euclidean(pred_af_home_nb[i,], pred_af_lew_nb[i,]))
+  df_af_lew_nb <- rbind(df_af_lew_nb, ec_dist)
+}
+af_offset_lew_nb <- cbind(pops_list1, df_af_lew_nb) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
+colnames(af_offset_lew_nb) <- c("site_name", "offset_gf_af_lew_nb")
+
 # york
 df_af_yrk <- data.frame() # df
 for (i in 1:nb_ind) { # calc offset
@@ -269,8 +295,18 @@ for (i in 1:nb_ind) { # calc offset
 af_offset_yrk <- cbind(pops_list1, df_af_yrk) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
 colnames(af_offset_yrk) <- c("site_name", "offset_gf_af_yrk")
 
+df_af_yrk_nb <- data.frame() # df
+for (i in 1:nb_ind) { # calc offset
+  ec_dist <- as.data.frame(euclidean(pred_af_home_nb[i,], pred_af_yrk_nb[i,]))
+  df_af_yrk_nb <- rbind(df_af_yrk_nb, ec_dist)
+}
+af_offset_yrk_nb <- cbind(pops_list1, df_af_yrk_nb) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
+colnames(af_offset_yrk_nb) <- c("site_name", "offset_gf_af_yrk_nb")
+
 # merge
-af_offsets <- merge(af_offset_lew, af_offset_yrk, by = c("site_name"))
+af_offsets_b <- merge(af_offset_lew, af_offset_yrk, by = c("site_name"))
+af_offsets_nb <- merge(af_offset_lew_nb, af_offset_yrk_nb, by = c("site_name"))
+af_offsets <- merge(af_offsets_b, af_offsets_nb, by = c("site_name"))
 
 # geno
 # lew
@@ -282,6 +318,14 @@ for (i in 1:nb_ind){ # calc offset
 geno_offset_lew <- cbind(as.data.frame(env_exp_pop[,c("site_name","Latitude_manual","Longitude_manual")]), df_geno_lew) # associate metadata with offset calculation
 colnames(geno_offset_lew) <- c("site_name", "lat", "lon", "offset_gf_geno_lew")
 
+df_geno_lew_nb <- data.frame() # df
+for (i in 1:nb_ind){ # calc offset
+  ec_dist <- as.data.frame(euclidean(pred_geno_home_nb[i,], pred_geno_lew_nb[i,]))
+  df_geno_lew_nb <- rbind(df_geno_lew_nb, ec_dist)
+}
+geno_offset_lew_nb <- cbind(as.data.frame(env_exp_pop[,c("site_name","Latitude_manual","Longitude_manual")]), df_geno_lew_nb) # associate metadata with offset calculation
+colnames(geno_offset_lew_nb) <- c("site_name", "lat", "lon", "offset_gf_geno_lew_nb")
+
 # york
 df_geno_yrk <- data.frame() # df
 for (i in 1:nb_ind){ # calc offset
@@ -291,8 +335,18 @@ for (i in 1:nb_ind){ # calc offset
 geno_offset_yrk <- cbind(as.data.frame(env_exp_pop[,c("site_name","Latitude_manual","Longitude_manual")]), df_geno_yrk) # associate metadata with offset calculation
 colnames(geno_offset_yrk) <- c("site_name", "lat", "lon", "offset_gf_geno_yrk")
 
+df_geno_yrk_nb <- data.frame() # df
+for (i in 1:nb_ind){ # calc offset
+  ec_dist <- as.data.frame(euclidean(pred_geno_home_nb[i,], pred_geno_yrk_nb[i,]))
+  df_geno_yrk_nb <- rbind(df_geno_yrk_nb, ec_dist)
+}
+geno_offset_yrk_nb <- cbind(as.data.frame(env_exp_pop[,c("site_name","Latitude_manual","Longitude_manual")]), df_geno_yrk_nb) # associate metadata with offset calculation
+colnames(geno_offset_yrk_nb) <- c("site_name", "lat", "lon", "offset_gf_geno_yrk_nb")
+
 # merge
-geno_offsets <- merge(geno_offset_lew, geno_offset_yrk, by = c("site_name","lat","lon"))
+geno_offsets_b <- merge(geno_offset_lew, geno_offset_yrk, by = c("site_name","lat","lon"))
+geno_offsets_nb <- merge(geno_offset_lew_nb, geno_offset_yrk_nb, by = c("site_name","lat","lon"))
+geno_offsets <- merge(geno_offsets_b, geno_offsets_nb, by = c("site_name","lat","lon"))
 
 offsets_mvp <- merge(geno_offsets, af_offsets, by = c("site_name"))
 
