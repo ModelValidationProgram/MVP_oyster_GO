@@ -83,6 +83,9 @@ pops_list <- levels(as.factor(seascapeInds$ID_SiteDate))
 # get some lat lons
 sea_latlon <- merge(env_sea_site[,c("ID_Site", "Latitude_manual", "Longitude_manual")], env_sea_date[,c("ID_Site", "ID_SiteDate")], by = "ID_Site")
 
+# write out for later
+write.csv(sea_latlon, "data/IndDat/seascape_latlon.csv")
+
 # add latlon to env data
 env_sea_complete <- merge(sea_latlon, env_sea, by = c("ID_SiteDate"))
 ##########
