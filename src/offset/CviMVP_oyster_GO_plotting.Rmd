@@ -1,0 +1,34 @@
+---
+title: "CviMVP_oyster_GO_plotting"
+author: "Camille Rumberger"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2) # for plotting
+library(raster) # for environmental pixels
+library(sf) # plotting
+library(rnaturalearth) # plotting
+library(maps) # mapping
+library(ggspatial) # mapping
+library(ggrepel) # mapping
+```
+
+# Genomic Offset Plotting
+
+This script is for high quality plotting and export of genomic offset predictions across all methods (LEA, GF, RDA, EnvDist) to an editable powerpoint with vectorized graphics.
+
+## Genomic Offset Objects
+
+```{r}
+
+```
+
+## Plots
+
+
+## Export
+
