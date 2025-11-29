@@ -857,17 +857,28 @@ goFitEnvdist_plotfinalTlen
 Export all of these plots to pdf:
 
 ```{r}
-pdf(file = "results/figures/GO_comparisons.pdf", 
-    width = 9, height = 6)
-goFitLEA_plotfinalTsurv
-goFitGF_plotfinalTsurv
-goFitRDA_plotfinalTsurv
-goFitEnvdist_plotfinalTsurv
-goFitLEA_plotfinalTlen
-goFitGF_plotfinalTlen
-goFitRDA_plotfinalTlen
-goFitEnvdist_plotfinalTlen
-dev.off()
+# this version lets me export directly as an editable powerpoint with vector graphics
+library(officer) # for powerpoint export/editing
+library(rvg) # for converting r graphics to editable vector graphics
+
+doc <- read_pptx() %>% 
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = goFitLEA_plotfinalTsurv), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = goFitGFaf_plotfinalTsurv), location = ph_location_type(type = "body")) %>% 
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = goFitRDA_plotfinalTsurv), location = ph_location_type(type = "body")) %>% 
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = goFitEnvdist_plotfinalTsurv), location = ph_location_type(type = "body")) %>% 
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = goFitLEA_plotfinalTlen), location = ph_location_type(type = "body")) %>% 
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = goFitGFaf_plotfinalTlen), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = goFitRDA_plotfinalTlen), location = ph_location_type(type = "body")) %>% 
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = goFitEnvdist_plotfinalTlen), location = ph_location_type(type = "body"))
+print(doc, target = "results/figures/GO_compare.pptx")
 ```
 
 ## Compare Offset Methods
