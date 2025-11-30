@@ -41,7 +41,7 @@ gf_go <- read.csv("results/GO_results/offsets_GF_expSites_2025-11-24.csv")[,-1]
 # seascape
 lea_sea <- read.csv("results/GO_results/offsets_LEA_fullseascape_2025-11-22.csv")[,-1]
 rda_sea <- read.csv("results/GO_results/offsets_RDA_fullseascape_2025-11-22.csv")[,-1]
-# gf_sea <- read.csv("results/GO_results/") # need to rerun and save
+gf_sea <- read.csv("results/GO_results/offsets_GF_fullseascape_2025-11-30.csv") # need to rerun and save
 envdist <- read.csv("data/EnvDat/exp/distance_matrix_abiotic_2025-11-24.csv")[,c("X","Lewisetta","YorkRiver")] # this has both the seascape sites and the experimental sites
 ```
 
