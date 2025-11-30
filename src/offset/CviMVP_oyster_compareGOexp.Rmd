@@ -309,7 +309,7 @@ Here I calculate the R^2 and pearson's correlation between fitness and GO for ea
 #################################################
 # function for correlations
 cor_fit <- function(site, go_method, bio, sel, df) {
-  cor_df <- data.frame(pearson_surv = NA, pearson_surv_pval = NA, spearman_surv = NA, spearman_surv_pval = NA, kendall_surv = NA, kendall_surv_pval = NA, r2_surv = NA, pearson_len = NA, pearson_len_pval = NA, spearman_len = NA, spearman_len_pval = NA, kendall_len = NA, kendall_len_pval = NA, r2_len = NA, method = NA, biotic = NA, sel = NA, bag_site = NA, event = NA)
+  cor_df <- data.frame(method = NA, biotic = NA, sel = NA, bag_site = NA, event = NA, pearson_surv = NA, pearson_surv_pval = NA, pearson_surv_rank = NA, pearson_surv_rank_pval = NA, spearman_surv = NA, spearman_surv_pval = NA, spearman_surv_rank = NA, spearman_surv_rank_pval = NA, kendall_surv = NA, kendall_surv_pval = NA, kendall_surv_rank = NA, kendall_surv_rank_pval = NA, r2_surv = NA, r2_surv_rank = NA, pearson_len = NA, pearson_len_pval = NA, pearson_len_rank = NA, pearson_len_rank_pval = NA, spearman_len = NA, spearman_len_pval = NA, spearman_len_rank = NA, spearman_len_rank_pval = NA, kendall_len = NA, kendall_len_pval = NA, kendall_len_rank = NA, kendall_len_rank_pval = NA, r2_len = NA, r2_len_rank = NA)
   
   # what metric should we use based on inputs
   lookup_metric <- list(
@@ -328,7 +328,24 @@ cor_fit <- function(site, go_method, bio, sel, df) {
                    gf_geno = "offset_gf_geno_yrk_nb", rda = "offset_rda_yrk_nb", 
                    env_dist = "env_dist_yrk_nb")))
   
+  lookup_rank <- list(
+  Lewisetta = list(
+    b = list(lea = "order_lew_lea", gf_af = "order_lew_af_gf",
+                   gf_geno = "order_lew_geno_gf", rda = "order_lew_rda", 
+                   env_dist = "order_lew_envdist"),
+    nb = list(lea = "order_lew_lea_nb", gf_af = "order_lew_af_gf_nb",
+                   gf_geno = "order_lew_geno_gf_nb", rda = "order_lew_rda_nb", 
+                   env_dist = "order_lew_envdist_nb")),
+  YorkRiver = list(
+    b = list(lea = "order_yrk_lea", gf_af = "order_yrk_af_gf",
+                   gf_geno = "order_yrk_geno_gf", rda = "order_yrk_rda", 
+                   env_dist = "order_yrk_envdist"),
+    nb = list(lea = "order_yrk_lea_nb", gf_af = "order_yrk_af_gf_nb",
+                   gf_geno = "order_yrk_geno_gf_nb", rda = "order_yrk_rda_nb", 
+                   env_dist = "order_yrk_envdist_nb")))
+  
   go_metric <- lookup_metric[[site]][[bio]][[go_method]]
+  go_rank <- lookup_rank[[site]][[bio]][[go_method]]
 
   for (i in 1:4) {
     if (sel == "sel") {
@@ -339,33 +356,50 @@ cor_fit <- function(site, go_method, bio, sel, df) {
     
     # Convert to numeric to handle any character/factor columns
     metric_values <- na.omit(as.numeric(fitdat[,go_metric]))
+    rank_values <- na.omit(as.numeric(fitdat[,go_rank]))
     surv_values <- na.omit(as.numeric(fitdat$surv))
+    surv_ranks <- na.omit(as.numeric(fitdat$order_mort))
     len_values <- na.omit(as.numeric(fitdat$length))
-
-    # survival
-    cor_df[i,]$pearson_surv <- cor.test(metric_values, surv_values, method = "pearson")$estimate
-    cor_df[i,]$pearson_surv_pval <- cor.test(metric_values, surv_values, method = "pearson")$p.value
-    cor_df[i,]$spearman_surv <- cor.test(metric_values, surv_values, method = "spearman")$estimate
-    cor_df[i,]$spearman_surv_pval <- cor.test(metric_values, surv_values, method = "spearman")$p.value
-    cor_df[i,]$kendall_surv <- cor.test(metric_values, as.numeric(surv_values), method = "kendall")$estimate
-    cor_df[i,]$kendall_surv_pval <- cor.test(metric_values, surv_values, method = "kendall")$p.value
-    cor_df[i,]$r2_surv <- summary(lm(surv_values ~ metric_values))$r.squared
-
-    # length
-    cor_df[i,]$pearson_len <- cor.test(metric_values, len_values, method = "pearson")$estimate
-    cor_df[i,]$pearson_len_pval <- cor.test(metric_values, len_values, method = "pearson")$p.value
-    cor_df[i,]$spearman_len <- cor.test(metric_values, len_values, method = "spearman")$estimate
-    cor_df[i,]$spearman_len_pval <- cor.test(metric_values, len_values, method = "spearman")$p.value
-    cor_df[i,]$kendall_len <- cor.test(metric_values, len_values, method = "kendall")$estimate
-    cor_df[i,]$kendall_len_pval <- cor.test(metric_values, len_values, method = "kendall")$p.value
-    cor_df[i,]$r2_len <- summary(lm(len_values ~ metric_values))$r.squared
-
+    len_ranks <- na.omit(as.numeric(fitdat$order_len))
+    
     # metadata
     cor_df[i,]$method <- as.character(go_method)
     cor_df[i,]$bag_site <- as.character(site)
     cor_df[i,]$event <- i
     cor_df[i,]$biotic <- as.character(bio)
-    cor_df[i,]$sel <- as.character(sel)
+    cor_df[i,]$sel <- as.character(sel)    
+    
+    # survival
+    cor_df[i,]$pearson_surv <- cor.test(metric_values, surv_values, method = "pearson")$estimate
+    cor_df[i,]$pearson_surv_pval <- cor.test(metric_values, surv_values, method = "pearson")$p.value
+    cor_df[i,]$pearson_surv_rank <- cor.test(rank_values, surv_ranks, method = "pearson")$estimate
+    cor_df[i,]$pearson_surv_rank_pval <- cor.test(rank_values, surv_ranks, method = "pearson")$p.value
+    cor_df[i,]$spearman_surv <- cor.test(metric_values, surv_values, method = "spearman")$estimate
+    cor_df[i,]$spearman_surv_pval <- cor.test(metric_values, surv_values, method = "spearman")$p.value
+    cor_df[i,]$spearman_surv_rank <- cor.test(rank_values, surv_ranks, method = "spearman")$estimate
+    cor_df[i,]$spearman_surv_rank_pval <- cor.test(rank_values, surv_ranks, method = "spearman")$p.value
+    cor_df[i,]$kendall_surv <- cor.test(metric_values, surv_values, method = "kendall")$estimate
+    cor_df[i,]$kendall_surv_pval <- cor.test(metric_values, surv_values, method = "kendall")$p.value
+    cor_df[i,]$kendall_surv_rank <- cor.test(rank_values, surv_ranks, method = "kendall")$estimate
+    cor_df[i,]$kendall_surv_rank_pval <- cor.test(rank_values, surv_ranks, method = "kendall")$p.value
+    cor_df[i,]$r2_surv <- summary(lm(surv_values ~ metric_values))$r.squared
+    cor_df[i,]$r2_surv_rank <- summary(lm(surv_ranks ~ rank_values))$r.squared
+
+    # length
+    cor_df[i,]$pearson_len <- cor.test(metric_values, len_values, method = "pearson")$estimate
+    cor_df[i,]$pearson_len_pval <- cor.test(metric_values, len_values, method = "pearson")$p.value
+    cor_df[i,]$pearson_len_rank <- cor.test(rank_values, len_ranks, method = "pearson")$estimate
+    cor_df[i,]$pearson_len_rank_pval <- cor.test(rank_values, len_ranks, method = "pearson")$p.value
+    cor_df[i,]$spearman_len <- cor.test(metric_values, len_values, method = "spearman")$estimate
+    cor_df[i,]$spearman_len_pval <- cor.test(metric_values, len_values, method = "spearman")$p.value
+    cor_df[i,]$spearman_len_rank <- cor.test(rank_values, len_ranks, method = "spearman")$estimate
+    cor_df[i,]$spearman_len_rank_pval <- cor.test(rank_values, len_ranks, method = "spearman")$p.value
+    cor_df[i,]$kendall_len <- cor.test(metric_values, len_values, method = "kendall")$estimate
+    cor_df[i,]$kendall_len_pval <- cor.test(metric_values, len_values, method = "kendall")$p.value
+    cor_df[i,]$kendall_len_rank <- cor.test(rank_values, len_ranks, method = "kendall")$estimate
+    cor_df[i,]$kendall_len_rank_pval <- cor.test(rank_values, len_ranks, method = "kendall")$p.value
+    cor_df[i,]$r2_len <- summary(lm(len_values ~ metric_values))$r.squared
+    cor_df[i,]$r2_len_rank <- summary(lm(len_ranks ~ rank_values))$r.squared
   }
   return(cor_df)
 }
