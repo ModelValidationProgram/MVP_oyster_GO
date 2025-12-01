@@ -19,6 +19,8 @@ library(lme4) # for lmm
 library(performance) # for lmm
 library(lmerTest) # for lmm
 library(car) # for avPlots(), Anova()
+library(officer) # for export to ppt
+library(rvg) # for converting to vector graphics
 
 # data
 surv_long <- read.csv("results/exp_results/mortality_long_bags_052925.csv")[,-1]
@@ -227,11 +229,13 @@ letters_len_t4_df <- data.frame(letters = as.data.frame.list(letters_len_t4$pops
 
 lengths_final_time_rename_mg <- merge(lengths_final_time_rename, letters_len_t4_df, by = "popsite")
 (lengths_final_time_rename_mg)
+lengths_final_time_rename_mg$site_name <- lengths_final_time_rename_mg$pop
+lengths_final_time_rename_mg$pop <- str_split_fixed(lengths_final_time_rename_mg$pop, "_", 2)[,2]
 
 # need sd for letters
 summary_len_t4 <- lengths_final_time_rename_mg %>%
-  summarise(mean_len = mean(length), sd = sd(length)) %>%
-  arrange()
+  dplyr::summarise(mean_len = mean(length), sd = sd(length)) %>%
+  dplyr::arrange()
 
 # save all this 
 sink(paste0("results/exp_results/length_model_results_", Sys.Date(), ".txt"))
@@ -249,7 +253,7 @@ len_t4_plot_site <- ggplot(lengths_final_time_rename_mg, aes(x = pop, y = length
   theme_classic()
 len_t4_plot_site
 
-len_final_time_plotting <- merge(lengths_final_time_rename_mg, pop_colors_rm, by = "pop")
+len_final_time_plotting <- merge(lengths_final_time_rename_mg, popsdf, by = c("pop","site_name"))
 
 # plot by pop
 len_t4_plot_pop <- ggplot(len_final_time_plotting, aes(x = bag_site, y = length, fill = fct_reorder(pop, order))) + 
@@ -259,6 +263,15 @@ len_t4_plot_pop <- ggplot(len_final_time_plotting, aes(x = bag_site, y = length,
   labs(title = "Length at Final Time Point", x = "Experimental Site", y = "Survival") +
   theme_classic()
 len_t4_plot_pop
+```
 
-#ggsave("results/figures/length_t4.pdf", plot = len_t4_plot_pop, width = 10, height = 6, dpi = 300)
+## Export Figures
+
+```{r}
+doc <- read_pptx() %>% 
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = surv_t4_plot_pop), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = len_t4_plot_pop), location = ph_location_type(type = "body"))
+print(doc, target = "results/figures/Final_Experimental_Fitness.pptx")
 ```
