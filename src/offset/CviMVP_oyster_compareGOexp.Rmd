@@ -434,6 +434,14 @@ corrs_df$signif_len <- ifelse(corrs_df$spearman_len_pval < .05, T, F)
 
 # save this
 write.csv(corrs_df, paste0("results/GO_results/go_fit_corrs_",Sys.Date(),".csv"), row.names = F)
+
+# another version without pearson or kendall corrs
+corrs_df_spear <- corrs_df %>% dplyr::select(-contains(c("pearson", "kendall")))
+
+# and for only final time point
+corrs_df_spear_t4 <- corrs_df_spear[corrs_df_spear$event == 4,]
+
+write.csv(corrs_df_spear_t4, paste0("results/GO_results/go_fit_corrs_final_",Sys.Date(),".csv"), row.names = F)
 #################################################
 ```
 
