@@ -1,13 +1,13 @@
 #!/bin/bash
-#SBATCH --job-name=TrainGF110425
+#SBATCH --job-name=TrainGF120825
 #SBATCH --mail-user=rumberger.c@northeastern.edu
 #SBATCH --mail-type=FAIL
 #SBATCH --partition=lotterhos
 #SBATCH --mem=200G
 #SBATCH --nodes=1
 #SBATCH --array=2-2%2
-#SBATCH --output=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20251109/TrainGF20251109_%j.out
-#SBATCH --error=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20251109/TrainGF20251109_%j.err
+#SBATCH --output=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20251208/TrainGF20251208_%j.out
+#SBATCH --error=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20251208/TrainGF20251208_%j.err
 
 # setting up error protocols
 set -e
@@ -23,7 +23,7 @@ cd ${mypath}
 # run script
 apptainer run -B "/projects:/projects,/scratch:/scratch" slims_test.sif Rscript src/offset/trainGF.R
 
-#gzip -f "results/lg_results/gf_af_2025-11-09.RDS"
-#gzip -f "results/lg_results/gf_geno_2025-11-09.RDS"
+#gzip -f "results/lg_results/gf_af_2025-12-08.RDS"
+#gzip -f "results/lg_results/gf_geno_2025-12-09.RDS"
 
 
