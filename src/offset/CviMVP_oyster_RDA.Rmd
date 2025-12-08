@@ -42,8 +42,8 @@ library(robust) # for rdadapt functions
 
 # data
 # env
-env_sea <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-10-30.csv")[,-1]
-env_exp <- read.csv("data/EnvDat/exp/exp_scaled_2025-10-30.csv")[,-1]
+env_sea <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-12-05.csv")[,-1]
+env_exp <- read.csv("data/EnvDat/exp/exp_scaled_2025-12-08.csv")[,-1]
 
 # sites
 env_sea_site <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")[,-1]
@@ -598,8 +598,8 @@ Now I can start the process of training models:
 
 ```{r}
 # reduce size of env data set used for training
-env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")]
-env_sea_red_nb <- env_sea_red %>% dplyr::select(-"Dermo_Prevalence_scaled",-"Pea_Crab_scaled")
+env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")]
+env_sea_red_nb <- env_sea_red %>% dplyr::select(-"Dermo_Prevalence_scaled",-"Pea_crab_scaled", -"MSX_Prevalence_scaled")
 
 # run rda
 print(Sys.time())
@@ -624,7 +624,7 @@ thres_env <- 0.01 / length(rdadapt_sea$p.values)
 thres_env_nb <- 0.01 / length(rdadapt_sea_nb$p.values)
 
 # Identifying the loci that are below the p-value threshold
-outliers <- (1:ncol(genoMat))[which(rdadapt_sea$p.values < thres_env)]
+outliers <- (1:ncol(genoThinMat))[which(rdadapt_sea$p.values < thres_env)]
 length(outliers) # 1203 outliers
 
 outliers_nb <- (1:ncol(genoThinMat))[which(rdadapt_sea_nb$p.values < thres_env_nb)]
@@ -685,18 +685,18 @@ Now, I calculate genomic offset for all of my populations!
 
 ```{r}
 # common garden info
-lew_env <- env_exp[!duplicated(env_exp$site_name) ,c("lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_Crab_scaled")]
-yrk_env <- env_exp[!duplicated(env_exp$site_name) ,c("yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_Crab_scaled")]
-colnames(lew_env) <- colnames(yrk_env) <- c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")
+lew_env <- env_exp[!duplicated(env_exp$site_name) ,c("lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "lew_MSX_Prevalence_scaled")]
+yrk_env <- env_exp[!duplicated(env_exp$site_name) ,c("yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled", "yrk_MSX_Prevalence_scaled")]
+colnames(lew_env) <- colnames(yrk_env) <- c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")
 
-env_exp_red <- env_exp[!duplicated(env_exp$site_name) ,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")]
+env_exp_red <- env_exp[!duplicated(env_exp$site_name) ,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")]
 
 # df for predicting to seascape sites
 env_sea_forgo <- read.csv("data/EnvDat/seascape/seascape_environment_predict.csv")
 rownames(env_sea_forgo) <- env_sea_forgo$X
-env_sea_forgo_pres <- env_sea_forgo[,8:13]
-env_sea_forgo_lew <- env_sea_forgo[,14:19]
-env_sea_forgo_yrk <- env_sea_forgo[,20:25]
+env_sea_forgo_pres <- env_sea_forgo[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")]
+env_sea_forgo_lew <- env_sea_forgo[,c("lew_sal_quant10_scaled", "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "lew_MSX_Prevalence_scaled")]
+env_sea_forgo_yrk <- env_sea_forgo[,c("yrk_sal_quant10_scaled", "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled", "yrk_MSX_Prevalence_scaled")]
 colnames(env_sea_forgo_lew) <- colnames(env_sea_forgo_yrk) <- colnames(env_sea_forgo_pres) <- colnames(env_sea_red)
 
 # dataframes with only abiotic variables
@@ -708,46 +708,46 @@ env_sea_forgo_lew_nb <- env_sea_forgo_lew[,c("salinity_quantile_10_scaled","sali
 env_sea_forgo_yrk_nb <- env_sea_forgo_yrk[,c("salinity_quantile_10_scaled","salinity_quantile_90_scaled","temp_quantile_10_scaled","temp_quantile_90_scaled")]
 
 # Estimate genomic offset
-offset_lew <- genomic_offset(RDA = RDA_sea_thin, 
+offset_lew <- rdadapt::genomic_offset(RDA = RDA_sea, 
                               K = 2,
                               env_pres = env_exp_red, 
                               env_fut = lew_env, 
                               method = "loadings")
-offset_lew_sea <- genomic_offset(RDA = RDA_sea_thin,
+offset_lew_sea <- rdadapt::genomic_offset(RDA = RDA_sea,
                                  K = 2,
                                  env_pres = env_sea_forgo_pres,
                                  env_fut = env_sea_forgo_lew,
                                  method = "loadings")
 
-offset_yrk <- genomic_offset(RDA = RDA_sea_thin, 
+offset_yrk <- rdadapt::genomic_offset(RDA = RDA_sea, 
                               K = 2, 
                               env_pres = env_exp_red, 
                               env_fut = yrk_env, 
                               method = "loadings")
-offset_yrk_sea <- genomic_offset(RDA = RDA_sea_thin, 
+offset_yrk_sea <- rdadapt::genomic_offset(RDA = RDA_sea, 
                                  K = 2, 
                                  env_pres = env_sea_forgo_pres, 
                                  env_fut = env_sea_forgo_yrk, 
                                  method = "loadings")
 
 # and without biotic environment
-offset_lew_nb <- genomic_offset(RDA = RDA_sea_nb, 
+offset_lew_nb <- rdadapt::genomic_offset(RDA = RDA_sea_nb, 
                               K = 2,
                               env_pres = env_exp_red_nb, 
                               env_fut = lew_env_nb, 
                               method = "loadings")
-offset_lew_sea_nb <- genomic_offset(RDA = RDA_sea_nb,
+offset_lew_sea_nb <- rdadapt::genomic_offset(RDA = RDA_sea_nb,
                                  K = 2,
                                  env_pres = env_sea_forgo_pres_nb,
                                  env_fut = env_sea_forgo_lew_nb,
                                  method = "loadings")
 
-offset_yrk_nb <- genomic_offset(RDA = RDA_sea_nb, 
+offset_yrk_nb <- rdadapt::genomic_offset(RDA = RDA_sea_nb, 
                               K = 2, 
                               env_pres = env_exp_red_nb, 
                               env_fut = yrk_env_nb, 
                               method = "loadings")
-offset_yrk_sea_nb <- genomic_offset(RDA = RDA_sea_nb, 
+offset_yrk_sea_nb <- rdadapt::genomic_offset(RDA = RDA_sea_nb, 
                                  K = 2, 
                                  env_pres = env_sea_forgo_pres_nb, 
                                  env_fut = env_sea_forgo_yrk_nb, 
@@ -777,8 +777,6 @@ popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "DEBY", "LOLA", "NH", "ME",
                      cols = c("#365C8DFF", "#277F8EFF", "#1FA187FF", "#4AC16DFF", "#440154FF", "#46337EFF", "#9FDA3AFF", "#FDE725FF","deeppink","deeppink"),
                      shape = c(21,21,21,21,23,23,21,21,24,24),
                      site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME","LEWISETTA","YORKRIVER"))
-
-offsets_plotting_lea <- merge(gap_df, popsdf, by = c("site_name"), all = T)
 
 offsets_plotting <- merge(offsets_rda_df, popsdf, by = c("site_name"), all = T)
 ```
