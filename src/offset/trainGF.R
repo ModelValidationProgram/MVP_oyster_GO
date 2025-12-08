@@ -11,12 +11,10 @@ library(gradientForest) # for running gradient forest
 # env
 env_all <- as.data.frame(read.csv("data/EnvDat/env_scaled_2025-12-05.csv")[,-1])
 env_sea <- as.data.frame(read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-12-05.csv")[,-1])
-env_exp <- as.data.frame(read.csv("data/EnvDat/exp/exp_scaled_expanded_2025-12-05.csv")[,-1])
 
 # sites
 env_sea_site <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")[,-1]
 env_sea_date <- read.csv("data/EnvDat/seascape/SeascapeSamples - date.csv")[,-1]
-env_exp_site <- read.csv("data/EnvDat/exp_sitenames.csv")[,-1]
 exp_site_latlon <- read.csv("data/EnvDat/exp/exp_site_info.csv")[,-1]
 
 # gen
