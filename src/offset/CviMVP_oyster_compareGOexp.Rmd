@@ -30,11 +30,11 @@ library(plotrix)
 
 # data
 # offset predictions
-lea_go <- read.csv("results/GO_results/offsets_LEA_expsites_2025-11-22.csv")[,-1]
+lea_go <- read.csv("results/GO_results/offsets_LEA_expsites_2025-12-08.csv")[,-1]
 rda_go <- read.csv("results/GO_results/offsets_RDA_expsites_2025-11-22.csv")[,-1]
 gf_go <- read.csv("results/GO_results/offsets_GF_expSites_2025-11-24.csv")[,-1]
-env_dist <- read.csv("data/EnvDat/exp/distance_matrix_2025-11-24.csv")[28:35,c("X","Lewisetta","YorkRiver")]
-env_dist_nb <- read.csv("data/EnvDat/exp/distance_matrix_abiotic_2025-11-24.csv")[28:35,c("X","Lewisetta","YorkRiver")]
+env_dist <- read.csv("data/EnvDat/exp/distance_matrix_2025-12-05.csv")[28:35,c("X","Lewisetta","YorkRiver")]
+env_dist_nb <- read.csv("data/EnvDat/exp/distance_matrix_abiotic_2025-12-05.csv")[28:35,c("X","Lewisetta","YorkRiver")]
 
 # fitness metrics
 mort_bags <- read.csv("results/exp_results/mortality_long_bags_2025-06-06.csv")[,-1]
