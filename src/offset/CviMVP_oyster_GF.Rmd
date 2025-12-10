@@ -41,9 +41,9 @@ library(gstat) # interpolation
 
 # data
 # env
-env_all <- as.data.frame(read.csv("data/EnvDat/env_scaled_2025-10-30.csv")[,-1])
-env_sea <- as.data.frame(read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-10-30.csv")[,-1])
-env_exp <- as.data.frame(read.csv("data/EnvDat/exp/exp_scaled_expanded_2025-10-30.csv")[,-1])
+env_all <- as.data.frame(read.csv("data/EnvDat/env_scaled_2025-12-05.csv")[,-1])
+env_sea <- as.data.frame(read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-12-05.csv")[,-1])
+env_exp <- read.csv("data/EnvDat/exp/exp_scaled_2025-12-08.csv")[,-1]
 
 # sites
 env_sea_site <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")[,-1]
@@ -52,7 +52,6 @@ env_exp_site <- read.csv("data/EnvDat/exp/exp_sitenames.csv")[,-1]
 exp_site_latlon <- read.csv("data/EnvDat/exp/exp_site_info.csv")[,-1]
 
 # gen
-genoMat <- read.geno("data/GenDat/geno_seascape_2025-08-14.geno")
 genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2025-08-14.geno")
 
 # individuals
@@ -85,19 +84,15 @@ pops_list_full <- seascapeInds_reord2$ID_SiteDate
 
 ```{r Genomic Data Prep}
 # check geno data
-dim(genoMat)
 dim(genoThinMat)
 
 # rotate df so rows are now columns (we want individuals as columns, alleles as rows)
-genoMatT <- as.matrix(t(genoMat))
 genoThinMatT <- as.matrix(t(genoThinMat))
 
 # any missing data?
-sum((genoMatT == 9)) # 0 - good 
 sum((genoThinMatT == 9)) # 0 - good
 
 # add pop data to genomic data
-rownames(genoMat) <- rownames(genoThinMat) <- pops_list_full
 colnames(genoMatT) <- colnames(genoThinMatT) <- pops_list_full
 
 # function to calculate allele frequency @ single locus
@@ -120,11 +115,9 @@ freqs_thin <- apply((genoThinMat), 2, calcfreq, pops_list_full)
 str(freqs_thin)
 
 # update colnames for gf
-colnames(freqs) <- make.names(as.character(1:ncol(genoMat)))
 colnames(freqs_thin) <- make.names(as.character(1:ncol(genoThinMat)))
 
 # do the same for the full geno matrix, just in case
-colnames(genoMat) <- make.names(as.character(1:ncol(genoMat)))
 colnames(genoThinMat) <- make.names(as.character(1:ncol(genoThinMat)))
 ```
 
@@ -149,11 +142,15 @@ env_sea_pop <- env_sea[!duplicated(env_sea$ID_SiteDate),]
 env_exp_pop <- env_exp[!duplicated(env_exp$site_name),]
 
 # reduced variable set
-env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")]
-env_sea_pop_red <- env_sea_pop[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")]
-env_exp_pop_red <- env_exp_pop[,c("site_name","salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")]
-env_exp_lew_red <- env_exp_pop[,c("site_name", "lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_Crab_scaled")]
-env_exp_yrk_red <- env_exp_pop[,c("site_name", "yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_Crab_scaled")]
+env_sea_pop <- env_sea[!duplicated(env_sea$ID_SiteDate),]
+env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")]
+env_sea_red_nb <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled")]
+env_sea_pop_red <- env_sea_pop[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")]
+env_sea_pop_red_nb <- env_sea_pop[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled")]
+
+env_exp_pop_red <- env_exp_pop[,c("site_name","salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled","MSX_Prevalence_scaled")]
+env_exp_lew_red <- env_exp_pop[,c("site_name", "lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled","lew_MSX_Prevalence_scaled")]
+env_exp_yrk_red <- env_exp_pop[,c("site_name", "yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled", "yrk_MSX_Prevalence_scaled")]
 
 # change exp colnames to match up
 colnames(env_exp_lew_red) <- colnames(env_exp_yrk_red) <- colnames(env_exp_pop_red)
@@ -162,34 +159,14 @@ colnames(env_exp_lew_red) <- colnames(env_exp_yrk_red) <- colnames(env_exp_pop_r
 
 ## Train Models
 
-To train the models, I will be using the seascape genomic dataset that we processed in the previous chunk, as well as the current environmental data files produced using "CviMVP_oyster_EnvDatProcess.Rmd."
+To train the models, I will be using the seascape genomic dataset that we processed in the previous chunk, as well as the current environmental data files produced using "CviMVP_oyster_EnvDatProcess.Rmd." This process is very computationally intensive, so has to be submitted as a job to the HPC via the scripts "trainGF.sh" & "trainGF.R"
 
 ```{r GO Model Training}
-# # start by defining a maximum number of splits
-# maxLevel <- log2(0.368*nrow(env_sea_pop_red)/2)
-# 
-# # run gradient forest
-# # allele freq models
-# start_time <- Sys.time() # time start
-# gf_af <- gradientForest(cbind(env_sea_pop_red, freqs_thin), predictor.vars = colnames(env_sea_pop_red), response.vars = (colnames(freqs_thin)), ntree = 500, maxLevel = maxLevel, trace = T, corr.threshold=0.50) # tons of warnings here, "response has five or fewer unique values. Are you sure you want to do regression?" - warning doesn't appear on the cluster
-# end_time <- Sys.time() # time end
-# (end_time - start_time) # about 1hrs
-# 
-# # geno models
-# # crashes on personal laptop, run on cluster
-# start_time <- Sys.time() # time start
-# gf_geno <- gradientForest(cbind(env_sea[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled")], genoThinMat), predictor.vars = c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_Crab_scaled"), response.vars=colnames(genoThinMat), ntree=500, maxLevel=maxLevel, trace=T, corr.threshold=0.50)
-# end_time <- Sys.time() # time end
-# (end_time - start_time) # about 2hrs on cluster
-
-# saveRDS(gf_af, paste0("results/lg_results/gf_af_",Sys.Date(),".RDS"))
-# saveRDS(gf_geno, paste0("results/GO_results/gf_geno_",Sys.Date(),".RDS"))
-
 # read in models trained in trainGF.R / trainGF.sh
-gf_af <- readRDS("results/lg_results/gf_af_2025-11-10.RDS")
-gf_geno <- readRDS("results/lg_results/gf_geno_2025-11-15.RDS")
-gf_af_nb <- readRDS("results/lg_results/gf_af_abiotic_2025-11-22.RDS")
-gf_geno_nb <- readRDS("results/lg_results/gf_geno_abiotic_2025-11-24.RDS")
+gf_af <- readRDS("results/lg_results/gf_af_2025-12-08.RDS")
+gf_geno <- readRDS("results/lg_results/gf_geno_2025-12-08.RDS")
+gf_af_nb <- readRDS("results/lg_results/gf_af_abiotic_2025-12-08.RDS")
+gf_geno_nb <- readRDS("results/lg_results/gf_geno_abiotic_2025-12-08.RDS")
 
 # plot bar graphs depicting importance of each spatial and climate variable
 plot(gf_af)
