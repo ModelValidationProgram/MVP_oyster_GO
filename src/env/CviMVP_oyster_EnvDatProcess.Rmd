@@ -193,6 +193,9 @@ head(lola_deb_ready)
 # scale all together
 allenv <- rbind(na.omit(seascapeEnv_ready[!(seascapeEnv_ready$site_name %in% seascape2exp$ID_SiteDate), c("site_name", "Latitude_manual", "Longitude_manual", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab", "MSX_Prevalence")]), expEnv_ready[,c("site_name", "Latitude_manual", "Longitude_manual", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab", "MSX_Prevalence")], lola_deb_ready[,c("site_name", "Latitude_manual", "Longitude_manual", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab", "MSX_Prevalence")], lewyrkEnv_ready[,c("site_name", "Latitude_manual", "Longitude_manual", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90", "Dermo_Prevalence", "Pea_crab", "MSX_Prevalence")])
 
+# check corrs
+pairs.panels(allenv[,4:10])
+
 # scale the full env version
 std_allenv <- scale(allenv[,4:ncol(allenv)])
 colnames(std_allenv) <- c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")
