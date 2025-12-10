@@ -208,7 +208,7 @@ drop1(length_lmm) # keep all
 # one more model on final time point only
 length_lmm_final <- lmer(length ~ bag_site * pop + (1|bags_label), data = lengths_mod_narm_nodead[lengths_mod_narm_nodead$t == 4,])
 plot(length_lmm_final)
-Anova(length_lmm_final, type = "III") # all signif
+Anova(length_lmm_final, type = "III", test.statistic = F) # all signif
 drop1(length_lmm_final)
 
 # can paste pops with sites to do a traditional Tukey
