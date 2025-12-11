@@ -164,9 +164,9 @@ To train the models, I will be using the seascape genomic dataset that we proces
 ```{r GO Model Training}
 # read in models trained in trainGF.R / trainGF.sh
 gf_af <- readRDS("results/lg_results/gf_af_2025-12-08.RDS")
-gf_geno <- readRDS("results/lg_results/gf_geno_2025-12-08.RDS")
-gf_af_nb <- readRDS("results/lg_results/gf_af_abiotic_2025-12-08.RDS")
-gf_geno_nb <- readRDS("results/lg_results/gf_geno_abiotic_2025-12-08.RDS")
+gf_geno <- readRDS("results/lg_results/gf_geno_2025-12-10.RDS")
+gf_af_nb <- readRDS("results/lg_results/gf_af_abiotic_2025-11-22.RDS")
+gf_geno_nb <- readRDS("results/lg_results/gf_geno_abiotic_2025-11-24.RDS")
 
 # plot bar graphs depicting importance of each spatial and climate variable
 plot(gf_af)
@@ -180,10 +180,6 @@ importance(gf_geno)
 importance(gf_af_nb)
 importance(gf_geno_nb)
 sink()
-
-# plots of turnover functions for individual loci - now having issues with ylim
-plot(gf_af, plot.type = "C", imp.vars = gf_af$imp.vars, show.overall = T, legend = T, leg.posn = "topleft", leg.nspecies = 5, ylim = c(0,0.5))
-plot(gf_geno, plot.type = "C", imp.vars = gf_geno$imp.vars, show.overall = T, legend = T, leg.posn = "topleft", leg.nspecies = 5, ylim = c(0,0.5))
 ```
 
 It looks like for the allele frequency based model, sal_quant90 is the most important climate variable, followed by either dermo prevalence/temp_quant90 (accuracy importance/R2 weighted importance), then dermo prevalence/sal_quantile10, then temp_quantil10, and finally pea crabs. 
@@ -240,6 +236,7 @@ pred_geno_lew_nb <- predict(gf_geno_nb, env_exp_lew_red[,2:5])
 pred_geno_yrk_nb <- predict(gf_geno_nb, env_exp_yrk_red[,2:5])
 
 # We now compute the euclidean distance between current and new cumulative importance
+# need num "individuals" (here populations) for num offsets to calc
 nb_ind <- nrow(pred_af_lew)
 
 # calculate offsets
@@ -332,7 +329,7 @@ write.csv(offsets_mvp, paste0("results/GO_results/offsets_GF_expSites_", Sys.Dat
 
 # also seascape offsets for plotting
 # expand seascape common garden env for prediction
-env_sea_pop_for_pred <- rbind(unique(env_exp_lew_red[,2:7]), unique(env_exp_yrk_red[,2:7]))
+env_sea_pop_for_pred <- rbind(unique(env_exp_lew_red[,2:8]), unique(env_exp_yrk_red[,2:8]))
 env_sea_pop_for_pred$exp_site <- c("Lewisetta", "YorkRiver")
 env_sea_pop_for_pred <- env_sea_pop_for_pred[rep(seq_len(nrow(env_sea_pop_for_pred)), nrow(env_sea_pop_red)),]
 
