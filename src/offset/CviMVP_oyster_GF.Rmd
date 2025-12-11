@@ -460,8 +460,8 @@ interpolated_yrk_geno <- idw(offset_gf_geno_yrk~1, sea_sf, grid_int)
 saveRDS(interpolated_yrk_geno, "results/lg_results/interpolated_gf_geno_yrk.rds")
 
 # empty raster
-ext <- ext(st_bbox(interpolated_lew_af)) # get spatial extent
-rast_empty <- rast(ext, resolution = 0.1, crs = "+proj=longlat +datum=WGS84")
+ext <- terra::ext(st_bbox(interpolated_lew_af)) # get spatial extent
+rast_empty <- terra::rast(ext, resolution = 0.1, crs = "+proj=longlat +datum=WGS84")
 
 # create a raster stack
 # set up
