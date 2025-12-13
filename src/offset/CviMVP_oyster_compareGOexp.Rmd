@@ -1059,3 +1059,87 @@ disease_vs_no_len
 ```
 
 
+## Plotting Fitness vs Environmental Metrics
+
+```{r}
+fullfit
+env_exp <- read.csv("data/EnvDat/exp/exp_scaled_2025-12-08.csv")[,-1]
+fullfit_env <- merge(fullfit[fullfit$event == 4,], env_exp, by = "site_name")
+fullfit_env_nodup_surv <- fullfit_env[!(duplicated(fullfit_env$surv)),]
+fullfit_env_nodup_len <- fullfit_env[!(duplicated(fullfit_env$length)),]
+
+# survival
+ggplot(data = fullfit_env_nodup_surv, aes(x = temp_quantile_10, y = surv)) +
+  geom_point(shape = 21, size = 4, fill = "lightblue2") +
+  geom_smooth(method = "lm", col = "steelblue3") +
+  labs(title = "Survival as a Function of Temperature", x = "Temperature (10% Quantile)", y = "Survival") +
+  theme_classic()
+
+ggplot(data = fullfit_env_nodup_surv, aes(x = temp_quantile_90, y = surv)) +
+  geom_point(shape = 21, size = 4, fill = "lightblue2") +
+  geom_smooth(method = "lm", col = "steelblue3") +
+  labs(title = "Survival as a Function of Temperature", x = "Temperature (90% Quantile)", y = "Survival") +
+  theme_classic()
+
+ggplot(data = fullfit_env_nodup_surv, aes(x = salinity_quantile_10, y = surv)) +
+  geom_point(shape = 21, size = 4, fill = "lightblue2") +
+  geom_smooth(method = "lm", col = "steelblue3") +
+  labs(title = "Survival as a Function of Salinity", x = "Salinity (10% Quantile)", y = "Survival") +
+  theme_classic()
+
+ggplot(data = fullfit_env_nodup_surv, aes(x = salinity_quantile_90, y = surv)) +
+  geom_point(shape = 21, size = 4, fill = "lightblue2") +
+  geom_smooth(method = "lm", col = "steelblue3") +
+  labs(title = "Survival as a Function of Salinity", x = "Salinity (90% Quantile)", y = "Survival") +
+  theme_classic()
+
+ggplot(data = fullfit_env_nodup_surv, aes(x = Dermo_Prevalence, y = surv)) +
+  geom_point(shape = 21, size = 4, fill = "lightblue2") +
+  geom_smooth(method = "lm", col = "steelblue3") +
+  labs(title = "Survival as a Function of Disease (Dermo)", x = "Dermo Prevalence", y = "Survival") +
+  theme_classic()
+
+ggplot(data = fullfit_env_nodup_surv, aes(x = MSX_Prevalence, y = surv)) +
+  geom_point(shape = 21, size = 4, fill = "lightblue2") +
+  geom_smooth(method = "lm", col = "steelblue3") +
+  labs(title = "Survival as a Function of Disease (MSX)", x = "MSX Prevalence", y = "Survival") +
+  theme_classic()
+
+# now length
+ggplot(data = fullfit_env_nodup_len, aes(x = temp_quantile_10, y = length)) +
+  geom_point(shape = 21, size = 4, fill = "lightblue2") +
+  geom_smooth(method = "lm", col = "steelblue3") +
+  labs(title = "Length as a Function of Temperature", x = "Temperature (10% Quantile)", y = "Survival") +
+  theme_classic()
+
+ggplot(data = fullfit_env_nodup_len, aes(x = temp_quantile_90, y = length)) +
+  geom_point(shape = 21, size = 4, fill = "lightblue2") +
+  geom_smooth(method = "lm", col = "steelblue3") +
+  labs(title = "Length as a Function of Temperature", x = "Temperature (90% Quantile)", y = "Survival") +
+  theme_classic()
+
+ggplot(data = fullfit_env_nodup_len, aes(x = salinity_quantile_10, y = length)) +
+  geom_point(shape = 21, size = 4, fill = "lightblue2") +
+  geom_smooth(method = "lm", col = "steelblue3") +
+  labs(title = "Length as a Function of Salinity", x = "Salinity (10% Quantile)", y = "Survival") +
+  theme_classic()
+
+ggplot(data = fullfit_env_nodup_len, aes(x = salinity_quantile_90, y = length)) +
+  geom_point(shape = 21, size = 4, fill = "lightblue2") +
+  geom_smooth(method = "lm", col = "steelblue3") +
+  labs(title = "Length as a Function of Salinity", x = "Salinity (90% Quantile)", y = "Survival") +
+  theme_classic()
+
+ggplot(data = fullfit_env_nodup_len, aes(x = Dermo_Prevalence, y = length)) +
+  geom_point(shape = 21, size = 4, fill = "lightblue2") +
+  geom_smooth(method = "lm", col = "steelblue3") +
+  labs(title = "Length as a Function of Disease (Dermo)", x = "Dermo Prevalence", y = "Survival") +
+  theme_classic()
+
+ggplot(data = fullfit_env_nodup_len, aes(x = MSX_Prevalence, y = length)) +
+  geom_point(shape = 21, size = 4, fill = "lightblue2") +
+  geom_smooth(method = "lm", col = "steelblue3") +
+  labs(title = "Length as a Function of Disease (MSX)", x = "MSX Prevalence", y = "Survival") +
+  theme_classic()
+```
+
