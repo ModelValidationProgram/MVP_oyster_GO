@@ -115,7 +115,31 @@ ggplot() +
 
 ## plotting - dermo
 ###################
+months_map <- list("June" = "06", "July" = "07", "August" = "08", "Sept" = "09", "Oct" = "10", "Nov" = "11")
+expdis_mut <- expdis %>% mutate(MONTH = months_map[MONTH], MONTH) %>% as.data.frame()
+expdis_mut$date <- as.Date(paste0(expdis_mut$YEAR, "-", expdis_mut$MONTH, "-01")) # 01 is just the first day of the month so we can turn this into a date
 
+ggplot() +
+  geom_point(data = expdis_mut[expdis_mut$SITE == "Lewisetta",], aes(x = date, y = P_dermo)) + 
+  geom_line(data = expdis_mut[expdis_mut$SITE == "Lewisetta",], aes(x = date, y = P_dermo)) + 
+#  annotate("rect", 
+#           xmin = as.Date("2023-05-05"), xmax = as.Date("2024-11-01"), 
+#           ymin = 0, ymax = 0.55,
+#           alpha = 0.2) +
+  ylim(0, 0.55) +
+  theme_classic() + 
+  labs(title = "Dermo Prevalence at Lewisetta, 2023 - 2024", x = "Date", y = "Dermo Prevalence")
+
+ggplot() +
+  geom_point(data = expdis_mut[expdis_mut$SITE == "YorkRiver",], aes(x = date, y = P_dermo)) + 
+  geom_line(data = expdis_mut[expdis_mut$SITE == "YorkRiver",], aes(x = date, y = P_dermo)) + 
+  #  annotate("rect", 
+  #           xmin = as.Date("2023-05-05"), xmax = as.Date("2024-11-01"), 
+  #           ymin = 0, ymax = 0.55,
+  #           alpha = 0.2) +
+  ylim(0, 0.55) +
+  theme_classic() + 
+  labs(title = "Dermo Prevalence at Lewisetta, 2023 - 2024", x = "Date", y = "Dermo Prevalence")
 ###################
 
 
@@ -128,6 +152,16 @@ ggplot(data = dis_long, aes(x = site_name, y = Prevalence, fill = Disease)) +
   geom_bar(position = "dodge", stat = "identity", color = "black") + 
   scale_fill_manual(values = c("#fe4a49", "#fed766", "#009fb7"), 
                     labels = c("Dermo", "MSX", "Pea Crab")) + 
+  labs(title = "Disease Prevalence at Experimental Common Gardens",
+       x = "Common Garden Site", y = "Disease Prevalence") + 
+  ylim(0,1) +
+  theme_classic()
+
+ggplot(data = dis_long[!dis_long$Disease == "Pea_crab",], 
+       aes(x = site_name, y = Prevalence, fill = Disease)) +
+  geom_bar(position = "dodge", stat = "identity", color = "black") + 
+  scale_fill_manual(values = c("#fe4a49", "#fed766"), 
+                    labels = c("Dermo", "MSX")) + 
   labs(title = "Disease Prevalence at Experimental Common Gardens",
        x = "Common Garden Site", y = "Disease Prevalence") + 
   ylim(0,1) +
