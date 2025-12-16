@@ -208,7 +208,7 @@ drop1(length_lmm) # keep all
 # one more model on final time point only
 length_lmm_final <- lmer(length ~ bag_site * pop + (1|bags_label), data = lengths_mod_narm_nodead[lengths_mod_narm_nodead$t == 4,])
 plot(length_lmm_final)
-Anova(length_lmm_final, type = "III", test.statistic = F) # all signif
+Anova(length_lmm_final, type = "III", test.statistic = "F") # all signif
 drop1(length_lmm_final)
 
 # can paste pops with sites to do a traditional Tukey
@@ -256,11 +256,11 @@ len_t4_plot_site
 len_final_time_plotting <- merge(lengths_final_time_rename_mg, popsdf, by = c("pop","site_name"))
 
 # plot by pop
-len_t4_plot_pop <- ggplot(len_final_time_plotting, aes(x = bag_site, y = length, fill = fct_reorder(pop, order))) + 
+len_t4_plot_pop <- ggplot(len_final_time_plotting, aes(x = bag_site, y = length, fill = fct_reorder(site_name, order))) + 
   geom_boxplot(position=position_dodge(1.0)) +  
-  scale_fill_manual(name = "Broodstock Group", label = pop_colors_rm$pop, values = pop_colors_rm$hex)+
-  geom_text(aes(label = letters, y = 127), vjust = -0.5, position=position_dodge(1)) +
-  labs(title = "Length at Final Time Point", x = "Experimental Site", y = "Survival") +
+  scale_fill_manual(name = "Broodstock Group", label = popsdf$site_name, values = popsdf$cols)+
+  geom_text(aes(label = letters, y = 1), vjust = -0.5, position=position_dodge(1)) +
+  labs(title = "Final Length at Lewisetta and York River", x = "Experimental Site", y = "Length (mm)") +
   theme_classic()
 len_t4_plot_pop
 ```
