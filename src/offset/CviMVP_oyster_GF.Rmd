@@ -384,6 +384,9 @@ colnames(geno_offset_yrk_sea) <- c("site_name", "lat", "lon", "offset_gf_geno_yr
 seascape_offsets_af <- merge(af_offset_lew_sea, af_offset_yrk_sea, by = c("site_name","lat","lon"))
 seascape_offsets_geno <- merge(geno_offset_lew_sea, geno_offset_yrk_sea, by = c("site_name","lat","lon"))
 seascape_offsets <- merge(seascape_offsets_af, seascape_offsets_geno, by = c("site_name","lat","lon"))
+
+# save this
+write.csv(seascape_offsets, paste0("results/GO_results/offsets_GF_fullseascape_", Sys.Date(), ".csv"))
 ```
 
 ### Plotting
@@ -477,6 +480,9 @@ for (i in seq_along(sf_ls)) {
 # combine
 rast_all <- c(rast_ls)
 names(rast_all) <- c("interpolated_lew_go_af","interpolated_yrk_go_af","interpolated_lew_go_geno","interpolated_yrk_go_geno")
+
+# save object
+saveRDS(rast_all, "results/GO_results/gf_interpolated_go.RDS")
 
 # prep seascape sites for plotting
 offsets_sea_plotting_gf <- na.omit(seascape_offsets)
