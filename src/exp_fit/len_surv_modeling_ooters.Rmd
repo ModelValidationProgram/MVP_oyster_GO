@@ -146,10 +146,12 @@ surv_final_time_plotting <- merge(surv_final_time_rename_mg, popsdf, by = "site_
 # plot by pop
 surv_t4_plot_pop <- ggplot(surv_final_time_plotting, aes(x = bag_site, y = surv, fill = fct_reorder(site_name, order))) + 
   geom_boxplot(position=position_dodge(1.0)) +  
+  facet_wrap(~bag_site, scales = "free_x") +
   scale_fill_manual(name = "Broodstock Group", label = popsdf$site_name, values = popsdf$cols)+
   geom_text(aes(label = letters, y = 1), vjust = -0.5, position=position_dodge(1)) +
   labs(title = "Final Survival at Lewisetta and York River", x = "Experimental Site", y = "Survival") +
-  theme_classic()
+  theme_classic()+ 
+  theme(strip.background = element_blank(), strip.text.x = element_blank(), panel.spacing.x = unit(3, "lines"))
 surv_t4_plot_pop
 ```
 
@@ -259,10 +261,12 @@ len_final_time_plotting <- merge(lengths_final_time_rename_mg, popsdf, by = c("p
 len_t4_plot_pop <- ggplot(len_final_time_plotting, aes(x = bag_site, y = length, fill = fct_reorder(site_name, order))) + 
   geom_boxplot(position=position_dodge(1.0)) +  
   scale_fill_manual(name = "Broodstock Group", label = popsdf$site_name, values = popsdf$cols)+
+  facet_wrap(~bag_site, scales = "free_x") +
   geom_text(aes(label = letters, y = 1), vjust = -0.5, position=position_dodge(1)) +
   labs(title = "Final Length at Lewisetta and York River", x = "Experimental Site", y = "Length (mm)") +
   scale_y_continuous(breaks = c(0, 25, 50, 75, 100, 125)) +
-  theme_classic()
+  theme_classic() +
+  theme(strip.background = element_blank(), strip.text.x = element_blank(), panel.spacing.x = unit(3, "lines"))
 len_t4_plot_pop
 ```
 
