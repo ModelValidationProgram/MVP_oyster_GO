@@ -907,7 +907,7 @@ doc <- read_pptx() %>%
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
   ph_with(value = dml(ggobj = goFitLEA_plotfinalTsurv), location = ph_location_type(type = "body")) %>%
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = goFitGFaf_plotfinalTsurv), location = ph_location_type(type = "body")) %>% 
+  ph_with(value = dml(ggobj = goFitGFgeno_plotfinalTsurv), location = ph_location_type(type = "body")) %>% 
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
   ph_with(value = dml(ggobj = goFitRDA_plotfinalTsurv), location = ph_location_type(type = "body")) %>% 
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
@@ -915,7 +915,7 @@ doc <- read_pptx() %>%
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
   ph_with(value = dml(ggobj = goFitLEA_plotfinalTlen), location = ph_location_type(type = "body")) %>% 
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = goFitGFaf_plotfinalTlen), location = ph_location_type(type = "body")) %>%
+  ph_with(value = dml(ggobj = goFitGFgeno_plotfinalTlen), location = ph_location_type(type = "body")) %>%
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
   ph_with(value = dml(ggobj = goFitRDA_plotfinalTlen), location = ph_location_type(type = "body")) %>% 
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
