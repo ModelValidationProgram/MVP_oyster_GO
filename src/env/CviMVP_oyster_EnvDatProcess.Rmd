@@ -391,7 +391,7 @@ env_dist_long_expsite <- env_dist_long_mg2[env_dist_long_mg2$site2 %in% c("Lewis
 env_dist_long_expsite_red <- env_dist_long_expsite[!(env_dist_long_expsite$site1 %in% c("Lewisetta", "YorkRiver")),]
 
 # plot
-envdist_plot <- ggplot(env_dist_long_expsite_red, aes(x = fct_reorder(site2, order2), 
+envdist_plot_gardens <- ggplot(env_dist_long_expsite_red, aes(x = fct_reorder(site2, order2), 
                               y = fct_reorder(site1, order1), 
                               fill = dist))+
   theme_classic()+
@@ -406,7 +406,7 @@ Distance", limits = c(0, 5.5))+
   theme(plot.title = element_text(size = 18), 
         legend.title = element_text(size = 14),
         legend.position = "right", legend.justification = "top")
-envdist_plot
+envdist_plot_gardens
 
 # what about without the disease?
 envdist_plot_nb <- ggplot(env_dist_long_mg2_nb, aes(x = fct_reorder(site1, order1), 
@@ -431,7 +431,7 @@ env_dist_long_expsite_nb <- env_dist_long_mg2_nb[env_dist_long_mg2_nb$site2 %in%
 env_dist_long_expsite_red_nb <- env_dist_long_expsite_nb[!(env_dist_long_expsite_nb$site1 %in% c("Lewisetta", "YorkRiver")),]
 
 # plot
-envdist_plot_nb <- ggplot(env_dist_long_expsite_red_nb, aes(x = fct_reorder(site2, order2), 
+envdist_plot_nb_gardens <- ggplot(env_dist_long_expsite_red_nb, aes(x = fct_reorder(site2, order2), 
                               y = fct_reorder(site1, order1), 
                               fill = dist))+
   theme_classic()+
@@ -446,7 +446,26 @@ Distance", limits = c(0, 5.5))+
   theme(plot.title = element_text(size = 18), 
         legend.title = element_text(size = 14),
         legend.position = "right", legend.justification = "top")
-envdist_plot_nb
+envdist_plot_nb_gardens
+
+# write to ppt
+library(officer) # for powerpoint export/editing
+library(rvg) # for converting r graphics to editable vector graphics
+
+doc <- read_pptx() %>% 
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = envdist_plot), location = ph_location_type(type = "body")) %>%
+  
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = envdist_plot_gardens), location = ph_location_type(type = "body")) %>%
+  
+add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = envdist_plot_nb), location = ph_location_type(type = "body")) %>% 
+  
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = envdist_plot_nb_gardens), location = ph_location_type(type = "body"))
+
+print(doc, target = "results/figures/EnvDist_ExpSitesGardens.pptx")
 ```
 
 
