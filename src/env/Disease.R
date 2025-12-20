@@ -164,7 +164,7 @@ ggplot(data = dis_long, aes(x = site_name, y = Prevalence, fill = Disease)) +
   geom_bar(position = "dodge", stat = "identity", color = "black") + 
   geom_errorbar(data = dis_long, aes(x = site_name, 
                                      ymin = Prevalence - std_err, ymax = Prevalence + std_err),
-                position = "dodge", stat = "identity") +
+                position = position_dodge(0.9), width = 0.2) +
   scale_fill_manual(values = c("#fe4a49", "#fed766", "#009fb7"), 
                     labels = c("Dermo", "MSX", "Pea Crab")) + 
   labs(title = "Disease Prevalence at Experimental Common Gardens",
@@ -175,6 +175,9 @@ ggplot(data = dis_long, aes(x = site_name, y = Prevalence, fill = Disease)) +
 ggplot(data = dis_long[!dis_long$Disease == "Pea_crab",], 
        aes(x = site_name, y = Prevalence, fill = Disease)) +
   geom_bar(position = "dodge", stat = "identity", color = "black") + 
+  geom_errorbar(data = dis_long[!dis_long$Disease == "Pea_crab",], 
+                aes(x = site_name, ymin = Prevalence - std_err, ymax = Prevalence + std_err),
+                position = position_dodge(0.9), width = 0.2) +
   scale_fill_manual(values = c("#fe4a49", "#fed766"), 
                     labels = c("Dermo", "MSX")) + 
   labs(title = "Disease Prevalence at Experimental Common Gardens",
