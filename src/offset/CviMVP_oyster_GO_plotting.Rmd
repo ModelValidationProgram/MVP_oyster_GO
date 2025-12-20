@@ -44,6 +44,7 @@ lea_sea <- read.csv("results/GO_results/offsets_LEA_fullseascape_2025-12-08.csv"
 rda_sea <- read.csv("results/GO_results/offsets_RDA_fullseascape_2025-12-08.csv")[,-1]
 gf_sea <- read.csv("results/GO_results/offsets_GF_fullseascape_2025-12-16.csv")[,-1]
 envdist <- read.csv("data/EnvDat/exp/distance_matrix_2025-11-24.csv")[,c("X","Lewisetta","YorkRiver")] # this has both the seascape sites and the experimental sites
+envdist_abiotic <- read.csv("data/EnvDat/exp/distance_matrix_abiotic_2025-11-24.csv")[,c("X","Lewisetta","YorkRiver")] # this has both the seascape sites and the experimental sites
 ```
 
 
@@ -78,15 +79,21 @@ gf_go[gf_go$site_name == "S2_DEBY",]$lon <- -76.49937
 latlons$site_name <- latlons$ID_SiteDate
 
 # rename envdist columns
-colnames(envdist) <- c("site_name", "dist_lew", "dist_yrk")
+colnames(envdist) <- colnames(envdist_abiotic) <- c("site_name", "dist_lew", "dist_yrk")
 
 # split into seascape vs exp pops for future plotting
 envdist_sea <- envdist[1:27,]
 envdist_exp <- envdist[28:35,]
 
+envdist_sea_nb <- envdist_abiotic[1:27,]
+envdist_exp_nb <- envdist_abiotic[28:35,]
+
 # add latlons
 envdist_sea2 <- merge(latlons[,c("site_name","Latitude_manual","Longitude_manual")], envdist_sea, by = c("site_name"))
 envdist_exp2 <- merge(popsdf, envdist_exp, by = c("site_name"))
+
+envdist_sea2_nb <- merge(latlons[,c("site_name","Latitude_manual","Longitude_manual")], envdist_sea_nb, by = c("site_name"))
+envdist_exp2_nb <- merge(popsdf, envdist_exp_nb, by = c("site_name"))
 
 # rda also needs latlons
 rda_sea2 <- merge(latlons[,c("site_name","Latitude_manual","Longitude_manual")], rda_sea, by = c("site_name"))
@@ -591,3 +598,43 @@ doc <- read_pptx() %>%
 print(doc, target = "results/figures/GO_maps.pptx")
 ```
 
+Also format and export the raw genomic offsets for both experimental and seasecape sites:
+
+```{r}
+# experimental sites
+lea_go
+rda_go
+gf_go
+envdist_exp2
+envdist_exp2_nb
+
+colnames(lea_go) <- c("site_name","Latitude_manual","Longitude_manual","LEA_lew","LEA_yrk","LEA_lew_abiotic","LEA_yrk_abiotic")
+colnames(rda_go) <- c("site_name","Latitude_manual","Longitude_manual","RDA_lew","RDA_yrk","RDA_lew_abiotic","RDA_yrk_abiotic")
+colnames(gf_go) <- c("site_name","Latitude_manual","Longitude_manual","GF_geno_lew","GF_geno_yrk","GF_geno_lew_abiotic","GF_geno_yrk_abiotic","GF_af_lew","GF_af_yrk","GF_af_lew_abiotic","GF_af_yrk_abiotic")
+colnames(envdist_exp2) <- c("site_name","pop","order","Latitude_manual","Longitude_manual","cols","shape","EnvDist_lew","EnvDist_yrk")
+colnames(envdist_exp2_nb) <- c("site_name","pop","order","Latitude_manual","Longitude_manual","cols","shape","EnvDist_lew_abiotic","EnvDist_yrk_abiotic")
+
+exp_offsets1 <- merge(lea_go, rda_go, by = c("site_name","Latitude_manual","Longitude_manual"))
+exp_offsets2 <- merge(exp_offsets1, gf_go, by = c("site_name","Latitude_manual","Longitude_manual"))
+exp_offsets3 <- merge(exp_offsets2, envdist_exp2[,c("site_name","EnvDist_lew","EnvDist_yrk")], by = c("site_name"))
+exp_offsets <- merge(exp_offsets3, envdist_exp2_nb[,c("site_name","EnvDist_lew_abiotic","EnvDist_yrk_abiotic")], by = c("site_name"))
+
+# now seascape
+lea_sea
+rda_sea2
+gf_sea
+envdist_sea2
+envdist_sea2_nb
+
+colnames(lea_sea) <- c("site_name","Latitude_manual","Longitude_manual","LEA_lew","LEA_yrk")
+colnames(rda_sea2) <- c("site_name","Latitude_manual","Longitude_manual","RDA_lew","RDA_yrk")
+colnames(gf_sea) <- c("site_name","Latitude_manual","Longitude_manual","GF_geno_lew","GF_geno_yrk","GF_af_lew","GF_af_yrk")
+colnames(envdist_sea2) <- c("site_name","Latitude_manual","Longitude_manual","EnvDist_lew","EnvDist_yrk")
+
+sea_offsets1 <- merge(lea_sea, rda_sea2, by = c("site_name","Latitude_manual","Longitude_manual"))
+sea_offsets2 <- merge(sea_offsets1, gf_sea, by = c("site_name","Latitude_manual","Longitude_manual"))
+sea_offsets <- merge(sea_offsets2, envdist_sea2[,c("site_name","EnvDist_lew","EnvDist_yrk")], by = c("site_name"))
+
+write.csv(exp_offsets, paste0("results/GO_results/Offsets_expSites", Sys.Date(), ".csv"), row.names = F)
+write.csv(sea_offsets, paste0("results/GO_results/Offsets_fullSeascape", Sys.Date(), ".csv"), row.names = F)
+```
