@@ -8,8 +8,10 @@
 setwd("~/Documents/Github/MVP_oyster_GO")
 
 # libraries
-library(dplyr)
-library()
+library(dplyr) # for data processing
+library(stringr) # for data processing
+library(lubridate) # for dates
+library(plotrix) # for std error
 
 # data
 expdis <- read.csv("data/EnvDat/exp/sentinel_RFTM_organized_dermo.csv")[,-(6:10)]
@@ -25,7 +27,9 @@ sitedate <- read.csv("data/EnvDat/seascape/SeascapeSamples - date.csv")
 # this is coming from sentinel population
 lewyrk_dis_avgs <- expdis %>% 
   group_by(SITE) %>% 
-  dplyr::summarize(Dermo_Prevalence = mean(P_dermo), Dermo_Weighted_Prevalence = mean(WP_dermo, na.rm = T))
+  dplyr::summarize(Dermo_Prevalence = mean(P_dermo), 
+                   Dermo_Weighted_Prevalence = mean(WP_dermo, na.rm = T),
+                   Dermo_Prevalence_se = std.error(P_dermo))
 lewyrk_dis_avgs <- as.data.frame(lewyrk_dis_avgs)
 
 # get the peacrab data from finalTissue
@@ -41,6 +45,7 @@ lewyrk_pea_avgs <- peacrab_trim %>%
   group_by(site) %>% 
   dplyr::summarize(Pea_crab = sum(peaCrab == T)/(sum(peaCrab == T) + sum(peaCrab == F))) # this is the percent of oysters per pop that had pea crabs
 lewyrk_pea_avgs <- as.data.frame(lewyrk_pea_avgs)
+lewyrk_pea_avgs$Pea_crab_se <- c(0,0)
 
 # now msx; these data are formatted very differently
 summary(expdis_lew)
@@ -62,21 +67,25 @@ msx_yrk_exp <- msx_yrk_si[msx_yrk_si$Date > as.Date("2023-01-01"),]
 
 # use full dataset for deby disease, 2023-2024 for york river site
 yrk_prev_msx <- sum(as.numeric(msx_yrk_exp$`Inf`)) / sum(as.numeric(msx_yrk_exp$n))
+yrk_prev_msx_se <- std.error(as.numeric(msx_yrk_exp$`Inf`) / as.numeric(msx_yrk_exp$n))
 
 # now lewisetta msx - we only have data spanning back to 2023, so lola and lew prev are the same
 expdis_lew_nona <- expdis_lew[!is.na(expdis_lew$msx_intensity),]
 lew_prev_msx <- 1 - (nrow(expdis_lew_nona[which(expdis_lew$msx_intensity == "N"),]) / nrow(expdis_lew_nona))
+lew_prev_msx_se <- 0 # prevelance was zero, so sd also zero
 
 # put all msx data into single df
 msx_avgs <- data.frame(site_name = c("Lewisetta","YorkRiver"),
-                       MSX_Prevalence = c(lew_prev_msx, yrk_prev_msx))
+                       MSX_Prevalence = c(lew_prev_msx, yrk_prev_msx),
+                       MSX_Prevalence_se = c(lew_prev_msx_se, yrk_prev_msx_se))
 
 # put together all disease data
 lewyrk_dis_avgs
 msx_avgs
 lewyrk_pea_avgs
-dis_avgs <- cbind(msx_avgs, lewyrk_dis_avgs$Dermo_Prevalence, lewyrk_pea_avgs$Pea_crab)
-colnames(dis_avgs) <- c("site_name","MSX_Prevalence", "Dermo_Prevalence", "Pea_crab")
+dis_avgs <- cbind(msx_avgs, 
+                  lewyrk_dis_avgs[,c("Dermo_Prevalence","Dermo_Prevalence_se")], 
+                  lewyrk_pea_avgs[,c("Pea_crab","Pea_crab_se")])
 ########################
 
 ## disease plotting - msx
@@ -139,17 +148,23 @@ ggplot() +
   #           alpha = 0.2) +
   ylim(0, 0.55) +
   theme_classic() + 
-  labs(title = "Dermo Prevalence at Lewisetta, 2023 - 2024", x = "Date", y = "Dermo Prevalence")
+  labs(title = "Dermo Prevalence at York River, 2023 - 2024", x = "Date", y = "Dermo Prevalence")
 ###################
 
 
 ## plotting - all
 #################
-dis_long <- dis_avgs %>% 
+dis_long <- dis_avgs[,c("site_name","MSX_Prevalence","Dermo_Prevalence","Pea_crab")] %>% 
   tidyr::pivot_longer(cols = !site_name, names_to = "Disease", values_to = "Prevalence")
+dis_long_se <- dis_avgs[,c("site_name","MSX_Prevalence_se","Dermo_Prevalence_se","Pea_crab_se")] %>% 
+  tidyr::pivot_longer(cols = !site_name, names_to = "Disease", values_to = "std_err")
+dis_long$std_err <- dis_long_se$std_err
 
 ggplot(data = dis_long, aes(x = site_name, y = Prevalence, fill = Disease)) +
   geom_bar(position = "dodge", stat = "identity", color = "black") + 
+  geom_errorbar(data = dis_long, aes(x = site_name, 
+                                     ymin = Prevalence - std_err, ymax = Prevalence + std_err),
+                position = "dodge", stat = "identity") +
   scale_fill_manual(values = c("#fe4a49", "#fed766", "#009fb7"), 
                     labels = c("Dermo", "MSX", "Pea Crab")) + 
   labs(title = "Disease Prevalence at Experimental Common Gardens",
