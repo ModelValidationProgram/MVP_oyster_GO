@@ -72,7 +72,6 @@ exp_sites_basic <- ggplot(data = coastline) +
                    fill = "white")
 exp_sites_basic
 
-
 common_gardens <- ggplot(data = coastline_chesapeake) + 
   geom_sf()+
   theme_classic()+
@@ -81,7 +80,7 @@ common_gardens <- ggplot(data = coastline_chesapeake) +
   coord_sf(xlim = c(-77.856476, -72.762787), ylim = c(36.019557, 39.939163), expand = FALSE) +
   geom_point(data = exp_pops[9:10,], aes(x = longitude, y = latitude, fill = site_name),
              color = "black", shape = 21, size = 3)+
-  scale_fill_manual(values = c("green3","steelblue2"),
+  scale_fill_manual(values = c("#00fa9a","#1d90ff"),
                     breaks = c("LEWISETTA","YORKRIVER")) +
   geom_label_repel(data = exp_pops[9:10,],
                    aes(x = longitude, y = latitude, label = site_name),
