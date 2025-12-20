@@ -635,6 +635,6 @@ sea_offsets1 <- merge(lea_sea, rda_sea2, by = c("site_name","Latitude_manual","L
 sea_offsets2 <- merge(sea_offsets1, gf_sea, by = c("site_name","Latitude_manual","Longitude_manual"))
 sea_offsets <- merge(sea_offsets2, envdist_sea2[,c("site_name","EnvDist_lew","EnvDist_yrk")], by = c("site_name"))
 
-write.csv(exp_offsets, paste0("results/GO_results/Offsets_expSites", Sys.Date(), ".csv"), row.names = F)
-write.csv(sea_offsets, paste0("results/GO_results/Offsets_fullSeascape", Sys.Date(), ".csv"), row.names = F)
+write.csv(exp_offsets, paste0("results/GO_results/Offsets_expSites_", Sys.Date(), ".csv"), row.names = F)
+write.csv(sea_offsets, paste0("results/GO_results/Offsets_fullSeascape_", Sys.Date(), ".csv"), row.names = F)
 ```
