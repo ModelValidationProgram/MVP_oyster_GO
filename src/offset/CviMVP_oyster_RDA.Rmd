@@ -52,7 +52,6 @@ env_exp_site <- read.csv("data/EnvDat/exp/exp_sitenames.csv")[,-1]
 exp_site_latlon <- read.csv("data/EnvDat/exp/exp_site_info.csv")[,-1]
 
 # gen
-genoMat <- read.geno("data/GenDat/geno_seascape_2025-08-14.geno")
 genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2025-08-14.geno")
 
 # individuals
@@ -93,11 +92,10 @@ env_sea_complete <- merge(sea_latlon, env_sea, by = c("ID_SiteDate"))
 # gen data
 ##########
 # check gen dat
-dim(genoMat)
 dim(genoThinMat)
 
 # assign meaningful rownames - the inds_genomat vector has individual names in the order they appear in the genotype matrix (as determined in GenDatProcess script), which is also the order of the seascape env matrix
-rownames(genoMat) <- rownames(genoThinMat) <- inds_genomat
+rownames(genoThinMat) <- inds_genomat
 ##########
 ```
 
@@ -598,21 +596,23 @@ Now I can start the process of training models:
 
 ```{r}
 # reduce size of env data set used for training
-env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")]
-env_sea_red_nb <- env_sea_red %>% dplyr::select(-"Dermo_Prevalence_scaled",-"Pea_crab_scaled", -"MSX_Prevalence_scaled")
+env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")]
+env_sea_red_nb <- env_sea_red %>% dplyr::select(-"Dermo_Prevalence_scaled", -"MSX_Prevalence_scaled")
 
 # run rda
-print(Sys.time())
+start <- Sys.time()
 RDA_sea <- rda(genoThinMat ~ ., as.data.frame(env_sea_red))
 plot(RDA_sea)
 screeplot(RDA_sea, main = "Eigenvalues of constrained axes")
-print(Sys.time())
+end <- Sys.time()
+end-start
 
-print(Sys.time())
+start <- Sys.time()
 RDA_sea_nb <- rda(genoThinMat ~ ., as.data.frame(env_sea_red_nb))
 plot(RDA_sea_nb)
 screeplot(RDA_sea_nb, main = "Eigenvalues of constrained axes")
-print(Sys.time())
+end <- Sys.time()
+end-start
 
 # run rdadapt with K = 2 for first two axes
 rdadapt_sea <- rdadapt(RDA = RDA_sea, K = 2)
@@ -625,7 +625,7 @@ thres_env_nb <- 0.01 / length(rdadapt_sea_nb$p.values)
 
 # Identifying the loci that are below the p-value threshold
 outliers <- (1:ncol(genoThinMat))[which(rdadapt_sea$p.values < thres_env)]
-length(outliers) # 1203 outliers
+length(outliers) # 1389 outliers
 
 outliers_nb <- (1:ncol(genoThinMat))[which(rdadapt_sea_nb$p.values < thres_env_nb)]
 length(outliers_nb) # 1252 outliers
@@ -685,18 +685,18 @@ Now, I calculate genomic offset for all of my populations!
 
 ```{r}
 # common garden info
-lew_env <- env_exp[!duplicated(env_exp$site_name) ,c("lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "lew_MSX_Prevalence_scaled")]
-yrk_env <- env_exp[!duplicated(env_exp$site_name) ,c("yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled", "yrk_MSX_Prevalence_scaled")]
-colnames(lew_env) <- colnames(yrk_env) <- c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")
+lew_env <- env_exp[!duplicated(env_exp$site_name) ,c("lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_MSX_Prevalence_scaled")]
+yrk_env <- env_exp[!duplicated(env_exp$site_name) ,c("yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_MSX_Prevalence_scaled")]
+colnames(lew_env) <- colnames(yrk_env) <- c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")
 
-env_exp_red <- env_exp[!duplicated(env_exp$site_name) ,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")]
+env_exp_red <- env_exp[!duplicated(env_exp$site_name) ,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")]
 
 # df for predicting to seascape sites
 env_sea_forgo <- read.csv("data/EnvDat/seascape/seascape_environment_predict.csv")
 rownames(env_sea_forgo) <- env_sea_forgo$X
-env_sea_forgo_pres <- env_sea_forgo[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")]
-env_sea_forgo_lew <- env_sea_forgo[,c("lew_sal_quant10_scaled", "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "lew_MSX_Prevalence_scaled")]
-env_sea_forgo_yrk <- env_sea_forgo[,c("yrk_sal_quant10_scaled", "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled", "yrk_MSX_Prevalence_scaled")]
+env_sea_forgo_pres <- env_sea_forgo[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")]
+env_sea_forgo_lew <- env_sea_forgo[,c("lew_sal_quant10_scaled", "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "lew_Dermo_Prevalence_scaled", "lew_MSX_Prevalence_scaled")]
+env_sea_forgo_yrk <- env_sea_forgo[,c("yrk_sal_quant10_scaled", "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_MSX_Prevalence_scaled")]
 colnames(env_sea_forgo_lew) <- colnames(env_sea_forgo_yrk) <- colnames(env_sea_forgo_pres) <- colnames(env_sea_red)
 
 # dataframes with only abiotic variables
