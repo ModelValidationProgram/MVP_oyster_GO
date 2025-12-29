@@ -450,6 +450,13 @@ corrs_df_kend$signif_len_adj <- ifelse(corrs_df$p_adj_len < .05, T, F)
 corrs_df_kend_t4 <- corrs_df_kend[corrs_df_kend$event == 4,]
 
 write.csv(corrs_df_kend_t4, paste0("results/GO_results/go_fit_corrs_final_",Sys.Date(),".csv"), row.names = F)
+
+# what about without the gulf sites?
+fullfit_nogulf <- fullfit[fullfit$event == 4 & fullfit$site_name %in% c("S1_LOLA", "S2_DEBY", "W4_VA", "W5_NH", "W6_ME"),]
+cor_envdist_lew_nogulf_surv <- cor.test(fullfit_trimmed[fullfit_trimmed$bag_site == "Lewisetta",]$surv, fullfit_trimmed[fullfit_trimmed$bag_site == "Lewisetta",]$env_dist_lew, method = "kendall")
+cor_envdist_yrk_nogulf_surv <- cor.test(fullfit_trimmed[fullfit_trimmed$bag_site == "YorkRiver",]$surv, fullfit_trimmed[fullfit_trimmed$bag_site == "YorkRiver",]$env_dist_yrk, method = "kendall")
+cor_envdist_lew_nogulf_len <- cor.test(fullfit_trimmed[fullfit_trimmed$bag_site == "Lewisetta",]$length, fullfit_trimmed[fullfit_trimmed$bag_site == "Lewisetta",]$env_dist_lew, method = "kendall")
+cor_envdist_yrk_nogulf_len <- cor.test(fullfit_trimmed[fullfit_trimmed$bag_site == "YorkRiver",]$length, fullfit_trimmed[fullfit_trimmed$bag_site == "YorkRiver",]$env_dist_yrk, method = "kendall")
 #################################################
 ```
 
