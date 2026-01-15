@@ -257,6 +257,7 @@ popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "LOLA", "DEBY", "NH", "ME")
                      cols = c("#365C8DFF", "#277F8EFF", "#1FA187FF", "#4AC16DFF", "#440154FF", "#46337EFF", "#9FDA3AFF", "#FDE725FF"),
                      shape = c(21,21,21,21,23,23,21,21),
                      site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME"))
+surv_df[surv_df$pop == "JR",]$pop <- "VA"
 surv_df_full <- merge(surv_df, popsdf, by = c("pop"))
 
 # lewisetta
@@ -284,6 +285,7 @@ lew_surv <- ggplot(data = surv_df_full[surv_df_full$bag_site == "Lewisetta",]) +
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
         legend.justification = "top")
+lew_surv
 
 # york river
 yrk_surv <- ggplot(data = surv_df_full[surv_df_full$bag_site == "YorkRiver",]) + 
@@ -310,4 +312,17 @@ yrk_surv <- ggplot(data = surv_df_full[surv_df_full$bag_site == "YorkRiver",]) +
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
         legend.justification = "top")
+yrk_surv
+
+# export these graphs for publication
+library(officer) # for powerpoint export/editing
+library(rvg) # for converting r graphics to editable vector graphics
+
+doc <- read_pptx() %>% 
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = lew_surv), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = yrk_surv), location = ph_location_type(type = "body"))
+print(doc, target = "results/figures/surv_thru_time.pptx")
 ```
+
