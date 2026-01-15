@@ -450,13 +450,6 @@ corrs_df_kend$signif_len_adj <- ifelse(corrs_df$p_adj_len < .05, T, F)
 corrs_df_kend_t4 <- corrs_df_kend[corrs_df_kend$event == 4,]
 
 write.csv(corrs_df_kend_t4, paste0("results/GO_results/go_fit_corrs_final_",Sys.Date(),".csv"), row.names = F)
-
-# what about without the gulf sites?
-fullfit_nogulf <- fullfit[fullfit$event == 4 & fullfit$site_name %in% c("S1_LOLA", "S2_DEBY", "W4_VA", "W5_NH", "W6_ME"),]
-cor_envdist_lew_nogulf_surv <- cor.test(fullfit_trimmed[fullfit_trimmed$bag_site == "Lewisetta",]$surv, fullfit_trimmed[fullfit_trimmed$bag_site == "Lewisetta",]$env_dist_lew, method = "kendall")
-cor_envdist_yrk_nogulf_surv <- cor.test(fullfit_trimmed[fullfit_trimmed$bag_site == "YorkRiver",]$surv, fullfit_trimmed[fullfit_trimmed$bag_site == "YorkRiver",]$env_dist_yrk, method = "kendall")
-cor_envdist_lew_nogulf_len <- cor.test(fullfit_trimmed[fullfit_trimmed$bag_site == "Lewisetta",]$length, fullfit_trimmed[fullfit_trimmed$bag_site == "Lewisetta",]$env_dist_lew, method = "kendall")
-cor_envdist_yrk_nogulf_len <- cor.test(fullfit_trimmed[fullfit_trimmed$bag_site == "YorkRiver",]$length, fullfit_trimmed[fullfit_trimmed$bag_site == "YorkRiver",]$env_dist_yrk, method = "kendall")
 #################################################
 ```
 
@@ -468,39 +461,39 @@ I'll start by plotting LEA results:
 ```{r}
 # plot lea vs mort at each site/time point
 goFitLEA_lew_plotbag <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_lea_go_lew, y = surv, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_lea_go_lew, y = surv), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_lea_go_lew, y = surv, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_lea_go_lew, y = surv), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_lea_go_lew, y = surv, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_lea_go_lew, y = surv), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = surv, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = surv), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_lea_go_lew, y = surv, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_lea_go_lew, y = surv), col = "cadetblue3", se = T, linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$sel == "sel" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 1,]$signif_surv == T, "solid", "dashed")) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_lea_go_lew, y = surv, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_lea_go_lew, y = surv), col = "cornflowerblue", se = T, linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$sel == "sel" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 2,]$signif_surv == T, "solid", "dashed")) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_lea_go_lew, y = surv, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_lea_go_lew, y = surv), col = "slateblue", se = T, linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$sel == "sel" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 3,]$signif_surv == T, "solid", "dashed")) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = surv), col = "purple4", se = T, linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$sel == "sel" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed")) +
   labs(title = "Predicted GO (LEA) vs Survival at Lewisetta", x = "LEA Offset", y = "Survival") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitLEA_lew_plotbag
 
 goFitLEA_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_lea_go_yrk, y = surv, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_lea_go_yrk, y = surv), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_lea_go_yrk, y = surv, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_lea_go_yrk, y = surv), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_lea_go_yrk, y = surv, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_lea_go_yrk, y = surv), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = surv, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = surv), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_lea_go_yrk, y = surv, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_lea_go_yrk, y = surv), col = "cadetblue3", se = T, linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$sel == "sel" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 1,]$signif_surv == T, "solid", "dashed")) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_lea_go_yrk, y = surv, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_lea_go_yrk, y = surv), col = "cornflowerblue", se = T, linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$sel == "sel" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 2,]$signif_surv == T, "solid", "dashed")) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_lea_go_yrk, y = surv, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_lea_go_yrk, y = surv), col = "slateblue", se = T, linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$sel == "sel" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 3,]$signif_surv == T, "solid", "dashed")) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = surv), col = "purple4", se = T, linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$sel == "sel" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed")) +
   labs(title = "Predicted GO (LEA) vs Survival at York River", x = "LEA Offset", y = "Survival") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitLEA_yrk_plot
 
 # plot go lea vs mort at both sites just final time point
 goFitLEA_plotfinalTsurv <- ggplot(data = fullfit) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = surv, fill = "Lewisetta"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = surv), col = "mediumspringgreen", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = surv), col = "mediumspringgreen", linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed"), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = surv), col = "dodgerblue", linetype = "dashed", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = surv), col = "dodgerblue", linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (LEA) vs Survival at Final Time Point", x = "LEA Offset", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
@@ -512,39 +505,39 @@ Next, I'll plot gradient forest results, starting with the allele frequency mode
 ```{r}
 # plot gf af vs mort at each site/time point
 goFitGFaf_lew_plotbag <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_af_lew, y = surv, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_af_lew, y = surv), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_af_lew, y = surv, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_af_lew, y = surv), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_af_lew, y = surv, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_af_lew, y = surv), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = surv, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = surv), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_af_lew, y = surv, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_af_lew, y = surv), col = "cadetblue3", se = T, linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$sel == "sel" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 1,]$signif_surv == T, "solid", "dashed")) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_af_lew, y = surv, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_af_lew, y = surv), col = "cornflowerblue", se = T, linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$sel == "sel" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 2,]$signif_surv == T, "solid", "dashed")) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_af_lew, y = surv, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_af_lew, y = surv), col = "slateblue", se = T, linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$sel == "sel" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 3,]$signif_surv == T, "solid", "dashed")) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = surv), col = "purple4", se = T, linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$sel == "sel" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed")) +
   labs(title = "Predicted GO (GFaf) vs Survival at Lewisetta", x = "GF Offset", y = "Survival") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitGFaf_lew_plotbag
 
 goFitGFaf_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_af_yrk, y = surv, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_af_yrk, y = surv), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_af_yrk, y = surv, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_af_yrk, y = surv), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_af_yrk, y = surv, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_af_yrk, y = surv), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_af_yrk, y = surv, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_af_yrk, y = surv), col = "cadetblue3", se = T, linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$sel == "sel" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 1,]$signif_surv == T, "solid", "dashed")) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_af_yrk, y = surv, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_af_yrk, y = surv), col = "cornflowerblue", se = T, linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$sel == "sel" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 2,]$signif_surv == T, "solid", "dashed")) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_af_yrk, y = surv, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_af_yrk, y = surv), col = "slateblue", se = T, linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$sel == "sel" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 3,]$signif_surv == T, "solid", "dashed")) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv), col = "purple4", se = T, linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$sel == "sel" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed")) +
   labs(title = "Predicted GO (GFaf) vs Survival at York River", x = "GF Offset", y = "Survival") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitGFaf_yrk_plot
 
 # plot gf vs mort at both sites just final time point
 goFitGFaf_plotfinalTsurv <- ggplot(data = fullfit) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = surv, fill = "Lewisetta"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = surv), col = "mediumspringgreen", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = surv), col = "mediumspringgreen", linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed"), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv), col = "dodgerblue", linetype = "dashed", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = surv), col = "dodgerblue", linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (GFaf) vs Survival at Final Time Point", x = "GF Offset", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
@@ -556,39 +549,39 @@ Then the genotype model results:
 ```{r}
 # plot gf geno vs mort at each site/time point
 goFitGFgeno_lew_plotbag <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_geno_lew, y = surv, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_geno_lew, y = surv), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_geno_lew, y = surv, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_geno_lew, y = surv), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_geno_lew, y = surv, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_geno_lew, y = surv), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = surv, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = surv), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_geno_lew, y = surv, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_geno_lew, y = surv), col = "cadetblue3", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 1,]$signif_surv == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_geno_lew, y = surv, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_geno_lew, y = surv), col = "cornflowerblue", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 2,]$signif_surv == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_geno_lew, y = surv, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_geno_lew, y = surv), col = "slateblue", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 3,]$signif_surv == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = surv), col = "purple4", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (GFgeno) vs Survival at Lewisetta", x = "GF Offset", y = "Survival") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitGFgeno_lew_plotbag
 
 goFitGFgeno_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_geno_yrk, y = surv, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_geno_yrk, y = surv), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_geno_yrk, y = surv, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_geno_yrk, y = surv), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_geno_yrk, y = surv, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_geno_yrk, y = surv), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = surv, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = surv), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_geno_yrk, y = surv, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_geno_yrk, y = surv), col = "cadetblue3", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 1,]$signif_surv == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_geno_yrk, y = surv, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_geno_yrk, y = surv), col = "cornflowerblue", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 2,]$signif_surv == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_geno_yrk, y = surv, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_geno_yrk, y = surv), col = "slateblue", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 3,]$signif_surv == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = surv), col = "purple4", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (GFgeno) vs Survival at York River", x = "GF Offset", y = "Survival") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitGFgeno_yrk_plot
 
 # plot gf vs mort at both sites just final time point
 goFitGFgeno_plotfinalTsurv <- ggplot(data = fullfit) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = surv, fill = "Lewisetta"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = surv), col = "mediumspringgreen", linetype = "dashed", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = surv), col = "mediumspringgreen", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed"), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = surv), col = "dodgerblue", linetype = "dashed", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = surv), col = "dodgerblue", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (GFgeno) vs Survival at Final Time Point", x = "GF Offset", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
@@ -601,39 +594,39 @@ Then I'll plot rda results:
 ```{r}
 # plot rda vs mort at each site/time point
 goFitRDA_lew_plotbag <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_rda_lew, y = surv, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_rda_lew, y = surv), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_rda_lew, y = surv, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_rda_lew, y = surv), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_rda_lew, y = surv, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_rda_lew, y = surv), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = surv, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = surv), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_rda_lew, y = surv, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_rda_lew, y = surv), col = "cadetblue3", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 1,]$signif_surv == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_rda_lew, y = surv, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_rda_lew, y = surv), col = "cornflowerblue", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 2,]$signif_surv == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_rda_lew, y = surv, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_rda_lew, y = surv), col = "slateblue", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 3,]$signif_surv == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = surv), col = "purple4", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (RDA) vs Survival at Lewisetta", x = "RDA Offset", y = "Survival") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitRDA_lew_plotbag
 
 goFitRDA_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_rda_yrk, y = surv, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_rda_yrk, y = surv), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_rda_yrk, y = surv, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_rda_yrk, y = surv), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_rda_yrk, y = surv, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_rda_yrk, y = surv), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = surv, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = surv), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_rda_yrk, y = surv, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_rda_yrk, y = surv), col = "cadetblue3", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 1,]$signif_surv == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_rda_yrk, y = surv, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_rda_yrk, y = surv), col = "cornflowerblue", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 2,]$signif_surv == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_rda_yrk, y = surv, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_rda_yrk, y = surv), col = "slateblue", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 3,]$signif_surv == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = surv), col = "purple4", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (RDA) vs Survival at York River", x = "RDA Offset", y = "Survival") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitRDA_yrk_plot
 
 # plot rda vs mort at both sites just final time point
 goFitRDA_plotfinalTsurv <- ggplot(data = fullfit) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = surv, fill = "Lewisetta"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = surv), col = "mediumspringgreen", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = surv), col = "mediumspringgreen", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed"), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = surv), col = "dodgerblue", linetype = "dashed", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = surv), col = "dodgerblue", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (RDA) vs Survival at Final Time Point", x = "RDA Offset", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
@@ -645,39 +638,39 @@ And finally, environmental distance:
 ```{r}
 # plot env dist vs mort at each site/time point
 goFitEnvdist_lew_plotbag <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = env_dist_lew, y = surv, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = env_dist_lew, y = surv), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = env_dist_lew, y = surv, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = env_dist_lew, y = surv), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = env_dist_lew, y = surv, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = env_dist_lew, y = surv), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = surv, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = surv), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = env_dist_lew, y = surv, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = env_dist_lew, y = surv), col = "cadetblue3", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 1,]$signif_surv == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = env_dist_lew, y = surv, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = env_dist_lew, y = surv), col = "cornflowerblue", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 2,]$signif_surv == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = env_dist_lew, y = surv, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = env_dist_lew, y = surv), col = "slateblue", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 3,]$signif_surv == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = surv), col = "purple4", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed"), se = T) +
   labs(title = "Environmental Distance vs Survival at Lewisetta", x = "Environmental Distance", y = "Survival") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitEnvdist_lew_plotbag
 
 goFitEnvdist_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = env_dist_yrk, y = surv, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = env_dist_yrk, y = surv), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = env_dist_yrk, y = surv, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = env_dist_yrk, y = surv), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = env_dist_yrk, y = surv, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = env_dist_yrk, y = surv), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = surv, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = surv), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = env_dist_yrk, y = surv, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = env_dist_yrk, y = surv), col = "cadetblue3", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 1,]$signif_surv == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = env_dist_yrk, y = surv, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = env_dist_yrk, y = surv), col = "cornflowerblue", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 2,]$signif_surv == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = env_dist_yrk, y = surv, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = env_dist_yrk, y = surv), col = "slateblue", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 3,]$signif_surv == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = surv), col = "purple4", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed"), se = T) +
   labs(title = "Environmental Distance vs Survival at York River", x = "Environmental Distance", y = "Survival") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitEnvdist_yrk_plot
 
 # plot env dist vs mort at both sites just final time point
 goFitEnvdist_plotfinalTsurv <- ggplot(data = fullfit) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = surv, fill = "Lewisetta"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = surv), col = "mediumspringgreen", linetype = "dashed", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = surv), col = "mediumspringgreen", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed"), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = surv), col = "dodgerblue", linetype = "dashed", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = surv), col = "dodgerblue", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_surv == T, "solid", "dashed"), se = T) +
   labs(title = "Environmental Distance vs Survival at Final Time Point", x = "Environmental Distance", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
@@ -692,39 +685,39 @@ LEA vs length:
 ```{r}
 # plot lea vs len at each site/time point
 goFitLEA_lew_len <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_lea_go_lew, y = length, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_lea_go_lew, y = length), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_lea_go_lew, y = length, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_lea_go_lew, y = length), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_lea_go_lew, y = length, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_lea_go_lew, y = length), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = length, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = length), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_lea_go_lew, y = length, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_lea_go_lew, y = length), col = "cadetblue3", linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 1,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_lea_go_lew, y = length, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_lea_go_lew, y = length), col = "cornflowerblue", linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 2,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_lea_go_lew, y = length, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_lea_go_lew, y = length), col = "slateblue", linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 3,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = length, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = length), col = "purple4", linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (LEA) vs Size at Lewisetta", x = "LEA Offset", y = "Length (mm)") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitLEA_lew_len
 
 goFitLEA_yrk_len <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_lea_go_yrk, y = length, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_lea_go_yrk, y = length), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_lea_go_yrk, y = length, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_lea_go_yrk, y = length), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_lea_go_yrk, y = length, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_lea_go_yrk, y = length), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = length, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = length), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_lea_go_yrk, y = length, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_lea_go_yrk, y = length), col = "cadetblue3", linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 1,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_lea_go_yrk, y = length, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_lea_go_yrk, y = length), col = "cornflowerblue", linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 2,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_lea_go_yrk, y = length, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_lea_go_yrk, y = length), col = "slateblue", linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 3,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = length, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = length), col = "purple4", linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (LEA) vs Size at York River", x = "LEA Offset", y = "Length (mm)") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitLEA_yrk_len
 
 # plot go lea vs len at both sites just final time point
 goFitLEA_plotfinalTlen <- ggplot(data = fullfit) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = length, fill = "Lewisetta"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = length), col = "mediumspringgreen", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = length), col = "mediumspringgreen", linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = length), col = "dodgerblue", linetype = "dashed", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = length), col = "dodgerblue", linetype = ifelse(corrs_df[corrs_df$method == "lea" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (LEA) vs Size at Final Time Point", x = "LEA Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
@@ -737,39 +730,39 @@ GF AF GO vs length:
 ```{r}
 # plot gf vs len at each site/time point
 goFitGFaf_lew_len <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_af_lew, y = length, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_af_lew, y = length), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_af_lew, y = length, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_af_lew, y = length), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_af_lew, y = length, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_af_lew, y = length), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = length, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = length), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_af_lew, y = length, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_af_lew, y = length), col = "cadetblue3", linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 1,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_af_lew, y = length, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_af_lew, y = length), col = "cornflowerblue", linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 2,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_af_lew, y = length, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_af_lew, y = length), col = "slateblue", linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 3,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = length, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = length), col = "purple4", linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (GF) vs Size at Lewisetta", x = "GF Offset", y = "Length (mm)") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitGFaf_lew_len
 
 goFitGFaf_yrk_len <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_af_yrk, y = length, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_af_yrk, y = length), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_af_yrk, y = length, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_af_yrk, y = length), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_af_yrk, y = length, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_af_yrk, y = length), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = length, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = length), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_af_yrk, y = length, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_af_yrk, y = length), col = "cadetblue3", linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 1,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_af_yrk, y = length, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_af_yrk, y = length), col = "cornflowerblue", linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 2,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_af_yrk, y = length, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_af_yrk, y = length), col = "slateblue", linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 3,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = length, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = length), col = "purple4", linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (GF) vs Size at York River", x = "GF Offset", y = "Length (mm)") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitGFaf_yrk_len
 
 # plot gf vs len at both sites just final time point
 goFitGFaf_plotfinalTlen <- ggplot(data = fullfit) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = length, fill = "Lewisetta"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = length), col = "mediumspringgreen", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_af_lew, y = length), col = "mediumspringgreen", linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = length), col = "dodgerblue", linetype = "dashed", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_af_yrk, y = length), col = "dodgerblue", linetype = ifelse(corrs_df[corrs_df$method == "gf_af" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (GF) vs Size at Final Time Point", x = "GF Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
@@ -782,39 +775,39 @@ GF geno GO vs length:
 ```{r}
 # plot gf vs len at each site/time point
 goFitGFgeno_lew_len <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_geno_lew, y = length, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_geno_lew, y = length), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_geno_lew, y = length, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_geno_lew, y = length), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_geno_lew, y = length, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_geno_lew, y = length), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = length, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = length), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_geno_lew, y = length, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_gf_geno_lew, y = length), col = "cadetblue3", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 1,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_geno_lew, y = length, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_gf_geno_lew, y = length), col = "cornflowerblue", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 2,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_geno_lew, y = length, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_geno_lew, y = length), col = "slateblue", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 3,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = length, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = length), col = "purple4", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (GF) vs Size at Lewisetta", x = "GF Offset", y = "Length (mm)") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitGFgeno_lew_len
 
 goFitGFgeno_yrk_len <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_geno_yrk, y = length, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_geno_yrk, y = length), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_geno_yrk, y = length, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_geno_yrk, y = length), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_geno_yrk, y = length, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_geno_yrk, y = length), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_geno_yrk, y = length, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_gf_geno_yrk, y = length), col = "cadetblue3", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 1,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_geno_yrk, y = length, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_gf_geno_yrk, y = length), col = "cornflowerblue", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 2,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_geno_yrk, y = length, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_geno_yrk, y = length), col = "slateblue", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 3,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length), col = "purple4", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (GF) vs Size at York River", x = "GF Offset", y = "Length (mm)") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitGFgeno_yrk_len
 
 # plot gf vs len at both sites just final time point
 goFitGFgeno_plotfinalTlen <- ggplot(data = fullfit) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = length, fill = "Lewisetta"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = length), col = "mediumspringgreen", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = length), col = "mediumspringgreen", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length), col = "dodgerblue", linetype = "dashed", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length), col = "dodgerblue", linetype = ifelse(corrs_df[corrs_df$method == "gf_geno" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (GF) vs Size at Final Time Point", x = "GF Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
@@ -827,39 +820,39 @@ RDA GO vs length:
 ```{r}
 # plot rda vs len at each site/time point
 goFitRDA_lew_len <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_rda_lew, y = length, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_rda_lew, y = length), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_rda_lew, y = length, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_rda_lew, y = length), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_rda_lew, y = length, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_rda_lew, y = length), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = length, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = length), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_rda_lew, y = length, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_rda_lew, y = length), col = "cadetblue3", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 1,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_rda_lew, y = length, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_rda_lew, y = length), col = "cornflowerblue", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 2,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_rda_lew, y = length, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_rda_lew, y = length), col = "slateblue", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 3,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = length, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = length), col = "purple4", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (RDA) vs Size at Lewisetta", x = "RDA Offset", y = "Length (mm)") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitRDA_lew_len
 
 goFitRDA_yrk_len <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_rda_yrk, y = length, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_rda_yrk, y = length), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_rda_yrk, y = length, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_rda_yrk, y = length), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_rda_yrk, y = length, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_rda_yrk, y = length), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = length, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = length), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_rda_yrk, y = length, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_rda_yrk, y = length), col = "cadetblue3", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 1,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_rda_yrk, y = length, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_rda_yrk, y = length), col = "cornflowerblue", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 2,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_rda_yrk, y = length, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_rda_yrk, y = length), col = "slateblue", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 3,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = length, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = length), col = "purple4", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (RDA) vs Size at York River", x = "RDA Offset", y = "Length (mm)") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitRDA_yrk_len
 
 # plot rda vs len at both sites just final time point
 goFitRDA_plotfinalTlen <- ggplot(data = fullfit) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = length, fill = "Lewisetta"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = length), col = "mediumspringgreen", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = length), col = "mediumspringgreen", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = length), col = "dodgerblue", linetype = "dashed", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = length), col = "dodgerblue", linetype = ifelse(corrs_df[corrs_df$method == "rda" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   labs(title = "Predicted GO (RDA) vs Size at Final Time Point", x = "RDA Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
@@ -871,39 +864,39 @@ Environmental distance vs length:
 ```{r}
 # plot env dist vs length at each site/time point
 goFitEnvdist_len_lew_plot <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = env_dist_lew, y = length, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = env_dist_lew, y = length), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = env_dist_lew, y = length, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = env_dist_lew, y = length), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = env_dist_lew, y = length, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = env_dist_lew, y = length), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = env_dist_lew, y = length, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = env_dist_lew, y = length), col = "cadetblue3", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 1,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = env_dist_lew, y = length, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = env_dist_lew, y = length), col = "cornflowerblue", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 2,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = env_dist_lew, y = length, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = env_dist_lew, y = length), col = "slateblue", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 3,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length), col = "purple4", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   labs(title = "Environmental Distance vs Size at Lewisetta", x = "Environmental Distance", y = "Length (mm)") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitEnvdist_len_lew_plot
 
 goFitEnvdist_len_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = env_dist_yrk, y = length, col = "Fall'23")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = env_dist_yrk, y = length), col = "cadetblue3", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = env_dist_yrk, y = length, col = "Spring'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = env_dist_yrk, y = length), col = "cornflowerblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = env_dist_yrk, y = length, col = "Fall'24")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = env_dist_yrk, y = length), col = "slateblue", se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length, col = "Spring'25")) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length), col = "purple4", se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = env_dist_yrk, y = length, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = env_dist_yrk, y = length), col = "cadetblue3", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 1,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = env_dist_yrk, y = length, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = env_dist_yrk, y = length), col = "cornflowerblue", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 2,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = env_dist_yrk, y = length, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = env_dist_yrk, y = length), col = "slateblue", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 3,]$signif_len == T, "solid", "dashed"), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length), col = "purple4", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   labs(title = "Environmental Distance vs Size at York River", x = "Environmental Distance", y = "Length (mm)") +
-  scale_colour_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
+  scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitEnvdist_len_yrk_plot
 
 # plot go gf vs len at both sites just final time point
 goFitEnvdist_plotfinalTlen <- ggplot(data = fullfit) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length, fill = "Lewisetta"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length), col = "mediumspringgreen", linetype = "dashed", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length), col = "mediumspringgreen", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "Lewisetta" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length), col = "dodgerblue", linetype = "dashed", se = T) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length), col = "dodgerblue", linetype = ifelse(corrs_df[corrs_df$method == "env_dist" & corrs_df$biotic == "b" & corrs_df$bag_site == "YorkRiver" & corrs_df$event == 4,]$signif_len == T, "solid", "dashed"), se = T) +
   labs(title = "Environmental Distance vs Size at Final Time Point", x = "Environmental Distance", y = "Length (mm)") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
@@ -1078,7 +1071,7 @@ disease_vs_no_len
 
 ```{r}
 fullfit
-env_exp <- read.csv("data/EnvDat/exp/exp_scaled_2025-12-08.csv")[,-1]
+#env_exp <- read.csv("data/EnvDat/exp/exp_scaled_2025-12-08.csv")[,-1]
 fullfit_env <- merge(fullfit[fullfit$event == 4,], env_exp, by = "site_name")
 fullfit_env_nodup_surv <- fullfit_env[!(duplicated(fullfit_env$surv)),]
 fullfit_env_nodup_len <- fullfit_env[!(duplicated(fullfit_env$length)),]
