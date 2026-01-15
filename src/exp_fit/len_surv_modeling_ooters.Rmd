@@ -23,7 +23,7 @@ library(officer) # for export to ppt
 library(rvg) # for converting to vector graphics
 
 # data
-surv_long <- read.csv("results/exp_results/mortality_long_bags_052925.csv")[,-1]
+surv_long <- read.csv("results/exp_results/mortality_long_bags_2026-01-15.csv")[,-1]
 bags <- read.csv("data/ExpDat/MVP23-FieldBags - bags.csv")
 lengths <- read.csv("results/exp_results/lengths_long_2025-06-03.csv")[,-1]
 ```
@@ -139,19 +139,36 @@ popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "LOLA", "DEBY", "NH", "ME")
                      order = 1:8, 
                      cols = c("#365C8DFF", "#277F8EFF", "#1FA187FF", "#4AC16DFF", "#440154FF", "#46337EFF", "#9FDA3AFF", "#FDE725FF"),
                      shape = c(21,21,21,21,23,23,21,21),
-                     site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME"))
+                     site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME"),
+                     site_name_plotting = c("W1-TX", "W2-LA", "W3-FL", "W4-VA", "S1-LOLA", "S2-DEBY", "W5-NH", "W6-ME"))
 
 surv_final_time_plotting <- merge(surv_final_time_rename_mg, popsdf, by = "site_name")
+surv_final_time_plotting$bag_site <- as.factor(surv_final_time_plotting$bag_site)
+surv_final_time_plotting$site_name <- as.factor(surv_final_time_plotting$site_name)
+surv_final_time_plotting$letters <- as.factor(surv_final_time_plotting$letters)
+surv_final_time_plotting$t <- as.factor(surv_final_time_plotting$t)
+surv_final_time_plotting$pop.x <- NULL
+names(surv_final_time_plotting)[names(surv_final_time_plotting) == "pop.y"] <- "pop"
+
+# y-axis location for letters
+letters_loc <- surv_final_time_plotting %>% group_by(popsite) %>% summarise(across(surv, max))
+colnames(letters_loc) <- c("popsite", "max_surv")
+surv_final_time_plotting_letters <- merge(surv_final_time_plotting, letters_loc, by = "popsite")
 
 # plot by pop
-surv_t4_plot_pop <- ggplot(surv_final_time_plotting, aes(x = bag_site, y = surv, fill = fct_reorder(site_name, order))) + 
+surv_t4_plot_pop <- ggplot(surv_final_time_plotting_letters, aes(x = site_name_plotting, y = surv, fill = fct_reorder(site_name, order))) + 
   geom_boxplot(position=position_dodge(1.0)) +  
-  facet_wrap(~bag_site, scales = "free_x") +
-  scale_fill_manual(name = "Broodstock Group", label = popsdf$site_name, values = popsdf$cols)+
-  geom_text(aes(label = letters, y = 1), vjust = -0.5, position=position_dodge(1)) +
+  facet_grid(.~ bag_site,
+             switch = "x") +
+  scale_fill_manual(name = "Broodstock Group", label = popsdf$site_name_plotting, values = popsdf$cols)+
+  geom_text(aes(label = letters, y = max_surv), vjust = -0.5, position = position_dodge(1)) +
   labs(title = "Final Survival at Lewisetta and York River", x = "Experimental Site", y = "Survival") +
   theme_classic()+ 
-  theme(strip.background = element_blank(), strip.text.x = element_blank(), panel.spacing.x = unit(3, "lines"))
+  theme(strip.background = element_blank(), 
+        strip.text.x = element_text(), 
+        strip.placement = "outside",
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.spacing.x = unit(3, "lines"))
 surv_t4_plot_pop
 ```
 
@@ -256,17 +273,32 @@ len_t4_plot_site <- ggplot(lengths_final_time_rename_mg, aes(x = pop, y = length
 len_t4_plot_site
 
 len_final_time_plotting <- merge(lengths_final_time_rename_mg, popsdf, by = c("pop","site_name"))
+len_final_time_plotting$bag_site <- as.factor(len_final_time_plotting$bag_site)
+len_final_time_plotting$site_name <- as.factor(len_final_time_plotting$site_name)
+len_final_time_plotting$letters <- as.factor(len_final_time_plotting$letters)
+len_final_time_plotting$t <- as.factor(len_final_time_plotting$t)
+len_final_time_plotting$pop.x <- NULL
+names(len_final_time_plotting)[names(len_final_time_plotting) == "pop.y"] <- "pop"
+
+# y-axis location for letters
+letters_loc_len <- len_final_time_plotting %>% group_by(popsite) %>% summarise(across(length, max))
+colnames(letters_loc_len) <- c("popsite", "max_len")
+len_final_time_plotting_letters <- merge(len_final_time_plotting, letters_loc_len, by = "popsite")
 
 # plot by pop
-len_t4_plot_pop <- ggplot(len_final_time_plotting, aes(x = bag_site, y = length, fill = fct_reorder(site_name, order))) + 
+len_t4_plot_pop <- ggplot(len_final_time_plotting_letters, aes(x = site_name_plotting, y = length, fill = fct_reorder(site_name, order))) + 
   geom_boxplot(position=position_dodge(1.0)) +  
-  scale_fill_manual(name = "Broodstock Group", label = popsdf$site_name, values = popsdf$cols)+
-  facet_wrap(~bag_site, scales = "free_x") +
-  geom_text(aes(label = letters, y = 1), vjust = -0.5, position=position_dodge(1)) +
-  labs(title = "Final Length at Lewisetta and York River", x = "Experimental Site", y = "Length (mm)") +
-  scale_y_continuous(breaks = c(0, 25, 50, 75, 100, 125)) +
-  theme_classic() +
-  theme(strip.background = element_blank(), strip.text.x = element_blank(), panel.spacing.x = unit(3, "lines"))
+  facet_grid(.~ bag_site,
+             switch = "x") +
+  scale_fill_manual(name = "Broodstock Group", label = popsdf$site_name_plotting, values = popsdf$cols)+
+  geom_text(aes(label = letters, y = max_len + 2), vjust = -0.5, position = position_dodge(1)) +
+  labs(title = "Final Length at Lewisetta and York River", x = "Experimental Site", y = "Survival") +
+  theme_classic()+ 
+  theme(strip.background = element_blank(), 
+        strip.text.x = element_text(), 
+        strip.placement = "outside",
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.spacing.x = unit(3, "lines"))
 len_t4_plot_pop
 ```
 
