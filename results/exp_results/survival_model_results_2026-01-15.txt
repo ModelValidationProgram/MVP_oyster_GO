@@ -1,0 +1,204 @@
+Analysis of Deviance Table (Type III Wald chisquare tests)
+
+Response: surv
+                  Chisq Df Pr(>Chisq)    
+(Intercept)    421.7780  1  < 2.2e-16 ***
+bag_site         0.4778  1     0.4894    
+pop             74.4893  7  1.821e-13 ***
+t               35.3182  3  1.044e-07 ***
+bag_site:pop    10.4325  7     0.1654    
+bag_site:t      73.9170  3  6.183e-16 ***
+pop:t          164.6166 21  < 2.2e-16 ***
+bag_site:pop:t  65.9983 21  1.517e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: surv ~ bag_site * pop * t + (1 | bags_label)
+   Data: surv_mod_ord_rm
+
+REML criterion at convergence: -267.7
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.49387 -0.46884  0.01471  0.44936  2.59802 
+
+Random effects:
+ Groups     Name        Variance Std.Dev.
+ bags_label (Intercept) 0.003600 0.06000 
+ Residual               0.002549 0.05049 
+Number of obs: 191, groups:  bags_label, 48
+
+Fixed effects:
+                                 Estimate Std. Error        df t value Pr(>|t|)    
+(Intercept)                      0.929769   0.045272 62.745111  20.537  < 2e-16 ***
+bag_siteYorkRiver               -0.044258   0.064025 62.745111  -0.691 0.491948    
+popS2_DEBY                      -0.146301   0.064025 62.745111  -2.285 0.025700 *  
+popW1_TX                        -0.017365   0.064025 62.745111  -0.271 0.787110    
+popW2_LA                        -0.003738   0.064025 62.745111  -0.058 0.953626    
+popW3_FL                        -0.086576   0.064025 62.745111  -1.352 0.181156    
+popW4_VA                        -0.231170   0.064025 62.745111  -3.611 0.000608 ***
+popW5_NH                        -0.353498   0.064025 62.745111  -5.521 6.86e-07 ***
+popW6_ME                        -0.347924   0.064025 62.745111  -5.434 9.56e-07 ***
+t2                              -0.060641   0.041224 94.867388  -1.471 0.144599    
+t3                              -0.164164   0.041224 94.867388  -3.982 0.000134 ***
+t4                              -0.222038   0.041224 94.867388  -5.386 5.22e-07 ***
+bag_siteYorkRiver:popS2_DEBY     0.118355   0.090545 62.745111   1.307 0.195935    
+bag_siteYorkRiver:popW1_TX       0.066467   0.090545 62.745111   0.734 0.465636    
+bag_siteYorkRiver:popW2_LA       0.012659   0.090545 62.745111   0.140 0.889259    
+bag_siteYorkRiver:popW3_FL       0.169516   0.090545 62.745111   1.872 0.065843 .  
+bag_siteYorkRiver:popW4_VA       0.174707   0.090545 62.745111   1.930 0.058193 .  
+bag_siteYorkRiver:popW5_NH       0.109447   0.090545 62.745111   1.209 0.231288    
+bag_siteYorkRiver:popW6_ME       0.217292   0.090545 62.745111   2.400 0.019383 *  
+bag_siteYorkRiver:t2            -0.122164   0.058300 94.867388  -2.095 0.038797 *  
+bag_siteYorkRiver:t3            -0.401638   0.058300 94.867388  -6.889 6.10e-10 ***
+bag_siteYorkRiver:t4            -0.407947   0.058300 94.867388  -6.997 3.67e-10 ***
+popS2_DEBY:t2                    0.015631   0.058300 94.867388   0.268 0.789194    
+popW1_TX:t2                      0.046146   0.058300 94.867388   0.792 0.430615    
+popW2_LA:t2                      0.092774   0.058300 94.867388   1.591 0.114865    
+popW3_FL:t2                     -0.005942   0.058300 94.867388  -0.102 0.919041    
+popW4_VA:t2                     -0.011538   0.058300 94.867388  -0.198 0.843545    
+popW5_NH:t2                     -0.029398   0.058300 94.867388  -0.504 0.615253    
+popW6_ME:t2                     -0.018082   0.058300 94.867388  -0.310 0.757125    
+popS2_DEBY:t3                    0.037771   0.058300 94.867388   0.648 0.518632    
+popW1_TX:t3                      0.003843   0.058300 94.867388   0.066 0.947583    
+popW2_LA:t3                      0.160234   0.058300 94.867388   2.748 0.007169 ** 
+popW3_FL:t3                      0.033790   0.058300 94.867388   0.580 0.563570    
+popW4_VA:t3                      0.008245   0.058300 94.867388   0.141 0.887836    
+popW5_NH:t3                     -0.276969   0.058300 94.867388  -4.751 7.19e-06 ***
+popW6_ME:t3                     -0.246623   0.058300 94.867388  -4.230 5.38e-05 ***
+popS2_DEBY:t4                    0.096993   0.058300 94.867388   1.664 0.099475 .  
+popW1_TX:t4                     -0.023706   0.058300 94.867388  -0.407 0.685199    
+popW2_LA:t4                      0.161655   0.058300 94.867388   2.773 0.006691 ** 
+popW3_FL:t4                      0.019198   0.058300 94.867388   0.329 0.742664    
+popW4_VA:t4                      0.034084   0.058300 94.867388   0.585 0.560184    
+popW5_NH:t4                     -0.291103   0.058300 94.867388  -4.993 2.70e-06 ***
+popW6_ME:t4                     -0.220883   0.058300 94.867388  -3.789 0.000266 ***
+bag_siteYorkRiver:popS2_DEBY:t2 -0.031211   0.082449 94.867388  -0.379 0.705872    
+bag_siteYorkRiver:popW1_TX:t2   -0.051703   0.082449 94.867388  -0.627 0.532107    
+bag_siteYorkRiver:popW2_LA:t2   -0.116445   0.082449 94.867388  -1.412 0.161124    
+bag_siteYorkRiver:popW3_FL:t2    0.033834   0.082449 94.867388   0.410 0.682463    
+bag_siteYorkRiver:popW4_VA:t2    0.031951   0.082449 94.867388   0.388 0.699234    
+bag_siteYorkRiver:popW5_NH:t2    0.010615   0.082449 94.867388   0.129 0.897827    
+bag_siteYorkRiver:popW6_ME:t2   -0.010078   0.082449 94.867388  -0.122 0.902972    
+bag_siteYorkRiver:popS2_DEBY:t3  0.162741   0.082449 94.867388   1.974 0.051309 .  
+bag_siteYorkRiver:popW1_TX:t3    0.069337   0.082449 94.867388   0.841 0.402478    
+bag_siteYorkRiver:popW2_LA:t3   -0.179382   0.082449 94.867388  -2.176 0.032064 *  
+bag_siteYorkRiver:popW3_FL:t3    0.118061   0.082449 94.867388   1.432 0.155451    
+bag_siteYorkRiver:popW4_VA:t3    0.205407   0.082449 94.867388   2.491 0.014464 *  
+bag_siteYorkRiver:popW5_NH:t3    0.240919   0.082449 94.867388   2.922 0.004347 ** 
+bag_siteYorkRiver:popW6_ME:t3    0.091991   0.082449 94.867388   1.116 0.267355    
+bag_siteYorkRiver:popS2_DEBY:t4  0.064958   0.082449 94.867388   0.788 0.432745    
+bag_siteYorkRiver:popW1_TX:t4    0.115372   0.082449 94.867388   1.399 0.164979    
+bag_siteYorkRiver:popW2_LA:t4   -0.210066   0.082449 94.867388  -2.548 0.012446 *  
+bag_siteYorkRiver:popW3_FL:t4    0.086066   0.082449 94.867388   1.044 0.299197    
+bag_siteYorkRiver:popW4_VA:t4    0.198886   0.082449 94.867388   2.412 0.017778 *  
+bag_siteYorkRiver:popW5_NH:t4    0.279278   0.085658 95.537186   3.260 0.001543 ** 
+bag_siteYorkRiver:popW6_ME:t4    0.119318   0.082449 94.867388   1.447 0.151144    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Anova Table (Type III tests)
+
+Response: surv
+              Sum Sq Df F value    Pr(>F)    
+(Intercept)  1.50265  1 311.951 < 2.2e-16 ***
+bag_site     0.30673  1  63.678 5.211e-09 ***
+pop          1.68858  7  50.079 3.850e-15 ***
+bag_site:pop 0.43403  7  12.872 1.254e-07 ***
+Residuals    0.14933 31                      
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Call:
+lm(formula = surv ~ bag_site * pop, data = surv_mod_ord_rm[surv_mod_ord_rm$t == 
+    4, ])
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.144922 -0.033324 -0.003841  0.036777  0.195790 
+
+Coefficients:
+                             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                   0.70773    0.04007  17.662  < 2e-16 ***
+bag_siteYorkRiver            -0.45221    0.05667  -7.980 5.21e-09 ***
+popS2_DEBY                   -0.04931    0.05667  -0.870 0.390925    
+popW1_TX                     -0.04107    0.05667  -0.725 0.474030    
+popW2_LA                      0.15792    0.05667   2.787 0.009008 ** 
+popW3_FL                     -0.06738    0.05667  -1.189 0.243469    
+popW4_VA                     -0.19709    0.05667  -3.478 0.001520 ** 
+popW5_NH                     -0.64460    0.05667 -11.375 1.36e-12 ***
+popW6_ME                     -0.56881    0.05667 -10.037 2.93e-11 ***
+bag_siteYorkRiver:popS2_DEBY  0.18331    0.08014   2.287 0.029156 *  
+bag_siteYorkRiver:popW1_TX    0.18184    0.08014   2.269 0.030379 *  
+bag_siteYorkRiver:popW2_LA   -0.19741    0.08014  -2.463 0.019522 *  
+bag_siteYorkRiver:popW3_FL    0.25558    0.08014   3.189 0.003255 ** 
+bag_siteYorkRiver:popW4_VA    0.37359    0.08014   4.662 5.65e-05 ***
+bag_siteYorkRiver:popW5_NH    0.42337    0.08500   4.981 2.27e-05 ***
+bag_siteYorkRiver:popW6_ME    0.33661    0.08014   4.200 0.000209 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.0694 on 31 degrees of freedom
+Multiple R-squared:  0.952,	Adjusted R-squared:  0.9288 
+F-statistic: 41.03 on 15 and 31 DF,  p-value: 3.065e-16
+
+Anova Table (Type III tests)
+
+Response: surv
+                 Sum Sq Df F value    Pr(>F)    
+(Intercept)     1.30056  1 269.997 < 2.2e-16 ***
+bag_site        0.10845  1  22.515 4.455e-05 ***
+oldpop          1.68858  7  50.079 3.850e-15 ***
+bag_site:oldpop 0.43403  7  12.872 1.254e-07 ***
+Residuals       0.14933 31                      
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Call:
+lm(formula = surv ~ bag_site * oldpop, data = surv_t4)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.144922 -0.033324 -0.003841  0.036777  0.195790 
+
+Coefficients:
+                              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                   0.658422   0.040071  16.432  < 2e-16 ***
+bag_siteYorkRiver            -0.268893   0.056668  -4.745 4.45e-05 ***
+oldpopFL                     -0.018071   0.056668  -0.319 0.751954    
+oldpopLA                      0.207225   0.056668   3.657 0.000939 ***
+oldpopLOLA                    0.049308   0.056668   0.870 0.390925    
+oldpopME                     -0.519499   0.056668  -9.167 2.45e-10 ***
+oldpopNH                     -0.595293   0.056668 -10.505 9.76e-12 ***
+oldpopTX                      0.008237   0.056668   0.145 0.885377    
+oldpopVA                     -0.147778   0.056668  -2.608 0.013893 *  
+bag_siteYorkRiver:oldpopFL    0.072270   0.080141   0.902 0.374125    
+bag_siteYorkRiver:oldpopLA   -0.380719   0.080141  -4.751 4.38e-05 ***
+bag_siteYorkRiver:oldpopLOLA -0.183313   0.080141  -2.287 0.029156 *  
+bag_siteYorkRiver:oldpopME    0.153297   0.080141   1.913 0.065044 .  
+bag_siteYorkRiver:oldpopNH    0.240054   0.085002   2.824 0.008215 ** 
+bag_siteYorkRiver:oldpopTX   -0.001474   0.080141  -0.018 0.985448    
+bag_siteYorkRiver:oldpopVA    0.190280   0.080141   2.374 0.023956 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.0694 on 31 degrees of freedom
+Multiple R-squared:  0.952,	Adjusted R-squared:  0.9288 
+F-statistic: 41.03 on 15 and 31 DF,  p-value: 3.065e-16
+
+               letters        popsite
+Lewisetta:LA         a   Lewisetta:LA
+Lewisetta:LOLA      ab Lewisetta:LOLA
+Lewisetta:TX        ab   Lewisetta:TX
+Lewisetta:DEBY      ab Lewisetta:DEBY
+Lewisetta:FL        bc   Lewisetta:FL
+Lewisetta:VA       bcd   Lewisetta:VA
+YorkRiver:FL       cde   YorkRiver:FL
+YorkRiver:VA       cde   YorkRiver:VA
+YorkRiver:TX       def   YorkRiver:TX
+YorkRiver:DEBY     def YorkRiver:DEBY
+YorkRiver:LOLA     efg YorkRiver:LOLA
+YorkRiver:LA       fgh   YorkRiver:LA
+Lewisetta:ME        gh   Lewisetta:ME
+Lewisetta:NH        gh   Lewisetta:NH
+YorkRiver:NH        gh   YorkRiver:NH
+YorkRiver:ME         h   YorkRiver:ME
