@@ -835,8 +835,6 @@ doc <- read_pptx() %>%
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
   ph_with(value = dml(ggobj = goFitEnvdist_plotfinalTlen), location = ph_location_type(type = "body")) %>% 
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = goFitEnvdist_plotfinalTlen), location = ph_location_type(type = "body")) %>% 
-  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
   ph_with(value = dml(ggobj = goFitGFgeno_lew_plotbag), location = ph_location_type(type = "body")) %>% 
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
   ph_with(value = dml(ggobj = goFitGFgeno_yrk_plot), location = ph_location_type(type = "body")) %>% 
