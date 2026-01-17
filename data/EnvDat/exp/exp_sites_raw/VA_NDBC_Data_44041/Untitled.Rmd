@@ -1,0 +1,286 @@
+---
+title: "JR_envr_data"
+output: pdf_document
+date: "2024-10-01"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+setwd("/Users/nicolemongillo/Desktop/GitHub/MVP_Chesapeake_VIMS_hatchery/src/NM")
+```
+
+```{r packages}
+library("dplyr") #Used for working with data frames
+library("lubridate") #Used for time-date conversions
+library("readr") #Used to read the CSV file
+library("ggplot2") 
+```
+
+### Note the date of data download and source. All available data should be used for each site regardless of year. Note from the CSV file how often the site was sampled, and if there are replicates in the data. Also describe if the sampling occurred at only low tide, only high tide, or continuously.  
+```{r}
+#Data was downloaded on 10/01/2024
+#Source - https://www.ndbc.noaa.gov/historical_data.shtml#ocean
+#The site was sampled continuously every hour from 2008-2019
+
+#Create text strings with metadata information that we want to include in the final data frame. 
+download_date <- ("10-01-2024")
+source_description <- ("NOAA National Buoy Data Center (NBDC), Chesapeake Bay Interpretive Buoy System")
+site_name <- ("JR") 
+collection_type <- ("continuous")
+```
+
+### Use the file path name in your working directory or desktop, see example below. Or, import data set through the "Files" window in R studio. Store the file in a variable with the "raw_ID_Site" format. If salinity and temperature data are in separate files, read in both and store them with "_sal" or "_temp" in the variable names. 
+```{r}
+#The files we will be working with are from the James River, Jamestown, VA. The ID_Site for this site JR. 
+
+#Environmental data could only be downloaded by year, so first we need to merge the yearly data sets.
+
+#set working directory to files location
+setwd("/Users/nicolemongillo/Desktop/GitHub/MVP_Chesapeake_VIMS_hatchery/data/envr_raw_data/JR_NBDC_Data_44041")
+
+#merge files into one
+raw_JR_env <- list.files(path="/Users/nicolemongillo/Desktop/GitHub/MVP_Chesapeake_VIMS_hatchery/data/envr_raw_data/JR_NBDC_Data_44041") %>% 
+  lapply(read.csv) %>% 
+  bind_rows 
+
+subset_JR_env <- subset(raw_JR_env, select = c(X.YY, MM, DD, hh, mm, OTMP, SAL)) #keep year, month, day, hour, minute, ocean temperature, and salinity columns.
+
+# View how the data are stored. Note the variable names and the format and units that the data are stored in.  
+summary(subset_JR_env)
+
+#make one single datetime column in POSIXct format
+subset_JR_env$datetime <- as.POSIXct(paste(subset_JR_env$X.YY, subset_JR_env$MM, subset_JR_env$DD, subset_JR_env$hh, subset_JR_env$mm), format="%Y %m %d %H %M", tz = "")
+
+#remove unmerged date-time columns
+subset_JR_env<- subset(subset_JR_env, select = c(OTMP, SAL, datetime))
+
+#reorder and rename columns
+subset_JR_env <- subset_JR_env[ , c(3,1,2)]
+
+colnames(subset_JR_env) <- c("datetime", "temp", "salinity")
+```
+
+###Standardize column and variable names. We will use "lat" for latitude in degrees, and "lon" for longitude in degrees. 
+
+```{r}
+
+#Store variables that we will include in the final data frame. Lat and lon data from this site: https://www.ndbc.noaa.gov/station_history.php?station=44041
+lat <- 37.211
+lon <- -76.787
+firstyear <- 2008
+finalyear <- 2019
+```
+
+
+### Filter any of the variables that have data points outside of normal range. We will use 0-40 as the accepted range for salinity (ppt) and temperature (C) values. Note, in the summer, salinity values can sometimes exceed 40. Check to see if there are values above 40. In this case, adjust the range or notify someone that the site has particularly high salinity values. 
+```{r}
+#Filter the data between the values of 0 and 40 for both salinity and temperature. 
+filtered_DEBY_sal <- subset_DEBY_env %>%
+    filter(between(salinity, 0, 40)) 
+
+summary(subset_DEBY_env)
+           
+filtered_DEBY_env <- filtered_DEBY_sal %>%
+    filter(between(temp, 0, 40))
+
+# Sanity check - print the ranges to ensure values are filtered properly. We can see that the ranges for both are now in the appropriate range.  
+print(summary(filtered_DEBY_env$salinity)) 
+print(summary(filtered_DEBY_env$temp))
+
+#Store our data into a variable name with just the site name. 
+DEBY_env <- filtered_DEBY_env
+
+# we have NAs in the our data frame in the datetime column - need to remove these
+count.nas_env <- is.na(DEBY_env$datetime) # store our NAs in a variable
+summary(count.nas_env) # we have 152 NAs that are stored as "TRUE" in our count.nas
+
+nrow(DEBY_env) # figure out how many rows we have in the original df: 667345
+which(count.nas_env == TRUE) # find the number of NA rows that we need to remove: 152
+DEBY_env <- na.omit(DEBY_env) #remove NAs using na.omit
+nrow(DEBY_env) #there are 667193 rows in the new data frame
+check_env <- 667345 - 667193#the value of the check should be 152
+check_env #we removed 152 NA rows!
+
+# check for NAs in our temperature column
+count.nas_temp <- is.na(DEBY_env$temp) # store our NAs in temp in a variable
+summary(count.nas_temp) # we have 0 NAs
+
+#check for NAs in our temperature column
+count.nas_sal <- is.na(DEBY_env$salinity) #store our NAs in salinity in a variable
+summary(count.nas_sal) #we have no NAs
+```
+
+#Data sets for violin plots
+```{r}
+#add site name and create new data frame with full envr data set
+DEBY_env_full <- DEBY_env %>% 
+  mutate(site_name, site_name = "DEBY")
+
+#reorder columns with site_name first
+DEBY_env_full <- DEBY_env_full[, c(4, 1, 2, 3)]
+
+DEBY_temp_full <- DEBY_env_full[, c(1,2,3)]
+
+DEBY_sal_full <- DEBY_env_full[, c(1, 2, 4)]
+
+#save DEBY_env_full as csv for future analyses
+write.csv(DEBY_temp_full, "/Users/nicolemongillo/Desktop/GitHub/MVP_Chesapeake_VIMS_hatchery/data/envr_raw_data/full_datasets/full_temp/DEBY_temp_full.csv", row.names = FALSE)
+
+write.csv(DEBY_sal_full, "/Users/nicolemongillo/Desktop/GitHub/MVP_Chesapeake_VIMS_hatchery/data/envr_raw_data/full_datasets/full_sal/DEBY_sal_full.csv", row.names = FALSE)
+
+
+```
+
+### Visualize the salinity, temperature, and date ranges over time. This can help us see if there are any anomalies or gaps in the data and make sure the filtering was done correctly. Sanity check - do the temperature and salinity ranges look appropriate for the geography of the site (ex. near full ocean salinity for coastal sites, lower salinity for estuaries or near rivers)?
+
+```{r salinity-plot}
+
+salplot <- ggplot(DEBY_env, aes(x = datetime)) +
+    geom_line(aes(y = salinity, color = "Salinity (ppt)")) +
+    ylim(0,40) +
+    labs(x = "Time", y = "Salinity ppt", title = "Salinity Plot for DEBY - Gloucester Point, Virginia") +
+    scale_color_manual(values = c("Salinity (ppt)" = "blue")) +
+    theme_minimal()
+
+
+salplot
+```
+
+
+```{r temperature-plot}
+tempplot <- ggplot(DEBY_env, aes(x = datetime)) +
+    geom_line(aes(y = temp, color = "Temperature (C)")) +
+    ylim(0, 40) +
+    labs(x = "Time", y = "Temperature C", title = "Temperature Plot for DEBY - Gloucester Point, Virginia") +
+    scale_color_manual(values = c( "Temperature (C)" = "red")) +
+    theme_minimal()
+
+tempplot
+```
+
+### We need to calculate the mean, maximum, and minimum values for salinity and temperature per month and year. First make two data frames to contain each of the annual and monthly averages.
+```{r}
+#Calculate the mean, maximum, and minimum values for salinity and temperature for each month. 
+DEBY_envrmonth_sal <- DEBY_env %>%
+    mutate(year = year(datetime), month = month(datetime)) %>%
+    group_by(year, month) %>%
+    summarise(
+      min_salinity = min(salinity),
+      max_salinity = max(salinity),
+      mean_salinity = mean(salinity),
+      length_salinity = length(salinity))
+      
+DEBY_envrmonth_temp <- DEBY_env %>%
+    mutate(year = year(datetime), month = month(datetime)) %>%
+    group_by(year, month) %>%
+    summarise(      
+      min_temp = min(temp),
+      max_temp = max(temp),
+      mean_temp = mean(temp),
+      length_temp = length(temp))
+  
+print(DEBY_envrmonth_sal)
+print(DEBY_envrmonth_temp)
+
+
+#Calculate the mean, maximum, and minimum values for salinity and temperature for each year. 
+DEBY_envryear_sal <- DEBY_env %>%
+    mutate(year = year(datetime)) %>%
+    group_by(year) %>%
+    summarise(
+      min_salinity = min(salinity),
+      max_salinity = max(salinity),
+      mean_salinity = mean(salinity))
+
+DEBY_envryear_temp <- DEBY_env %>%
+    mutate(year = year(datetime)) %>%
+    group_by(year) %>%
+    summarise(
+      min_temp = min(temp),
+      max_temp = max(temp),
+      mean_temp = mean(temp))
+
+print(DEBY_envryear_sal)
+print(DEBY_envryear_temp)
+
+```
+### Plot the months and years of data collection to check if there are any collection gaps in the data.
+```{r timeplot - salinity}
+timeplot <- ggplot(DEBY_envrmonth_sal, aes(x = year)) +
+    geom_point(aes(y = month, color = length_salinity), size = 4) +
+    labs(x = "Time", y = "Month", title = "Salinity Timeplot for DEBY - Gloucester Point, Virginia") +
+    ylim(1,12) +
+    theme_minimal()
+
+timeplot
+```
+
+### Plot the months and years of data collection to check if there are any collection gaps in the data.
+```{r timeplot - temperature}
+timeplot_temp <- ggplot(DEBY_envrmonth_temp, aes(x = year)) +
+    geom_point(aes(y = month, color = length_temp), size = 4) +
+    labs(x = "Time", y = "Month", title = "Temperature Timeplot for DEBY - Gloucester Point, Virginia") +
+    ylim(1,12) +
+    theme_minimal()
+
+timeplot_temp
+```
+
+### We can now calculate a list of variables that we will have collected for all sites. This will allow us to compare sites easily. We will calculate the number of observations from each site, the mean annual, maximum annual, and minimum annual value for all variables. 
+
+Our list of variables includes: 
+
+- Mean_Annual_Temperature_C: average of all available data
+- Mean_max_temperature_C: average of maximums for each year
+- Mean_min_temperature_C: average of minimums for each year
+- Temperature_st_dev: standard deviation of all available data
+- Temperature_n: total number of data points
+- Temperature_years: number of years in data set
+
+- Mean_Annual_Salinity_ppt: average of all available data
+- Mean_min_Salinity_ppt: average of minimums for each year
+- Mean_max_Salinity_ppt: average of maximums for each year
+- Salinity_st_dev: standard deviation of all available data
+- Salinity_n: total number of data points
+- Salinity_years: number of years in data set
+
+```{r}
+#Calculate temperature variables. 
+#Calculate temperature variables. 
+Mean_Annual_Temperature_C <- mean(DEBY_env$temp)
+Mean_max_temperature_C <- mean(DEBY_envryear_temp$max_temp)
+Mean_min_temperature_C <- mean(DEBY_envryear_temp$min_temp)
+Temperature_st_dev <- sd(DEBY_env$temp)
+Temperature_n <- nrow(DEBY_env)
+Temperature_years <- nrow(DEBY_envryear_temp)
+
+#Create a data frame to store the temperature results
+DEBY_temp <- cbind(site_name, download_date, source_description, lat, lon, firstyear, finalyear, Mean_Annual_Temperature_C, Mean_max_temperature_C, Mean_min_temperature_C, Temperature_st_dev, Temperature_n, Temperature_years, collection_type)
+print(DEBY_temp)
+
+# Write to a unique new CSV file
+write.csv(DEBY_temp, "/Users/nicolemongillo/Desktop/GitHub/MVP_Chesapeake_VIMS_hatchery/data/envr_raw_data/Temp/DEBY_temperature.csv", row.names = FALSE)
+
+```
+
+```{r}
+#Calculate the salinity variables
+Mean_Annual_Salinity_ppt <- mean(DEBY_env$salinity)
+Mean_max_Salinity_ppt <- mean(DEBY_envryear_sal$max_salinity)
+Mean_min_Salinity_ppt <- mean(DEBY_envryear_sal$min_salinity)
+Salinity_st_dev <- sd(DEBY_env$salinity)
+Salinity_n <- nrow(DEBY_env)
+Salinity_years <- nrow(DEBY_envryear_sal)
+
+
+#Create a data frame to store the temperature results
+DEBY_salinity <- cbind(site_name, download_date, source_description, lat, lon, firstyear, finalyear, Mean_Annual_Salinity_ppt, Mean_max_Salinity_ppt, Mean_min_Salinity_ppt, Salinity_st_dev, Salinity_n, Salinity_years, collection_type)
+print(DEBY_salinity)
+
+# Write to the combined file with all sites 
+# Write to a unique new CSV file
+write.csv(DEBY_salinity, "/Users/nicolemongillo/Desktop/GitHub/MVP_Chesapeake_VIMS_hatchery/data/envr_raw_data/Salinity/DEBY_salinity.csv", row.names = FALSE)
+```
