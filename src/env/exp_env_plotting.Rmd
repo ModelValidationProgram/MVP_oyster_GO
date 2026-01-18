@@ -1,0 +1,316 @@
+---
+title: "exp_env_plotting"
+output: html_document
+---
+
+# Plotting Environment of Origin & Common Garden
+
+This script is used to plot temperature and salinity for the populations included in the common garden experiments, including DEBY and LOLA, and the two common gardens themselves.
+
+The raw data for these sites was compiled by ME, NM, and CR. Data for the selection lines and common garden sites is processed in exp_envdat.Rmd. The other data are where the quantiles used for model prediction come from, but are not processed in this repo - the scripts for processing these data are in the seascape repo and the H2F repo.
+
+## Setup
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# setwd
+setwd("~/Documents/GitHub/MVP_oyster_GO/")
+
+# libraries
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(readr)
+library(forcats)
+library(ragg)
+library(gridExtra)
+library(ggrastr)
+library(ggpubr)
+library(rvg)
+library(officer)
+
+# read in data
+w1_raw <- read.csv("data/EnvDat/exp/exp_sites_raw/W1-TX-raw.csv")
+w2_raw <- read.csv("data/EnvDat/exp/exp_sites_raw/W2-LA-raw.csv")
+w3s <- read.csv("data/EnvDat/exp/exp_sites_raw/W3-FL-raw_sal.csv")
+w3t <- read.csv("data/EnvDat/exp/exp_sites_raw/W3-FL-raw_temp.csv")
+w4_raw <- read.csv("data/EnvDat/exp/exp_sites_raw/VA-corrected.csv")
+w5_raw <- read.csv("data/EnvDat/exp/exp_sites_raw/W5-NH-raw.csv")
+w6_raw <- read.csv("data/EnvDat/exp/exp_sites_raw/W6-ME-raw.csv")
+lew_all <- read.csv("data/EnvDat/exp/lew_raw/lewisetta_corrected.csv")
+yrk_all <- read.csv("data/EnvDat/exp/yrk_raw/YRK-raw.csv")
+```
+
+
+## Pre-process
+
+Start with quick data clean & merge:
+
+```{r}
+## wild pops
+############
+# W1-TX
+w1 <- w1_raw[,c("DateTimeStamp","Temp","Sal")]
+w1$site_name <- "W1_TX"
+
+# W2-LA
+w2 <- w2_raw[,c("datetime","temp","salinity")]
+w2$site_name <- "W2_LA"
+
+# W3-FL
+w3 <- merge(w3t, w3s, by = "Timestamp", all = T)
+w3$site_name <- "W3_FL"
+
+# W4-VA
+w4 <- w4_raw[,c("datetime","temp_corrected","salinity_corrected")]
+w4$site_name <- "W4_VA"
+
+# W5
+w5 <- w5_raw[,c("DateTimeStamp","Temp","Sal")]
+w5$site_name <- "W5_NH"
+
+# W6
+w6 <- w6_raw[,c("Timestamp","temperature","salinity")]
+w6$site_name <- "W6_ME"
+
+# match colnames
+colnames(w1) <- colnames(w2) <- colnames(w3) <- colnames(w4) <- colnames(w5) <- colnames(w6) <- c("timestamp","temp","sal","site_name")
+
+# ensure variables coded correctly
+w1$temp <- as.numeric(w1$temp)
+w2$temp <- as.numeric(w2$temp)
+w3$temp <- as.numeric(w3$temp)
+w4$temp <- as.numeric(w4$temp)
+w5$temp <- as.numeric(w5$temp)
+w6$temp <- as.numeric(w6$temp)
+
+w1$sal <- as.numeric(w1$sal)
+w2$sal <- as.numeric(w2$sal)
+w3$sal <- as.numeric(w3$sal)
+w4$sal <- as.numeric(w4$sal)
+w5$sal <- as.numeric(w5$sal)
+w6$sal <- as.numeric(w6$sal)
+
+# convert datetimes
+wild <- list(w1, w2, w3, w4, w5, w6)
+wild_timeclean <- map(wild, ~ .x %>%
+  mutate(datetime_clean = parse_date_time(timestamp, orders = c("mdy HM", "ymd HMS", "mdy", "ymd"), tz = "UTC"))) # datetimes 
+
+# failing somewhere, find out where
+wild_timeclean[[2]] %>% filter(is.na(datetime_clean) & !is.na(timestamp)) # coming from the LA df, these should be removed
+wild_timeclean[[2]] <- wild_timeclean[[2]] %>%
+  filter(!is.na(timestamp))
+
+combined_wild <- bind_rows(wild_timeclean)
+############
+
+## selection lines & common gardens
+###################################
+# lola
+head(lew_all)
+lew_clean <- lew_all[,c("datetime","temp_corrected","sal_corrected")]
+
+# deby
+head(yrk_all)
+yrk_clean <- yrk_all[,c("datetime","temp","salinity")]
+
+# colnames
+colnames(lew_clean) <- colnames(yrk_clean) <- c("timestamp","temp","sal")
+
+# correct coding of variables
+lew_clean$temp <- as.numeric(lew_clean$temp)
+yrk_clean$temp <- as.numeric(yrk_clean$temp)
+
+lew_clean$sal <- as.numeric(lew_clean$sal)
+yrk_clean$sal <- as.numeric(yrk_clean$sal)
+
+# deal with datetimes individually so we can be clear about appropriate site labels
+lew_timeclean <- lew_clean %>% mutate(datetime_clean = parse_date_time(timestamp, orders = c("mdy HM", "ymd HMS", "mdy", "ymd"), tz = "UTC"))
+yrk_timeclean <- yrk_clean %>% mutate(datetime_clean = parse_date_time(timestamp, orders = c("mdy HM", "ymd HMS", "mdy", "ymd"), tz = "UTC"))
+
+# site names
+lew_timeclean$site_name <- ifelse(lew_timeclean$datetime_clean < "2023-05-01 00:00:00", "S1_LOLA", "Lewisetta")
+yrk_timeclean$site_name <- ifelse(yrk_timeclean$datetime_clean < "2023-05-01 00:00:00", "S2_DEBY", "YorkRiver")
+
+# put all the raw data together
+lew_timeclean <- lew_timeclean[,c("timestamp","temp","sal","site_name","datetime_clean")]
+yrk_timeclean <- yrk_timeclean[,c("timestamp","temp","sal","site_name","datetime_clean")]
+combined_wild
+
+all_env_raw <- rbind(combined_wild, lew_timeclean, yrk_timeclean)
+
+# check values make sense, i.e. temp and sal btwn 0-40
+all_env_raw_clean <- all_env_raw[all_env_raw$temp >= 0 & all_env_raw$temp <= 40 & all_env_raw$sal >= 0 & all_env_raw$sal <= 40,]
+```
+
+## Plotting
+
+Now I want to make plots showing the salinity and temperature spread at each of these sites.
+
+```{r}
+popsdf_exp <- data.frame(pop = c("TX", "LA", "FL", "VA", "LOLA", "DEBY", "NH", "ME", "LEW", "YRK"), 
+                     order = 1:10, 
+                     cols = c("#365C8DFF", "#277F8EFF", "#1FA187FF", "#4AC16DFF", "#440154FF", "#46337EFF", "#9FDA3AFF", "#FDE725FF","hotpink","deeppink4"),
+                     shape = c(21,21,21,21,23,23,21,21,24,24),
+                     site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME", "Lewisetta", "YorkRiver"),
+                     site_name_plotting = c("W1-TX", "W2-LA", "W3-FL", "W4-VA", "S1-LOLA", "S2-DEBY", "W5-NH", "W6-ME", "Lewisetta", "York River"),
+                     site_type = c("exp_pop","exp_pop","exp_pop","exp_pop","exp_pop","exp_pop","exp_pop","exp_pop","exp_site","exp_site"))
+
+# put it together
+env_plotting <- merge(popsdf_exp, all_env_raw_clean, by = c("site_name"))
+
+# plotting salinity
+sal <- ggplot(data = env_plotting, aes(x = fct_reorder(site_name_plotting, order), y = sal)) +
+  rasterize(geom_boxplot(position=position_dodge(1.0), fill = "lightblue2"), dpi = 300, dev = "ragg_png") +  
+  labs(title = "Salinity Trends", x = "Site", y = "Salinity (ppt)") +
+  theme_classic()+ 
+  theme(strip.background = element_blank(), 
+        strip.text.x = element_text(), 
+        strip.placement = "outside",
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.spacing.x = unit(3, "lines"))
+
+# plotting temp
+temp <- ggplot(data = env_plotting, aes(x = fct_reorder(site_name_plotting, order), y = temp)) +
+  rasterize(geom_boxplot(position=position_dodge(1.0), fill = "#FFD3A5"), dpi = 300, dev = "ragg_png") +  
+  labs(title = "Temperature Trends", x = "Site", y = "Temp (ºC)") +
+  theme_classic()+ 
+  theme(strip.background = element_blank(), 
+        strip.text.x = element_text(), 
+        strip.placement = "outside",
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.spacing.x = unit(3, "lines"))
+
+# combine these into single ggobj
+g <- arrangeGrob(sal, temp, ncol = 1)
+saltemp_plot <- as_ggplot(g)
+saltemp_plot
+```
+
+I also want to make some figures with the processed data & environmental distance from CviMVP_oyster_EnvDatProcess.Rmd
+
+```{r}
+# env dist
+dists <- read.csv("data/EnvDat/exp/distance_matrix_longer_2025-12-05.csv")
+env_dist_long_expsite <- dists[dists$site2 %in% c("Lewisetta", "YorkRiver"),]
+env_dist_long_expsite_red <- env_dist_long_expsite[!(env_dist_long_expsite$site1 %in% c("Lewisetta", "YorkRiver")),]
+env_dist_long_expsite_red$site_name_plotting <- gsub("_", "-", env_dist_long_expsite_red$site1)
+
+
+# plot
+envdist_plot_gardens <- ggplot(env_dist_long_expsite_red, aes(x = fct_reorder(site2, order2), 
+                              y = fct_reorder(site_name_plotting, order1), 
+                              fill = dist))+
+  theme_classic()+
+  geom_tile(color = "black") +
+  scale_fill_viridis_c(name = "Euclidean \nDistance", limits = c(0, 6), 
+                       option = "mako", direction = -1) +
+  theme(plot.title = element_text(size = 20), 
+        legend.title = element_text(size = 14),
+        legend.position = "right", legend.justification = "top") +
+  labs(title = "Environmental Distance \nbetween Sites", x = "", y = "") +
+  coord_fixed() +
+  theme(plot.title = element_text(size = 18), 
+        legend.title = element_text(size = 14),
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "right", legend.justification = "top")
+envdist_plot_gardens
+
+# all env
+env <- read.csv("data/EnvDat/env_scaled_2025-12-05.csv")
+env_trim <- env[env$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME", "Lewisetta", "YorkRiver"), 1:10]
+
+# plotting
+env_plotting <- merge(popsdf_exp, env_trim, by = "site_name")
+
+env_plotting$text_col_dermo <- ifelse(round(env_plotting$Dermo_Prevalence, digits = 2) < 0.5, "white", "black")
+env_plotting$text_col_msx <- ifelse(round(env_plotting$MSX_Prevalence, digits = 2) < 0.5, "white", "black")
+env_plotting$text_col_pea <- ifelse(round(env_plotting$Pea_crab, digits = 2) < 0.5, "white", "black")
+
+# try plotting heatmaps of disease
+# dermo
+dermo <- ggplot(env_plotting, aes(x = fct_reorder(site_name_plotting, order), y = 1, fill = Dermo_Prevalence)) + 
+  scale_fill_viridis(option = "plasma", limits = c(0,1)) +
+  geom_tile() + 
+  coord_fixed() +
+  geom_text(aes(label = round(Dermo_Prevalence, digits = 2)), col = env_plotting$text_col_dermo) +
+  labs(title = "Dermo Prevalence", x = "Site", y = "Dermo \nPrevalence", fill = "Dermo \nPrevalence") +
+  theme_classic() +
+  theme(axis.text.y=element_blank(),
+      axis.ticks.y=element_blank(),
+      axis.text.x = element_text(angle = 45, hjust = 1))
+
+# msx
+msx <- ggplot(env_plotting, aes(x = fct_reorder(site_name_plotting, order), y = 1, fill = MSX_Prevalence)) + 
+  scale_fill_viridis(option = "plasma", limits = c(0,1)) +
+  geom_tile() + 
+  coord_fixed() +
+  geom_text(aes(label = round(MSX_Prevalence, digits = 2)), col = env_plotting$text_col_msx) +
+  labs(title = "MSX Prevalence", x = "Site", y = "MSX \nPrevalence", fill = "MSX \nPrevalence") +
+  theme_classic() +
+  theme(axis.text.y=element_blank(),
+      axis.ticks.y=element_blank(),
+      axis.text.x = element_text(angle = 45, hjust = 1))
+
+# pea crab
+pea <- ggplot(env_plotting, aes(x = fct_reorder(site_name_plotting, order), y = 1, fill = Pea_crab)) + 
+  scale_fill_viridis(option = "plasma", limits = c(0,1)) +
+  geom_tile() + 
+  coord_fixed() +
+  geom_text(aes(label = round(Pea_crab, digits = 2)), col = env_plotting$text_col_pea) +
+  labs(title = "Pea Crab Prevalence", x = "Site", y = "Pea Crab \nPrevalence", fill = "Pea Crab \nPrevalence") +
+  theme_classic() +
+  theme(axis.text.y=element_blank(),
+      axis.ticks.y=element_blank(),
+      axis.text.x = element_text(angle = 45, hjust = 1))
+
+grid.arrange(dermo, msx, pea, ncol = 1)
+
+# long way with all disease in one
+env_long_dis <- env_plotting[,c("site_name","site_name_plotting","order","cols","site_type","Dermo_Prevalence", "MSX_Prevalence", "Pea_crab")] %>%
+  pivot_longer(
+    cols = c(Dermo_Prevalence, MSX_Prevalence, Pea_crab),
+    names_to = "Disease",
+    values_to = "Prevalence"
+  )
+
+# text colors
+env_long_dis$text_col <- ifelse(env_long_dis$Prevalence > 0.5, "white", "black")
+
+# now plot
+disease_plot <- ggplot(env_long_dis, aes(x = fct_reorder(site_name_plotting, order), 
+                     y = Disease, 
+                     fill = Prevalence)) +
+  geom_tile(color = "white") + 
+  scale_fill_viridis(option = "magma", limits = c(0, 1), direction = -1) +
+  geom_text(aes(label = round(Prevalence, 2)), color = env_long_dis$text_col) +
+  coord_fixed() +
+  scale_y_discrete(labels = c("Pea_crab" = "Pea Crab", "MSX_Prevalence" = "MSX", "Dermo_Prevalence" = "Dermo")) +
+  labs(
+    title = "Disease Prevalence",
+    x = "Site",
+    y = NULL,
+    fill = "Prevalence"
+  ) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.line = element_blank(),
+    axis.ticks = element_blank())
+disease_plot
+```
+
+### Export
+
+```{r}
+doc <- read_pptx() %>% 
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = saltemp_plot), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = disease_plot), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = envdist_plot_gardens), location = ph_location_type(type = "body"))
+print(doc, target = "results/figures/exporg_env.pptx")
+```
+
+

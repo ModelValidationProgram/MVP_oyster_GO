@@ -178,6 +178,9 @@ filtered_yrk_env <- filtered_yrk_sal %>%
 yrk <- filtered_yrk_env
 yrk_exp <- filtered_yrk_exp_env
 
+# save this
+write.csv(yrk, "data/EnvDat/exp/yrk_raw/YRK-raw.csv")
+
 # filter lew
 # keep just dates of experiment
 LOLA_env_full$datetime <- as.POSIXct(LOLA_env_full$datetime, "%Y-%m-%d %H:%M:%S", tz = "")
