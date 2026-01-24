@@ -44,6 +44,7 @@ library(robust) # for rdadapt functions
 # env
 env_sea <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-12-05.csv")[,-1]
 env_exp <- read.csv("data/EnvDat/exp/exp_scaled_2025-12-08.csv")[,-1]
+env_sea_forgo <- read.csv("data/EnvDat/seascape/seascape_environment_predict.csv")
 
 # sites
 env_sea_site <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")[,-1]
@@ -83,7 +84,7 @@ pops_list <- levels(as.factor(seascapeInds$ID_SiteDate))
 sea_latlon <- merge(env_sea_site[,c("ID_Site", "Latitude_manual", "Longitude_manual")], env_sea_date[,c("ID_Site", "ID_SiteDate")], by = "ID_Site")
 
 # write out for later
-write.csv(sea_latlon, "data/IndDat/seascape_latlon.csv")
+#write.csv(sea_latlon, "data/IndDat/seascape_latlon.csv")
 
 # add latlon to env data
 env_sea_complete <- merge(sea_latlon, env_sea, by = c("ID_SiteDate"))
@@ -596,8 +597,8 @@ Now I can start the process of training models:
 
 ```{r}
 # reduce size of env data set used for training
-env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")]
-env_sea_red_nb <- env_sea_red %>% dplyr::select(-"Dermo_Prevalence_scaled", -"MSX_Prevalence_scaled")
+env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled", "Pea_crab_scaled")]
+env_sea_red_nb <- env_sea_red %>% dplyr::select(-"Dermo_Prevalence_scaled", -"MSX_Prevalence_scaled", -"Pea_crab_scaled")
 
 # run rda
 start <- Sys.time()
@@ -685,18 +686,17 @@ Now, I calculate genomic offset for all of my populations!
 
 ```{r}
 # common garden info
-lew_env <- env_exp[!duplicated(env_exp$site_name) ,c("lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_MSX_Prevalence_scaled")]
-yrk_env <- env_exp[!duplicated(env_exp$site_name) ,c("yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_MSX_Prevalence_scaled")]
-colnames(lew_env) <- colnames(yrk_env) <- c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")
+lew_env <- env_exp[!duplicated(env_exp$site_name) ,c("lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_MSX_Prevalence_scaled", "lew_Pea_crab_scaled")]
+yrk_env <- env_exp[!duplicated(env_exp$site_name) ,c("yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_MSX_Prevalence_scaled", "yrk_Pea_crab_scaled")]
+colnames(lew_env) <- colnames(yrk_env) <- c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled", "Pea_crab_scaled")
 
-env_exp_red <- env_exp[!duplicated(env_exp$site_name) ,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")]
+env_exp_red <- env_exp[!duplicated(env_exp$site_name) ,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled", "Pea_crab_scaled")]
 
 # df for predicting to seascape sites
-env_sea_forgo <- read.csv("data/EnvDat/seascape/seascape_environment_predict.csv")
 rownames(env_sea_forgo) <- env_sea_forgo$X
-env_sea_forgo_pres <- env_sea_forgo[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")]
-env_sea_forgo_lew <- env_sea_forgo[,c("lew_sal_quant10_scaled", "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "lew_Dermo_Prevalence_scaled", "lew_MSX_Prevalence_scaled")]
-env_sea_forgo_yrk <- env_sea_forgo[,c("yrk_sal_quant10_scaled", "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_MSX_Prevalence_scaled")]
+env_sea_forgo_pres <- env_sea_forgo[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled", "Pea_crab_scaled")]
+env_sea_forgo_lew <- env_sea_forgo[,c("lew_sal_quant10_scaled", "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "lew_Dermo_Prevalence_scaled", "lew_MSX_Prevalence_scaled", "lew_Pea_crab_scaled")]
+env_sea_forgo_yrk <- env_sea_forgo[,c("yrk_sal_quant10_scaled", "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_MSX_Prevalence_scaled", "yrk_Pea_crab_scaled")]
 colnames(env_sea_forgo_lew) <- colnames(env_sea_forgo_yrk) <- colnames(env_sea_forgo_pres) <- colnames(env_sea_red)
 
 # dataframes with only abiotic variables
