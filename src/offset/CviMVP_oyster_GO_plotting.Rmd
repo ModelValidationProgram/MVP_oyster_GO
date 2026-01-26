@@ -22,6 +22,7 @@ library(ggspatial) # mapping
 library(ggrepel) # mapping
 library(officer) # for powerpoint export/editing
 library(rvg) # for converting r graphics to editable vector graphics
+library(stars)
 
 # data
 # metadata
