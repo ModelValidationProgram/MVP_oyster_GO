@@ -13,7 +13,7 @@ library(dplyr)
 
 # read in data
 seascapeEnv <- read.csv("data/EnvDat/seascape/seascape_abiotic_biotic_envr.csv")
-newDis <- read.csv("data/EnvDat/seascape/population_statistics_Cq27cutoff.csv")
+newDis <- read.csv("data/EnvDat/seascape/population_statistics_Cq30cutoff.csv")
 ########
 
 ## data prep
@@ -39,5 +39,5 @@ seascape_dis <- merge(seascape_prep, dis27, by = c("ID_SiteDate"))
 
 ## save new df
 ##############
-write.csv(seascape_dis, "data/EnvDat/seascape/seascapeEnv_biotic_abiotic_27cq.csv", row.names = F)
+write.csv(seascape_dis, "data/EnvDat/seascape/seascapeEnv_biotic_abiotic_30cq.csv", row.names = F)
 ##############
