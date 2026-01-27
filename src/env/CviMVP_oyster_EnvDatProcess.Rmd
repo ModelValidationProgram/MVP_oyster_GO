@@ -29,7 +29,7 @@ library(LEA)
 library(stringr)
 
 # data
-seascapeEnv <- read.csv("data/EnvDat/seascape/seascape_abiotic_biotic_envr.csv")
+seascapeEnv <- read.csv("data/EnvDat/seascape/seascapeEnv_biotic_abiotic_27cq.csv")
 expsal <- read.csv("data/EnvDat/exp/exp_salinity.csv")[,-1]
 exptemp <- read.csv("data/EnvDat/exp/exp_temp.csv")
 expdis <- read.csv("data/EnvDat/exp/sentinel_RFTM_organized_dermo.csv")[,-(6:10)]
@@ -51,11 +51,7 @@ Will start by checking the environmental data structure and processing seascape 
 seascapeEnv
 colnames(seascapeEnv)
 
-# check data correlations within each dataset
-# seascape - lots of correlated variables in the quantiles but keep for now, will check vif
-pairs.panels(seascapeEnv[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence","Pea_crab")])
-
-# seascape & env keep quantiles, remove all else (need the same variables in both sets)
+# keep seascape env quantiles and disease prevalences, remove all else (need the same variables in both sets)
 seascapeEnv_trim <- seascapeEnv[,c("ID_SiteDate","Site_Order","State_Abbrev","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence","Pea_crab")]
 ```
 
@@ -126,10 +122,6 @@ expenv_mg <- merge(expsal_red, exptemp_red, by = c("site_name", "lat", "lon"))
 # experimental site info output
 write.csv(expenv_mg[,c("site_name", "lat", "lon")], "data/EnvDat/exp/exp_site_info.csv")
 
-# look at corrs
-pairs.panels(expenv_mg[,c("Mean_Annual_Salinity_ppt","Mean_max_Salinity_ppt","Mean_min_Salinity_ppt","salinity_quantile_10","salinity_quantile_90","Mean_Annual_Temperature_C","Mean_max_temperature_C","Mean_min_temperature_C","temp_quantile_10","temp_quantile_90")])
-pairs.panels(expenv_mg[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")])
-
 # keeping just quantiles
 expenv_trim <- expenv_mg[,c("site_name","lat","lon","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")]
 
@@ -170,9 +162,6 @@ names(lewyrkEnv_all)[names(lewyrkEnv_all) == "lon"] <- "Longitude_manual"
 names(lola_deb)[names(lola_deb) == "lat"] <- "Latitude_manual"
 names(lola_deb)[names(lola_deb) == "lon"] <- "Longitude_manual"
 names(seascapeEnv_trim)[names(seascapeEnv_trim) == "ID_SiteDate"] <- "site_name"
-
-pairs.panels(expEnv_all[,c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","MSX_Prevalence")]) # don't include pea crab because all are 0
-# these are all reasonably uncorrelated, all are below |0.7|
 
 # trim to just what we have for the other sites
 seascapeEnv_ready <- seascapeEnv_trim[,c("site_name","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","Pea_crab", "MSX_Prevalence")]
