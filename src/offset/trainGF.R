@@ -9,8 +9,8 @@ library(gradientForest) # for running gradient forest
 
 # data
 # env
-env_all <- as.data.frame(read.csv("data/EnvDat/env_scaled_2025-12-05.csv")[,-1])
-env_sea <- as.data.frame(read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-12-05.csv")[,-1])
+env_all <- as.data.frame(read.csv("data/EnvDat/env_scaled_cq27_2026-01-27.csv")[,-1])
+env_sea <- as.data.frame(read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2026-01-27.csv")[,-1])
 
 # sites
 env_sea_site <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")[,-1]
@@ -95,7 +95,7 @@ end_time <- Sys.time() # time end
 (end_time - start_time) # about 1.5hrs
 
 # save trained af model
-saveRDS(gf_af, paste0("results/lg_results/gf_af_",Sys.Date(),".RDS"))
+saveRDS(gf_af, paste0("results/lg_results/gf_af_cq27_",Sys.Date(),".RDS"))
 
 # geno models
 start_time <- Sys.time() # time start
@@ -110,7 +110,7 @@ end_time <- Sys.time() # time end
 (end_time - start_time) # over 24 on cluster
 
 # save trained geno model
-saveRDS(gf_geno, paste0("results/lg_results/gf_geno_",Sys.Date(),".RDS"))
+saveRDS(gf_geno, paste0("results/lg_results/gf_geno_cq27_",Sys.Date(),".RDS"))
 
 # without biotic variables (nb)
 # allele freq models
