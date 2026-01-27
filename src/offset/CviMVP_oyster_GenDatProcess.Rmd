@@ -75,7 +75,7 @@ sea_inds_rm <- sea_inds[, apply(sea_inds, 2, function(x) !any(is.na(x)))] # only
 # rownames of genomic data match clean_ID in individual df, and appear to be in the same order
 
 # i need to get rid of inds not in my dataset (the ones with no environmental data)
-env_sea_sites <- read.csv("data/EnvDat/seascape_sitenames.csv")[,-1]
+env_sea_sites <- read.csv("data/EnvDat/seascape/seascape_sitenames.csv")[,-1]
 seaRows_keep <- which((sea_inds_rm$ID_SiteDate %in% env_sea_sites))
 
 geno_mat_keep <- geno_mat[seaRows_keep,]
