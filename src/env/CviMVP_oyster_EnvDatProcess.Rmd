@@ -29,7 +29,7 @@ library(LEA)
 library(stringr)
 
 # data
-seascapeEnv <- read.csv("data/EnvDat/seascape/seascapeEnv_biotic_abiotic_27cq.csv")
+seascapeEnv <- read.csv("data/EnvDat/seascape/seascapeEnv_biotic_abiotic_30cq.csv")
 expsal <- read.csv("data/EnvDat/exp/exp_salinity.csv")[,-1]
 exptemp <- read.csv("data/EnvDat/exp/exp_temp.csv")
 expdis <- read.csv("data/EnvDat/exp/sentinel_RFTM_organized_dermo.csv")[,-(6:10)]
@@ -139,10 +139,10 @@ lewyrk1 <- merge(lewyrk_quants, lewyrk_dis, by = c("site_name"))
 lewyrkEnv_all <- merge(lewyrk1, lewyrk_pea_avgs, by = c("site_name"))
 
 # the rest of the experimental disease info for experimental pops is in the seascape data; DEBY and LOLA are the same as the lewyrk_data (except DEBY msx), but we won't train the models with them
-seascape2exp <- data.frame(site_name = c("CB_TX_2022-6-9", "Sister_Lk_LA_2022-8-9", "KP_FGR_FL_2022-8-23", "DWS_CB_VA_2022-10-7", "SR_GB_NH_2022-8-12", "DC_DR_ME_2022-10-25"), site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"))
+seascape2exp <- data.frame(ID_SiteDate = c("CB_TX_2022-6-9", "Sister_Lk_LA_2022-8-9", "KP_FGR_FL_2022-8-23", "DWS_CB_VA_2022-10-7", "SR_GB_NH_2022-8-12", "DC_DR_ME_2022-10-25"), site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"))
 
 # merge
-expEnv_all <- merge(seascape2exp, seascapeEnv_trim, by = c("site_name"))
+expEnv_all <- merge(seascape2exp, seascapeEnv_trim, by = c("ID_SiteDate"))
 
 # the VA site has no quantile data, but we did have some compiled from H2F, take from there
 quantile_forVA <- read.csv("data/EnvDat/exp/quantiles_05232025.csv")[,-1]
@@ -165,7 +165,7 @@ names(lewyrkEnv_all)[names(lewyrkEnv_all) == "lat"] <- "Latitude_manual"
 names(lewyrkEnv_all)[names(lewyrkEnv_all) == "lon"] <- "Longitude_manual"
 names(lola_deb)[names(lola_deb) == "lat"] <- "Latitude_manual"
 names(lola_deb)[names(lola_deb) == "lon"] <- "Longitude_manual"
-names(seascapeEnv_trim)[names(seascapeEnv_trim) == "ID_SiteDate"] <- "site_name"
+names(seascapeEnv_trim_narm)[names(seascapeEnv_trim_narm) == "ID_SiteDate"] <- "site_name"
 
 # trim to just what we have for the other sites
 seascapeEnv_ready <- seascapeEnv_trim_narm[,c("site_name","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","Pea_crab", "MSX_Prevalence")]
@@ -325,7 +325,7 @@ expenv_dist_df <- allenv_scaled
 expenv_dist_red_df <- expenv_dist_df[,c("site_name", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90","Dermo_Prevalence","Pea_crab","MSX_Prevalence")]
 
 # make sure site names all match up
-expenv_dist_red_df[which(duplicated(expenv_dist_red_df$site_name)),]$site_name <- c("W1_TX", "W6_ME", "W4_VA", "W3_FL", "W2_LA", "W5_NH")
+#expenv_dist_red_df[which(duplicated(expenv_dist_red_df$site_name)),]$site_name <- c("W1_TX", "W6_ME", "W4_VA", "W3_FL", "W2_LA", "W5_NH")
 
 # calculate environmental distance
 library(vegan)
@@ -411,7 +411,7 @@ envdist_plot_gardens <- ggplot(env_dist_long_expsite_red, aes(x = fct_reorder(si
   geom_tile(color = "black") +
 #  geom_text(aes(label = distances), color = "white", size = 4)+
   scale_fill_viridis_c(name = "Euclidean 
-Distance", limits = c(0, 5.5))+
+Distance", limits = c(0, 6))+
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
         legend.position = "right", legend.justification = "top") +
@@ -429,7 +429,7 @@ envdist_plot_nb <- ggplot(env_dist_long_mg2_nb, aes(x = fct_reorder(site1, order
   geom_tile(color = "black") +
 #  geom_text(aes(label = distances), color = "white", size = 4)+
   scale_fill_viridis_c(name = "Euclidean 
-Distance", limits = c(0, 5.5))+
+Distance", limits = c(0, 6))+
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
         legend.position = "right", legend.justification = "top") +
@@ -451,7 +451,7 @@ envdist_plot_nb_gardens <- ggplot(env_dist_long_expsite_red_nb, aes(x = fct_reor
   geom_tile(color = "black") +
 #  geom_text(aes(label = distances), color = "white", size = 4)+
   scale_fill_viridis_c(name = "Euclidean 
-Distance", limits = c(0, 5.5))+
+Distance", limits = c(0, 6))+
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
         legend.position = "right", legend.justification = "top") +
