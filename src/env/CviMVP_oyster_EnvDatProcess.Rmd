@@ -120,7 +120,7 @@ exptemp_red <- exptemp[,c("site_name","lat","lon","Mean_Annual_Temperature_C","M
 expenv_mg <- merge(expsal_red, exptemp_red, by = c("site_name", "lat", "lon"))
 
 # experimental site info output
-write.csv(expenv_mg[,c("site_name", "lat", "lon")], "data/EnvDat/exp/exp_site_info.csv")
+#write.csv(expenv_mg[,c("site_name", "lat", "lon")], "data/EnvDat/exp/exp_site_info.csv")
 
 # keeping just quantiles
 expenv_trim <- expenv_mg[,c("site_name","lat","lon","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")]
@@ -139,15 +139,19 @@ lewyrk1 <- merge(lewyrk_quants, lewyrk_dis, by = c("site_name"))
 lewyrkEnv_all <- merge(lewyrk1, lewyrk_pea_avgs, by = c("site_name"))
 
 # the rest of the experimental disease info for experimental pops is in the seascape data; DEBY and LOLA are the same as the lewyrk_data (except DEBY msx), but we won't train the models with them
-seascape2exp <- data.frame(ID_SiteDate = c("CB_TX_2022-6-9", "Sister_Lk_LA_2022-8-9", "KP_FGR_FL_2022-8-23", "WS_CB_VA_2022-10-7", "SR_GB_NH_2022-8-12", "DC_DR_ME_2022-10-25"), site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"))
+seascape2exp <- data.frame(site_name = c("CB_TX_2022-6-9", "Sister_Lk_LA_2022-8-9", "KP_FGR_FL_2022-8-23", "DWS_CB_VA_2022-10-7", "SR_GB_NH_2022-8-12", "DC_DR_ME_2022-10-25"), site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"))
 
 # merge
-expEnv_all <- merge(seascape2exp, seascapeEnv_trim, by = c("ID_SiteDate"))
+expEnv_all <- merge(seascape2exp, seascapeEnv_trim, by = c("site_name"))
 
 # the VA site has no quantile data, but we did have some compiled from H2F, take from there
 quantile_forVA <- read.csv("data/EnvDat/exp/quantiles_05232025.csv")[,-1]
 VA_only <- quantile_forVA[quantile_forVA$site_name == "W4-VA", c("site_name","salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90")]
 expEnv_all[expEnv_all$site_name == "W4_VA", c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")] <- as.numeric(VA_only[,2:5])
+seascapeEnv_trim[seascapeEnv_trim$site_name == "DWS_CB_VA_2022-10-7", c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")] <- as.numeric(VA_only[,2:5])
+
+# remove other nas from seascape
+seascapeEnv_trim_narm <- seascapeEnv_trim[!is.na(seascapeEnv_trim$salinity_quantile_10),]
 
 # add lola and deby
 lola_deb <- expenv_trim[expenv_trim$site_name %in% c("S1_LOLA", "S2_DEBY"),]
@@ -164,7 +168,7 @@ names(lola_deb)[names(lola_deb) == "lon"] <- "Longitude_manual"
 names(seascapeEnv_trim)[names(seascapeEnv_trim) == "ID_SiteDate"] <- "site_name"
 
 # trim to just what we have for the other sites
-seascapeEnv_ready <- seascapeEnv_trim[,c("site_name","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","Pea_crab", "MSX_Prevalence")]
+seascapeEnv_ready <- seascapeEnv_trim_narm[,c("site_name","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","Pea_crab", "MSX_Prevalence")]
 expEnv_ready <- expEnv_all[,c("site_name","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","Pea_crab", "MSX_Prevalence")]
 lewyrkEnv_ready <- lewyrkEnv_all[,c("site_name","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","Pea_crab", "MSX_Prevalence")]
 lola_deb_ready <- lola_deb[,c("site_name","Latitude_manual","Longitude_manual","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90","Dermo_Prevalence","Pea_crab", "MSX_Prevalence")]
@@ -221,23 +225,31 @@ table(indsSea_red$ID_SiteDate) # oops, we have a laguna madre sample in here, we
 # rm laguna madre
 indsSea_redrm <- indsSea_red[!(indsSea_red$ID_SiteDate == "LM_TX_2022-7-10"),]
 
+# all env scaled where sites are named for experiment
+map <- list("CB_TX_2022-6-9" = "W1_TX", "Sister_Lk_LA_2022-8-9" = "W2_LA", "KP_FGR_FL_2022-8-23" = "W3_FL",  "DWS_CB_VA_2022-10-7" = "W4_VA", "SR_GB_NH_2022-8-12" = "W5_NH", "DC_DR_ME_2022-10-25" = "W6_ME")
+allenv_scaled2 <- allenv_scaled %>% mutate(site_name = ifelse(site_name %in% names(map), map[site_name], site_name)) %>% as.data.frame()
+allenv_scaled2_nodup <- allenv_scaled2[!(duplicated(allenv_scaled2$site_name)),]
+
 # split the allenv df into respective datasets
 sea_env_scale <- allenv_scaled[!(allenv_scaled$site_name %in% c("Lewisetta", "YorkRiver")),] # don't take out the expOrg data here, as it is the data for the seascape sites that I removed before scaling
-expOrg_env_scale <- allenv_scaled[allenv_scaled$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME","S1_LOLA","S2_DEBY"),]
+expOrg_env_scale <- allenv_scaled2_nodup[allenv_scaled2_nodup$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME","S1_LOLA","S2_DEBY"),]
 expSite_env_scale <- allenv_scaled[allenv_scaled$site_name %in% c("Lewisetta", "YorkRiver"),]
 
 # rename the expOrg site_names that are still in the sea_env_scale df
-seascape2exp
-map2 <- list("W1_TX" = "CB_TX_2022-6-9", "W2_LA" = "Sister_Lk_LA_2022-8-9", "W3_FL" = "KP_FGR_FL_2022-8-23", "W4_VA" = "WS_CB_VA_2022-10-7", "W5_NH" = "SR_GB_NH_2022-8-12", "W6_ME" = "DC_DR_ME_2022-10-25")
-sea_env_scale_mut <- sea_env_scale %>% mutate(site_name = ifelse(site_name %in% names(map2), map2[site_name], site_name)) %>% as.data.frame()
+# seascape2exp
+# map2 <- list("W1_TX" = "CB_TX_2022-6-9", "W2_LA" = "Sister_Lk_LA_2022-8-9", "W3_FL" = "KP_FGR_FL_2022-8-23", "W4_VA" = "WS_CB_VA_2022-10-7", "W5_NH" = "SR_GB_NH_2022-8-12", "W6_ME" = "DC_DR_ME_2022-10-25")
+# sea_env_scale_mut <- sea_env_scale %>% mutate(site_name = ifelse(site_name %in% names(map2), map2[site_name], site_name)) %>% as.data.frame()
 
-# site_name is a list
+# site_name is a list, has duplicates, has non seascape sites
 sea_env_scale_mut$site_name <- as.factor(unlist(sea_env_scale_mut$site_name))
-site_names_seascape <- sea_env_scale_mut$site_name
+sea_env_scale_mut_nosel <- sea_env_scale_mut[!(sea_env_scale_mut$site_name %in% c("S1_LOLA", "S2_DEBY")),]
+sea_env_scale_mut_nosel_nodup <- sea_env_scale_mut_nosel[!(duplicated(sea_env_scale_mut_nosel$site_name)),]
+site_names_seascape <- sea_env_scale_mut_nosel_nodup$site_name
+
 write.csv(site_names_seascape, "data/EnvDat/seascape/seascape_sitenames.csv")
 
 # also get the site names for exp data to reattach to env files
-site_names_exp <- expOrg_env_scale$site_name
+site_names_exp <- unlist(expOrg_env_scale$site_name)
 write.csv(site_names_exp, "data/EnvDat/exp_sitenames.csv")
 
 # the experimental sites Lew & York need to be added to the experimental origin data in a single df
@@ -249,23 +261,26 @@ colnames(expSite_env_scale_yrk) <- c("site_name", "Latitude_manual", "Longitude_
 # add this info to the expOrg df
 exp_env_scale <- cbind(expOrg_env_scale, (expSite_env_scale_lew[,-1]), (expSite_env_scale_yrk[,-1]))
 
+# site name is a list again
+exp_env_scale$site_name <- as.character(exp_env_scale$site_name)
+
 # add site_name column to seascape inds
 indsSea_redrm$site_name <- indsSea_redrm$ID_SiteDate
 
 # merge
-sea_scaled_expanded <- merge(as.data.frame(indsSea_redrm), as.data.frame(sea_env_scale_mut), by = c("site_name"))
+sea_scaled_expanded <- merge(as.data.frame(indsSea_redrm), as.data.frame(sea_env_scale_mut_nosel_nodup), by = c("site_name"))
 
 # we lose a lot of rows when merging seascape, what are we losing?
 dim(sea_scaled_expanded)
-dim(indsSea_redrm) # 116 rows lost
+dim(indsSea_redrm) # 115 rows lost
 
-levels(as.factor(indsSea_redrm[which(!(indsSea_redrm$site_name %in% sea_env_scale_mut$site_name)),]$site_name)) # we lose six seascape sites, namely "DWS_CB_VA_2022-10-7", "EelLake_Canada_2022-9-27", "FC_LIS_CT_2023-10-11", "NPS_PS_NC_2022-10-12", "NR_NB_RI_2022-8-19", and "PrEdIs_CN_A_2022-10-18"
+levels(as.factor(indsSea_redrm[which(!(indsSea_redrm$site_name %in% sea_env_scale_mut$site_name)),]$site_name)) # we lose five seascape sites, namely "EelLake_Canada_2022-9-27", "FC_LIS_CT_2023-10-11", "NPS_PS_NC_2022-10-12", "NR_NB_RI_2022-8-19", and "PrEdIs_CN_A_2022-10-18"
 
 # is it because these had NA's?
-View(seascapeEnv_trim[seascapeEnv_trim$site_name %in% c("DWS_CB_VA_2022-10-7", "EelLake_Canada_2022-9-27", "FC_LIS_CT_2023-10-11", "NPS_PS_NC_2022-10-12", "NR_NB_RI_2022-8-19", "PrEdIs_CN_A_2022-10-18"),]) # yes, these sites only have disease data - they should be removed from analysis, so it's ok that they are not in the seascape scaled df
+head(seascapeEnv_trim[seascapeEnv_trim$site_name %in% c("EelLake_Canada_2022-9-27", "FC_LIS_CT_2023-10-11", "NPS_PS_NC_2022-10-12", "NR_NB_RI_2022-8-19", "PrEdIs_CN_A_2022-10-18"),]) # yes, these sites only have disease data - they should be removed from analysis, so it's ok that they are not in the seascape scaled df
 
 # write these out to .csv
-write.csv(exp_env_scale, paste0("data/EnvDat/exp/exp_scaled_", Sys.Date(), ".csv"))
+write.csv(as.data.frame(exp_env_scale), paste0("data/EnvDat/exp/exp_scaled_", Sys.Date(), ".csv"))
 write.csv(as.data.frame(sea_env_scale_mut), paste0("data/EnvDat/seascape/sea_scaled_", Sys.Date(), ".csv"))
 write.csv(sea_scaled_expanded, paste0("data/EnvDat/seascape/sea_scaled_expanded_", Sys.Date(), ".csv"))
 ```
@@ -281,7 +296,11 @@ sea_exp <- sea_scaled_expanded[,c("site_name","clean_ID","Label_ind","Key_ind","
 
 # ensure env data matches genomic data
 # make sure genotype data is in the same order as individual & environmental data
-sea_scaled_expanded$clean_ID %in% inds_genomat
+sea_scaled_expanded$clean_ID %in% inds_genomat 
+
+# ids for the VA pop are not in inds_genomat -VA pop needs to be removed
+sea_scaled_expanded_nova <- sea_scaled_expanded[!sea_scaled_expanded$site_name == "DWS_CB_VA_2022-10-7",]
+
 sea_scaled_expanded$clean_ID == inds_genomat # nope, not in the same order - need to reorder the environmental data
 
 # reorder env data
@@ -305,18 +324,23 @@ expenv_dist_df <- allenv_scaled
 # reduce variable set
 expenv_dist_red_df <- expenv_dist_df[,c("site_name", "salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90","Dermo_Prevalence","Pea_crab","MSX_Prevalence")]
 
+# make sure site names all match up
+expenv_dist_red_df[which(duplicated(expenv_dist_red_df$site_name)),]$site_name <- c("W1_TX", "W6_ME", "W4_VA", "W3_FL", "W2_LA", "W5_NH")
+
 # calculate environmental distance
 library(vegan)
 envdist_std <- round(decostand(expenv_dist_red_df[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90","Dermo_Prevalence","Pea_crab","MSX_Prevalence")], method = "standardize"), 4)
 envdist_std_nb <- round(decostand(expenv_dist_red_df[,c("salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90")], method = "standardize"), 4)
 
 env_dist <- round(vegdist(envdist_std, method = "euclidian", 
-                          upper = FALSE, diag = TRUE), 4)
+                          upper = FALSE, diag = TRUE, na.rm = F),
+                  4)
 env_dist_df <- as.data.frame(as.matrix(env_dist))
 colnames(env_dist_df) <- rownames(env_dist_df) <- expenv_dist_red_df$site_name
 
 env_dist_nb <- round(vegdist(envdist_std_nb, method = "euclidian", 
-                          upper = FALSE, diag = TRUE), 4)
+                          upper = FALSE, diag = TRUE, na.rm = F),
+                     4)
 env_dist_nb_df <- as.data.frame(as.matrix(env_dist_nb))
 colnames(env_dist_nb_df) <- rownames(env_dist_nb_df) <- expenv_dist_red_df$site_name
 

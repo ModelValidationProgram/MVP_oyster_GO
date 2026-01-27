@@ -192,7 +192,7 @@ I also want to make some figures with the processed data & environmental distanc
 
 ```{r}
 # env dist
-dists <- read.csv("data/EnvDat/exp/distance_matrix_longer_2025-12-05.csv")
+dists <- read.csv("data/EnvDat/exp/distance_matrix_longer_2026-01-27.csv")
 env_dist_long_expsite <- dists[dists$site2 %in% c("Lewisetta", "YorkRiver"),]
 env_dist_long_expsite_red <- env_dist_long_expsite[!(env_dist_long_expsite$site1 %in% c("Lewisetta", "YorkRiver")),]
 env_dist_long_expsite_red$site_name_plotting <- gsub("_", "-", env_dist_long_expsite_red$site1)
@@ -204,7 +204,7 @@ envdist_plot_gardens <- ggplot(env_dist_long_expsite_red, aes(x = fct_reorder(si
                               fill = dist))+
   theme_classic()+
   geom_tile(color = "black") +
-  scale_fill_viridis_c(name = "Euclidean \nDistance", limits = c(0, 6), 
+  scale_fill_viridis_c(name = "Euclidean \nDistance", limits = c(0, 7), 
                        option = "mako", direction = -1) +
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
@@ -218,8 +218,16 @@ envdist_plot_gardens <- ggplot(env_dist_long_expsite_red, aes(x = fct_reorder(si
 envdist_plot_gardens
 
 # all env
-env <- read.csv("data/EnvDat/env_scaled_2025-12-05.csv")
-env_trim <- env[env$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME", "Lewisetta", "YorkRiver"), 1:10]
+env <- read.csv("data/EnvDat/env_scaled_2026-01-27.csv")
+
+# rename sites that correspond to exp pops
+map <- list("CB_TX_2022-6-9" = "W1_TX", "Sister_Lk_LA_2022-8-9" = "W2_LA", "KP_FGR_FL_2022-8-23" = "W3_FL", "DWS_CB_VA_2022-10-7" = "W4_VA", "SR_GB_NH_2022-8-12" = "W5_NH", "DC_DR_ME_2022-10-25" = "W6_ME")
+env_mut <- env %>% mutate(site_name = ifelse(site_name %in% names(map), map[site_name], site_name)) %>% as.data.frame()
+
+# remove duplicates
+env_mut_nodup <- env_mut[!(duplicated(env_mut$site_name)),]
+
+env_trim <- env_mut_nodup[env_mut_nodup$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME", "Lewisetta", "YorkRiver"), 1:10]
 
 # plotting
 env_plotting <- merge(popsdf_exp, env_trim, by = "site_name")
