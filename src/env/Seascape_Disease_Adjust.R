@@ -41,11 +41,16 @@ seascape_prep <- seascapeEnv %>% select(!c(Dermo_Prevalence, MSX_Prevalence,
                           intensity_msx, Cq_Mean_MSX, SQ_Mean_MSX,
                           intensity_dermo, Cq_Mean_Dermo, SQ_Mean_Dermo))
 
+seascape_prep_msx <- seascapeEnv %>% select(!c(MSX_Prevalence, msx_prev_percent, 
+                                               intensity_msx, Cq_Mean_MSX, SQ_Mean_MSX))
+
 # combine with new disease
 seascape_dis <- merge(seascape_prep, dis_combine, by = c("ID_SiteDate"))
+seascape_dis_msx <- merge(seascape_prep_msx, dis27, by = c("ID_SiteDate"))
 ############
 
 ## save new df
 ##############
 write.csv(seascape_dis, "data/EnvDat/seascape/seascapeEnv_biotic_abiotic_adjust.csv", row.names = F)
+write.csv(seascape_dis_msx, "data/EnvDat/seascape/seascapeEnv_biotic_abiotic_adjust_msx.csv", row.names = F)
 ##############

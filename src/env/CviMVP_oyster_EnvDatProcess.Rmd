@@ -29,7 +29,7 @@ library(LEA)
 library(stringr)
 
 # data
-seascapeEnv <- read.csv("data/EnvDat/seascape/seascapeEnv_biotic_abiotic_adjust.csv")
+seascapeEnv <- read.csv("data/EnvDat/seascape/seascapeEnv_biotic_abiotic_adjust_msx.csv")
 expsal <- read.csv("data/EnvDat/exp/exp_salinity.csv")[,-1]
 exptemp <- read.csv("data/EnvDat/exp/exp_temp.csv")
 expdis <- read.csv("data/EnvDat/exp/sentinel_RFTM_organized_dermo.csv")[,-(6:10)]
