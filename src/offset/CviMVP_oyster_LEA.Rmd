@@ -39,8 +39,7 @@ library(gstat) # interpolation
 
 # data
 # env
-env_all <- read.csv("data/EnvDat/env_scaled_2026-01-27.csv")
-env_rast <- readRDS("data/EnvDat/seascape/raster_interpolated_scaled_env.RDS")
+env_all <- read.csv("data/EnvDat/env_scaled_cq27_2026-01-27.csv")
 env_sea <- read.env("data/EnvDat/seascape/seascape_scaled_expanded_reord_2026-01-27.env")
 env_exp <- read.env("data/EnvDat/exp/exp_scaled_2026-01-27.env")
 sea_red <- read.csv("data/EnvDat/seascape/sea_scaled_2026-01-27.csv")[,-1]
