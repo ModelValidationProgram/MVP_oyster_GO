@@ -13,19 +13,27 @@ library(dplyr)
 
 # read in data
 seascapeEnv <- read.csv("data/EnvDat/seascape/seascape_abiotic_biotic_envr.csv")
-newDis <- read.csv("data/EnvDat/seascape/population_statistics_Cq30cutoff.csv")
+dis27 <- read.csv("data/EnvDat/seascape/population_statistics_Cq27cutoff.csv")
+dis35 <- read.csv("data/EnvDat/seascape/population_statistics_Cq35cutoff.csv")
 ########
 
 ## data prep
 ############
 # check data
 head(seascapeEnv)
-head(newDis)
+head(Dis27)
+head(Dis35)
 
 # disease goes to wide format
-dis_reshape <- reshape(newDis, idvar = "Population", timevar = "Pathogen", direction = "wide")
-dis27 <- dis_reshape[,c("Population","Prevalence.Dermo","Prevalence.MSX")]
-colnames(dis27) <- c("ID_SiteDate", "Dermo_Prevalence", "MSX_Prevalence")
+dis27_reshape <- reshape(Dis27, idvar = "Population", timevar = "Pathogen", direction = "wide")
+dis27 <- dis27_reshape[,c("Population","Prevalence.MSX")]
+colnames(dis27) <- c("ID_SiteDate", "MSX_Prevalence")
+
+dis35_reshape <- reshape(Dis35, idvar = "Population", timevar = "Pathogen", direction = "wide")
+dis35 <- dis35_reshape[,c("Population","Prevalence.Dermo")]
+colnames(dis35) <- c("ID_SiteDate", "Dermo_Prevalence")
+
+dis_combine <- merge(dis27, dis35, by = "ID_SiteDate")
 
 # trim old seascape disease data
 seascape_prep <- seascapeEnv %>% select(!c(Dermo_Prevalence, MSX_Prevalence, 
@@ -34,10 +42,10 @@ seascape_prep <- seascapeEnv %>% select(!c(Dermo_Prevalence, MSX_Prevalence,
                           intensity_dermo, Cq_Mean_Dermo, SQ_Mean_Dermo))
 
 # combine with new disease
-seascape_dis <- merge(seascape_prep, dis27, by = c("ID_SiteDate"))
+seascape_dis <- merge(seascape_prep, dis_combine, by = c("ID_SiteDate"))
 ############
 
 ## save new df
 ##############
-write.csv(seascape_dis, "data/EnvDat/seascape/seascapeEnv_biotic_abiotic_30cq.csv", row.names = F)
+write.csv(seascape_dis, "data/EnvDat/seascape/seascapeEnv_biotic_abiotic_adjust.csv", row.names = F)
 ##############
