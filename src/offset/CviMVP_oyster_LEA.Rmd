@@ -39,14 +39,14 @@ library(gstat) # interpolation
 
 # data
 # env
-env_all <- read.csv("data/EnvDat/env_scaled_cq27_2026-01-27.csv")
-env_sea <- read.env("data/EnvDat/seascape/seascape_scaled_expanded_reord_2026-01-27.env")
-env_exp <- read.env("data/EnvDat/exp/exp_scaled_2026-01-27.env")
-sea_red <- read.csv("data/EnvDat/seascape/sea_scaled_2026-01-27.csv")[,-1]
+env_all <- read.csv("data/EnvDat/env_scaled_2026-01-29.csv")
+env_sea <- read.env("data/EnvDat/seascape/seascape_scaled_expanded_reord_2026-01-29.env")
+env_exp <- read.env("data/EnvDat/exp/exp_scaled_2026-01-29.env")
+sea_red <- read.csv("data/EnvDat/seascape/sea_scaled_2026-01-29.csv")[,-1]
 
 # sites
-sea_site_full <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2026-01-27.csv")[,-1]
-exp_site_full <- read.csv("data/EnvDat/exp/exp_scaled_2025-12-08.csv")[,-1]
+sea_site_full <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2026-01-29.csv")[,-1]
+exp_site_full <- read.csv("data/EnvDat/exp/exp_scaled_2026-01-29.csv")[,-1]
 
 # gen
 genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2026-01-27.geno")
@@ -153,7 +153,6 @@ gg_yrk_nb[i] = mean(((env_exp_nb[,c("sal_quant10_scaled",  "sal_quant90_scaled",
 }
 
 # associate predictions with site metadata
-env_all[34:39,]$site_name <- c("W1_TX", "W6_ME", "W4_VA", "W3_FL","W2_LA", "W5_NH")
 gap_df <- env_all[env_all$site_name %in% rownames(env_exp), c("site_name", "Latitude_manual", "Longitude_manual")]
 gap_df$lew_go <- gg_lew
 gap_df$yrk_go <- gg_yrk
@@ -296,10 +295,10 @@ grid_int_crop <- sf::st_crop(grid_int, c(xmin = -102, xmax = -65,
 
 # interpolate
 interpolated_lew <- idw(lew_go~1, sea_sf, grid_int)
-saveRDS(interpolated_lew, "results/lg_results/interpolated_lea_lew.rds")
+#saveRDS(interpolated_lew, "results/lg_results/interpolated_lea_lew.rds")
 
 interpolated_yrk <- idw(yrk_go~1, sea_sf, grid_int)
-saveRDS(interpolated_yrk, "results/lg_results/interpolated_lea_yrk.rds")
+#saveRDS(interpolated_yrk, "results/lg_results/interpolated_lea_yrk.rds")
 
 # empty raster
 ext <- ext(st_bbox(interpolated_lew)) # get spatial extent
