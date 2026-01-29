@@ -76,6 +76,9 @@ env_exp_nb <- env_exp[, c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quan
 
 # other env datasets
 colnames(env_all) <- c("site_name", "Latitude_manual", "Longitude_manual", "sal_quant10", "sal_quant90", "temp_quant10", "temp_quant90", "Dermo_Prevalence", "Pea_crab", "MSX_Prevalence", "sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")
+
+# check datasets for internal consistency
+sea_red[sea_red$site_name == "DWS_CB_VA_2022-10-7",c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")] == env_exp[3,c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")] # yes
 ```
 
 
@@ -254,7 +257,8 @@ write.csv(popsdf, "data/IndDat/popsdf.csv")
 Then, I interpolate genomic offset across the seascape.
 
 ```{r}
-sea_sf <- st_as_sf(gap_full_df, 
+gap_full_df
+full_sf <- st_as_sf(gap_full_df, 
                    coords = c("Longitude_manual","Latitude_manual"),
                    crs = 4326) # for WGS84 projection
 
@@ -336,8 +340,8 @@ map_lew_int_lea <- ggplot(data = world) +
   geom_point(data = offsets_plotting_lea[offsets_plotting_lea$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=Longitude_manual, y=Latitude_manual, 
                                        fill = lew_go), 
              shape = 21, size = 4)+
-  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.08)) +
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.08)) +
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.15)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.15)) +
   geom_label_repel(data = offsets_plotting_lea[offsets_plotting_lea$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=Longitude_manual, y=Latitude_manual, 
                                        label = site_name),
                   nudge_x = -3,
@@ -351,15 +355,15 @@ map_lew_int_lea <- ggplot(data = world) +
 lew_int_lea_inset <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = interpolated_lew, mapping = aes(fill = var1.pred, col = var1.pred)) +
-  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.08)) +
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.08)) +
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.15)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.15)) +
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
   geom_point(data = offsets_sea_plotting_lea, aes(x = Longitude_manual, y = Latitude_manual, 
                                               fill = lew_go), 
              shape = 21, size = 5) +
   geom_point(data = offsets_plotting_lea[offsets_plotting_lea$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, fill = lew_go), 
              shape = 21, size = 7)+
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 0.08)) + # double check these values
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 0.15)) + # double check these values
   geom_point(data = offsets_plotting_lea[offsets_plotting_lea$site_name == "LEWISETTA",], 
              aes(x = longitude-0.2, y = latitude), fill = "deeppink", shape = 24, size = 7)+
   geom_label_repel(data = offsets_plotting_lea[offsets_plotting_lea$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, label = site_name),
@@ -383,8 +387,8 @@ map_yrk_int_lea <- ggplot(data = world) +
              shape = 21, size = 2) +
   geom_point(data = offsets_plotting_lea[offsets_plotting_lea$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, fill = yrk_go), 
              shape = 21, size = 4)+
-  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.08)) +
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.08)) +
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.15)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.15)) +
   geom_label_repel(data = offsets_plotting_lea[offsets_plotting_lea$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, label = site_name),
                   nudge_x = -3,
                   nudge_y = 1,
@@ -397,15 +401,15 @@ map_yrk_int_lea <- ggplot(data = world) +
 yrk_int_lea_inset <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = interpolated_yrk, mapping = aes(fill = var1.pred, col = var1.pred)) +
-  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.08)) +
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.08)) +
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.15)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.15)) +
   geom_sf(data = world_crop, fill = 'antiquewhite1') +
   geom_point(data = offsets_sea_plotting_lea, aes(x = Longitude_manual, y = Latitude_manual, 
                                               fill = lew_go), 
              shape = 21, size = 5) +
   geom_point(data = offsets_plotting_lea[offsets_plotting_lea$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, fill = yrk_go), 
              shape = 21, size = 9)+
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 0.08)) + # double check these values
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 0.15)) + # double check these values
   geom_point(data = offsets_plotting_lea[offsets_plotting_lea$site_name == "YORKRIVER",], 
              aes(x = longitude-0.1, y = latitude+0.1), fill = "deeppink", shape = 24, size = 7)+
   geom_label_repel(data = offsets_plotting_lea[offsets_plotting_lea$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, label = site_name),

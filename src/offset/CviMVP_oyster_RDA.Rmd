@@ -42,8 +42,8 @@ library(robust) # for rdadapt functions
 
 # data
 # env
-env_sea <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2026-01-27.csv")[,-1]
-env_exp <- read.csv("data/EnvDat/exp/exp_scaled_2026-01-27.csv")[,-1]
+env_sea <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2026-01-29.csv")[,-1]
+env_exp <- read.csv("data/EnvDat/exp/exp_scaled_2026-01-29.csv")[,-1]
 env_sea_forgo <- read.csv("data/EnvDat/seascape/seascape_environment_predict.csv")
 
 # sites
@@ -104,7 +104,7 @@ rownames(genoThinMat) <- inds_genomat
 
 While I do not intend to use an outlier dataset to calculate adaptive index/offset, I will still go through the process of outlier detection with RDA. This process is also part of training the RDA model for offsets later. First, though, there are a few functions I need from rdadapt, but the package seems to be broken currently as it is still in development.
 
-```{r}
+```{r, include = F}
 ## rdadapt isn't installing correctly, this is the function i need directly from the git repo
 
 ##' 
@@ -849,10 +849,10 @@ grid_int_crop <- sf::st_crop(grid_int, c(xmin = -102, xmax = -65,
 
 # interpolate
 interpolated_lew_rda <- idw(offset_lew_sea~1, sea_sf_rda, grid_int)
-saveRDS(interpolated_lew_rda, "results/lg_results/interpolated_rda_lew.rds")
+#saveRDS(interpolated_lew_rda, "results/lg_results/interpolated_rda_lew.rds")
 
 interpolated_yrk_rda <- idw(offset_yrk_sea~1, sea_sf_rda, grid_int)
-saveRDS(interpolated_yrk_rda, "results/lg_results/interpolated_rda_yrk.rds")
+#saveRDS(interpolated_yrk_rda, "results/lg_results/interpolated_rda_yrk.rds")
 
 # empty raster
 ext <- ext(st_bbox(interpolated_lew_rda)) # get spatial extent

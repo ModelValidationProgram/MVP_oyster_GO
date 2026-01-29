@@ -29,7 +29,6 @@ library(LEA)
 library(stringr)
 
 # data
-geno_mat <- readRDS("data/GenDat/20250606_FULLSNPs_seascape_labeled.rds")
 geno_mat_ld <- readRDS("data/GenDat/20250606_THINNEDSNPs_seascape_labeled.rds")
 sea_inds <- readRDS("data/IndDat/20250604_seascape_indsmatrix.rds")
 env_sea_sites <- read.csv("data/EnvDat/seascape/seascape_sitenames.csv")[,-1]
@@ -42,18 +41,12 @@ Process data to remove missing data, non-variable genomic sites.
 
 ```{r}
 # check data
-dim(geno_mat) # 746 inds, 153921 snps
-geno_mat[1:10,1:10]
-
 dim(geno_mat_ld) # 746 inds, 115185 snps (~40k less than unthinned)
 
 # any missing data?
-length(which(geno_mat == 9)) # nope!
 length(which(geno_mat_ld == 9)) # nope!
 
 # non-variable genomic sites
-nonvarsite <- apply(geno_mat, 2, function(x) all(x == x[1]))
-which(nonvarsite == T) # none
 nonvarsite_ld <- apply(geno_mat_ld, 2, function(x) all(x == x[1]))
 which(nonvarsite_ld == T) # none
 ```
@@ -71,13 +64,11 @@ sea_inds_rm <- sea_inds[, apply(sea_inds, 2, function(x) !any(is.na(x)))] # only
 
 # i need to get rid of inds not in my dataset (the ones with no environmental data)
 seaRows_keep <- which((sea_inds_rm$ID_SiteDate %in% env_sea_sites))
-
-geno_mat_keep <- geno_mat[seaRows_keep,]
 geno_mat_ld_keep <- geno_mat_ld[seaRows_keep,]
 
 # also be sure to put this data in the correct order to match environmental df
 # first let's figure out which population everyone is from
-genomat_order <- data.frame(clean_ID = rownames(geno_mat_keep), order_mat = 1:length(rownames(geno_mat_keep)))
+genomat_order <- data.frame(clean_ID = rownames(geno_mat_ld_keep), order_mat = 1:length(rownames(geno_mat_ld_keep)))
 sea_inds_order <- sea_inds_rm[seaRows_keep, c("clean_ID","ID_SiteDate")]
 sea_inds_order$order_inds <- 1:length(sea_inds_order$clean_ID)
 which(!(sea_inds_order$clean_ID %in% genomat_order$clean_ID))
@@ -94,7 +85,7 @@ write.geno(geno_mat_keep, paste0("data/GenDat/geno_seascape_", Sys.Date(), ".gen
 write.geno(geno_mat_ld_keep, paste0("data/GenDat/geno_seascape_LDthin_", Sys.Date(), ".geno"))
 
 # also write out information about the individuals in each row (same inds in ld and not ld mats)
-inds_genomat <- rownames(geno_mat_keep)
+inds_genomat <- rownames(geno_mat_ld_keep)
 write.csv(inds_genomat, "data/GenDat/inds_genomat.csv")
 
 # for LEA need lfmm format data

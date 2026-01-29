@@ -147,10 +147,10 @@ seascape2exp <- data.frame(ID_SiteDate = c("CB_TX_2022-6-9", "Sister_Lk_LA_2022-
 # merge
 expEnv_all <- merge(seascape2exp, seascapeEnv_trim, by = c("ID_SiteDate"))
 
-# the VA site has no quantile data, but we did have some compiled from H2F, take from there
+# the VA site has no quantile data, but we did have some compiled from H2F, take from there - don't use for training since didn't meet seascape qc standards
 VA_only <- quantile_forVA[quantile_forVA$site_name == "W4-VA", c("site_name","salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90")]
 expEnv_all[expEnv_all$site_name == "W4_VA", c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")] <- as.numeric(VA_only[,2:5])
-seascapeEnv_trim[seascapeEnv_trim$ID_SiteDate == "DWS_CB_VA_2022-10-7", c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")] <- as.numeric(VA_only[,2:5])
+#seascapeEnv_trim[seascapeEnv_trim$ID_SiteDate == "DWS_CB_VA_2022-10-7", c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")] <- as.numeric(VA_only[,2:5])
 
 # remove other nas from seascape
 seascapeEnv_trim_narm <- seascapeEnv_trim[!is.na(seascapeEnv_trim$salinity_quantile_10),]
@@ -238,6 +238,7 @@ sea_env_scale_mut <- sea_env_scale %>% mutate(site_name = ifelse(site_name %in% 
 sea_env_scale_mut$site_name <- as.factor(unlist(sea_env_scale_mut$site_name))
 sea_env_scale_mut_nosel <- sea_env_scale_mut[!(sea_env_scale_mut$site_name %in% c("S1_LOLA", "S2_DEBY")),]
 
+site_names_seascape <- sea_env_scale_mut_nosel$site_name
 #write.csv(site_names_seascape, "data/EnvDat/seascape/seascape_sitenames.csv")
 
 # also get the site names for exp data to reattach to env files
@@ -452,6 +453,69 @@ Distance", limits = c(0, 6))+
         legend.title = element_text(size = 14),
         legend.position = "right", legend.justification = "top")
 envdist_plot_nb_gardens
+
+# seascape environmental distance
+seascape_ords <- seascapeEnv[,c("ID_SiteDate","Site_Order")]
+seascape_ords[seascape_ords$ID_SiteDate == "WS_CB_VA_2022-10-7",]$ID_SiteDate <- "DWS_CB_VA_2022-10-7"
+colnames(seascape_ords) <- c("site_name","order")
+seascape_reord <- seascape_ords[order(seascape_ords$order),]
+seascape_reord$site1 <- seascape_reord$site_name
+seascape_reord$site2 <- seascape_reord$site_name
+seascape_reord$order1 <- seascape_reord$order
+seascape_reord$order2 <- seascape_reord$order
+
+idsite_map <- c("W1_TX" = "CB_TX_2022-6-9", 
+  "W2_LA" = "Sister_Lk_LA_2022-8-9", 
+  "W3_FL" = "KP_FGR_FL_2022-8-23", 
+  "W4_VA" = "DWS_CB_VA_2022-10-7", 
+  "W5_NH" = "SR_GB_NH_2022-8-12", 
+  "W6_ME" = "DC_DR_ME_2022-10-25")
+
+reverse_map <- c("CB_TX_2022-6-9" = "W1_TX",
+  "Sister_Lk_LA_2022-8-9" = "W2_LA",
+  "KP_FGR_FL_2022-8-23" = "W3_FL",
+  "DWS_CB_VA_2022-10-7" = "W4_VA",
+  "SR_GB_NH_2022-8-12" = "W5_NH",
+  "DC_DR_ME_2022-10-25" = "W6_ME")
+
+env_dist_mat$site_name <- env_dist_mat$ID_SiteDate
+dist_matrix <- as.matrix(env_dist_mat[,2:34])
+
+rownames(dist_matrix) <- recode(env_dist_mat$ID_SiteDate, !!!idsite_map)
+colnames(dist_matrix) <- recode(colnames(dist_matrix), !!!idsite_map)
+dist_matrix_trim <- dist_matrix[1:33,]
+dist_trim <- as.data.frame(dist_matrix_trim)
+
+library(reshape2)
+dist_trim$site_name <- rownames(dist_matrix_trim)
+dist_matrix_longer <- melt(dist_matrix_trim)
+colnames(dist_matrix_longer) <- c("site1","site2","dist")
+dists_long <- merge(dist_matrix_longer, seascape_reord[,c("site1","order1")], by = c("site1"), keep.all = T)
+dists_long2 <- merge(dists_long, seascape_reord[,c("site2","order2")], by = c("site2"), keep.all = T)
+
+# back to the original names
+dists_long3 <- dists_long2 %>%
+  mutate(site1 = recode(site1, !!!reverse_map))
+dists_long4 <- dists_long3 %>%
+  mutate(site2 = recode(site2, !!!reverse_map))
+
+envdist_plot_sea <- ggplot(dists_long4, aes(x = fct_reorder(site2, order2), 
+                              y = fct_reorder(site1, order1), 
+                              fill = dist))+
+  theme_classic()+
+  geom_tile(color = "black") +
+#  geom_text(aes(label = distances), color = "white", size = 4)+
+  scale_fill_viridis_c(name = "Euclidean 
+Distance", limits = c(0, 6.5))+
+  theme(plot.title = element_text(size = 20), 
+        legend.title = element_text(size = 14),
+        legend.position = "right", legend.justification = "top") +
+  labs(title = "Environmental Distance between Sites", x = "", y = "") +
+  theme(plot.title = element_text(size = 18), 
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.title = element_text(size = 14),
+        legend.position = "right", legend.justification = "top")
+envdist_plot_sea
 
 # write to ppt
 library(officer) # for powerpoint export/editing
