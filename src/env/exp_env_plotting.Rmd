@@ -40,6 +40,8 @@ w5_raw <- read.csv("data/EnvDat/exp/exp_sites_raw/W5-NH-raw.csv")
 w6_raw <- read.csv("data/EnvDat/exp/exp_sites_raw/W6-ME-raw.csv")
 lew_all <- read.csv("data/EnvDat/exp/lew_raw/lewisetta_corrected.csv")
 yrk_all <- read.csv("data/EnvDat/exp/yrk_raw/YRK-raw.csv")
+dists <- read.csv("data/EnvDat/exp/distance_matrix_longer_2026-01-29.csv")
+env <- read.csv("data/EnvDat/env_scaled_2026-01-29.csv")
 ```
 
 
@@ -192,7 +194,6 @@ I also want to make some figures with the processed data & environmental distanc
 
 ```{r}
 # env dist
-dists <- read.csv("data/EnvDat/exp/distance_matrix_longer_2026-01-27.csv")
 env_dist_long_expsite <- dists[dists$site2 %in% c("Lewisetta", "YorkRiver"),]
 env_dist_long_expsite_red <- env_dist_long_expsite[!(env_dist_long_expsite$site1 %in% c("Lewisetta", "YorkRiver")),]
 env_dist_long_expsite_red$site_name_plotting <- gsub("_", "-", env_dist_long_expsite_red$site1)
@@ -218,8 +219,6 @@ envdist_plot_gardens <- ggplot(env_dist_long_expsite_red, aes(x = fct_reorder(si
 envdist_plot_gardens
 
 # all env
-env <- read.csv("data/EnvDat/env_scaled_2026-01-27.csv")
-
 # rename sites that correspond to exp pops
 map <- list("CB_TX_2022-6-9" = "W1_TX", "Sister_Lk_LA_2022-8-9" = "W2_LA", "KP_FGR_FL_2022-8-23" = "W3_FL", "DWS_CB_VA_2022-10-7" = "W4_VA", "SR_GB_NH_2022-8-12" = "W5_NH", "DC_DR_ME_2022-10-25" = "W6_ME")
 env_mut <- env %>% mutate(site_name = ifelse(site_name %in% names(map), map[site_name], site_name)) %>% as.data.frame()

@@ -29,7 +29,7 @@ library(LEA)
 library(stringr)
 
 # data
-seascapeEnv <- read.csv("data/EnvDat/seascape/seascapeEnv_biotic_abiotic_30cq.csv")
+seascapeEnv <- read.csv("data/EnvDat/seascape/seascapeEnv_biotic_abiotic_adjust.csv")
 expsal <- read.csv("data/EnvDat/exp/exp_salinity.csv")[,-1]
 exptemp <- read.csv("data/EnvDat/exp/exp_temp.csv")
 expdis <- read.csv("data/EnvDat/exp/sentinel_RFTM_organized_dermo.csv")[,-(6:10)]
@@ -37,6 +37,8 @@ expdis_lew <- read.csv("data/EnvDat/exp/LewisettaSentinels.csv")
 expdis_yrk <- read.csv("data/EnvDat/exp/YorkRiverShorelineDisease-24March2025.csv")
 peacrab <- read.csv("data/EnvDat/exp/MVP23-FieldBags - finalTissue.csv")
 sitedate <- read.csv("data/EnvDat/seascape/SeascapeSamples - date.csv")
+quantile_forVA <- read.csv("data/EnvDat/exp/quantiles_05232025.csv")[,-1]
+indsSea <- readRDS("data/IndDat/20250604_seascape_indsmatrix.rds")
 ```
 
 
@@ -145,7 +147,6 @@ seascape2exp <- data.frame(ID_SiteDate = c("CB_TX_2022-6-9", "Sister_Lk_LA_2022-
 expEnv_all <- merge(seascape2exp, seascapeEnv_trim, by = c("ID_SiteDate"))
 
 # the VA site has no quantile data, but we did have some compiled from H2F, take from there
-quantile_forVA <- read.csv("data/EnvDat/exp/quantiles_05232025.csv")[,-1]
 VA_only <- quantile_forVA[quantile_forVA$site_name == "W4-VA", c("site_name","salinity_quantile_10", "salinity_quantile_90", "temp_quantile_10", "temp_quantile_90")]
 expEnv_all[expEnv_all$site_name == "W4_VA", c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")] <- as.numeric(VA_only[,2:5])
 seascapeEnv_trim[seascapeEnv_trim$site_name == "DWS_CB_VA_2022-10-7", c("salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")] <- as.numeric(VA_only[,2:5])
@@ -212,9 +213,6 @@ write.csv(allenv_scaled, paste0("data/EnvDat/env_scaled_",Sys.Date(),".csv"), ro
 I want to make sure now that my environmental data will match my genomic data by having one row in my environmental dataset for each individual in my genomic dataset. To do so, I will need to process the individual data and pair this with my environmental data.
 
 ```{r}
-# need ind level dat
-indsSea <- readRDS("data/IndDat/20250604_seascape_indsmatrix.rds")
-
 # keep just relevant data
 indsSea_red <- indsSea[,c("clean_ID","Label_ind","Key_ind","ID_SiteDate","ID_Site","SiteDate_Key")]
 levels(as.factor(indsSea_red$ID_SiteDate))
@@ -246,11 +244,11 @@ sea_env_scale_mut_nosel <- sea_env_scale_mut[!(sea_env_scale_mut$site_name %in% 
 sea_env_scale_mut_nosel_nodup <- sea_env_scale_mut_nosel[!(duplicated(sea_env_scale_mut_nosel$site_name)),]
 site_names_seascape <- sea_env_scale_mut_nosel_nodup$site_name
 
-write.csv(site_names_seascape, "data/EnvDat/seascape/seascape_sitenames.csv")
+#write.csv(site_names_seascape, "data/EnvDat/seascape/seascape_sitenames.csv")
 
 # also get the site names for exp data to reattach to env files
 site_names_exp <- unlist(expOrg_env_scale$site_name)
-write.csv(site_names_exp, "data/EnvDat/exp_sitenames.csv")
+#write.csv(site_names_exp, "data/EnvDat/exp_sitenames.csv")
 
 # the experimental sites Lew & York need to be added to the experimental origin data in a single df
 expSite_env_scale_yrk <- expSite_env_scale[expSite_env_scale$site_name == "YorkRiver",]
