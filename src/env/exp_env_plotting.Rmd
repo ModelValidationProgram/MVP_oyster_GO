@@ -40,8 +40,8 @@ w5_raw <- read.csv("data/EnvDat/exp/exp_sites_raw/W5-NH-raw.csv")
 w6_raw <- read.csv("data/EnvDat/exp/exp_sites_raw/W6-ME-raw.csv")
 lew_all <- read.csv("data/EnvDat/exp/lew_raw/lewisetta_corrected.csv")
 yrk_all <- read.csv("data/EnvDat/exp/yrk_raw/YRK-raw.csv")
-dists <- read.csv("data/EnvDat/exp/distance_matrix_longer_2026-01-29.csv")
-env <- read.csv("data/EnvDat/env_scaled_2026-01-29.csv")
+dists <- read.csv("data/EnvDat/exp/distance_matrix_longer_2026-01-30.csv")
+env <- read.csv("data/EnvDat/env_scaled_2026-01-30.csv")
 ```
 
 
@@ -164,7 +164,7 @@ env_plotting <- merge(popsdf_exp, all_env_raw_clean, by = c("site_name"))
 
 # plotting salinity
 sal <- ggplot(data = env_plotting, aes(x = fct_reorder(site_name_plotting, order), y = sal)) +
-  rasterize(geom_boxplot(position=position_dodge(1.0), fill = "#FFEA8A"), dpi = 300, dev = "ragg_png") +  
+  rasterize(geom_boxplot(position=position_dodge(1.0), fill = "#a4d5c2"), dpi = 300, dev = "ragg_png") +  
   labs(title = "Salinity Trends", x = "Site", y = "Salinity (ppt)") +
   theme_classic()+ 
   theme(strip.background = element_blank(), 
@@ -175,7 +175,7 @@ sal <- ggplot(data = env_plotting, aes(x = fct_reorder(site_name_plotting, order
 
 # plotting temp
 temp <- ggplot(data = env_plotting, aes(x = fct_reorder(site_name_plotting, order), y = temp)) +
-  rasterize(geom_boxplot(position=position_dodge(1.0), fill = "#FCB0C6"), dpi = 300, dev = "ragg_png") +  
+  rasterize(geom_boxplot(position=position_dodge(1.0), fill = "#a94085"), dpi = 300, dev = "ragg_png") +  
   labs(title = "Temperature Trends", x = "Site", y = "Temp (ºC)") +
   theme_classic()+ 
   theme(strip.background = element_blank(), 
@@ -205,7 +205,7 @@ envdist_plot_gardens <- ggplot(env_dist_long_expsite_red, aes(x = fct_reorder(si
                               fill = dist))+
   theme_classic()+
   geom_tile(color = "black") +
-  scale_fill_viridis_c(name = "Euclidean \nDistance", limits = c(0, 7), 
+  scale_fill_viridis_c(name = "Euclidean \nDistance", limits = c(0, 6), 
                        option = "mako", direction = -1) +
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
@@ -233,7 +233,6 @@ env_plotting <- merge(popsdf_exp, env_trim, by = "site_name")
 
 env_plotting$text_col_dermo <- ifelse(round(env_plotting$Dermo_Prevalence, digits = 2) < 0.5, "white", "black")
 env_plotting$text_col_msx <- ifelse(round(env_plotting$MSX_Prevalence, digits = 2) < 0.5, "white", "black")
-env_plotting$text_col_pea <- ifelse(round(env_plotting$Pea_crab, digits = 2) < 0.5, "white", "black")
 
 # try plotting heatmaps of disease
 # dermo
@@ -260,24 +259,12 @@ msx <- ggplot(env_plotting, aes(x = fct_reorder(site_name_plotting, order), y = 
       axis.ticks.y=element_blank(),
       axis.text.x = element_text(angle = 45, hjust = 1))
 
-# pea crab
-pea <- ggplot(env_plotting, aes(x = fct_reorder(site_name_plotting, order), y = 1, fill = Pea_crab)) + 
-  scale_fill_viridis(option = "plasma", limits = c(0,1)) +
-  geom_tile() + 
-  coord_fixed() +
-  geom_text(aes(label = round(Pea_crab, digits = 2)), col = env_plotting$text_col_pea) +
-  labs(title = "Pea Crab Prevalence", x = "Site", y = "Pea Crab \nPrevalence", fill = "Pea Crab \nPrevalence") +
-  theme_classic() +
-  theme(axis.text.y=element_blank(),
-      axis.ticks.y=element_blank(),
-      axis.text.x = element_text(angle = 45, hjust = 1))
-
-grid.arrange(dermo, msx, pea, ncol = 1)
+grid.arrange(dermo, msx, ncol = 1)
 
 # long way with all disease in one
-env_long_dis <- env_plotting[,c("site_name","site_name_plotting","order","cols","site_type","Dermo_Prevalence", "MSX_Prevalence", "Pea_crab")] %>%
+env_long_dis <- env_plotting[,c("site_name","site_name_plotting","order","cols","site_type","Dermo_Prevalence", "MSX_Prevalence")] %>%
   pivot_longer(
-    cols = c(Dermo_Prevalence, MSX_Prevalence, Pea_crab),
+    cols = c(Dermo_Prevalence, MSX_Prevalence),
     names_to = "Disease",
     values_to = "Prevalence"
   )
@@ -293,7 +280,7 @@ disease_plot <- ggplot(env_long_dis, aes(x = fct_reorder(site_name_plotting, ord
   scale_fill_viridis(option = "magma", limits = c(0, 1), direction = -1) +
   geom_text(aes(label = round(Prevalence, 2)), color = env_long_dis$text_col) +
   coord_fixed() +
-  scale_y_discrete(labels = c("Pea_crab" = "Pea Crab", "MSX_Prevalence" = "MSX", "Dermo_Prevalence" = "Dermo")) +
+  scale_y_discrete(labels = c("MSX_Prevalence" = "MSX", "Dermo_Prevalence" = "Dermo")) +
   labs(
     title = "Disease Prevalence",
     x = "Site",
