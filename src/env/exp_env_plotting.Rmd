@@ -164,7 +164,7 @@ env_plotting <- merge(popsdf_exp, all_env_raw_clean, by = c("site_name"))
 
 # plotting salinity
 sal <- ggplot(data = env_plotting, aes(x = fct_reorder(site_name_plotting, order), y = sal)) +
-  rasterize(geom_boxplot(position=position_dodge(1.0), fill = "lightblue2"), dpi = 300, dev = "ragg_png") +  
+  rasterize(geom_boxplot(position=position_dodge(1.0), fill = "#FFEA8A"), dpi = 300, dev = "ragg_png") +  
   labs(title = "Salinity Trends", x = "Site", y = "Salinity (ppt)") +
   theme_classic()+ 
   theme(strip.background = element_blank(), 
@@ -175,7 +175,7 @@ sal <- ggplot(data = env_plotting, aes(x = fct_reorder(site_name_plotting, order
 
 # plotting temp
 temp <- ggplot(data = env_plotting, aes(x = fct_reorder(site_name_plotting, order), y = temp)) +
-  rasterize(geom_boxplot(position=position_dodge(1.0), fill = "#FFD3A5"), dpi = 300, dev = "ragg_png") +  
+  rasterize(geom_boxplot(position=position_dodge(1.0), fill = "#FCB0C6"), dpi = 300, dev = "ragg_png") +  
   labs(title = "Temperature Trends", x = "Site", y = "Temp (ºC)") +
   theme_classic()+ 
   theme(strip.background = element_blank(), 

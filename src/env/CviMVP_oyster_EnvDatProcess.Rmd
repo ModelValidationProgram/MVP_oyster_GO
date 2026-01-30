@@ -382,7 +382,7 @@ envdist_plot <- ggplot(env_dist_long_mg2, aes(x = fct_reorder(site1, order1),
   geom_tile(color = "black") +
 #  geom_text(aes(label = distances), color = "white", size = 4)+
   scale_fill_viridis_c(name = "Euclidean 
-Distance", limits = c(0, 7))+
+Distance", limits = c(0, 6))+
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
         legend.position = "right", legend.justification = "top") +
