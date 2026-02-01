@@ -211,7 +211,7 @@ write.csv(lew, "data/EnvDat/exp/lew_raw/lewisetta_coandat.csv")
 
 ## Plotting Trends
 
-Check trends in environment by visualizing. This code comes in part from N. Mongillo.
+Check trends in environment by visualizing. This code comes in part from M. Eppley
 
 ```{r}
 salplot_yrk <- ggplot(yrk, aes(x = datetime)) +
@@ -246,6 +246,38 @@ tempplot_lew <- ggplot(lew, aes(x = datetime)) +
     theme_minimal()
 tempplot_lew
 ```
+
+Also plot combined environmental data for just the experimental period
+
+```{r}
+# combine lew and yrk
+colnames(lew_exp) <- c("site_name", "datetime", "temp_lew", "salinity_lew")
+colnames(yrk_exp) <- c("datetime", "temp_yrk", "salinity_yrk")
+
+exp_mg <- merge(lew_exp[,2:4], yrk_exp, by = "datetime", keep = T)
+
+# plot
+temp_gardens <- ggplot(exp_mg) +
+    geom_line(aes(x = datetime, y = temp_lew, color = "Lewisetta")) +
+    geom_line(aes(x = datetime, y = temp_yrk, color = "York River")) +
+    ylim(0,35) +
+    xlim(as.Date("2023-05-01"), as.Date("2025-05-01")) + 
+    labs(x = "Time", y = "Temperature ºC", title = "Temperature in Common Gardens during the Experiment") +
+    scale_color_manual(name = "Common Garden", values = c("Lewisetta" = "mediumspringgreen", "York River" = "dodgerblue")) +
+    theme_classic()
+temp_gardens
+
+sal_gardens <- ggplot(exp_mg) +
+    geom_line(aes(x = datetime, y = salinity_lew, color = "Lewisetta")) +
+    geom_line(aes(x = datetime, y = salinity_yrk, color = "York River")) +
+    ylim(0,30) +
+    xlim(as.Date("2023-05-01"), as.Date("2025-05-01")) + 
+    labs(x = "Time", y = "Salinity ppt", title = "Temperature in Common Gardens during the Experiment") +
+    scale_color_manual(name = "Common Garden", values = c("Lewisetta" = "mediumspringgreen", "York River" = "dodgerblue")) +
+    theme_classic()
+sal_gardens
+```
+
 
 ## Summary statistics
 
