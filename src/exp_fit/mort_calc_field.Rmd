@@ -208,8 +208,8 @@ site_surv <- surv_df_ord %>% group_by(bag_site) %>%
 site_surv
 
 # by site and pop
-site_pop_surv <- surv_df_ord %>% group_by(bag_site,pop) %>%
-  summarise(mean_t0 = mean(as.numeric(t0)),
+site_pop_surv <- surv_df_ord %>% dplyr::group_by(bag_site,pop) %>%
+  dplyr::summarise(mean_t0 = mean(as.numeric(t0)),
             sd_t0 = sd(as.numeric(t0)),
             se_t0 = std.error(as.numeric(t0)),
             mean_t1 = mean(as.numeric(t1)), 
@@ -256,7 +256,8 @@ popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "LOLA", "DEBY", "NH", "ME")
                      order = 1:8, 
                      cols = c("#365C8DFF", "#277F8EFF", "#1FA187FF", "#4AC16DFF", "#440154FF", "#46337EFF", "#9FDA3AFF", "#FDE725FF"),
                      shape = c(21,21,21,21,23,23,21,21),
-                     site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME"))
+                     site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME"),
+                     site_name_plotting = c("W1-TX", "W2-LA", "W3-FL", "W4-VA", "S1-LOLA", "S2-DEBY", "W5-NH", "W6-ME"))
 surv_df[surv_df$pop == "JR",]$pop <- "VA"
 surv_df_full <- merge(surv_df, popsdf, by = c("pop"))
 
@@ -267,16 +268,16 @@ lew_surv <- ggplot(data = surv_df_full[surv_df_full$bag_site == "Lewisetta",]) +
                  shape = fct_reorder(pop, order)),
              size = 4) + 
   scale_color_manual(name = "Population", 
-                     labels = setNames(popsdf$site_name, popsdf$pop),
+                     labels = setNames(popsdf$site_name_plotting, popsdf$pop),
                      values = setNames(popsdf$cols, popsdf$pop)) +
   scale_shape_manual(name = "Population", 
-                     labels = setNames(popsdf$site_name, popsdf$pop),
+                     labels = setNames(popsdf$site_name_plotting, popsdf$pop),
                      values = setNames(popsdf$shape, popsdf$pop)) +
   scale_fill_manual(name = "Population", 
-                    labels = setNames(popsdf$site_name, popsdf$pop),
+                    labels = setNames(popsdf$site_name_plotting, popsdf$pop),
                     values = setNames(popsdf$cols, popsdf$pop)) +
   ylim(0,1) + 
-  labs(title = "Lewisetta: Oyster Survival thru Time", 
+  labs(title = "(A) Lewisetta: Oyster Survival thru Time", 
        x = "Monitoring Event", 
        y = "Survival") +
   scale_x_continuous("Monitoring Event", breaks = c(1, 2, 3, 4),
@@ -294,16 +295,16 @@ yrk_surv <- ggplot(data = surv_df_full[surv_df_full$bag_site == "YorkRiver",]) +
                  shape = fct_reorder(pop, order)),
              size = 4) + 
   scale_color_manual(name = "Population", 
-                     labels = setNames(popsdf$site_name, popsdf$pop),
+                     labels = setNames(popsdf$site_name_plotting, popsdf$pop),
                      values = setNames(popsdf$cols, popsdf$pop)) +
   scale_shape_manual(name = "Population", 
-                     labels = setNames(popsdf$site_name, popsdf$pop),
+                     labels = setNames(popsdf$site_name_plotting, popsdf$pop),
                      values = setNames(popsdf$shape, popsdf$pop)) +
   scale_fill_manual(name = "Population", 
-                    labels = setNames(popsdf$site_name, popsdf$pop),
+                    labels = setNames(popsdf$site_name_plotting, popsdf$pop),
                     values = setNames(popsdf$cols, popsdf$pop)) +
   ylim(0,1) + 
-  labs(title = "York River: Oyster Survival thru Time", 
+  labs(title = "(B) York River: Oyster Survival thru Time", 
        x = "Monitoring Event", 
        y = "Survival") +
   scale_x_continuous("Monitoring Event", breaks = c(1, 2, 3, 4),

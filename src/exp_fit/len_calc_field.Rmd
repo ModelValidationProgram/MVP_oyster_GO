@@ -190,7 +190,7 @@ lengths <- rbind(df[,-5], df1[,-5], df3[,-5], df4[,-5], df5[,-5], df6[,-5], df7[
 
 len_summary <- lengths %>% 
   #  filter(monitoring_event == 1, bag_site == "Lewisetta") %>%
-  arrange(-length, .by_group = T) %>%
+  dplyr::arrange(-length, .by_group = T) %>%
   as.data.frame()
 
 lew4 <- len_summary[len_summary$monitoring_event == 4 & len_summary$site == "Lewisetta",]
@@ -217,15 +217,25 @@ sink()
 Now visualize some of these trends.
 
 ```{r}
+# prep lengths for plotting
+lengths[lengths$pop == "JR", ]$pop <- "VA"
+
 # color scheme
 popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "LOLA", "DEBY", "NH", "ME"), 
                      order = 1:8, 
                      cols = c("#365C8DFF", "#277F8EFF", "#1FA187FF", "#4AC16DFF", "#440154FF", "#46337EFF", "#9FDA3AFF", "#FDE725FF"),
                      shape = c(21,21,21,21,23,23,21,21),
-                     site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME"))
+                     site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME"),
+                     site_name_plotting = c("W1-TX", "W2-LA", "W3-FL", "W4-VA", "S1-LOLA", "S2-DEBY", "W5-NH", "W6-ME"))
+
+# add a 0 time point
+lengths_0 <- data.frame(site = rep(unique(lengths$site), times = 8), pop = rep(unique(popsdf$pop), each = 3), monitoring_event = 0, length = rep(0))
+
+lengths_mg0 <- rbind(lengths_0, lengths)
 
 # merge with popsdf
-lengths_mg <- merge(lengths, popsdf, by = c("pop"))
+lengths_mg <- merge(lengths_mg0, popsdf, by = c("pop"))
+head(lengths_mg)
 
 # plot
 lew_len <- ggplot(data = lengths_mg[lengths_mg$site == "Lewisetta",]) + 
@@ -242,19 +252,19 @@ lew_len <- ggplot(data = lengths_mg[lengths_mg$site == "Lewisetta",]) +
   scale_fill_manual(name = "Population", 
                     labels = setNames(popsdf$site_name, popsdf$pop),
                     values = setNames(popsdf$cols, popsdf$pop)) +
-  ylim(20, 100) + 
-  labs(title = "Lewisetta: Oyster Shell Length thru Time", 
+  ylim(0, 100) + 
+  labs(title = "(C) Lewisetta: Oyster Shell Length thru Time", 
        x = "Monitoring Event", 
        y = "Shell Length (mm)") +
-  scale_x_continuous("Monitoring Event", breaks = c(1, 2, 3, 4),
-                     labels = c("Fall '23", "Spring '24", "Fall '24", "Spring '25")) +
+  scale_x_continuous("Monitoring Event", breaks = c(0, 1, 2, 3, 4),
+                     labels = c("Spring '23", "Fall '23", "Spring '24", "Fall '24", "Spring '25")) +
   theme_classic() + 
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
         legend.justification = "top")
 
 yrk_len <- ggplot(data = lengths_mg[lengths_mg$site == "YorkRiver",]) + 
-  geom_line(aes(x = monitoring_event, y = length, color = fct_reorder(pop, order))) + 
+  geom_line(aes(x = monitoring_event, y = length, color = fct_reorder(pop, order))) +
   geom_point(aes(x = monitoring_event, y = length, fill = fct_reorder(pop, order), 
                  shape = fct_reorder(pop, order)),
              size = 4) + 
@@ -267,12 +277,12 @@ yrk_len <- ggplot(data = lengths_mg[lengths_mg$site == "YorkRiver",]) +
   scale_fill_manual(name = "Population", 
                     labels = setNames(popsdf$site_name, popsdf$pop),
                     values = setNames(popsdf$cols, popsdf$pop)) +
-  ylim(20, 100) + 
-  labs(title = "York River: Oyster Shell Length thru Time", 
+  ylim(0, 100) + 
+  labs(title = "(D) York River: Oyster Shell Length thru Time", 
        x = "Monitoring Event", 
        y = "Shell Length (mm)") +
-  scale_x_continuous("Monitoring Event", breaks = c(1, 2, 3, 4),
-                     labels = c("Fall '23", "Spring '24", "Fall '24", "Spring '25")) +
+  scale_x_continuous("Monitoring Event", breaks = c(0, 1, 2, 3, 4),
+                     labels = c("Spring '23", "Fall '23", "Spring '24", "Fall '24", "Spring '25")) +
   theme_classic() + 
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
@@ -306,6 +316,14 @@ all_len <- ggplot(data = lengths_mg[lengths_mg$site == "Overall",]) +
 all_len
 lew_len
 yrk_len
+
+# export this
+docx <- read_pptx() %>% 
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = lew_len), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = yrk_len), location = ph_location_type(type = "body"))
+print(docx, target = "results/figures/len_thru_time.pptx")
 ```
 
 
