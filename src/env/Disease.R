@@ -105,7 +105,13 @@ ggplot() +
            alpha = 0.2) +
   ylim(0, 0.55) +
   theme_classic() + 
-  labs(title = "MSX Prevalence at York River, 2021 - 2024", x = "Date", y = "MSX Prevalence")
+  labs(title = "MSX Prevalence at York River thru 2021 - 2024", x = "Date", y = "MSX Prevalence")
+
+ggplot() + 
+  geom_point(data = msx_yrk_exp, aes(x = Date, y = msx_prev)) + 
+  geom_line(data = msx_yrk_exp, aes(x = Date, y = msx_prev)) + 
+  theme_classic() + 
+  labs(title = "MSX Prevalence at York River", x = "Date", y = "MSX Prevalence")
 
 expdis_lew_nona$msx_prev <- 0
 expdis_lew_nona$Date <- as_date(parse_date_time(expdis_lew_nona$date, c("mdy")))
@@ -117,9 +123,25 @@ ggplot() +
   #          xmin = as.Date("2023-05-05"), xmax = as.Date("2024-11-08"), 
   #          ymin = 0, ymax = 0.55,
   #          alpha = 0.2) +
-  ylim(0, 0.55) +
+  ylim(0, 1) +
   theme_classic() + 
-  labs(title = "MSX Prevalence at Lewisetta, 2023 - 2024", x = "Date", y = "MSX Prevalence")
+  labs(title = "MSX Prevalence at Lewisetta, 2023 - 2024", 
+       x = "Date", y = "MSX Prevalence")
+
+# together
+ggplot() + 
+  geom_point(data = msx_yrk_exp, aes(x = Date, y = msx_prev, color = "York River")) + 
+  geom_line(data = msx_yrk_exp, aes(x = Date, y = msx_prev, color = "York River")) + 
+  geom_point(data = expdis_lew_nona, aes(x = Date, y = msx_prev, color = "Lewisetta")) + 
+  geom_line(data = expdis_lew_nona, aes(x = Date, y = msx_prev, color = "Lewisetta")) + 
+  ylim(0,1) +
+  scale_color_manual(name = "Common Garden", 
+                     values = c("Lewisetta" = "mediumspringgreen", 
+                                "York River" = "dodgerblue")) +
+  xlim(as.Date("2023-05-01"), as.Date("2025-05-01")) + 
+  theme_classic() + 
+  labs(title = "MSX Prevalence at Common Garden Sites ", 
+       x = "Date", y = "MSX Prevalence")
 #########################
 
 ## plotting - dermo
@@ -131,24 +153,30 @@ expdis_mut$date <- as.Date(paste0(expdis_mut$YEAR, "-", expdis_mut$MONTH, "-01")
 ggplot() +
   geom_point(data = expdis_mut[expdis_mut$SITE == "Lewisetta",], aes(x = date, y = P_dermo)) + 
   geom_line(data = expdis_mut[expdis_mut$SITE == "Lewisetta",], aes(x = date, y = P_dermo)) + 
-#  annotate("rect", 
-#           xmin = as.Date("2023-05-05"), xmax = as.Date("2024-11-01"), 
-#           ymin = 0, ymax = 0.55,
-#           alpha = 0.2) +
-  ylim(0, 0.55) +
+  ylim(0, 1) +
   theme_classic() + 
   labs(title = "Dermo Prevalence at Lewisetta, 2023 - 2024", x = "Date", y = "Dermo Prevalence")
 
 ggplot() +
   geom_point(data = expdis_mut[expdis_mut$SITE == "YorkRiver",], aes(x = date, y = P_dermo)) + 
   geom_line(data = expdis_mut[expdis_mut$SITE == "YorkRiver",], aes(x = date, y = P_dermo)) + 
-  #  annotate("rect", 
-  #           xmin = as.Date("2023-05-05"), xmax = as.Date("2024-11-01"), 
-  #           ymin = 0, ymax = 0.55,
-  #           alpha = 0.2) +
-  ylim(0, 0.55) +
+  ylim(0, 1) +
   theme_classic() + 
   labs(title = "Dermo Prevalence at York River, 2023 - 2024", x = "Date", y = "Dermo Prevalence")
+
+# combined
+ggplot() + 
+  geom_point(data = expdis_mut, 
+             aes(x = date, y = P_dermo, color = SITE)) + 
+  geom_line(data = expdis_mut, 
+            aes(x = date, y = P_dermo, color = SITE)) + 
+  xlim(as.Date("2023-05-01"), as.Date("2025-05-01")) + 
+  scale_color_manual(name = "Common Garden", 
+                     values = c("Lewisetta" = "mediumspringgreen", 
+                                "YorkRiver" = "dodgerblue")) +
+  theme_classic() + 
+  labs(title = "Dermo Prevalence at Common Garden Sites ", 
+       x = "Date", y = "Dermo Prevalence")
 ###################
 
 
