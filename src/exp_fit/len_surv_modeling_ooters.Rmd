@@ -32,8 +32,6 @@ This script is for modeling differences in survival and length amongst bags/popu
 
 I intend to use linear (mixed) models to examine how survival and length vary by group and how genetics and environmental history drive these differences in performance. 
 
-This script will also be split at some point to separate some of the modeling.
-
 ## Modeling differences in survival
 
 First I'll process survival data:
@@ -281,7 +279,7 @@ len_final_time_plotting$pop.x <- NULL
 names(len_final_time_plotting)[names(len_final_time_plotting) == "pop.y"] <- "pop"
 
 # y-axis location for letters
-letters_loc_len <- len_final_time_plotting %>% group_by(popsite) %>% summarise(across(length, max))
+letters_loc_len <- len_final_time_plotting %>% group_by(popsite) %>% dplyr::summarise(across(length, max))
 colnames(letters_loc_len) <- c("popsite", "max_len")
 len_final_time_plotting_letters <- merge(len_final_time_plotting, letters_loc_len, by = "popsite")
 
