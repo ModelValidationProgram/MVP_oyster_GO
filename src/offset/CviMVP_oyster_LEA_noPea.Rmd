@@ -39,14 +39,14 @@ library(gstat) # interpolation
 
 # data
 # env
-env_all <- read.csv("data/EnvDat/env_scaled_2026-01-29.csv")
-env_sea <- read.env("data/EnvDat/seascape/seascape_scaled_expanded_reord_2026-01-29.env")
-env_exp <- read.env("data/EnvDat/exp/exp_scaled_2026-01-29.env")
-sea_red <- read.csv("data/EnvDat/seascape/sea_scaled_2026-01-29.csv")[,-1]
+env_all <- read.csv("data/EnvDat/env_scaled_2026-01-30.csv")
+env_sea <- read.env("data/EnvDat/seascape/seascape_scaled_expanded_reord_2026-01-30.env")
+env_exp <- read.env("data/EnvDat/exp/exp_scaled_2026-01-30.env")
+sea_red <- read.csv("data/EnvDat/seascape/sea_scaled_2026-01-30.csv")[,-1]
 
 # sites
-sea_site_full <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2026-01-29.csv")[,-1]
-exp_site_full <- read.csv("data/EnvDat/exp/exp_scaled_2026-01-29.csv")[,-1]
+sea_site_full <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2026-01-30.csv")[,-1]
+exp_site_full <- read.csv("data/EnvDat/exp/exp_scaled_2026-01-30.csv")[,-1]
 
 # gen
 genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2026-01-27.geno")
@@ -63,24 +63,22 @@ inds_genomat <- read.csv("data/GenDat/inds_genomat.csv")[,-1]
 
 ```{r}
 # rename columns & rows to be more informative
-colnames(env_sea) <- c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")
-env_sea_np <- env_sea[,c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")]
+colnames(env_sea) <- c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")
 
-colnames(env_exp) <- c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled", "lew_sal_quant10_scaled", "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled", "lew_MSX_Prevalence_scaled", "yrk_sal_quant10_scaled", "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled", "yrk_MSX_Prevalence_scaled")
-env_exp_np <- env_exp[,c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled", "lew_sal_quant10_scaled", "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "lew_Dermo_Prevalence_scaled", "lew_MSX_Prevalence_scaled", "yrk_sal_quant10_scaled", "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_MSX_Prevalence_scaled")]
+colnames(env_exp) <- c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled", "lew_sal_quant10_scaled", "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "lew_Dermo_Prevalence_scaled", "lew_MSX_Prevalence_scaled", "yrk_sal_quant10_scaled", "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_MSX_Prevalence_scaled")
 
-rownames(env_sea_np) <- sea_site_full$site_name
-rownames(env_exp_np) <- exp_site_full$site_name
+rownames(env_sea) <- sea_site_full$site_name
+rownames(env_exp) <- exp_site_full$site_name
 
 # create a dataset with no biotic variables - nb for "no biotic"
 env_sea_nb <- env_sea[, c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled")]
 env_exp_nb <- env_exp[, c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "lew_sal_quant10_scaled", "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "yrk_sal_quant10_scaled", "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled")]
 
 # other env datasets
-colnames(env_all) <- c("site_name", "Latitude_manual", "Longitude_manual", "sal_quant10", "sal_quant90", "temp_quant10", "temp_quant90", "Dermo_Prevalence", "Pea_crab", "MSX_Prevalence", "sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")
+colnames(env_all) <- c("site_name", "Latitude_manual", "Longitude_manual", "sal_quant10", "sal_quant90", "temp_quant10", "temp_quant90", "Dermo_Prevalence", "MSX_Prevalence", "sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")
 
 # check datasets for internal consistency
-sea_red[sea_red$site_name == "DWS_CB_VA_2022-10-7",c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")] == env_exp[3,c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")] # yes
+sea_red[sea_red$site_name == "DWS_CB_VA_2022-10-7",c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")] == env_exp[3,c("sal_quant10_scaled", "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")] # yes
 ```
 
 
@@ -100,8 +98,8 @@ The seascape environmental data was compiled by Madeline, as well as the qPCR re
 ```{r}
 # fit model
 mod_lfmm <- lfmm2(input = genoThinLfmm,
-                  env = env_sea_np, 
-                  K = 2, # this was number from Madeline's snmf analysis
+                  env = env_sea, 
+                  K = 2,
                   effect.sizes = T) 
 mod_lfmm_nb <- lfmm2(input = genoThinLfmm,
                       env = env_sea_nb,
@@ -128,9 +126,9 @@ rownames(env_sea_forgo2) <- env_sea_forgo$site_name
 env_sea_forgo2[rownames(env_sea_forgo2) %in% c("CB_TX_2022-6-9", "DC_DR_ME_2022-10-25", "DWS_CB_VA_2022-10-7", "KP_FGR_FL_2022-8-23", "Sister_Lk_LA_2022-8-9", "SR_GB_NH_2022-8-12"), c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")] == env_exp[rownames(env_exp) %in% c("W1_TX","W2_LA","W3_FL","W4_VA","W5_NH","W6_ME"), c("sal_quant10_scaled",  "sal_quant90_scaled", "temp_quant10_scaled", "temp_quant90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")]
 
 # save this
-write.csv(env_sea_forgo2, "data/EnvDat/seascape/seascape_environment_predict_nopea.csv", row.names = T)
+#write.csv(env_sea_forgo2, "data/EnvDat/seascape/seascape_environment_predict_nopea.csv", row.names = T)
 
-env_sea_forgo2 <- read.csv("data/EnvDat/seascape/seascape_environment_predict_nopea.csv", row.names = 1)
+#env_sea_forgo2 <- read.csv("data/EnvDat/seascape/seascape_environment_predict_nopea.csv", row.names = 1)
 
 # following https://github.com/bcm-uga/SSMPG2025/blob/main/Tutorials/Tutorial%20visualization/Spatial_Prediction_Genomic_Offset.Rmd
 
