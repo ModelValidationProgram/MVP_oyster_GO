@@ -21,8 +21,8 @@ This script is for analyzing how well various genomic offset methods predict exp
 setwd("~/Documents/GitHub/MVP_oyster_GO")
 
 # packages
-library(dplyr)
 library(tidyr)
+library(dplyr)
 library(stringr)
 library(vegan)
 library(ggplot2)
@@ -30,11 +30,11 @@ library(plotrix)
 
 # data
 # offset predictions
-lea_go <- read.csv("results/GO_results/offsets_LEA_expsites_2025-12-08.csv")[,-1]
-rda_go <- read.csv("results/GO_results/offsets_RDA_expsites_2025-12-08.csv")[,-1]
-gf_go <- read.csv("results/GO_results/offsets_GF_expSites_2025-12-11.csv")[,-1]
-env_dist <- read.csv("data/EnvDat/exp/distance_matrix_2025-12-05.csv")[28:35,c("X","Lewisetta","YorkRiver")]
-env_dist_nb <- read.csv("data/EnvDat/exp/distance_matrix_abiotic_2025-12-05.csv")[28:35,c("X","Lewisetta","YorkRiver")]
+lea_go <- read.csv("results/GO_results/offsets_LEA_expsites_2026-01-29.csv")[,-1]
+rda_go <- read.csv("results/GO_results/offsets_RDA_expsites_2026-01-29.csv")[,-1]
+gf_go <- read.csv("results/GO_results/offsets_GF_expSites_2026-02-03.csv")[,-1]
+env_dist <- read.csv("data/EnvDat/exp/distance_matrix_2026-01-30.csv")[28:35,c("X","Lewisetta","YorkRiver")]
+env_dist_nb <- read.csv("data/EnvDat/exp/distance_matrix_abiotic_2026-01-30.csv")[28:35,c("X","Lewisetta","YorkRiver")]
 
 # fitness metrics
 mort_bags <- read.csv("results/exp_results/mortality_long_bags_2026-01-15.csv")[,-1]
@@ -184,27 +184,6 @@ lea_go1 <- merge(lea_go, orders_lea, by = c("site_name"))
 
 # GF
 # add order
-order_lew_af <- as.data.frame(gf_go[order(gf_go$offset_gf_af_lew, decreasing = T),]$site_name)
-colnames(order_lew_af) <- c("site_name")
-order_lew_af$order_lew_af_gf <- 1:length(order_lew_af$site_name)
-
-order_lew_af_nb <- as.data.frame(gf_go[order(gf_go$offset_gf_af_lew_nb, decreasing = T),]$site_name)
-colnames(order_lew_af_nb) <- c("site_name")
-order_lew_af_nb$order_lew_af_gf_nb <- 1:length(order_lew_af_nb$site_name)
-
-order_yrk_af <- as.data.frame(lea_go[order(gf_go$offset_gf_af_yrk, decreasing = T),]$site_name)
-colnames(order_yrk_af) <- c("site_name")
-order_yrk_af$order_yrk_af_gf <- 1:length(order_yrk_af$site_name)
-
-order_yrk_af_nb <- as.data.frame(lea_go[order(gf_go$offset_gf_af_yrk_nb, decreasing = T),]$site_name)
-colnames(order_yrk_af_nb) <- c("site_name")
-order_yrk_af_nb$order_yrk_af_gf_nb <- 1:length(order_yrk_af_nb$site_name)
-
-orders_gf_af_b <- merge(order_lew_af, order_yrk_af, by = c("site_name"))
-orders_gf_af_nb <- merge(order_lew_af_nb, order_yrk_af_nb, by = c("site_name"))
-orders_gf_af <- merge(orders_gf_af_b, orders_gf_af_nb, by = c("site_name"))
-gf_go1 <- merge(gf_go, orders_gf_af, by = c("site_name"))
-
 order_lew_geno <- as.data.frame(gf_go[order(gf_go$offset_gf_geno_lew, decreasing = T),]$site_name)
 colnames(order_lew_geno) <- c("site_name")
 order_lew_geno$order_lew_geno_gf <- 1:length(order_lew_geno$site_name)
@@ -224,7 +203,7 @@ order_yrk_geno_nb$order_yrk_geno_gf_nb <- 1:length(order_yrk_geno_nb$site_name)
 orders_gf_geno_b <- merge(order_lew_geno, order_yrk_geno, by = c("site_name"))
 orders_gf_geno_nb <- merge(order_lew_geno_nb, order_yrk_geno_nb, by = c("site_name"))
 orders_gf_geno <- merge(orders_gf_geno_b, orders_gf_geno_nb, by = c("site_name"))
-gf_go2 <- merge(gf_go1, orders_gf_geno, by = c("site_name"))
+gf_go1 <- merge(gf_go, orders_gf_geno, by = c("site_name"))
 
 # RDA
 # colnames
@@ -279,7 +258,7 @@ orders_envdist <- merge(orders_envdist_b, orders_envdist_nb, by = "site_name")
 env_dist2 <- merge(env_dist1, orders_envdist, by = "site_name")
 
 # put together full go & fitness df
-go <- merge(rda_go1, gf_go2, by = c("site_name","lat","lon")) 
+go <- merge(rda_go1, gf_go1, by = c("site_name","lat","lon")) 
 go1 <- merge(go, lea_go1, by = c("site_name", "lat", "lon"))
 go2 <- merge(go1, env_dist2, by = "site_name")
 fullfit <- merge(bagfullfit, go2, by = "site_name")
@@ -309,40 +288,48 @@ Here I calculate the R^2 and pearson's correlation between fitness and GO for ea
 #################################################
 # function for correlations
 cor_fit <- function(site, go_method, bio, sel, df) {
-  cor_df <- data.frame(method = NA, biotic = NA, sel = NA, bag_site = NA, event = NA, pearson_surv = NA, pearson_surv_pval = NA, pearson_surv_rank = NA, pearson_surv_rank_pval = NA, spearman_surv = NA, spearman_surv_pval = NA, spearman_surv_rank = NA, spearman_surv_rank_pval = NA, kendall_surv = NA, kendall_surv_pval = NA, kendall_surv_rank = NA, kendall_surv_rank_pval = NA, r2_surv = NA, r2_surv_rank = NA, pearson_len = NA, pearson_len_pval = NA, pearson_len_rank = NA, pearson_len_rank_pval = NA, spearman_len = NA, spearman_len_pval = NA, spearman_len_rank = NA, spearman_len_rank_pval = NA, kendall_len = NA, kendall_len_pval = NA, kendall_len_rank = NA, kendall_len_rank_pval = NA, r2_len = NA, r2_len_rank = NA)
+  cor_df <- data.frame(method = NA, biotic = NA, sel = NA, bag_site = NA, event = NA, pearson_surv = NA, pearson_surv_pval = NA, spearman_surv = NA, spearman_surv_pval = NA, kendall_surv = NA, kendall_surv_pval = NA, r2_surv = NA, r2_surv_rank = NA, pearson_len = NA, pearson_len_pval = NA, spearman_len = NA, spearman_len_pval = NA, kendall_len = NA, kendall_len_pval = NA, r2_len = NA, r2_len_rank = NA)
   
   # what metric should we use based on inputs
   lookup_metric <- list(
   Lewisetta = list(
-    b = list(lea = "offset_lea_go_lew", gf_af = "offset_gf_af_lew",
-                   gf_geno = "offset_gf_geno_lew", rda = "offset_rda_lew", 
-                   env_dist = "env_dist_lew"),
-    nb = list(lea = "offset_lea_go_lew_nb", gf_af = "offset_gf_af_lew_nb",
-                   gf_geno = "offset_gf_geno_lew_nb", rda = "offset_rda_lew_nb", 
-                   env_dist = "env_dist_lew_nb")),
+    b = list(lea = "offset_lea_go_lew",
+             gf_geno = "offset_gf_geno_lew", 
+             rda = "offset_rda_lew", 
+             env_dist = "env_dist_lew"),
+    nb = list(lea = "offset_lea_go_lew_nb",
+              gf_geno = "offset_gf_geno_lew_nb", 
+              rda = "offset_rda_lew_nb",
+              env_dist = "env_dist_lew_nb")),
   YorkRiver = list(
-    b = list(lea = "offset_lea_go_yrk", gf_af = "offset_gf_af_yrk",
-                   gf_geno = "offset_gf_geno_yrk", rda = "offset_rda_yrk", 
-                   env_dist = "env_dist_yrk"),
-    nb = list(lea = "offset_lea_go_yrk_nb", gf_af = "offset_gf_af_yrk_nb",
-                   gf_geno = "offset_gf_geno_yrk_nb", rda = "offset_rda_yrk_nb", 
-                   env_dist = "env_dist_yrk_nb")))
+    b = list(lea = "offset_lea_go_yrk",
+             gf_geno = "offset_gf_geno_yrk", 
+             rda = "offset_rda_yrk", 
+             env_dist = "env_dist_yrk"),
+    nb = list(lea = "offset_lea_go_yrk_nb",
+              gf_geno = "offset_gf_geno_yrk_nb", 
+              rda = "offset_rda_yrk_nb", 
+              env_dist = "env_dist_yrk_nb")))
   
   lookup_rank <- list(
   Lewisetta = list(
-    b = list(lea = "order_lew_lea", gf_af = "order_lew_af_gf",
-                   gf_geno = "order_lew_geno_gf", rda = "order_lew_rda", 
-                   env_dist = "order_lew_envdist"),
-    nb = list(lea = "order_lew_lea_nb", gf_af = "order_lew_af_gf_nb",
-                   gf_geno = "order_lew_geno_gf_nb", rda = "order_lew_rda_nb", 
-                   env_dist = "order_lew_envdist_nb")),
+    b = list(lea = "order_lew_lea",
+             gf_geno = "order_lew_geno_gf", 
+             rda = "order_lew_rda", 
+             env_dist = "order_lew_envdist"),
+    nb = list(lea = "order_lew_lea_nb", 
+              gf_geno = "order_lew_geno_gf_nb", 
+              rda = "order_lew_rda_nb", 
+              env_dist = "order_lew_envdist_nb")),
   YorkRiver = list(
-    b = list(lea = "order_yrk_lea", gf_af = "order_yrk_af_gf",
-                   gf_geno = "order_yrk_geno_gf", rda = "order_yrk_rda", 
-                   env_dist = "order_yrk_envdist"),
-    nb = list(lea = "order_yrk_lea_nb", gf_af = "order_yrk_af_gf_nb",
-                   gf_geno = "order_yrk_geno_gf_nb", rda = "order_yrk_rda_nb", 
-                   env_dist = "order_yrk_envdist_nb")))
+    b = list(lea = "order_yrk_lea",
+             gf_geno = "order_yrk_geno_gf", 
+             rda = "order_yrk_rda", 
+             env_dist = "order_yrk_envdist"),
+    nb = list(lea = "order_yrk_lea_nb", 
+              gf_geno = "order_yrk_geno_gf_nb", 
+              rda = "order_yrk_rda_nb", 
+              env_dist = "order_yrk_envdist_nb")))
   
   go_metric <- lookup_metric[[site]][[bio]][[go_method]]
   go_rank <- lookup_rank[[site]][[bio]][[go_method]]
@@ -372,32 +359,20 @@ cor_fit <- function(site, go_method, bio, sel, df) {
     # survival
     cor_df[i,]$pearson_surv <- cor.test(metric_values, surv_values, method = "pearson")$estimate
     cor_df[i,]$pearson_surv_pval <- cor.test(metric_values, surv_values, method = "pearson")$p.value
-    cor_df[i,]$pearson_surv_rank <- cor.test(rank_values, surv_ranks, method = "pearson")$estimate
-    cor_df[i,]$pearson_surv_rank_pval <- cor.test(rank_values, surv_ranks, method = "pearson")$p.value
     cor_df[i,]$spearman_surv <- cor.test(metric_values, surv_values, method = "spearman")$estimate
     cor_df[i,]$spearman_surv_pval <- cor.test(metric_values, surv_values, method = "spearman")$p.value
-    cor_df[i,]$spearman_surv_rank <- cor.test(rank_values, surv_ranks, method = "spearman")$estimate
-    cor_df[i,]$spearman_surv_rank_pval <- cor.test(rank_values, surv_ranks, method = "spearman")$p.value
     cor_df[i,]$kendall_surv <- cor.test(metric_values, surv_values, method = "kendall")$estimate
     cor_df[i,]$kendall_surv_pval <- cor.test(metric_values, surv_values, method = "kendall")$p.value
-    cor_df[i,]$kendall_surv_rank <- cor.test(rank_values, surv_ranks, method = "kendall")$estimate
-    cor_df[i,]$kendall_surv_rank_pval <- cor.test(rank_values, surv_ranks, method = "kendall")$p.value
     cor_df[i,]$r2_surv <- summary(lm(surv_values ~ metric_values))$r.squared
     cor_df[i,]$r2_surv_rank <- summary(lm(surv_ranks ~ rank_values))$r.squared
 
     # length
     cor_df[i,]$pearson_len <- cor.test(metric_values, len_values, method = "pearson")$estimate
     cor_df[i,]$pearson_len_pval <- cor.test(metric_values, len_values, method = "pearson")$p.value
-    cor_df[i,]$pearson_len_rank <- cor.test(rank_values, len_ranks, method = "pearson")$estimate
-    cor_df[i,]$pearson_len_rank_pval <- cor.test(rank_values, len_ranks, method = "pearson")$p.value
     cor_df[i,]$spearman_len <- cor.test(metric_values, len_values, method = "spearman")$estimate
     cor_df[i,]$spearman_len_pval <- cor.test(metric_values, len_values, method = "spearman")$p.value
-    cor_df[i,]$spearman_len_rank <- cor.test(rank_values, len_ranks, method = "spearman")$estimate
-    cor_df[i,]$spearman_len_rank_pval <- cor.test(rank_values, len_ranks, method = "spearman")$p.value
     cor_df[i,]$kendall_len <- cor.test(metric_values, len_values, method = "kendall")$estimate
     cor_df[i,]$kendall_len_pval <- cor.test(metric_values, len_values, method = "kendall")$p.value
-    cor_df[i,]$kendall_len_rank <- cor.test(rank_values, len_ranks, method = "kendall")$estimate
-    cor_df[i,]$kendall_len_rank_pval <- cor.test(rank_values, len_ranks, method = "kendall")$p.value
     cor_df[i,]$r2_len <- summary(lm(len_values ~ metric_values))$r.squared
     cor_df[i,]$r2_len_rank <- summary(lm(len_ranks ~ rank_values))$r.squared
   }
@@ -815,56 +790,56 @@ Export all of these plots to pdf:
 library(officer) # for powerpoint export/editing
 library(rvg) # for converting r graphics to editable vector graphics
 
-# doc <- read_pptx() %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitLEA_plotfinalTsurv), location = ph_location_type(type = "body")) %>%
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitGFgeno_plotfinalTsurv), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitRDA_plotfinalTsurv), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitEnvdist_plotfinalTsurv), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitLEA_plotfinalTlen), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitGFgeno_plotfinalTlen), location = ph_location_type(type = "body")) %>%
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitRDA_plotfinalTlen), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitEnvdist_plotfinalTlen), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitGFgeno_lew_plotbag), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitGFgeno_yrk_plot), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitLEA_lew_plotbag), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitLEA_yrk_plot), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitRDA_lew_plotbag), location = ph_location_type(type = "body")) %>%
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitRDA_yrk_plot), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitEnvdist_lew_plotbag), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitEnvdist_yrk_plot), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitGFgeno_lew_len), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitGFgeno_yrk_len), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitLEA_lew_len), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitLEA_yrk_len), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitRDA_lew_len), location = ph_location_type(type = "body")) %>%
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitRDA_yrk_len), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitEnvdist_len_lew_plot), location = ph_location_type(type = "body")) %>% 
-#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-#   ph_with(value = dml(ggobj = goFitEnvdist_len_yrk_plot), location = ph_location_type(type = "body"))
-# print(doc, target = "results/figures/GO_compare.pptx")
+doc <- read_pptx() %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitLEA_plotfinalTsurv), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitGFgeno_plotfinalTsurv), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitRDA_plotfinalTsurv), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitEnvdist_plotfinalTsurv), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitLEA_plotfinalTlen), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitGFgeno_plotfinalTlen), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitRDA_plotfinalTlen), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitEnvdist_plotfinalTlen), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitGFgeno_lew_plotbag), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitGFgeno_yrk_plot), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitLEA_lew_plotbag), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitLEA_yrk_plot), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitRDA_lew_plotbag), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitRDA_yrk_plot), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitEnvdist_lew_plotbag), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitEnvdist_yrk_plot), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitGFgeno_lew_len), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitGFgeno_yrk_len), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitLEA_lew_len), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitLEA_yrk_len), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitRDA_lew_len), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitRDA_yrk_len), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitEnvdist_len_lew_plot), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = dml(ggobj = goFitEnvdist_len_yrk_plot), location = ph_location_type(type = "body"))
+print(doc, target = "results/figures/GO_compare.pptx")
 
 docx <- read_pptx() %>% 
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
@@ -927,14 +902,14 @@ Now that I have predictions from different methods, I will look at how offset pr
 
 ```{r Offset Comparison}
 # create a correlation matrix for offsets
-go_forcorrs <- fullfit %>% distinct(site_name, bag_site, event, .keep_all = TRUE) %>% filter(event == 4) %>% dplyr::select(site_name, pop, bag_site, offset_rda_lew, offset_rda_yrk, order_lew_rda, order_yrk_rda, offset_gf_af_lew, offset_gf_af_yrk, order_lew_af_gf, order_yrk_af_gf, offset_gf_geno_lew, offset_gf_geno_yrk, order_lew_geno_gf, order_yrk_geno_gf, offset_lea_go_lew, offset_lea_go_yrk, order_lew_lea, order_yrk_lea, env_dist_lew, env_dist_yrk, order_lew_envdist, order_yrk_envdist)
+go_forcorrs <- fullfit %>% distinct(site_name, bag_site, event, .keep_all = TRUE) %>% filter(event == 4) %>% dplyr::select(site_name, pop, bag_site, offset_rda_lew, offset_rda_yrk, order_lew_rda, order_yrk_rda, offset_gf_geno_lew, offset_gf_geno_yrk, order_lew_geno_gf, order_yrk_geno_gf, offset_lea_go_lew, offset_lea_go_yrk, order_lew_lea, order_yrk_lea, env_dist_lew, env_dist_yrk, order_lew_envdist, order_yrk_envdist)
 
 # check correlations
 library(ggcorrplot)
-cor_go_raw <- cor(go_forcorrs[,c("offset_rda_lew", "offset_gf_af_lew", "offset_gf_geno_lew", "offset_lea_go_lew", "env_dist_lew", "offset_rda_yrk", "offset_gf_af_yrk", "offset_gf_geno_yrk", "offset_lea_go_yrk", "env_dist_yrk")])
-cor_go_raw_pmat <- cor_pmat(go_forcorrs[,c("offset_rda_lew", "offset_gf_af_lew", "offset_gf_geno_lew", "offset_lea_go_lew", "env_dist_lew", "offset_rda_yrk", "offset_gf_af_yrk", "offset_gf_geno_yrk", "offset_lea_go_yrk", "env_dist_yrk")])
-cor_go_ord <- cor(go_forcorrs[,c("order_lew_rda", "order_lew_af_gf", "order_lew_geno_gf", "order_lew_lea", "order_lew_envdist", "order_yrk_rda", "order_yrk_af_gf", "order_yrk_geno_gf", "order_yrk_lea", "order_yrk_envdist")])
-cor_go_ord_pmat <- cor_pmat(go_forcorrs[,c("order_lew_rda", "order_lew_lea", "order_lew_af_gf", "order_lew_geno_gf", "order_lew_envdist", "order_yrk_rda", "order_yrk_lea", "order_yrk_af_gf", "order_yrk_geno_gf", "order_yrk_envdist")])
+cor_go_raw <- cor(go_forcorrs[,c("offset_rda_lew", "offset_gf_geno_lew", "offset_lea_go_lew", "env_dist_lew", "offset_rda_yrk", "offset_gf_geno_yrk", "offset_lea_go_yrk", "env_dist_yrk")])
+cor_go_raw_pmat <- cor_pmat(go_forcorrs[,c("offset_rda_lew", "offset_gf_geno_lew", "offset_lea_go_lew", "env_dist_lew", "offset_rda_yrk", "offset_gf_geno_yrk", "offset_lea_go_yrk", "env_dist_yrk")])
+
+colnames(cor_go_raw) <- rownames(cor_go_raw) <- c("RDA offset: Lewisetta", "GF offset: Lewisetta", "LEA offset: Lewisetta", "Environmental Distance: Lewisetta", "RDA offset: York River", "GF offset: York River", "LEA offset: York River", "Environmental Distance: York River")
 
 # plot these correlations
 # raw go
@@ -949,33 +924,19 @@ corrs_go_raw_all <- ggcorrplot(cor_go_raw,
        x = NULL,
        y = NULL)
 corrs_go_raw_all
-
-# go orders
-corrs_go_ord_all <- ggcorrplot(cor_go_ord, 
-                               p.mat = cor_go_ord_pmat,
-                               insig = "blank",
-                               lab = T,
-                               colors = c("#6D9EC1", "white", "#E46726")) + 
-  theme_classic() + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(title = "Genomic Offset Correlations (Rank)",
-       x = NULL,
-       y = NULL)
-corrs_go_ord_all
 ```
 
 Look also at the difference between go models with and without biotic variables.
 
 ```{r}
 # create a correlation matrix for offsets
-go_forcorrs_bio <- fullfit %>% distinct(site_name, bag_site, event, .keep_all = TRUE) %>% filter(event == 4) %>% dplyr::select(site_name, pop, bag_site, offset_rda_lew, offset_rda_yrk, order_lew_rda, order_yrk_rda, offset_gf_af_lew, offset_gf_af_yrk, order_lew_af_gf, order_yrk_af_gf, offset_gf_geno_lew, offset_gf_geno_yrk, order_lew_geno_gf, order_yrk_geno_gf, offset_lea_go_lew, offset_lea_go_yrk, order_lew_lea, order_yrk_lea, env_dist_lew, env_dist_yrk, order_lew_envdist, order_yrk_envdist, offset_rda_lew_nb, offset_rda_yrk_nb, order_lew_rda_nb, order_yrk_rda_nb, offset_gf_af_lew_nb, offset_gf_af_yrk_nb, order_lew_af_gf_nb, order_yrk_af_gf_nb, offset_gf_geno_lew_nb, offset_gf_geno_yrk_nb, order_lew_geno_gf_nb, order_yrk_geno_gf_nb, offset_lea_go_lew_nb, offset_lea_go_yrk_nb, order_lew_lea_nb, order_yrk_lea_nb, env_dist_lew_nb, env_dist_yrk_nb, order_lew_envdist_nb, order_yrk_envdist_nb)
+go_forcorrs_bio <- fullfit %>% distinct(site_name, bag_site, event, .keep_all = TRUE) %>% filter(event == 4) %>% dplyr::select(site_name, pop, bag_site, offset_rda_lew, offset_rda_yrk, offset_gf_geno_lew, offset_gf_geno_yrk, offset_lea_go_lew, offset_lea_go_yrk, env_dist_lew, env_dist_yrk, offset_rda_lew_nb, offset_rda_yrk_nb, offset_gf_geno_lew_nb, offset_gf_geno_yrk_nb, offset_lea_go_lew_nb, offset_lea_go_yrk_nb, env_dist_lew_nb, env_dist_yrk_nb)
   
 # check correlations
-library(ggcorrplot)
-cor_go_raw_bio <- cor(go_forcorrs_bio[,c("offset_rda_lew", "offset_gf_af_lew", "offset_gf_geno_lew", "offset_lea_go_lew", "env_dist_lew", "offset_rda_yrk", "offset_gf_af_yrk", "offset_gf_geno_yrk", "offset_lea_go_yrk", "env_dist_yrk", "offset_rda_lew_nb", "offset_gf_af_lew_nb", "offset_gf_geno_lew_nb", "offset_lea_go_lew_nb", "env_dist_lew_nb", "offset_rda_yrk_nb", "offset_gf_af_yrk_nb", "offset_gf_geno_yrk_nb", "offset_lea_go_yrk_nb", "env_dist_yrk_nb")])
-cor_go_raw_pmat_bio <- cor_pmat(go_forcorrs_bio[,c("offset_rda_lew", "offset_gf_af_lew", "offset_gf_geno_lew", "offset_lea_go_lew", "env_dist_lew", "offset_rda_yrk", "offset_gf_af_yrk", "offset_gf_geno_yrk", "offset_lea_go_yrk", "env_dist_yrk", "offset_rda_lew_nb", "offset_gf_af_lew_nb", "offset_gf_geno_lew_nb", "offset_lea_go_lew_nb", "env_dist_lew_nb", "offset_rda_yrk_nb", "offset_gf_af_yrk_nb", "offset_gf_geno_yrk_nb", "offset_lea_go_yrk_nb", "env_dist_yrk_nb")])
-cor_go_ord_bio <- cor(go_forcorrs_bio[,c("order_lew_rda", "order_lew_af_gf", "order_lew_geno_gf", "order_lew_lea", "order_lew_envdist", "order_yrk_rda", "order_yrk_af_gf", "order_yrk_geno_gf", "order_yrk_lea", "order_yrk_envdist", "order_lew_rda_nb", "order_lew_af_gf_nb", "order_lew_geno_gf_nb", "order_lew_lea_nb", "order_lew_envdist_nb", "order_yrk_rda_nb", "order_yrk_af_gf_nb", "order_yrk_geno_gf_nb", "order_yrk_lea_nb", "order_yrk_envdist_nb")])
-cor_go_ord_pmat_bio <- cor_pmat(go_forcorrs_bio[,c("order_lew_rda", "order_lew_af_gf", "order_lew_geno_gf", "order_lew_lea", "order_lew_envdist", "order_yrk_rda", "order_yrk_af_gf", "order_yrk_geno_gf", "order_yrk_lea", "order_yrk_envdist", "order_lew_rda_nb", "order_lew_af_gf_nb", "order_lew_geno_gf_nb", "order_lew_lea_nb", "order_lew_envdist_nb", "order_yrk_rda_nb", "order_yrk_af_gf_nb", "order_yrk_geno_gf_nb", "order_yrk_lea_nb", "order_yrk_envdist_nb")])
+cor_go_raw_bio <- cor(go_forcorrs_bio[,c("offset_rda_lew", "offset_gf_geno_lew", "offset_lea_go_lew", "env_dist_lew", "offset_rda_yrk", "offset_gf_geno_yrk", "offset_lea_go_yrk", "env_dist_yrk", "offset_rda_lew_nb", "offset_gf_geno_lew_nb", "offset_lea_go_lew_nb", "env_dist_lew_nb", "offset_rda_yrk_nb", "offset_gf_geno_yrk_nb", "offset_lea_go_yrk_nb", "env_dist_yrk_nb")])
+
+cor_go_raw_pmat_bio <- cor_pmat(go_forcorrs_bio[,c("offset_rda_lew", "offset_gf_geno_lew", "offset_lea_go_lew", "env_dist_lew", "offset_rda_yrk", "offset_gf_geno_yrk", "offset_lea_go_yrk", "env_dist_yrk", "offset_rda_lew_nb", "offset_gf_geno_lew_nb", "offset_lea_go_lew_nb", "env_dist_lew_nb", "offset_rda_yrk_nb", "offset_gf_geno_yrk_nb", "offset_lea_go_yrk_nb", "env_dist_yrk_nb")])
+
 
 # plot these correlations
 # raw go
@@ -990,19 +951,6 @@ corrs_go_raw_all_bio <- ggcorrplot(cor_go_raw_bio,
        x = NULL,
        y = NULL)
 corrs_go_raw_all_bio
-
-# go orders
-corrs_go_ord_all_bio <- ggcorrplot(cor_go_ord_bio, 
-                               p.mat = cor_go_ord_pmat_bio,
-                               insig = "blank",
-                               lab = T,
-                               colors = c("#6D9EC1", "white", "#E46726")) + 
-  theme_classic() + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(title = "Genomic Offset Correlations (Rank)",
-       x = NULL,
-       y = NULL)
-corrs_go_ord_all_bio
 
 # how different were the offset predictions?
 lew_final <- fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,]
@@ -1023,9 +971,9 @@ diff_envdist_yrk <- mean((yrk_final$env_dist_yrk_nb - yrk_final$env_dist_yrk) / 
 offset_diffs_bio <- data.frame(method = c("lea","lea","gf","gf","rda","rda","envdist","envdist"), bag_site = rep(c("Lewisetta","YorkRiver"),4), diff_percent = c(diff_lea_lew, diff_lea_yrk, diff_gf_lew, diff_gf_yrk, diff_rda_lew, diff_rda_yrk, diff_envdist_lew, diff_envdist_yrk))
 
 # how different were the offset performances? 
-final_corrs_b <- corrs_df[corrs_df$event == 4 & corrs_df$biotic == "b", c("method","bag_site","kendall_surv","signif_surv","kendall_len","signif_len")]
-final_corrs_nb <- corrs_df[corrs_df$event == 4 & corrs_df$biotic == "nb", c("method","bag_site","kendall_surv","signif_surv","kendall_len","signif_len")]
-colnames(final_corrs_nb) <- c("method","bag_site","kendall_surv_nb","signif_surv_nb","kendall_len_nb","signif_len_nb")
+final_corrs_b <- corrs_df[corrs_df$event == 4 & corrs_df$biotic == "b", c("method","bag_site","kendall_surv", "p_adj_surv","signif_surv_adj","kendall_len", "p_adj_len", "signif_len_adj")]
+final_corrs_nb <- corrs_df[corrs_df$event == 4 & corrs_df$biotic == "nb", c("method","bag_site","kendall_surv", "p_adj_surv","signif_surv_adj","kendall_len", "p_adj_len", "signif_len_adj")]
+colnames(final_corrs_nb) <- c("method","bag_site","kendall_surv_nb", "p_adj_surv_nb","signif_surv_adj_nb","kendall_len_nb", "p_adj_len_nb", "signif_len_adj_nb")
 final_corrs <- merge(final_corrs_b, final_corrs_nb, by = c("method", "bag_site"))
 
 final_corrs$diff_surv <- final_corrs$kendall_surv - final_corrs$kendall_surv_nb
@@ -1035,7 +983,9 @@ write.csv(final_corrs, "results/GO_results/final_correlation_GOfit.csv", row.nam
 
 # plot performance differences
 disease_vs_no_performance <- ggplot(data = final_corrs) +
-  geom_point(data = final_corrs, aes(x = kendall_surv_nb, y = kendall_surv, fill = method), shape = 21, size = 4) +
+  geom_point(data = final_corrs, aes(x = kendall_surv_nb, y = kendall_surv, fill = method, shape = bag_site), size = 4) +
+  scale_shape_manual(values = c("Lewisetta" = 21, "YorkRiver" = 24)) +
+  guides(fill = guide_legend(override.aes = list(shape = 21))) +
   ylim(-1,0.05)+
   xlim(-1,0.05)+
   geom_abline(intercept = 0, slope = 1) +
@@ -1044,7 +994,9 @@ disease_vs_no_performance <- ggplot(data = final_corrs) +
 disease_vs_no_performance
 
 disease_vs_no_len <- ggplot(data = final_corrs) +
-  geom_point(data = final_corrs, aes(x = kendall_len_nb, y = kendall_len, fill = method), shape = 21, size = 4) +
+  geom_point(data = final_corrs, aes(x = kendall_len_nb, y = kendall_len, fill = method, shape = bag_site), size = 4) +
+  scale_shape_manual(values = c("Lewisetta" = 21, "YorkRiver" = 24)) +
+  guides(fill = guide_legend(override.aes = list(shape = 21))) +
   ylim(-1,0.05)+
   xlim(-1,0.05)+
   geom_abline(intercept = 0, slope = 1) +
