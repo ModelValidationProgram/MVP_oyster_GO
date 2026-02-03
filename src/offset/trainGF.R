@@ -5,12 +5,13 @@ setwd("/projects/lotterhos/MVP_oyster_GO")
 
 # packages
 #install.packages("gradientForest")
+library(LEA) # for reading in genetic data
 library(gradientForest) # for running gradient forest
 
 # data
 # env
-env_all <- as.data.frame(read.csv("data/EnvDat/env_scaled_cq27_2026-01-27.csv")[,-1])
-env_sea <- as.data.frame(read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2026-01-27.csv")[,-1])
+env_all <- as.data.frame(read.csv("data/EnvDat/env_scaled_2026-01-30.csv")[,-1])
+env_sea <- as.data.frame(read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2026-01-30.csv")[,-1])
 
 # sites
 env_sea_site <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")[,-1]
@@ -18,8 +19,7 @@ env_sea_date <- read.csv("data/EnvDat/seascape/SeascapeSamples - date.csv")[,-1]
 exp_site_latlon <- read.csv("data/EnvDat/exp/exp_site_info.csv")[,-1]
 
 # gen
-#genoMat <- readRDS("data/GenDat/genoMatFull.RDS")
-genoThinMat <- readRDS("data/GenDat/geno_seascape_LDthin_rm_2026-01-28.RDS")
+genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2026-01-27.geno")
 
 # individuals
 expInds <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")
@@ -73,9 +73,9 @@ colnames(genoThinMat) <- make.names(as.character(1:ncol(genoThinMat)))
 
 # reduced variable set
 env_sea_pop <- env_sea[!duplicated(env_sea$ID_SiteDate),]
-env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")]
+env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")]
 env_sea_red_nb <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled")]
-env_sea_pop_red <- env_sea_pop[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")]
+env_sea_pop_red <- env_sea_pop[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")]
 env_sea_pop_red_nb <- env_sea_pop[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled")]
 
 # start by defining a maximum number of splits
@@ -95,7 +95,7 @@ end_time <- Sys.time() # time end
 (end_time - start_time) # about 1.5hrs
 
 # save trained af model
-saveRDS(gf_af, paste0("results/lg_results/gf_af_cq27_",Sys.Date(),".RDS"))
+saveRDS(gf_af, paste0("results/lg_results/gf_af_",Sys.Date(),".RDS"))
 
 # geno models
 start_time <- Sys.time() # time start
@@ -110,7 +110,7 @@ end_time <- Sys.time() # time end
 (end_time - start_time) # over 24 on cluster
 
 # save trained geno model
-saveRDS(gf_geno, paste0("results/lg_results/gf_geno_cq27_",Sys.Date(),".RDS"))
+saveRDS(gf_geno, paste0("results/lg_results/gf_geno_",Sys.Date(),".RDS"))
 
 # without biotic variables (nb)
 # allele freq models

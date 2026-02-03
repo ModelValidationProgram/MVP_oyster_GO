@@ -41,9 +41,9 @@ library(gstat) # interpolation
 
 # data
 # env
-env_all <- as.data.frame(read.csv("data/EnvDat/env_scaled_2025-12-05.csv")[,-1])
-env_sea <- as.data.frame(read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2025-12-05.csv")[,-1])
-env_exp <- read.csv("data/EnvDat/exp/exp_scaled_2025-12-08.csv")[,-1]
+env_all <- as.data.frame(read.csv("data/EnvDat/env_scaled_2026-01-30.csv")[,-1])
+env_sea <- as.data.frame(read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2026-01-30.csv")[,-1])
+env_exp <- read.csv("data/EnvDat/exp/exp_scaled_2026-01-30.csv")[,-1]
 
 # sites
 env_sea_site <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")[,-1]
@@ -52,7 +52,7 @@ env_exp_site <- read.csv("data/EnvDat/exp/exp_sitenames.csv")[,-1]
 exp_site_latlon <- read.csv("data/EnvDat/exp/exp_site_info.csv")[,-1]
 
 # gen
-genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2025-08-14.geno")
+genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2026-01-27.geno")
 
 # individuals
 expInds <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")
@@ -143,14 +143,14 @@ env_exp_pop <- env_exp[!duplicated(env_exp$site_name),]
 
 # reduced variable set
 env_sea_pop <- env_sea[!duplicated(env_sea$ID_SiteDate),]
-env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")]
+env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")]
 env_sea_red_nb <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled")]
-env_sea_pop_red <- env_sea_pop[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled", "MSX_Prevalence_scaled")]
+env_sea_pop_red <- env_sea_pop[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")]
 env_sea_pop_red_nb <- env_sea_pop[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled")]
 
-env_exp_pop_red <- env_exp_pop[,c("site_name","salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "Pea_crab_scaled","MSX_Prevalence_scaled")]
-env_exp_lew_red <- env_exp_pop[,c("site_name", "lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_Pea_crab_scaled","lew_MSX_Prevalence_scaled")]
-env_exp_yrk_red <- env_exp_pop[,c("site_name", "yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_Pea_crab_scaled", "yrk_MSX_Prevalence_scaled")]
+env_exp_pop_red <- env_exp_pop[,c("site_name","salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled","MSX_Prevalence_scaled")]
+env_exp_lew_red <- env_exp_pop[,c("site_name", "lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_MSX_Prevalence_scaled")]
+env_exp_yrk_red <- env_exp_pop[,c("site_name", "yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_MSX_Prevalence_scaled")]
 
 # change exp colnames to match up
 colnames(env_exp_lew_red) <- colnames(env_exp_yrk_red) <- colnames(env_exp_pop_red)
@@ -163,34 +163,26 @@ To train the models, I will be using the seascape genomic dataset that we proces
 
 ```{r GO Model Training}
 # read in models trained in trainGF.R / trainGF.sh
-gf_af <- readRDS("results/lg_results/gf_af_2025-12-08.RDS")
-gf_geno <- readRDS("results/lg_results/gf_geno_2025-12-10.RDS")
-gf_af_nb <- readRDS("results/lg_results/gf_af_abiotic_2025-11-22.RDS")
-gf_geno_nb <- readRDS("results/lg_results/gf_geno_abiotic_2025-11-24.RDS")
+gf_geno <- readRDS("results/lg_results/gf_geno_2026-01-31.RDS")
+gf_geno_nb <- readRDS("results/lg_results/gf_geno_abiotic_2026-02-02.RDS")
 
 # plot bar graphs depicting importance of each spatial and climate variable
-plot(gf_af)
 plot(gf_geno)
-plot(gf_af_nb)
 plot(gf_geno_nb)
 
 sink("results/GO_results/gf_importance.txt")
-importance(gf_af)
 importance(gf_geno)
-importance(gf_af_nb)
 importance(gf_geno_nb)
 sink()
 ```
 
-It looks like for the allele frequency based model, sal_quant90 is the most important climate variable, followed by either dermo prevalence/temp_quant90 (accuracy importance/R2 weighted importance), then dermo prevalence/sal_quantile10, then temp_quantil10, and finally pea crabs. 
-
-For the genotype based model, temp_quant10 is the most important variable, then sal_quant10, then temp_quant90, and finally sal_quant90 (consistent across accuracy importance and R2 weighted importance) FIX THIS ONCE RUN ON CLUSTER
+For the genotype based model without disease, temp_quant90 is the most important variable, then sal_quant10, then temp_quant10, and finally sal_quant90
 
 For both training runs, it's important to note that I had a significant number of warning messages - specifically:
 
 "Warning in randomForest.default(x = X, y = spec_vec, maxLevel = maxLevel, : The response has five or fewer unique values. Are you sure you want to do regression?"
 
-I think this is coming from non-variable genomic sites, which I could trim in future iterations of this model. Brandon has encountered this issue before and seems to think that the warning is internal to extendedForests (pckg for implementing random forests), and refers to number of unique AFs for a given locus. Something I've noticed while rerunning this code on the cluster is that these warnings do NOT appear, so it may alternatively be an issue with computing power.
+I think this is coming from non-variable genomic sites, which I could trim in future iterations of this model. Brandon has encountered this issue before and seems to think that the warning is internal to extendedForests (pckg for implementing random forests), and refers to number of unique AFs for a given locus. 
 
 
 ### Predict Offset
@@ -198,10 +190,6 @@ I think this is coming from non-variable genomic sites, which I could trim in fu
 Now that we have trained our gradient forest models, we need to use these to predict performance in the mesocosm treatments. This requires no new genomic data, just new environmental data that corresponds to each of the treatments and to the sites these populations originated from. Importantly, this new environmental data set must use the same column names as the data set used for training. We will ensure data compatibility below.
 
 ```{r Predict Offset Prep}
-# check everything again
-#gf_af
-#gf_geno
-
 # use exp data to predict from/to
 env_exp_pop_red
 env_exp_lew_red
@@ -219,17 +207,10 @@ Now I can predict offset using these different methods (genotype and allele freq
 
 ```{r Predict Offset}
 # prediction to home site
-pred_af_home <- predict(gf_af, env_exp_pop_red[,-1])
 pred_geno_home <- predict(gf_geno, env_exp_pop_red[,-1])
-pred_af_home_nb <- predict(gf_af_nb, env_exp_pop_red[,2:5])
 pred_geno_home_nb <- predict(gf_geno_nb, env_exp_pop_red[,2:5])
 
 # prediction to common gardens
-pred_af_lew <- predict(gf_af, env_exp_lew_red[,-1])
-pred_af_yrk <- predict(gf_af, env_exp_yrk_red[,-1])
-pred_af_lew_nb <- predict(gf_af_nb, env_exp_lew_red[,2:5])
-pred_af_yrk_nb <- predict(gf_af_nb, env_exp_yrk_red[,2:5])
-
 pred_geno_lew <- predict(gf_geno, env_exp_lew_red[,-1])
 pred_geno_yrk <- predict(gf_geno, env_exp_yrk_red[,-1])
 pred_geno_lew_nb <- predict(gf_geno_nb, env_exp_lew_red[,2:5])
@@ -237,52 +218,11 @@ pred_geno_yrk_nb <- predict(gf_geno_nb, env_exp_yrk_red[,2:5])
 
 # We now compute the euclidean distance between current and new cumulative importance
 # need num "individuals" (here populations) for num offsets to calc
-nb_ind <- nrow(pred_af_lew)
+nb_ind <- length(pops_list1)
 
 # calculate offsets
 euclidean <- function(a, b) sqrt(sum((a - b)^2)) # Euclidean distance for genetic offset
 
-# af
-# lew
-df_af_lew <- data.frame() # df
-for (i in 1:nb_ind){ # calc offset
-  ec_dist <- as.data.frame(euclidean(pred_af_home[i,], pred_af_lew[i,]))
-  df_af_lew <- rbind(df_af_lew, ec_dist)
-}
-af_offset_lew <- cbind(pops_list1, df_af_lew) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
-colnames(af_offset_lew) <- c("site_name", "offset_gf_af_lew")
-
-df_af_lew_nb <- data.frame() # df
-for (i in 1:nb_ind){ # calc offset
-  ec_dist <- as.data.frame(euclidean(pred_af_home_nb[i,], pred_af_lew_nb[i,]))
-  df_af_lew_nb <- rbind(df_af_lew_nb, ec_dist)
-}
-af_offset_lew_nb <- cbind(pops_list1, df_af_lew_nb) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
-colnames(af_offset_lew_nb) <- c("site_name", "offset_gf_af_lew_nb")
-
-# york
-df_af_yrk <- data.frame() # df
-for (i in 1:nb_ind) { # calc offset
-  ec_dist <- as.data.frame(euclidean(pred_af_home[i,], pred_af_yrk[i,]))
-  df_af_yrk <- rbind(df_af_yrk, ec_dist)
-}
-af_offset_yrk <- cbind(pops_list1, df_af_yrk) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
-colnames(af_offset_yrk) <- c("site_name", "offset_gf_af_yrk")
-
-df_af_yrk_nb <- data.frame() # df
-for (i in 1:nb_ind) { # calc offset
-  ec_dist <- as.data.frame(euclidean(pred_af_home_nb[i,], pred_af_yrk_nb[i,]))
-  df_af_yrk_nb <- rbind(df_af_yrk_nb, ec_dist)
-}
-af_offset_yrk_nb <- cbind(pops_list1, df_af_yrk_nb) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
-colnames(af_offset_yrk_nb) <- c("site_name", "offset_gf_af_yrk_nb")
-
-# merge
-af_offsets_b <- merge(af_offset_lew, af_offset_yrk, by = c("site_name"))
-af_offsets_nb <- merge(af_offset_lew_nb, af_offset_yrk_nb, by = c("site_name"))
-af_offsets <- merge(af_offsets_b, af_offsets_nb, by = c("site_name"))
-
-# geno
 # lew
 df_geno_lew <- data.frame() # df
 for (i in 1:nb_ind){ # calc offset
@@ -320,23 +260,16 @@ colnames(geno_offset_yrk_nb) <- c("site_name", "lat", "lon", "offset_gf_geno_yrk
 # merge
 geno_offsets_b <- merge(geno_offset_lew, geno_offset_yrk, by = c("site_name","lat","lon"))
 geno_offsets_nb <- merge(geno_offset_lew_nb, geno_offset_yrk_nb, by = c("site_name","lat","lon"))
-geno_offsets <- merge(geno_offsets_b, geno_offsets_nb, by = c("site_name","lat","lon"))
-
-offsets_mvp <- merge(geno_offsets, af_offsets, by = c("site_name"))
+offsets_mvp <- merge(geno_offsets_b, geno_offsets_nb, by = c("site_name","lat","lon"))
 
 # write these offsets to results
 write.csv(offsets_mvp, paste0("results/GO_results/offsets_GF_expSites_", Sys.Date(), ".csv"))
 
 # also seascape offsets for plotting
 # expand seascape common garden env for prediction
-env_sea_pop_for_pred <- rbind(unique(env_exp_lew_red[,2:8]), unique(env_exp_yrk_red[,2:8]))
+env_sea_pop_for_pred <- rbind(unique(env_exp_lew_red[,2:7]), unique(env_exp_yrk_red[,2:7]))
 env_sea_pop_for_pred$exp_site <- c("Lewisetta", "YorkRiver")
 env_sea_pop_for_pred <- env_sea_pop_for_pred[rep(seq_len(nrow(env_sea_pop_for_pred)), nrow(env_sea_pop_red)),]
-
-# af
-pred_af_sea <- predict(gf_af, env_sea_pop_red)
-pred_af_lew_sea <- predict(gf_af, env_sea_pop_for_pred[env_sea_pop_for_pred$exp_site == "Lewisetta",1:(ncol(env_sea_pop_for_pred) - 1)])
-pred_af_yrk_sea <- predict(gf_af, env_sea_pop_for_pred[env_sea_pop_for_pred$exp_site == "YorkRiver",-which(names(env_sea_pop_for_pred) == "exp_site")])
 
 # geno
 pred_geno_sea <- predict(gf_geno, env_sea_pop_red)
@@ -344,17 +277,9 @@ pred_geno_lew_sea <- predict(gf_geno, env_sea_pop_for_pred[env_sea_pop_for_pred$
 pred_geno_yrk_sea <- predict(gf_geno, env_sea_pop_for_pred[env_sea_pop_for_pred$exp_site == "YorkRiver",-which(names(env_sea_pop_for_pred) == "exp_site")])
 
 # We now compute the euclidean distance between current and new cumulative importance
-nb_ind_sea <- nrow(pred_af_sea)
+nb_ind_sea <- nrow(seascapeInds_reord2)
 
 # lew
-df_af_lew_sea <- data.frame() # df
-for (i in 1:nb_ind_sea){ # calc offset
-  ec_dist <- as.data.frame(euclidean(pred_af_sea[i,], pred_af_lew_sea[i,]))
-  df_af_lew_sea <- rbind(df_af_lew_sea, ec_dist)
-}
-af_offset_lew_sea <- cbind(env_sea_pop$site_name, env_sea_pop$Latitude_manual, env_sea_pop$Longitude_manual, df_af_lew_sea) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
-colnames(af_offset_lew_sea) <- c("site_name", "lat", "lon", "offset_gf_af_lew")
-
 df_geno_lew_sea <- data.frame()
 for (i in 1:nb_ind_sea) {
   ec_dist <- as.data.frame(euclidean(pred_geno_sea[i,], pred_geno_lew_sea[i,]))
@@ -364,14 +289,6 @@ geno_offset_lew_sea <- cbind(env_sea_pop$site_name, env_sea_pop$Latitude_manual,
 colnames(geno_offset_lew_sea) <- c("site_name", "lat", "lon", "offset_gf_geno_lew")
 
 # york
-df_af_yrk_sea <- data.frame() # df
-for (i in 1:nb_ind_sea){ # calc offset
-  ec_dist <- as.data.frame(euclidean(pred_af_sea[i,], pred_af_yrk_sea[i,]))
-  df_af_yrk_sea <- rbind(df_af_yrk_sea, ec_dist)
-}
-af_offset_yrk_sea <- cbind(env_sea_pop$site_name, env_sea_pop$Latitude_manual, env_sea_pop$Longitude_manual, df_af_yrk_sea) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
-colnames(af_offset_yrk_sea) <- c("site_name", "lat", "lon", "offset_gf_af_yrk")
-
 df_geno_yrk_sea <- data.frame()
 for (i in 1:nb_ind_sea){ # calc offset
   ec_dist <- as.data.frame(euclidean(pred_geno_sea[i,], pred_geno_yrk_sea[i,]))
@@ -381,9 +298,7 @@ geno_offset_yrk_sea <- cbind(env_sea_pop$site_name, env_sea_pop$Latitude_manual,
 colnames(geno_offset_yrk_sea) <- c("site_name", "lat", "lon", "offset_gf_geno_yrk")
 
 # df of seascape offsets
-seascape_offsets_af <- merge(af_offset_lew_sea, af_offset_yrk_sea, by = c("site_name","lat","lon"))
-seascape_offsets_geno <- merge(geno_offset_lew_sea, geno_offset_yrk_sea, by = c("site_name","lat","lon"))
-seascape_offsets <- merge(seascape_offsets_af, seascape_offsets_geno, by = c("site_name","lat","lon"))
+seascape_offsets <- merge(geno_offset_lew_sea, geno_offset_yrk_sea, by = c("site_name","lat","lon"))
 
 # save this
 write.csv(seascape_offsets, paste0("results/GO_results/offsets_GF_fullseascape_", Sys.Date(), ".csv"))
@@ -410,7 +325,7 @@ popsplot <- merge(popsdf, offsets_mvp_plot, by = "site_name")
 popsplot1 <- merge(popsplot, env_exp_pop_red, by = "site_name")
 
 # map
-sea_sf <- st_as_sf(seascape_offsets[,c("offset_gf_af_lew","offset_gf_af_yrk","offset_gf_geno_lew","offset_gf_geno_yrk","lat","lon")], 
+sea_sf <- st_as_sf(seascape_offsets[,c("offset_gf_geno_lew","offset_gf_geno_yrk","lat","lon")], 
                    coords = c("lon","lat"),
                    crs = 4326) # for WGS84 projection
 
@@ -450,25 +365,19 @@ grid_int_crop <- sf::st_crop(grid_int, c(xmin = -102, xmax = -65,
                                          ymin = 24, ymax = 47.05))
 
 # interpolate
-interpolated_lew_af <- idw(offset_gf_af_lew~1, sea_sf, grid_int)
-saveRDS(interpolated_lew_af, "results/lg_results/interpolated_gf_af_lew.rds")
-
-interpolated_yrk_af <- idw(offset_gf_af_yrk~1, sea_sf, grid_int)
-saveRDS(interpolated_yrk_af, "results/lg_results/interpolated_gf_af_yrk.rds")
-
 interpolated_lew_geno <- idw(offset_gf_geno_lew~1, sea_sf, grid_int)
-saveRDS(interpolated_lew_geno, "results/lg_results/interpolated_gf_geno_lew.rds")
+#saveRDS(interpolated_lew_geno, "results/lg_results/interpolated_gf_geno_lew.rds")
 
 interpolated_yrk_geno <- idw(offset_gf_geno_yrk~1, sea_sf, grid_int)
-saveRDS(interpolated_yrk_geno, "results/lg_results/interpolated_gf_geno_yrk.rds")
+#saveRDS(interpolated_yrk_geno, "results/lg_results/interpolated_gf_geno_yrk.rds")
 
 # empty raster
-ext <- terra::ext(st_bbox(interpolated_lew_af)) # get spatial extent
+ext <- terra::ext(st_bbox(interpolated_lew_geno)) # get spatial extent
 rast_empty <- terra::rast(ext, resolution = 0.1, crs = "+proj=longlat +datum=WGS84")
 
 # create a raster stack
 # set up
-sf_ls <- list(interpolated_lew_af, interpolated_yrk_af, interpolated_lew_geno, interpolated_yrk_geno)
+sf_ls <- list(interpolated_lew_geno, interpolated_yrk_geno)
 rast_ls <- list()
 
 # loop through sf files to rasterize
@@ -479,7 +388,7 @@ for (i in seq_along(sf_ls)) {
 
 # combine
 rast_all <- c(rast_ls)
-names(rast_all) <- c("interpolated_lew_go_af","interpolated_yrk_go_af","interpolated_lew_go_geno","interpolated_yrk_go_geno")
+names(rast_all) <- c("interpolated_lew_go_geno","interpolated_yrk_go_geno")
 
 # save object
 saveRDS(rast_all, "results/GO_results/gf_interpolated_go.RDS")
@@ -487,107 +396,6 @@ saveRDS(rast_all, "results/GO_results/gf_interpolated_go.RDS")
 # prep seascape sites for plotting
 offsets_sea_plotting_gf <- na.omit(seascape_offsets)
 offsets_plotting_gf <- na.omit(popsplot1)
-
-# mapping af models
-map_lew_int_gf_af <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = interpolated_lew_af, mapping = aes(fill = var1.pred, col = var1.pred)) +
-  geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = offsets_sea_plotting_gf, aes(x = lon, y = lat, 
-                                              fill = offset_gf_af_lew), 
-             shape = 21, size = 2) +
-  geom_point(data = offsets_plotting_gf[offsets_plotting_gf$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
-                                       fill = offset_gf_af_lew), 
-             shape = 21, size = 4)+
-  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.021)) +
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.021)) +
-  geom_label_repel(data = offsets_plotting_gf[offsets_plotting_gf$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
-                                       label = site_name),
-                  nudge_x = -3,
-                  nudge_y = 1,
-                  fill = "white")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Genomic Offset to \nLewisetta (GF AF)", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
-(map_lew_int_gf_af)
-
-lew_int_gf_af_inset <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = interpolated_lew_af, mapping = aes(fill = var1.pred, col = var1.pred)) +
-  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.021)) +
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.021)) +
-  geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = offsets_sea_plotting_gf, aes(x = lon, y = lat, 
-                                              fill = offset_gf_af_lew), 
-             shape = 21, size = 5) +
-  geom_point(data = offsets_plotting_gf[offsets_plotting_gf$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, fill = offset_gf_af_lew), 
-             shape = 21, size = 7)+
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 0.021)) + # double check these values
-  geom_point(data = exp_site_latlon[exp_site_latlon$site_name == "LEW",], 
-             aes(x = lon-0.2, y = lat), fill = "deeppink", shape = 24, size = 7)+
-  geom_label_repel(data = offsets_plotting_gf[offsets_plotting_gf$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, label = site_name),
-                  nudge_x = 2.5,
-                  nudge_y = 0.4,
-                  fill = "white",
-                  size = 9)+
-  guides(fill = "none")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
-        xlim(-77.856476, -72.762787) +
-        ylim(36.019557, 39.939163)
-lew_int_gf_af_inset
-
-# put these together into single plot
-#library(patchwork)
-#map_lew_int_gf_af + inset_element(lew_int_gf_af_inset, left = 0.6, bottom = 0.6, right = 1, top = 1) # this requires changing the dimensions of the inset, come back to it
-
-map_yrk_int_gf_af <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = interpolated_yrk_af, mapping = aes(fill = var1.pred, col = var1.pred)) +
-  geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = offsets_sea_plotting_gf, aes(x = lon, y = lat, 
-                                              fill = offset_gf_af_yrk), 
-             shape = 21, size = 2) +
-  geom_point(data = offsets_plotting_gf[offsets_plotting_gf$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
-                                       fill = offset_gf_af_yrk), 
-             shape = 21, size = 4)+
-  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.021)) +
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.021)) +
-  geom_label_repel(data = offsets_plotting_gf[offsets_plotting_gf$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x=longitude, y=latitude, 
-                                       label = site_name),
-                  nudge_x = -3,
-                  nudge_y = 1,
-                  fill = "white")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Genomic Offset to \nYork River (GF AF)", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
-(map_yrk_int_gf_af)
-
-yrk_int_gf_af_inset <- ggplot(data = world) +
-  theme_bw()+
-  geom_sf(data = interpolated_yrk_af, mapping = aes(fill = var1.pred, col = var1.pred)) +
-  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.021)) +
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.021)) +
-  geom_sf(data = world_crop, fill = 'antiquewhite1') +
-  geom_point(data = offsets_sea_plotting_gf, aes(x = lon, y = lat, 
-                                              fill = offset_gf_af_yrk), 
-             shape = 21, size = 5) +
-  geom_point(data = offsets_plotting_gf[offsets_plotting_gf$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, fill = offset_gf_af_yrk), 
-             shape = 21, size = 7)+
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 0.021)) + # double check these values
-  geom_point(data = exp_site_latlon[exp_site_latlon$site_name == "YRK",], 
-             aes(x = lon-0.2, y = lat), fill = "deeppink", shape = 24, size = 7)+
-  geom_label_repel(data = offsets_plotting_gf[offsets_plotting_gf$site_name %in% c("W4_VA", "S1_LOLA", "S2_DEBY"),], aes(x=longitude, y=latitude, label = site_name),
-                  nudge_x = 2.5,
-                  nudge_y = 0.4,
-                  fill = "white",
-                  size = 9)+
-  guides(fill = "none")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
-        xlim(-77.856476, -72.762787) +
-        ylim(36.019557, 39.939163)
-yrk_int_gf_af_inset
 
 # mapping geno models
 map_lew_int_gf_geno <- ggplot(data = world) +
@@ -609,7 +417,7 @@ map_lew_int_gf_geno <- ggplot(data = world) +
                   fill = "white")+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Genomic Offset to \nLewisetta (GF geno)", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
+  labs(title = "Genomic Offset to \nLewisetta (GF)", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
 (map_lew_int_gf_geno)
 
 lew_int_gf_geno_inset <- ggplot(data = world) +
@@ -657,7 +465,7 @@ map_yrk_int_gf_geno <- ggplot(data = world) +
                   fill = "white")+
   theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Genomic Offset to \nYork River (GF geno)", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
+  labs(title = "Genomic Offset to \nYork River (GF)", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
 (map_yrk_int_gf_geno)
 
 yrk_int_gf_geno_inset <- ggplot(data = world) +

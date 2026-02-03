@@ -1,13 +1,13 @@
 #!/bin/bash
-#SBATCH --job-name=TrainGF20260127
+#SBATCH --job-name=TrainGF20260130
 #SBATCH --mail-user=rumberger.c@northeastern.edu
 #SBATCH --mail-type=FAIL
 #SBATCH --partition=lotterhos
 #SBATCH --mem=400G
 #SBATCH --nodes=1
 #SBATCH --array=2-2%2
-#SBATCH --output=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20260127/TrainGF20260127_%j.out
-#SBATCH --error=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20260127/TrainGF20260127_%j.err
+#SBATCH --output=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20260129/TrainGF20260130_%j.out
+#SBATCH --error=/projects/lotterhos/MVP_oyster_GO/results/outputs/slurm_log_20260129/TrainGF20260130_%j.err
 
 # setting up error protocols
 set -e

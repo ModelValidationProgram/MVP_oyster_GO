@@ -44,7 +44,7 @@ library(robust) # for rdadapt functions
 # env
 env_sea <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2026-01-29.csv")[,-1]
 env_exp <- read.csv("data/EnvDat/exp/exp_scaled_2026-01-29.csv")[,-1]
-env_sea_forgo <- read.csv("data/EnvDat/seascape/seascape_environment_predict_noPea.csv")
+env_sea_forgo <- read.csv("data/EnvDat/seascape/seascape_environment_predict.csv")
 
 # sites
 env_sea_site <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")[,-1]
@@ -597,8 +597,8 @@ Now I can start the process of training models:
 
 ```{r}
 # reduce size of env data set used for training
-env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")]
-env_sea_red_nb <- env_sea_red %>% dplyr::select(-"Dermo_Prevalence_scaled", -"MSX_Prevalence_scaled")
+env_sea_red <- env_sea[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled", "Pea_crab_scaled")]
+env_sea_red_nb <- env_sea_red %>% dplyr::select(-"Dermo_Prevalence_scaled", -"MSX_Prevalence_scaled", -"Pea_crab_scaled")
 
 # run rda
 start <- Sys.time()
@@ -686,17 +686,17 @@ Now, I calculate genomic offset for all of my populations!
 
 ```{r}
 # common garden info
-lew_env <- env_exp[!duplicated(env_exp$site_name) ,c("lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_MSX_Prevalence_scaled")]
-yrk_env <- env_exp[!duplicated(env_exp$site_name) ,c("yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_MSX_Prevalence_scaled")]
-colnames(lew_env) <- colnames(yrk_env) <- c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")
+lew_env <- env_exp[!duplicated(env_exp$site_name) ,c("lew_salinity_quantile_10_scaled", "lew_salinity_quantile_90_scaled", "lew_temp_quantile_10_scaled", "lew_temp_quantile_90_scaled", "lew_Dermo_Prevalence_scaled", "lew_MSX_Prevalence_scaled", "lew_Pea_crab_scaled")]
+yrk_env <- env_exp[!duplicated(env_exp$site_name) ,c("yrk_salinity_quantile_10_scaled", "yrk_salinity_quantile_90_scaled", "yrk_temp_quantile_10_scaled", "yrk_temp_quantile_90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_MSX_Prevalence_scaled", "yrk_Pea_crab_scaled")]
+colnames(lew_env) <- colnames(yrk_env) <- c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled", "Pea_crab_scaled")
 
-env_exp_red <- env_exp[!duplicated(env_exp$site_name) ,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")]
+env_exp_red <- env_exp[!duplicated(env_exp$site_name) ,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled", "Pea_crab_scaled")]
 
 # df for predicting to seascape sites
 rownames(env_sea_forgo) <- env_sea_forgo$X
-env_sea_forgo_pres <- env_sea_forgo[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled")]
-env_sea_forgo_lew <- env_sea_forgo[,c("lew_sal_quant10_scaled", "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "lew_Dermo_Prevalence_scaled", "lew_MSX_Prevalence_scaled")]
-env_sea_forgo_yrk <- env_sea_forgo[,c("yrk_sal_quant10_scaled", "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_MSX_Prevalence_scaled")]
+env_sea_forgo_pres <- env_sea_forgo[,c("salinity_quantile_10_scaled", "salinity_quantile_90_scaled", "temp_quantile_10_scaled", "temp_quantile_90_scaled", "Dermo_Prevalence_scaled", "MSX_Prevalence_scaled", "Pea_crab_scaled")]
+env_sea_forgo_lew <- env_sea_forgo[,c("lew_sal_quant10_scaled", "lew_sal_quant90_scaled", "lew_temp_quant10_scaled", "lew_temp_quant90_scaled", "lew_Dermo_Prevalence_scaled", "lew_MSX_Prevalence_scaled", "lew_Pea_crab_scaled")]
+env_sea_forgo_yrk <- env_sea_forgo[,c("yrk_sal_quant10_scaled", "yrk_sal_quant90_scaled", "yrk_temp_quant10_scaled", "yrk_temp_quant90_scaled", "yrk_Dermo_Prevalence_scaled", "yrk_MSX_Prevalence_scaled", "yrk_Pea_crab_scaled")]
 colnames(env_sea_forgo_lew) <- colnames(env_sea_forgo_yrk) <- colnames(env_sea_forgo_pres) <- colnames(env_sea_red)
 
 # dataframes with only abiotic variables
@@ -756,12 +756,12 @@ offset_yrk_sea_nb <- rdadapt::genomic_offset(RDA = RDA_sea_nb,
 # reassign the metadata
 offsets_rda_df <- data.frame(site_name = env_exp$site_name, lat = env_exp$Latitude_manual, lon = env_exp$Longitude_manual, offset_lew = offset_lew$genomic_offset$Global, offset_yrk = offset_yrk$genomic_offset$Global, offset_lew_nb = offset_lew_nb$genomic_offset$Global, offset_yrk_nb = offset_yrk_nb$genomic_offset$Global)
 
-write.csv(offsets_rda_df, paste0("results/GO_results/offsets_RDA_expSites_noPea_",Sys.Date(),".csv", sep = ""))
+write.csv(offsets_rda_df, paste0("results/GO_results/offsets_RDA_expSites_",Sys.Date(),".csv", sep = ""))
 
 # now with the seascape
 offsets_rda_sea_df <- data.frame(site_name = env_sea_forgo$X, offset_lew_sea = offset_lew_sea$genomic_offset$Global, offset_yrk_sea = offset_yrk_sea$genomic_offset$Global, offset_lew_sea_nb = offset_lew_sea_nb$genomic_offset$Global, offset_yrk_sea_nb = offset_yrk_sea_nb$genomic_offset$Global)
 offsets_rda_sea_df
-write.csv(offsets_rda_sea_df, paste0("results/GO_results/offsets_RDA_fullseascape_noPea_",Sys.Date(),".csv", sep = ""))
+write.csv(offsets_rda_sea_df, paste0("results/GO_results/offsets_RDA_fullseascape_",Sys.Date(),".csv", sep = ""))
 ```
 
 ## Visualization
