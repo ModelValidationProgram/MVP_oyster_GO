@@ -5,6 +5,7 @@ setwd("/projects/lotterhos/MVP_oyster_GO")
 
 # packages
 #install.packages("gradientForest")
+library(LEA) # for reading in genetic data
 library(gradientForest) # for running gradient forest
 
 # data
