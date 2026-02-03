@@ -42,8 +42,8 @@ library(robust) # for rdadapt functions
 
 # data
 # env
-env_sea <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2026-01-29.csv")[,-1]
-env_exp <- read.csv("data/EnvDat/exp/exp_scaled_2026-01-29.csv")[,-1]
+env_sea <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2026-01-30.csv")[,-1]
+env_exp <- read.csv("data/EnvDat/exp/exp_scaled_2026-01-30.csv")[,-1]
 env_sea_forgo <- read.csv("data/EnvDat/seascape/seascape_environment_predict_noPea.csv")
 
 # sites
