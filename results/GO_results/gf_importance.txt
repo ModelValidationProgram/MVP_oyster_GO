@@ -1,24 +1,8 @@
-    temp_quantile_90_scaled salinity_quantile_90_scaled 
-               0.0137448524                0.0118001599 
-      MSX_Prevalence_scaled     Dermo_Prevalence_scaled 
-               0.0115792314                0.0111623276 
-salinity_quantile_10_scaled     temp_quantile_10_scaled 
-               0.0085233008                0.0075416955 
-            Pea_crab_scaled 
-               0.0009926967 
-    temp_quantile_90_scaled salinity_quantile_10_scaled 
-                0.036692336                 0.022394633 
-      MSX_Prevalence_scaled     temp_quantile_10_scaled 
-                0.018564165                 0.016701068 
-    Dermo_Prevalence_scaled salinity_quantile_90_scaled 
-                0.010216455                 0.009400015 
-            Pea_crab_scaled 
-                0.002301698 
-    temp_quantile_90_scaled salinity_quantile_90_scaled 
-                 0.02040677                  0.02013933 
-salinity_quantile_10_scaled     temp_quantile_10_scaled 
-                 0.01530381                  0.01267465 
-    temp_quantile_90_scaled salinity_quantile_10_scaled 
-                 0.04341477                  0.03286020 
-    temp_quantile_10_scaled salinity_quantile_90_scaled 
-                 0.02207705                  0.01790895 
+    temp_quantile_90_scaled salinity_quantile_10_scaled       MSX_Prevalence_scaled 
+                0.040463877                 0.023875943                 0.016724581 
+    temp_quantile_10_scaled salinity_quantile_90_scaled     Dermo_Prevalence_scaled 
+                0.016310572                 0.009336266                 0.008890764 
+    temp_quantile_90_scaled salinity_quantile_10_scaled     temp_quantile_10_scaled 
+                 0.04307622                  0.03271974                  0.02191797 
+salinity_quantile_90_scaled 
+                 0.01790908 
