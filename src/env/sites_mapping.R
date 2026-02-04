@@ -10,14 +10,16 @@ library(ggrepel)
 
 setwd("~/Documents/Github/MVP_oyster_GO")
 
-seascape_sites <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")
+seascape_sites0 <- read.csv("data/EnvDat/seascape/SeascapeSamples_site.csv")
+env_scaled <- read.csv("data/EnvDat/env_scaled_2026-01-30.csv")
 exp_pops <- read.csv("data/IndDat/popsdf.csv")[,-1]
 exp_pops$region <- c("South","South","South","Local","Local","Local","North","North","Exp","Exp")
 exp_pops$ancestral_group <- c("Gulf","Gulf","Atlantic","Atlantic","Selected","Selected","Atlantic","Atlantic","Exp","Exp")
 exp_pops$site_name_plotting <- gsub("_", "-", exp_pops$site_name)
 exp_pops[exp_pops$site_name_plotting == "LEWISETTA",]$site_name_plotting <- "Lewisetta"
 exp_pops[exp_pops$site_name_plotting == "YORKRIVER",]$site_name_plotting <- "York River"
-seascape_sites$dataset <- "Seascape"
+seascape_sites0$dataset <- "Seascape"
+seascape_sites <- seascape_sites0[!is.na(seascape_sites0$Mean_Annual_Salinity_ppt) | !is.na(seascape_sites0$temp_lon) ,]
 exp_pops$dataset <- ifelse(exp_pops$site_name_plotting == "Lewisetta", "Lewisetta", ifelse(exp_pops$site_name_plotting == "York River", "York River", "Experimental"))
 world <- ne_countries(scale = "medium", returnclass = "sf")
 world_crop <- sf::st_crop(world, c(xmin =-100 , xmax = -60, ymin = 24, ymax = 50))
