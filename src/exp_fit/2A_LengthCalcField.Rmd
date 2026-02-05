@@ -22,11 +22,11 @@ library(plotrix) # for std error
 This script is to analyze length of oysters in the MVP Field Experiment from 2023-2025. First I need to read in and merge together relevant data. I will then clean this data up to prepare it for analysis by time point, site, population, and more.
 
 ```{r}
-bags <- read.csv("data/expDat/MVP23-FieldBags - bags.csv")
-expsites <- read.csv("data/expDat/MVP23-FieldBags - sites.csv")
-spawntrt <- read.csv("data/expDat/MVP23-FieldBags - spawn_trt2.csv")
-tags <- read.csv("data/expDat/MVP23-FieldBags - tags.csv")
-tagleng <- read.csv("data/expDat/MVP23-FieldBags - tagsLength_new.csv")
+bags <- read.csv("data/ExpDat/MVP23-FieldBags - bags.csv")
+expsites <- read.csv("data/ExpDat/MVP23-FieldBags - sites.csv")
+spawntrt <- read.csv("data/ExpDat/MVP23-FieldBags - spawn_trt2.csv")
+tags <- read.csv("data/ExpDat/MVP23-FieldBags - tags.csv")
+tagleng <- read.csv("data/ExpDat/MVP23-FieldBags - tagsLength_new.csv")
 
 # split bags to have more detailed bag data
 bags[,5:6] <- str_split_fixed(bags$bags_label, "-", 3)[,2:3]

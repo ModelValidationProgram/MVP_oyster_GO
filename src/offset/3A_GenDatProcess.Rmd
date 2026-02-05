@@ -89,8 +89,8 @@ inds_genomat <- rownames(geno_mat_ld_keep)
 write.csv(inds_genomat, "data/GenDat/inds_genomat.csv")
 
 # for LEA need lfmm format data
-geno2lfmm("data/GenDat/geno_seascape_2026-01-27.geno")
-geno2lfmm("data/GenDat/geno_seascape_LDthin_2026-01-27.geno")
+geno2lfmm(paste0("data/GenDat/geno_seascape_", Sys.Date(), ".geno"))
+geno2lfmm(paste0("data/GenDat/geno_seascape_LDthin_", Sys.Date(), ".geno"))
 
 # for RDA and gf geno matrix should work
 write_rds(geno_mat_keep, paste0("data/GenDat/geno_seascape_rm_", Sys.Date(), ".RDS"))

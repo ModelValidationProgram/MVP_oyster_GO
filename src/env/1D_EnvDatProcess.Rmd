@@ -29,13 +29,12 @@ library(LEA)
 library(stringr)
 
 # data
-seascapeEnv <- read.csv("data/EnvDat/seascape/seascapeEnv_biotic_abiotic_adjust_msx.csv")
+seascapeEnv <- read.csv("data/EnvDat/seascape/seascapeEnv_biotic_abiotic_adjust.csv")
 expsal <- read.csv("data/EnvDat/exp/exp_salinity.csv")[,-1]
 exptemp <- read.csv("data/EnvDat/exp/exp_temp.csv")
 expdis <- read.csv("data/EnvDat/exp/sentinel_RFTM_organized_dermo.csv")[,-(6:10)]
 expdis_lew <- read.csv("data/EnvDat/exp/LewisettaSentinels.csv")
 expdis_yrk <- read.csv("data/EnvDat/exp/YorkRiverShorelineDisease-24March2025.csv")
-peacrab <- read.csv("data/EnvDat/exp/MVP23-FieldBags - finalTissue.csv")
 sitedate <- read.csv("data/EnvDat/seascape/SeascapeSamples - date.csv")
 quantile_forVA <- read.csv("data/EnvDat/exp/quantiles_05232025.csv")[,-1]
 indsSea <- readRDS("data/IndDat/20250604_seascape_indsmatrix.rds")

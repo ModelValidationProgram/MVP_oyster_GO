@@ -13,8 +13,7 @@ library(dplyr)
 
 # read in data
 seascapeEnv <- read.csv("data/EnvDat/seascape/seascape_abiotic_biotic_envr.csv")
-dis27 <- read.csv("data/EnvDat/seascape/population_statistics_Cq27cutoff.csv")
-dis35 <- read.csv("data/EnvDat/seascape/population_statistics_Cq35cutoff.csv")
+Dis27 <- read.csv("data/EnvDat/seascape/population_statistics_Cq27cutoff.csv")
 ########
 
 ## data prep
@@ -22,35 +21,21 @@ dis35 <- read.csv("data/EnvDat/seascape/population_statistics_Cq35cutoff.csv")
 # check data
 head(seascapeEnv)
 head(Dis27)
-head(Dis35)
 
 # disease goes to wide format
 dis27_reshape <- reshape(Dis27, idvar = "Population", timevar = "Pathogen", direction = "wide")
 dis27 <- dis27_reshape[,c("Population","Prevalence.MSX")]
 colnames(dis27) <- c("ID_SiteDate", "MSX_Prevalence")
 
-dis35_reshape <- reshape(Dis35, idvar = "Population", timevar = "Pathogen", direction = "wide")
-dis35 <- dis35_reshape[,c("Population","Prevalence.Dermo")]
-colnames(dis35) <- c("ID_SiteDate", "Dermo_Prevalence")
-
-dis_combine <- merge(dis27, dis35, by = "ID_SiteDate")
-
 # trim old seascape disease data
-seascape_prep <- seascapeEnv %>% select(!c(Dermo_Prevalence, MSX_Prevalence, 
-                          dermo_prev_percent, msx_prev_percent, 
-                          intensity_msx, Cq_Mean_MSX, SQ_Mean_MSX,
-                          intensity_dermo, Cq_Mean_Dermo, SQ_Mean_Dermo))
-
 seascape_prep_msx <- seascapeEnv %>% select(!c(MSX_Prevalence, msx_prev_percent, 
                                                intensity_msx, Cq_Mean_MSX, SQ_Mean_MSX))
 
 # combine with new disease
-seascape_dis <- merge(seascape_prep, dis_combine, by = c("ID_SiteDate"))
 seascape_dis_msx <- merge(seascape_prep_msx, dis27, by = c("ID_SiteDate"))
 ############
 
 ## save new df
 ##############
-write.csv(seascape_dis, "data/EnvDat/seascape/seascapeEnv_biotic_abiotic_adjust.csv", row.names = F)
-write.csv(seascape_dis_msx, "data/EnvDat/seascape/seascapeEnv_biotic_abiotic_adjust_msx.csv", row.names = F)
+write.csv(seascape_dis_msx, "data/EnvDat/seascape/seascapeEnv_biotic_abiotic_adjust.csv", row.names = F)
 ##############
