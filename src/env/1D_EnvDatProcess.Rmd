@@ -109,7 +109,7 @@ exptemp_red <- exptemp[,c("site_name","lat","lon","Mean_Annual_Temperature_C","M
 expenv_mg <- merge(expsal_red, exptemp_red, by = c("site_name", "lat", "lon"))
 
 # experimental site info output
-#write.csv(expenv_mg[,c("site_name", "lat", "lon")], "data/EnvDat/exp/exp_site_info.csv")
+write.csv(expenv_mg[,c("site_name", "lat", "lon")], "data/EnvDat/exp/exp_site_info.csv")
 
 # keeping just quantiles
 expenv_trim <- expenv_mg[,c("site_name","lat","lon","salinity_quantile_10","salinity_quantile_90","temp_quantile_10","temp_quantile_90")]
@@ -225,7 +225,7 @@ site_names_seascape <- sea_env_scale_mut_nosel$site_name
 
 # also get the site names for exp data to reattach to env files
 site_names_exp <- unlist(expOrg_env_scale$site_name)
-#write.csv(site_names_exp, "data/EnvDat/exp_sitenames.csv")
+write.csv(site_names_exp, "data/EnvDat/exp_sitenames.csv")
 
 # the experimental sites Lew & York need to be added to the experimental origin data in a single df
 expSite_env_scale_yrk <- expSite_env_scale[expSite_env_scale$site_name == "YorkRiver",]
