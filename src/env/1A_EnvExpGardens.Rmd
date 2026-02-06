@@ -38,6 +38,10 @@ raw_LOLA_env22 <- read.csv("data/EnvDat/exp/lew_raw/Jess_COAN_2022.csv")
 raw_LOLA_env25 <- read.csv("data/EnvDat/exp/lew_raw/Jess_COAN_2025.csv")
 raw_LOLA_env23_24 <- read.csv("data/EnvDat/exp/lew_raw/LEW-raw.csv")
 raw_LOLA_correct <- read.csv("data/EnvDat/exp/lola_corrected.csv")
+
+# experimental pops
+exppop_sal <- read.csv("data/EnvDat/exp/all_salinity.csv")
+exppop_temp <- read.csv("data/EnvDat/exp/all_temperature.csv")
 ```
 
 
@@ -847,10 +851,6 @@ write.csv(lewexp_salinity, paste0("data/EnvDat/exp/exp_lew_salinity_",Sys.Date()
 Put together the full environmental dataset with all quantiles. 
 
 ```{r}
-# other experimental pops
-exppop_sal <- read.csv("data/EnvDat/exp/all_salinity.csv")
-exppop_temp <- read.csv("data/EnvDat/exp/all_temperature.csv")
-
 # make datasets compatible
 exppop_sal$dataset <- exppop_temp$dataset <- "exp"
 exppop_sal$collection_type <- exppop_temp$collection_type <- NULL
