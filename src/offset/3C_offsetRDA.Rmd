@@ -53,7 +53,7 @@ env_exp_site <- read.csv("data/EnvDat/exp/exp_sitenames.csv")[,-1]
 exp_site_latlon <- read.csv("data/EnvDat/exp/exp_site_info.csv")[,-1]
 
 # gen
-genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2026-01-27.geno")
+genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2026-01-29.geno")
 
 # individuals
 seascapeInds <- readRDS("data/IndDat/20250604_seascape_indsmatrix.rds")

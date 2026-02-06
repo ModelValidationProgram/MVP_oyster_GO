@@ -49,7 +49,7 @@ sea_site_full <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2026-0
 exp_site_full <- read.csv("data/EnvDat/exp/exp_scaled_2026-01-30.csv")[,-1]
 
 # gen
-genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2026-01-27.geno")
+genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2026-01-29.geno")
 genoThinLfmm <- read.lfmm("data/GenDat/geno_seascape_LDthin_2026-01-27.lfmm")
 
 # inds
