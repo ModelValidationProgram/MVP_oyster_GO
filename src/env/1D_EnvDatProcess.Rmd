@@ -385,7 +385,7 @@ envdist_plot_gardens <- ggplot(env_dist_long_expsite_red, aes(x = fct_reorder(si
   geom_tile(color = "black") +
 #  geom_text(aes(label = distances), color = "white", size = 4)+
   scale_fill_viridis_c(name = "Euclidean 
-Distance", limits = c(0, 6))+
+Distance", limits = c(0, 5), option = "mako", direction = -1) +
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
         legend.position = "right", legend.justification = "top") +
@@ -425,7 +425,7 @@ envdist_plot_nb_gardens <- ggplot(env_dist_long_expsite_red_nb, aes(x = fct_reor
   geom_tile(color = "black") +
 #  geom_text(aes(label = distances), color = "white", size = 4)+
   scale_fill_viridis_c(name = "Euclidean 
-Distance", limits = c(0, 6))+
+Distance", limits = c(0, 5), option = "mako", direction = -1) +
   theme(plot.title = element_text(size = 20), 
         legend.title = element_text(size = 14),
         legend.position = "right", legend.justification = "top") +
