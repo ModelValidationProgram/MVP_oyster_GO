@@ -81,7 +81,6 @@ ordered_sea_gen
 
 ```{r}
 # write these matrices as geno files
-write.geno(geno_mat_keep, paste0("data/GenDat/geno_seascape_", Sys.Date(), ".geno"))
 write.geno(geno_mat_ld_keep, paste0("data/GenDat/geno_seascape_LDthin_", Sys.Date(), ".geno"))
 
 # also write out information about the individuals in each row (same inds in ld and not ld mats)
@@ -89,11 +88,9 @@ inds_genomat <- rownames(geno_mat_ld_keep)
 write.csv(inds_genomat, "data/GenDat/inds_genomat.csv")
 
 # for LEA need lfmm format data
-geno2lfmm(paste0("data/GenDat/geno_seascape_", Sys.Date(), ".geno"))
 geno2lfmm(paste0("data/GenDat/geno_seascape_LDthin_", Sys.Date(), ".geno"))
 
 # for RDA and gf geno matrix should work
-write_rds(geno_mat_keep, paste0("data/GenDat/geno_seascape_rm_", Sys.Date(), ".RDS"))
 write_rds(geno_mat_ld_keep, paste0("data/GenDat/geno_seascape_LDthin_rm_", Sys.Date(), ".RDS"))
 ```
 
