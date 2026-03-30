@@ -327,6 +327,9 @@ cond_mod$bag_site <- as.factor(cond_mod$bag_site)
 cond_mod$pop <- as.factor(cond_mod$pop)
 cond_mod$condition <- as.ordered(cond_mod$condition)
 cond_mod$gonad <- as.ordered(cond_mod$gonad)
+
+# also popsite
+cond_mod$pop_site <- paste0(str_split_fixed(cond_mod$pop, "_", 2)[,2], "_", cond_mod$bag_site)
 ```
 
 I will now use ordinal logistic regression to look at differences in tissue condition by grouping.
@@ -346,7 +349,6 @@ summary(cond_mod_olr)
 Anova(cond_mod_olr, type = "II", test.statistic = "Chisq") # all significant
 
 # also paste pop/site
-cond_mod$pop_site <- paste0(str_split_fixed(cond_mod$pop, "_", 2)[,2], "_", cond_mod$bag_site)
 cond_mod_olr_popsite <- polr(condition ~ pop_site, data = cond_mod, Hess = TRUE)
 summary(cond_mod_olr_popsite)
 
@@ -386,7 +388,7 @@ cond_plot_pop <- ggplot(cond_plotting_letters, aes(x = site_name_plotting, y = a
   facet_grid(.~ bag_site,
              switch = "x") +
   scale_fill_manual(name = "Broodstock Group", label = popsdf$site_name_plotting, values = popsdf$cols)+
-  geom_text(aes(label = letters_rev, y = as.numeric(max_cond) + 0.1), vjust = -0.5, position = position_dodge(1)) +
+  geom_text(aes(label = letters, y = as.numeric(max_cond) + 0.1), vjust = -0.5, position = position_dodge(1)) +
   labs(title = "Final Condition at Lewisetta and York River", x = "Experimental Site", y = "Tissue Condition (1-5)") +
   theme_classic()+ 
   theme(strip.background = element_blank(), 
@@ -453,7 +455,7 @@ gonad_plot_pop <- ggplot(gonad_plotting_letters, aes(x = site_name_plotting, y =
   facet_grid(.~ bag_site,
              switch = "x") +
   scale_fill_manual(name = "Broodstock Group", label = popsdf$site_name_plotting, values = popsdf$cols)+
-  geom_text(aes(label = letters_rev, y = as.numeric(max_gonad) + 0.1), vjust = -0.5, position = position_dodge(1)) +
+  geom_text(aes(label = letters, y = as.numeric(max_gonad) + 0.1), vjust = -0.5, position = position_dodge(1)) +
   labs(title = "Final Gonad Index at Lewisetta and York River", x = "Experimental Site", y = "Gonad Index (1-5)") +
   theme_classic() + 
   theme(strip.background = element_blank(), 
@@ -472,6 +474,10 @@ doc <- read_pptx() %>%
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
   ph_with(value = dml(ggobj = surv_t4_plot_pop), location = ph_location_type(type = "body")) %>%
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = len_t4_plot_pop), location = ph_location_type(type = "body"))
+  ph_with(value = dml(ggobj = len_t4_plot_pop), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = cond_plot_pop), location = ph_location_type(type = "body"))%>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = gonad_plot_pop), location = ph_location_type(type = "body"))
 print(doc, target = "results/figures/Final_Experimental_Fitness.pptx")
 ```

@@ -1,0 +1,56 @@
+Call:
+polr(formula = gonad ~ pop * bag_site, data = cond_mod, Hess = TRUE)
+
+Coefficients:
+                                Value Std. Error  t value
+popS2_DEBY                    0.05612     0.2961   0.1895
+popW1_TX                     -0.53534     0.2960  -1.8088
+popW2_LA                     -0.68732     0.2958  -2.3233
+popW3_FL                      0.29897     0.2999   0.9968
+popW4_VA                      0.47805     0.3074   1.5553
+popW5_NH                     -0.04843     0.3643  -0.1329
+popW6_ME                      0.12241     0.3405   0.3595
+bag_siteYorkRiver            -3.86145     0.3174 -12.1649
+popS2_DEBY:bag_siteYorkRiver  1.74961     0.4173   4.1927
+popW1_TX:bag_siteYorkRiver    0.80306     0.4143   1.9385
+popW2_LA:bag_siteYorkRiver    0.20778     0.4148   0.5009
+popW3_FL:bag_siteYorkRiver    1.23376     0.4169   2.9595
+popW4_VA:bag_siteYorkRiver    1.59586     0.4240   3.7636
+popW5_NH:bag_siteYorkRiver    1.21346     0.5729   2.1182
+popW6_ME:bag_siteYorkRiver    1.79293     0.5909   3.0342
+
+Intercepts:
+    Value    Std. Error t value 
+0|1  -4.2381   0.2540   -16.6842
+1|2  -2.6354   0.2337   -11.2773
+2|3  -0.6771   0.2162    -3.1326
+3|4   2.4926   0.2479    10.0547
+
+Residual Deviance: 2735.219 
+AIC: 2773.219 
+Analysis of Deviance Table (Type II tests)
+
+Response: gonad
+             LR Chisq Df Pr(>Chisq)    
+pop            129.91  7  < 2.2e-16 ***
+bag_site       527.49  1  < 2.2e-16 ***
+pop:bag_site    32.00  7  4.054e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+   letters       pop_site  pop  bag_site site_name letters_rev
+1            LA_YorkRiver   LA YorkRiver     W2_LA            
+2    a     LOLA_YorkRiver LOLA YorkRiver   S1_LOLA           f
+3    a       TX_YorkRiver   TX YorkRiver     W1_TX           f
+4    a       NH_YorkRiver   NH YorkRiver     W5_NH           f
+5            FL_YorkRiver   FL YorkRiver     W3_FL            
+6          DEBY_YorkRiver DEBY YorkRiver   S2_DEBY            
+7            ME_YorkRiver   ME YorkRiver     W6_ME            
+8            VA_YorkRiver   VA YorkRiver        VA            
+9            LA_Lewisetta   LA Lewisetta     W2_LA            
+10           TX_Lewisetta   TX Lewisetta     W1_TX            
+11           NH_Lewisetta   NH Lewisetta     W5_NH            
+12         LOLA_Lewisetta LOLA Lewisetta   S1_LOLA            
+13         DEBY_Lewisetta DEBY Lewisetta   S2_DEBY            
+14           ME_Lewisetta   ME Lewisetta     W6_ME            
+15           FL_Lewisetta   FL Lewisetta     W3_FL            
+16           VA_Lewisetta   VA Lewisetta        VA            
