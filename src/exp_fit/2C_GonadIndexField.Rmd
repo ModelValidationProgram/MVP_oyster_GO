@@ -1,0 +1,101 @@
+---
+title: "CviMVP_oyster_GonadIndex"
+author: "Camille Rumberger"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "~/projects/lotterhos/MVP_oyster_GO")
+
+# load libraries
+library(tidyverse) # for data wrangling
+library(stringr) # for splitting strings
+library(lubridate) # for dates
+library(ggplot2) # for plotting
+library(plotrix) # for std error
+```
+
+# Calculating Gonadal Index of Oysters Sampled at Conclusion of Field Experiment
+
+This script is to analyze the gonad index of oysters at the end of the MVP Field Experiment from First I need to read in and merge together relevant data. I will then clean this data up to prepare it for analysis by site and population.
+
+## Setup
+
+```{r}
+# read in data
+bags <- read.csv("data/ExpDat/MVP23-FieldBags - bags.csv")
+gonad <- read.csv("data/ExpDat/MVP23-FieldBags - finalTissue.csv")
+```
+
+## Data Prep
+
+```{r}
+# link gonad to bags
+gonad_bags <- merge(gonad, bags, by = "bags_key", keep = T)
+
+# get pop and site data
+gonad_bags$pop <- str_split_fixed(gonad_bags$bags_label, "-", 3)[,2]
+
+# trim to relevant data
+gonad_trim <- gonad_bags %>% filter(!(pop %in% c("SEEDMIX", "LARMIX"))) %>% select(bag_site, pop, bags_label, finalTissue_VialLabel, finalTissue_condition, finalTissue_gonadIndex)
+gonad_trim$condition <- as.factor(str_split_fixed(gonad_trim$finalTissue_condition, " - ", 2)[,1])
+gonad_trim$gonad <- as.factor(str_split_fixed(gonad_trim$finalTissue_gonadIndex, " - ", 2)[,1])
+
+# rename populations
+map=c("TX"="W1_TX","LA"="W2_LA","FL"="W3_FL","LOLA"="S1_LOLA","DEBY"="S2_DEBY","JR"="W4_VA","NH"="W5_NH","ME"="W6_ME")
+gonad_trim_rename <- gonad_trim %>% mutate(pop = ifelse(pop %in% names(map), map[pop], pop)) %>% rename(site_name = pop)
+
+# remove any NAs
+gonad_trim_rename_nona <- na.omit(gonad_trim_rename)
+
+# output for downstream analysis
+write.csv(gonad_trim_rename_nona, paste0("results/exp_results/gonad_condition_", Sys.Date(), ".csv"))
+```
+
+## Population & Site Trends
+
+Now that I have prepped my data, I want to look at population/site level trends
+
+```{r}
+popsdf <- data.frame(pop = c("TX", "LA", "FL", "VA", "LOLA", "DEBY", "NH", "ME"), 
+                     order = 1:8, 
+                     cols = c("#365C8DFF", "#277F8EFF", "#1FA187FF", "#4AC16DFF", "#440154FF", "#46337EFF", "#9FDA3AFF", "#FDE725FF"),
+                     shape = c(21,21,21,21,23,23,21,21),
+                     site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "S1_LOLA", "S2_DEBY", "W5_NH", "W6_ME"),
+                     site_name_plotting = c("W1-TX", "W2-LA", "W3-FL", "W4-VA", "S1-LOLA", "S2-DEBY", "W5-NH", "W6-ME"))
+gonad_df_full <- merge(gonad_trim_rename_nona, popsdf, by = "site_name")
+
+# gonad index by site/pop
+gonad_plot_pop <- ggplot(gonad_df_full, aes(x = site_name_plotting, y = as.numeric(gonad), fill = fct_reorder(site_name, order))) + 
+  geom_boxplot(position=position_dodge(1.0)) +  
+  facet_grid(.~ bag_site,
+             switch = "x") +
+  scale_fill_manual(name = "Broodstock Group", label = popsdf$site_name_plotting, values = popsdf$cols)+
+#  geom_text(aes(label = letters, y = max_surv), vjust = -0.5, position = position_dodge(1)) +
+  labs(title = "Final Gonad Condition at Lewisetta and York River", x = "Experimental Site", y = "Gonad Index") +
+  theme_classic()+ 
+  theme(strip.background = element_blank(), 
+        strip.text.x = element_text(), 
+        strip.placement = "outside",
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.spacing.x = unit(3, "lines"))
+gonad_plot_pop
+
+# condition by site/pop
+cond_plot_pop <- ggplot(gonad_df_full, aes(x = site_name_plotting, y = as.numeric(condition), fill = fct_reorder(site_name, order))) + 
+  geom_boxplot(position=position_dodge(1.0)) +  
+  facet_grid(.~ bag_site,
+             switch = "x") +
+  scale_fill_manual(name = "Broodstock Group", label = popsdf$site_name_plotting, values = popsdf$cols)+
+#  geom_text(aes(label = letters, y = max_surv), vjust = -0.5, position = position_dodge(1)) +
+  labs(title = "Final Tissue Condition at Lewisetta and York River", x = "Experimental Site", y = "Condition") +
+  theme_classic()+ 
+  theme(strip.background = element_blank(), 
+        strip.text.x = element_text(), 
+        strip.placement = "outside",
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.spacing.x = unit(3, "lines"))
+cond_plot_pop
+```
