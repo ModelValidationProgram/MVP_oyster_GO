@@ -1,5 +1,5 @@
 ---
-title: "len_surv_modeling_ooters"
+title: "MVP_oyster_Fitness_Modeling"
 author: "Camille Rumberger"
 date: "`r Sys.Date()`"
 output: html_document
@@ -11,14 +11,19 @@ knitr::opts_knit$set(root.dir = "~/projects/lotterhos/MVP_oyster_GO")
 
 # load libraries
 library(tidyverse) # for data wrangling
+library(dplyr) # for data wrangling
 library(stringr) # for splitting strings
 library(lubridate) # for dates
 library(ggplot2) # for plotting
 library(plotrix) # for std error
+library(MASS) # for ordinal regression
 library(lme4) # for lmm
 library(performance) # for lmm
 library(lmerTest) # for lmm
 library(car) # for avPlots(), Anova()
+library(emmeans) # for significance letters
+library(multcomp) # for significance letters
+library(multcompView) # for significance letters
 library(officer) # for export to ppt
 library(rvg) # for converting to vector graphics
 
@@ -26,9 +31,10 @@ library(rvg) # for converting to vector graphics
 surv_long <- read.csv("results/exp_results/mortality_long_bags_2026-01-15.csv")[,-1]
 bags <- read.csv("data/ExpDat/MVP23-FieldBags - bags.csv")
 lengths <- read.csv("results/exp_results/lengths_long_2025-06-03.csv")[,-1]
+condition <- read.csv("results/exp_results/gonad_condition_2026-03-30.csv")[,-1]
 ```
 
-This script is for modeling differences in survival and length amongst bags/populations/sites/time points in the MVP Field Experiment. 
+This script is for modeling differences in survival, length, tissue condition, and gonad index, amongst bags/populations/sites/time points in the MVP Field Experiment. 
 
 I intend to use linear (mixed) models to examine how survival and length vary by group and how genetics and environmental history drive these differences in performance. 
 
@@ -290,7 +296,7 @@ len_t4_plot_pop <- ggplot(len_final_time_plotting_letters, aes(x = site_name_plo
              switch = "x") +
   scale_fill_manual(name = "Broodstock Group", label = popsdf$site_name_plotting, values = popsdf$cols)+
   geom_text(aes(label = letters, y = max_len + 2), vjust = -0.5, position = position_dodge(1)) +
-  labs(title = "Final Length at Lewisetta and York River", x = "Experimental Site", y = "Survival") +
+  labs(title = "Final Length at Lewisetta and York River", x = "Experimental Site", y = "Length (mm)") +
   theme_classic()+ 
   theme(strip.background = element_blank(), 
         strip.text.x = element_text(), 
@@ -299,6 +305,165 @@ len_t4_plot_pop <- ggplot(len_final_time_plotting_letters, aes(x = site_name_plo
         panel.spacing.x = unit(3, "lines"))
 len_t4_plot_pop
 ```
+
+
+## Modeling differences in Condition
+
+Now I'll try modeling differences in condition I'll start by reading in and processing the condition data
+
+```{r}
+# trim data
+head(condition)
+cond_mod <- condition[,c("bag_site","site_name","bags_label","finalTissue_VialLabel","gonad","condition")]
+colnames(cond_mod) <- c("bag_site","pop","bags_label","individual","gonad","condition")
+
+# check data
+summary(cond_mod) # we have NAs, and a massive outlier
+table(cond_mod[cond_mod$bag_site == "Lewisetta",]$pop) # note NH & ME have ~1/2 n of other pops
+table(cond_mod[cond_mod$bag_site == "YorkRiver",]$pop) # note NH & ME have ~1/4 n of other pops
+
+# ensure correct coding of variables
+cond_mod$bag_site <- as.factor(cond_mod$bag_site)
+cond_mod$pop <- as.factor(cond_mod$pop)
+cond_mod$condition <- as.ordered(cond_mod$condition)
+cond_mod$gonad <- as.ordered(cond_mod$gonad)
+```
+
+I will now use ordinal logistic regression to look at differences in tissue condition by grouping.
+
+```{r}
+# quick distribution checks
+hist(as.numeric(cond_mod[cond_mod$bag_site == "Lewisetta",]$condition), main = "Condition Lewisetta")
+hist(as.numeric(cond_mod[cond_mod$bag_site == "YorkRiver",]$condition), main = "Condition York River")
+hist(as.numeric(cond_mod$condition), main = "Condition Distribution")
+
+# categories
+levels(as.ordered(cond_mod$condition))
+
+# here I will use ordinal logistic regression
+cond_mod_olr <- polr(condition ~ pop * bag_site, data = cond_mod, Hess = TRUE)
+summary(cond_mod_olr)
+Anova(cond_mod_olr, type = "II", test.statistic = "Chisq") # all significant
+
+# also paste pop/site
+cond_mod$pop_site <- paste0(str_split_fixed(cond_mod$pop, "_", 2)[,2], "_", cond_mod$bag_site)
+cond_mod_olr_popsite <- polr(condition ~ pop_site, data = cond_mod, Hess = TRUE)
+summary(cond_mod_olr_popsite)
+
+# significance letters
+cond_emm <- emmeans(cond_mod_olr_popsite, ~ pop_site)
+cond_letters <- cld(cond_emm, Letters = letters)
+letters_df <- data.frame(letters = cond_letters$.group, pop_site = cond_letters$pop_site)
+letters_df$pop <- str_split_fixed(letters_df$pop_site, "_", 2)[,1]
+letters_df$bag_site <- str_split_fixed(letters_df$pop_site, "_", 2)[,2]
+letters_df$site_name <- letters_df$pop
+letters_df_rename <- letters_df %>% mutate(site_name = ifelse(site_name %in% names(map), map[site_name], site_name))
+
+# also change letters to match a being best and f worst
+letters_df_rename2 <- as.character(chartr("abcdef", "fedcba", letters_df_rename$letters))
+letters_df_rename3 <- trimws(letters_df_rename2)
+letters_df_rename$letters_rev <- letters_df_rename3
+
+# save everything
+sink(paste0("results/exp_results/condition_model_results_", Sys.Date(), ".txt"))
+summary(cond_mod_olr)
+Anova(cond_mod_olr, type = "II", test.statistic = "Chisq") # all significant
+letters_df_rename
+sink()
+
+# full plotting df
+cond_mod_plotting <- merge(cond_mod[,-2], letters_df_rename, by = c("bag_site","pop_site"))
+cond_mod_plotting_pops <- merge(cond_mod_plotting, popsdf, by = c("site_name", "pop"))
+
+# y-axis location for letters
+letters_loc_cond <- cond_mod_plotting_pops %>% group_by(pop_site) %>% dplyr::summarise(across(condition, max))
+colnames(letters_loc_cond) <- c("pop_site", "max_cond")
+cond_plotting_letters <- merge(cond_mod_plotting_pops, letters_loc_cond, by = "pop_site")
+
+# plot by pop - something is going wrong here
+cond_plot_pop <- ggplot(cond_plotting_letters, aes(x = site_name_plotting, y = as.numeric(condition), fill = fct_reorder(site_name, order))) + 
+  geom_boxplot(position=position_dodge(1.0)) +  
+  facet_grid(.~ bag_site,
+             switch = "x") +
+  scale_fill_manual(name = "Broodstock Group", label = popsdf$site_name_plotting, values = popsdf$cols)+
+  geom_text(aes(label = letters_rev, y = as.numeric(max_cond) + 0.1), vjust = -0.5, position = position_dodge(1)) +
+  labs(title = "Final Condition at Lewisetta and York River", x = "Experimental Site", y = "Tissue Condition (1-5)") +
+  theme_classic()+ 
+  theme(strip.background = element_blank(), 
+        strip.text.x = element_text(), 
+        strip.placement = "outside",
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.spacing.x = unit(3, "lines"))
+cond_plot_pop
+```
+
+Now for gonad index
+
+```{r}
+# quick distributions checks
+hist(as.numeric(cond_mod[cond_mod$bag_site == "Lewisetta",]$gonad), main = "Gonad Lewisetta")
+hist(as.numeric(cond_mod[cond_mod$bag_site == "YorkRiver",]$gonad), main = "Gonad York River")
+hist(as.numeric(cond_mod$gonad), main = "Gonad Distribution")
+
+# categories
+levels(as.ordered(cond_mod$gonad))
+
+# here I will use ordinal logistic regression
+gonad_mod_olr <- polr(gonad ~ pop * bag_site, data = cond_mod, Hess = TRUE)
+summary(gonad_mod_olr)
+Anova(gonad_mod_olr, type = "II", test.statistic = "Chisq") # all significant
+
+# also pop/site
+gonad_mod_olr_popsite <- polr(gonad ~ pop_site, data = cond_mod, Hess = TRUE)
+summary(gonad_mod_olr_popsite)
+
+# significance letters
+gonad_emm <- emmeans(gonad_mod_olr_popsite, ~ pop_site)
+gonad_letters <- cld(gonad_emm, Letters = letters) # only gives groupings for three of these groups
+letters_df <- data.frame(letters = gonad_letters$.group, pop_site = gonad_letters$pop_site)
+letters_df$pop <- str_split_fixed(letters_df$pop_site, "_", 2)[,1]
+letters_df$bag_site <- str_split_fixed(letters_df$pop_site, "_", 2)[,2]
+letters_df$site_name <- letters_df$pop
+letters_df_rename <- letters_df %>% mutate(site_name = ifelse(site_name %in% names(map), map[site_name], site_name))
+
+# also change letters to match a being best and f worst
+letters_df_rename2 <- as.character(chartr("abcdef", "fedcba", letters_df_rename$letters))
+letters_df_rename3 <- trimws(letters_df_rename2)
+letters_df_rename$letters_rev <- letters_df_rename3
+
+# save everything
+sink(paste0("results/exp_results/gonad_model_results_", Sys.Date(), ".txt"))
+summary(gonad_mod_olr)
+Anova(gonad_mod_olr, type = "II", test.statistic = "Chisq") # all significant
+letters_df_rename
+sink()
+
+# full plotting df
+gonad_mod_plotting <- merge(cond_mod[,-2], letters_df_rename, by = c("bag_site","pop_site"))
+gonad_mod_plotting_pops <- merge(gonad_mod_plotting, popsdf, by = c("site_name", "pop"))
+
+# y-axis location for letters
+letters_loc_gonad <- gonad_mod_plotting_pops %>% group_by(pop_site) %>% dplyr::summarise(across(gonad, max))
+colnames(letters_loc_gonad) <- c("pop_site", "max_gonad")
+gonad_plotting_letters <- merge(gonad_mod_plotting_pops, letters_loc_gonad, by = "pop_site")
+
+# plot by pop
+gonad_plot_pop <- ggplot(gonad_plotting_letters, aes(x = site_name_plotting, y = as.numeric(gonad), fill = fct_reorder(site_name, order))) + 
+  geom_boxplot(position=position_dodge(1.0)) +  
+  facet_grid(.~ bag_site,
+             switch = "x") +
+  scale_fill_manual(name = "Broodstock Group", label = popsdf$site_name_plotting, values = popsdf$cols)+
+  geom_text(aes(label = letters_rev, y = as.numeric(max_gonad) + 0.1), vjust = -0.5, position = position_dodge(1)) +
+  labs(title = "Final Gonad Index at Lewisetta and York River", x = "Experimental Site", y = "Gonad Index (1-5)") +
+  theme_classic() + 
+  theme(strip.background = element_blank(), 
+        strip.text.x = element_text(), 
+        strip.placement = "outside",
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.spacing.x = unit(3, "lines"))
+gonad_plot_pop
+```
+
 
 ## Export Figures
 
