@@ -49,8 +49,8 @@ sea_site_full <- read.csv("data/EnvDat/seascape/sea_scaled_expanded_reord_2026-0
 exp_site_full <- read.csv("data/EnvDat/exp/exp_scaled_2026-01-30.csv")[,-1]
 
 # gen
-genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2026-01-29.geno")
-genoThinLfmm <- read.lfmm("data/GenDat/geno_seascape_LDthin_2026-01-27.lfmm")
+genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2026-04-06.geno")
+genoThinLfmm <- read.lfmm("data/GenDat/geno_seascape_LDthin_2026-04-06.lfmm")
 
 # inds
 inds_genomat <- read.csv("data/GenDat/inds_genomat.csv")[,-1]
@@ -309,10 +309,10 @@ grid_int_crop <- sf::st_crop(grid_int, c(xmin = -102, xmax = -65,
                                          ymin = 24, ymax = 47.05))
 
 # interpolate
-interpolated_lew <- idw(lew_go~1, sea_sf, grid_int)
+interpolated_lew <- idw(lew_go~1, full_sf, grid_int)
 #saveRDS(interpolated_lew, "results/lg_results/interpolated_lea_lew.rds")
 
-interpolated_yrk <- idw(yrk_go~1, sea_sf, grid_int)
+interpolated_yrk <- idw(yrk_go~1, full_sf, grid_int)
 #saveRDS(interpolated_yrk, "results/lg_results/interpolated_lea_yrk.rds")
 
 # empty raster
@@ -340,7 +340,7 @@ saveRDS(rast_all, "results/GO_results/lea_interpolated_go.RDS")
 # prep seascape sites for plotting
 offsets_sea_plotting_lea <- na.omit(gap_full_df)
 
-# try mapping again
+# mapping
 map_lew_int_lea <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = interpolated_lew, mapping = aes(fill = var1.pred, col = var1.pred)) +
