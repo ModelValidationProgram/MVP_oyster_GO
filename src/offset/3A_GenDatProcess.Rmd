@@ -126,7 +126,7 @@ sea_stats
 #saveRDS(sea_fst, paste0("results/gen/seascape_pairwise_", Sys.Date(), ".csv"))
 
 # read back in fst
-sea_fst <- readRDS("results/gen/seascape_pairwise_2026-04-09.csv")
+sea_fst <- read.csv("results/gen/seascape_statistics_2026-04-12.csv")
 
 # plot fst heatmap
 

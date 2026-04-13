@@ -17,5 +17,5 @@ sea_stats <- hierfstat::basic.stats(geno_mat_hier)
 sea_fst <- hierfstat::pairwise.WCfst(geno_mat_hier)
 
 # save
-saveRDS(sea_stats, paste0("results/gen/seascape_statistics_", Sys.Date(), ".csv"))
-saveRDS(sea_fst, paste0("results/gen/seascape_pairwise_", Sys.Date(), ".csv"))
+saveRDS(sea_stats, paste0("results/gen/seascape_statistics_", Sys.Date(), ".RDS"))
+saveRDS(sea_fst, paste0("results/gen/seascape_pairwise_", Sys.Date(), ".RDS"))

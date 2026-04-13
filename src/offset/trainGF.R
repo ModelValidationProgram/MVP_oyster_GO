@@ -22,7 +22,6 @@ exp_site_latlon <- read.csv("data/EnvDat/exp/exp_site_info.csv")[,-1]
 genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2026-04-06.geno")
 
 # individuals
-expInds <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")
 seascapeInds <- readRDS("data/IndDat/20250604_seascape_indsmatrix.rds")
 inds_genomat <- read.csv("data/GenDat/inds_genomat.csv")[,-1]
 
