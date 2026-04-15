@@ -45,7 +45,7 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 5            FL_YorkRiver   FL YorkRiver     W3_FL            
 6          DEBY_YorkRiver DEBY YorkRiver   S2_DEBY            
 7            ME_YorkRiver   ME YorkRiver     W6_ME            
-8            VA_YorkRiver   VA YorkRiver        VA            
+8            VA_YorkRiver   VA YorkRiver     W4_VA            
 9            LA_Lewisetta   LA Lewisetta     W2_LA            
 10           TX_Lewisetta   TX Lewisetta     W1_TX            
 11           NH_Lewisetta   NH Lewisetta     W5_NH            
@@ -53,4 +53,4 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 13         DEBY_Lewisetta DEBY Lewisetta   S2_DEBY            
 14           ME_Lewisetta   ME Lewisetta     W6_ME            
 15           FL_Lewisetta   FL Lewisetta     W3_FL            
-16           VA_Lewisetta   VA Lewisetta        VA            
+16           VA_Lewisetta   VA Lewisetta     W4_VA            

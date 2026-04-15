@@ -30,8 +30,8 @@ library(plotrix)
 
 # data
 # offset predictions
-lea_go <- read.csv("results/GO_results/offsets_LEA_expsites_2026-01-29.csv")[,-1]
-rda_go <- read.csv("results/GO_results/offsets_RDA_expsites_2026-01-29.csv")[,-1]
+lea_go <- read.csv("results/GO_results/offsets_LEA_expsites_2026-04-06.csv")[,-1]
+rda_go <- read.csv("results/GO_results/offsets_RDA_expsites_2026-04-06.csv")[,-1]
 gf_go <- read.csv("results/GO_results/offsets_GF_expSites_2026-02-03.csv")[,-1]
 env_dist <- read.csv("data/EnvDat/exp/distance_matrix_2026-01-30.csv")[28:35,c("X","Lewisetta","YorkRiver")]
 env_dist_nb <- read.csv("data/EnvDat/exp/distance_matrix_abiotic_2026-01-30.csv")[28:35,c("X","Lewisetta","YorkRiver")]
@@ -40,7 +40,6 @@ env_dist_nb <- read.csv("data/EnvDat/exp/distance_matrix_abiotic_2026-01-30.csv"
 mort_bags <- read.csv("results/exp_results/mortality_long_bags_2026-01-15.csv")[,-1]
 mort <- read.csv("results/exp_results/mortality_long_popsite_2026-01-15.csv")[,-1]
 len <- read.csv("results/exp_results/lengths_bags_event_2025-06-03.csv")[,-1]
-cond <- read.csv("results/exp_results/gonad_condition_2026-03-30.csv")[,-1]
 ```
 
 ## Data Prep
@@ -123,26 +122,6 @@ for (i in 1:4) {
   ord_len_popsite <- rbind(ord_len_popsite, ordt_lew, ordt_yrk)
 }
 ord_len_popsite
-
-# now for condition metrics
-cond_trim <- cond[,c("bag_site", "site_name", "finalTissue_VialLabel", "condition", "gonad")]
-head(cond_trim)
-
-# order by condition index
-orders_cond_lew <- cond_trim %>% filter(bag_site == "Lewisetta") %>% arrange(desc(condition))
-orders_cond_lew$orders_cond <- rank(orders_cond_lew$condition, ties.method = "min")
-orders_cond_yrk <- cond_trim %>% filter(bag_site == "YorkRiver") %>% arrange(desc(condition))
-orders_cond_yrk$orders_cond <- rank(orders_cond_yrk$condition, ties.method = "min")
-orders_cond <- rbind(orders_cond_lew, orders_cond_yrk)
-orders_cond$event <- 4
-
-# order by gonad index
-orders_gon_lew <- cond_trim %>% filter(bag_site == "Lewisetta") %>% arrange(desc(gonad))
-orders_gon_lew$orders_gonad <- rank(orders_gon_lew$condition, ties.method = "min")
-orders_gon_yrk <- cond_trim %>% filter(bag_site == "YorkRiver") %>% arrange(desc(gonad))
-orders_gon_yrk$orders_gonad <- rank(orders_gon_yrk$condition, ties.method = "min")
-orders_gonad <- rbind(orders_gon_lew, orders_gon_yrk)
-orders_gonad$event <- 4
 
 # put fitness metrics together
 ord_fitness_popsite_mg <- merge(ord_mort_popsite, ord_len_popsite, by = c("pop","bag_site","event"))
@@ -282,17 +261,6 @@ go <- merge(rda_go1, gf_go1, by = c("site_name","lat","lon"))
 go1 <- merge(go, lea_go1, by = c("site_name", "lat", "lon"))
 go2 <- merge(go1, env_dist2, by = "site_name")
 fullfit <- merge(bagfullfit, go2, by = "site_name")
-allfit <- merge(ord_fitness_popsite_cond, fullfit, by = c("site_name","bag_site", "pop","event"))
-
-# make sure everything is coded correctly
-allfit$order_lew_envdist <- as.numeric(allfit$order_lew_envdist)
-allfit$order_yrk_envdist <- as.numeric(allfit$order_yrk_envdist)
-allfit$order_lew_envdist_nb <- as.numeric(allfit$order_lew_envdist_nb)
-allfit$order_yrk_envdist_nb <- as.numeric(allfit$order_yrk_envdist_nb)
-allfit$env_dist_lew <- as.numeric(allfit$env_dist_lew)
-allfit$env_dist_yrk <- as.numeric(allfit$env_dist_yrk)
-allfit$env_dist_lew_nb <- as.numeric(allfit$env_dist_lew_nb)
-allfit$env_dist_yrk_nb <- as.numeric(allfit$env_dist_yrk_nb)
 ```
 
 
@@ -571,41 +539,41 @@ With selection lines:
 
 ```{r}
 # plot rda vs mort at each site/time point
-goFitRDA_lew_plot <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta" & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),]) +
-    geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_lew, y = surv, fill = "Fall'23"), shape = 21, size = 4) +
-    geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_lew, y = surv), col = "cadetblue3", fill = "cadetblue3", fill = "cadetblue3", se = T, linetype = lty_set("rda","b","sel","Lewisetta",1)) +
-    geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_lew, y = surv, fill = "Spring'24"), shape = 21, size = 4) +
-    geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_lew, y = surv), col = "cornflowerblue", fill = "cornflowerblue", fill = "cornflowerblue", se = T, linetype = lty_set("rda", "b", "sel", "Lewisetta", 2)) +
-    geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_lew, y = surv, fill = "Fall'24"), shape = 21, size = 4) +
-    geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_lew, y = surv), col = "slateblue", fill = "slateblue", fill = "slateblue", se = T, linetype = lty_set("rda", "b", "sel", "Lewisetta", 3)) +
-    geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_lew, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
-    geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_lew, y = surv), col = "purple4", fill = "purple4", fill = "purple4", se = T, linetype = lty_set("rda", "b", "sel", "Lewisetta", 4)) +
-    labs(title = expression(paste("(A) Predicted ", RDA[offset], " vs Survival at Lewisetta, with Selection Lines")), x = "RDA Offset", y = "Survival") +
+goFitRDA_lew_plot <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
+    geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_rda_lew, y = surv, fill = "Fall'23"), shape = 21, size = 4) +
+    geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 1,], aes(x = offset_rda_lew, y = surv), col = "cadetblue3", fill = "cadetblue3", fill = "cadetblue3", se = T, linetype = lty_set("rda","b","sel","Lewisetta",1)) +
+    geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_rda_lew, y = surv, fill = "Spring'24"), shape = 21, size = 4) +
+    geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 2,], aes(x = offset_rda_lew, y = surv), col = "cornflowerblue", fill = "cornflowerblue", fill = "cornflowerblue", se = T, linetype = lty_set("rda", "b", "sel", "Lewisetta", 2)) +
+    geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_rda_lew, y = surv, fill = "Fall'24"), shape = 21, size = 4) +
+    geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_rda_lew, y = surv), col = "slateblue", fill = "slateblue", fill = "slateblue", se = T, linetype = lty_set("rda", "b", "sel", "Lewisetta", 3)) +
+    geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
+    geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = surv), col = "purple4", fill = "purple4", fill = "purple4", se = T, linetype = lty_set("rda", "b", "sel", "Lewisetta", 4)) +
+    labs(title = expression(paste("(C) Predicted ", RDA[offset], " vs Survival at Lewisetta, with Selection Lines")), x = "RDA Offset", y = "Survival") +
     scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
     theme_classic()
 goFitRDA_lew_plot
 
-goFitRDA_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver"  & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),]) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_yrk, y = surv, fill = "Fall'23"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_yrk, y = surv), col = "cadetblue3", fill = "cadetblue3", se = T, linetype = lty_set("rda", "b", "sel", "YorkRiver", 1)) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_yrk, y = surv, fill = "Spring'24"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_yrk, y = surv), col = "cornflowerblue", fill = "cornflowerblue", se = T, linetype = lty_set("rda", "b", "sel", "YorkRiver", 2)) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_yrk, y = surv, fill = "Fall'24"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_yrk, y = surv), col = "slateblue", fill = "slateblue", se = T, linetype = lty_set("rda", "b", "sel", "YorkRiver", 3)) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_yrk, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_yrk, y = surv), col = "purple4", fill = "purple4", se = T, linetype = lty_set("rda", "b", "sel", "YorkRiver", 4)) +
-  labs(title = expression(paste("(B) Predicted ", RDA[offset], " vs Survival at York River, with Selection Lines")), x = "RDA Offset", y = "Survival") +
+goFitRDA_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_rda_yrk, y = surv, fill = "Fall'23"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 1,], aes(x = offset_rda_yrk, y = surv), col = "cadetblue3", fill = "cadetblue3", se = T, linetype = lty_set("rda", "b", "sel", "YorkRiver", 1)) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 2,], aes(x = offset_rda_yrk, y = surv, fill = "Spring'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver",], aes(x = offset_rda_yrk, y = surv), col = "cornflowerblue", fill = "cornflowerblue", se = T, linetype = lty_set("rda", "b", "sel", "YorkRiver", 2)) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_rda_yrk, y = surv, fill = "Fall'24"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_rda_yrk, y = surv), col = "slateblue", fill = "slateblue", se = T, linetype = lty_set("rda", "b", "sel", "YorkRiver", 3)) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = surv), col = "purple4", fill = "purple4", se = T, linetype = lty_set("rda", "b", "sel", "YorkRiver", 4)) +
+  labs(title = expression(paste("(D) Predicted ", RDA[offset], " vs Survival at York River, with Selection Lines")), x = "RDA Offset", y = "Survival") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitRDA_yrk_plot
 
 # plot go rda vs mort at both sites just final time point
 goFitRDA_plotfinalTsurv <- ggplot(data = fullfit) +
-  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_lew, y = surv, fill = "Lewisetta"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_lew, y = surv), col = "mediumspringgreen", fill = "darkseagreen2", linetype = lty_set("rda", "b", "sel", "Lewisetta", 4), se = T) +
-  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
-  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_yrk, y = surv), col = "dodgerblue", fill = "dodgerblue", linetype = lty_set("rda", "b", "sel", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(A) Predicted ", RDA[offset], " vs Final Survival, with Selection Lines")), x = "RDA Offset", y = "Survival") +
+  geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = surv, fill = "Lewisetta"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = surv), col = "mediumspringgreen", fill = "darkseagreen2", linetype = lty_set("rda", "b", "sel", "Lewisetta", 4), se = T) +
+  geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
+  geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = surv), col = "dodgerblue", fill = "dodgerblue", linetype = lty_set("rda", "b", "sel", "YorkRiver", 4), se = T) +
+  labs(title = expression(paste("(B) Predicted ", RDA[offset], " vs Final Survival, with Selection Lines")), x = "RDA Offset", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitRDA_plotfinalTsurv

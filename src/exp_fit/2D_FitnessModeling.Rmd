@@ -223,7 +223,8 @@ boxplot(residuals(length_lm) ~ lengths_mod_narm_nodead$bags_label)
 # with interactions
 # using REML
 length_lmm <- lmer(length ~ bag_site * pop * t + (1|bags_label), data = lengths_mod_narm_nodead)
-Anova(length_lmm, type = "III") # all signif
+Anova(length_lmm, type = "III", test.statistic = "F") # all signif
+lmerTest::summary(length_lmm)
 
 # start with full model, then subtract each interaction, then subtract two of the interaction
 drop1(length_lmm) # keep all
@@ -232,6 +233,8 @@ drop1(length_lmm) # keep all
 length_lmm_final <- lmer(length ~ bag_site * pop + (1|bags_label), data = lengths_mod_narm_nodead[lengths_mod_narm_nodead$t == 4,])
 plot(length_lmm_final)
 Anova(length_lmm_final, type = "III", test.statistic = "F") # all signif
+sum(residuals(length_lmm_final)^2)
+df.residual(length_lmm_final)
 drop1(length_lmm_final)
 
 # can paste pops with sites to do a traditional Tukey
@@ -365,6 +368,7 @@ letters_df_rename <- letters_df %>% mutate(site_name = ifelse(site_name %in% nam
 letters_df_rename2 <- as.character(chartr("abcdef", "fedcba", letters_df_rename$letters))
 letters_df_rename3 <- trimws(letters_df_rename2)
 letters_df_rename$letters_rev <- letters_df_rename3
+letters_df_rename[letters_df_rename$site_name == "VA",]$site_name = "W4_VA"
 
 # save everything
 sink(paste0("results/exp_results/condition_model_results_", Sys.Date(), ".txt"))
@@ -432,6 +436,7 @@ letters_df_rename <- letters_df %>% mutate(site_name = ifelse(site_name %in% nam
 letters_df_rename2 <- as.character(chartr("abcdef", "fedcba", letters_df_rename$letters))
 letters_df_rename3 <- trimws(letters_df_rename2)
 letters_df_rename$letters_rev <- letters_df_rename3
+letters_df_rename[letters_df_rename$site_name == "VA",]$site_name = "W4_VA"
 
 # save everything
 sink(paste0("results/exp_results/gonad_model_results_", Sys.Date(), ".txt"))
