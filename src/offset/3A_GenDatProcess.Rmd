@@ -127,14 +127,84 @@ sea_stats
 #saveRDS(sea_fst, paste0("results/gen/seascape_pairwise_", Sys.Date(), ".csv"))
 
 # read back in fst
-sea_fst <- read.csv("results/gen/seascape_pairwise_2026-04-14.csv")
+sea_fst <- readRDS("results/gen/seascape_pairwise_2026-04-15.RDS")
 
 # long format
 sea_fst_long <- melt(sea_fst)
 
+# order correctly
+sites_order <- sea_inds %>% distinct(Site_Order, .keep_all = TRUE) %>% select(ID_SiteDate, ID_Site, EstuaryRegion_name, Site_Order)
+
+# keep just sites in analysis
+sites_keep <- sites_order[which((sites_order$ID_SiteDate %in% env_sea_sites)),]
+sites_keep_ordered <- sites_keep %>% arrange(Site_Order) %>%
+  slice(1, 2, n(), 3:(n() - 1))
+sites_keep_ordered$ID_SiteDate1 <- sites_keep_ordered$ID_SiteDate2 <- sites_keep_ordered$ID_SiteDate
+sites_keep_ordered$Order1 <- sites_keep_ordered$Order2 <- 1:nrow(sites_keep_ordered)
+
+colnames(sea_fst_long) <- c("ID_SiteDate1","ID_SiteDate2","fst")
+
+# just the experimental source pops
+sites_exp <- sites_order[which((sites_order$ID_SiteDate %in% c("CB_TX_2022-6-9", "Sister_Lk_LA_2022-8-9", "KP_FGR_FL_2022-8-23", "DWS_CB_VA_2022-10-7", "SR_GB_NH_2022-8-12", "DC_DR_ME_2022-10-25"))),]
+sites_exp_ord <- sites_exp %>% arrange(Site_Order)
+sites_exp_ord$Order1 <- sites_exp_ord$Order2 <- 1:nrow(sites_exp_ord)
+
+sites_exp_df <- data.frame(ID_SiteDate = c("CB_TX_2022-6-9", "Sister_Lk_LA_2022-8-9", "KP_FGR_FL_2022-8-23", "DWS_CB_VA_2022-10-7", "SR_GB_NH_2022-8-12", "DC_DR_ME_2022-10-25"), site_name = c("W1_TX", "W2_LA", "W3_FL", "W4_VA", "W5_NH", "W6_ME"))
+
+sites_exp_ord_df <- merge(sites_exp_df, sites_exp_ord, by = c("ID_SiteDate"))
+sites_exp_ord_df$site_name1 <- sites_exp_ord_df$site_name2 <- sites_exp_ord_df$site_name
+sites_exp_ord_df$ID_SiteDate1 <- sites_exp_ord_df$ID_SiteDate2 <- sites_exp_ord_df$ID_SiteDate
+sites_exp_ord_df <- sites_exp_ord_df %>% arrange(Order1, Order2)
+
+# add to fst data
+# seascape
+order_lookup1 <- sites_keep_ordered %>% select(ID_SiteDate1, Order1)
+order_lookup2 <- sites_keep_ordered %>% select(ID_SiteDate2, Order2)
+
+sea_fst_ordered <- sea_fst_long %>%
+  left_join(order_lookup1, by = "ID_SiteDate1") %>%
+  left_join(order_lookup2, by = "ID_SiteDate2")
+
+# exp
+order_lookup1_exp <- sites_exp_ord_df %>% select(ID_SiteDate1, site_name1, Order1)
+order_lookup2_exp <- sites_exp_ord_df %>% select(ID_SiteDate2, site_name2, Order2)
+
+sea_fst_long_exp <- sea_fst_long %>% 
+  filter(ID_SiteDate1 %in% sites_exp_ord_df$ID_SiteDate & 
+         ID_SiteDate2 %in% sites_exp_ord_df$ID_SiteDate)
+
+sea_fst_ordered_exp <- sea_fst_long_exp %>%
+  left_join(order_lookup1_exp, by = "ID_SiteDate1") %>%
+  left_join(order_lookup2_exp, by = "ID_SiteDate2") %>% 
+  arrange(Order1, Order2)
+```
+
+## plotting fst
+
+```{r}
 # plot fst heatmap
-sea_fst_long %>% 
-  ggplot(aes(x=Var1, y=Var2, fill=value), data = sea_fst_long) + 
-  geom_tile()
+# seascape training
+sea_fst_ordered %>% 
+  ggplot(aes(x = fct_reorder(ID_SiteDate1, Order1), y = fct_reorder(ID_SiteDate2, Order2), fill = fst)) + 
+  geom_tile() + 
+  scale_fill_viridis_c(option = "magma", direction = -1, na.value = "white", limits = c(0,0.075)) +
+#  geom_text(aes(label = round(fst, 3)), size = 2, color = ifelse(sea_fst_ordered$fst > 0.04, "white", "black")) +
+  scale_x_discrete(labels = sites_keep_ordered$ID_Site) +
+  scale_y_discrete(labels = sites_keep_ordered$ID_Site) +
+  labs(title = "Fst of Seascape Training Sites", x = NULL, y = NULL) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) + 
+  theme_classic()
+
+# experimental pops
+sea_fst_ordered_exp %>% 
+  ggplot(aes(x = fct_reorder(site_name1, Order1), y = fct_reorder(site_name2, Order2), fill = fst)) + 
+  geom_tile() + 
+  geom_text(aes(label = round(fst, 3)), size = 3, color = ifelse(sea_fst_ordered_exp$fst > 0.04, "white", "black")) +
+  scale_fill_viridis_c(option = "magma", direction = -1, na.value = "white", limits = c(0, 0.075)) +
+  scale_x_discrete(labels = sites_exp_ord_df$site_name) +
+  scale_y_discrete(labels = sites_exp_ord_df$site_name) +
+  labs(title = "Fst of Experimental Populations", x = NULL, y = NULL) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) + 
+  theme_classic()
 ```
 
