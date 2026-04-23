@@ -52,10 +52,9 @@ env_exp_site <- read.csv("data/EnvDat/exp/exp_sitenames.csv")[,-1]
 exp_site_latlon <- read.csv("data/EnvDat/exp/exp_site_info.csv")[,-1]
 
 # gen
-genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2026-01-29.geno")
+genoThinMat <- read.geno("data/GenDat/geno_seascape_LDthin_2026-04-06.geno")
 
 # individuals
-expInds <- readRDS("data/IndDat/20240922_experimental_indsmatrix.rds")
 seascapeInds <- readRDS("data/IndDat/20250604_seascape_indsmatrix.rds")
 inds_genomat <- read.csv("data/GenDat/inds_genomat.csv")[,-1]
 ```
@@ -163,8 +162,8 @@ To train the models, I will be using the seascape genomic dataset that we proces
 
 ```{r GO Model Training}
 # read in models trained in trainGF.R / trainGF.sh
-gf_geno <- readRDS("results/lg_results/gf_geno_2026-01-31.RDS")
-gf_geno_nb <- readRDS("results/lg_results/gf_geno_abiotic_2026-02-02.RDS")
+gf_geno <- readRDS("results/lg_results/gf_geno_2026-04-17.RDS")
+gf_geno_nb <- readRDS("results/lg_results/gf_geno_abiotic_2026-04-21.RDS")
 
 # plot bar graphs depicting importance of each spatial and climate variable
 plot(gf_geno)
@@ -280,17 +279,17 @@ pred_geno_yrk_sea <- predict(gf_geno, env_sea_pop_for_pred[env_sea_pop_for_pred$
 nb_ind_sea <- nrow(seascapeInds_reord2)
 
 # lew
-df_geno_lew_sea <- data.frame()
-for (i in 1:nb_ind_sea) {
+df_geno_lew_sea <- data.frame() # df
+for (i in 1:33){ # calc offset
   ec_dist <- as.data.frame(euclidean(pred_geno_sea[i,], pred_geno_lew_sea[i,]))
   df_geno_lew_sea <- rbind(df_geno_lew_sea, ec_dist)
 }
-geno_offset_lew_sea <- cbind(env_sea_pop$site_name, env_sea_pop$Latitude_manual, env_sea_pop$Longitude_manual, df_geno_lew_sea) # associate metadata with offset calculation, will need to ensure that this list is in the correct order
+geno_offset_lew_sea <- cbind(as.data.frame(env_sea_pop[,c("site_name","Latitude_manual","Longitude_manual")]), df_geno_lew_sea) # associate metadata with offset calculation
 colnames(geno_offset_lew_sea) <- c("site_name", "lat", "lon", "offset_gf_geno_lew")
 
 # york
 df_geno_yrk_sea <- data.frame()
-for (i in 1:nb_ind_sea){ # calc offset
+for (i in 1:33){ # calc offset
   ec_dist <- as.data.frame(euclidean(pred_geno_sea[i,], pred_geno_yrk_sea[i,]))
   df_geno_yrk_sea <- rbind(df_geno_yrk_sea, ec_dist)
 }

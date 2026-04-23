@@ -1,8 +1,8 @@
     temp_quantile_90_scaled salinity_quantile_10_scaled       MSX_Prevalence_scaled 
-                0.040463877                 0.023875943                 0.016724581 
+                0.040773616                 0.024103935                 0.016858374 
     temp_quantile_10_scaled salinity_quantile_90_scaled     Dermo_Prevalence_scaled 
-                0.016310572                 0.009336266                 0.008890764 
+                0.016398297                 0.009396293                 0.008922755 
     temp_quantile_90_scaled salinity_quantile_10_scaled     temp_quantile_10_scaled 
-                 0.04307622                  0.03271974                  0.02191797 
+                 0.04338661                  0.03298240                  0.02203479 
 salinity_quantile_90_scaled 
-                 0.01790908 
+                 0.01798545 
