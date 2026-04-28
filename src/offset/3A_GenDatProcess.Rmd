@@ -108,27 +108,28 @@ write.csv(inds_genomat, "data/GenDat/inds_genomat.csv")
 # create genind object
 geno_mat_genind <- df2genind(geno_mat_ld_keep_filtered, sep = "", ncode = 1, ploidy = 2, pop = as.factor(sea_inds_order$ID_SiteDate))
 
+geno_mat_genind_exp <- geno_mat_genind[geno_mat_genind@pop %in% c("CB_TX_2022-6-9", "Sister_Lk_LA_2022-8-9", "KP_FGR_FL_2022-8-23", "DWS_CB_VA_2022-10-7", "SR_GB_NH_2022-8-12", "DC_DR_ME_2022-10-25"),]
+
 # format for hierfstat
 geno_mat_hier <- genind2hierfstat(geno_mat_genind)
 geno_mat_hier[1:10, 1:10]
+geno_mat_hier_exp <- genind2hierfstat(geno_mat_genind_exp)
 
 saveRDS(geno_mat_hier, "data/GenDat/geno_mat_hierfstat.RDS")
+saveRDS(geno_mat_hier_exp, "data/GenDat/geno_mat_exp_hierfstat.RDS")
 
-# calc basic stats
-sea_stats <- hierfstat::basic.stats(geno_mat_hier)
-sea_stats
-
-# moved to batch script
-# calc pairwise fst
-#sea_fst <- hierfstat::pairwise.WCfst(geno_mat_hier)
-
-# save
-#saveRDS(sea_stats, paste0("results/gen/seascape_statistics_", Sys.Date(), ".csv"))
-#saveRDS(sea_fst, paste0("results/gen/seascape_pairwise_", Sys.Date(), ".csv"))
-
-# read back in fst
+# read back in fst & stats
 sea_fst <- readRDS("results/gen/seascape_pairwise_2026-04-15.RDS")
+exp_stats <- readRDS("results/gen/exp_pops_statistics_2026-04-23.RDS")
 
+# stats
+colnames(exp_stats$Ho) <- colnames(exp_stats$Hs) <- colnames(exp_stats$Fis) <- c("W1_TX", "W6-ME", "W4-VA", "W3-FL", "W2-LA", "W5-NH")
+ho_pop <- apply(exp_stats$Ho, 2, mean, na.rm = T)
+hs_pop <- apply(exp_stats$Hs, 2, mean, na.rm = T)
+fis_pop <- apply(exp_stats$Fis, 2, mean, na.rm = T)
+exp_pop_stats <- data.frame(site_name = names(fis_pop), ho = ho_pop, hs = hs_pop, fis = fis_pop)
+
+# fst
 # long format
 sea_fst_long <- melt(sea_fst)
 
@@ -155,6 +156,8 @@ sites_exp_ord_df <- merge(sites_exp_df, sites_exp_ord, by = c("ID_SiteDate"))
 sites_exp_ord_df$site_name1 <- sites_exp_ord_df$site_name2 <- sites_exp_ord_df$site_name
 sites_exp_ord_df$ID_SiteDate1 <- sites_exp_ord_df$ID_SiteDate2 <- sites_exp_ord_df$ID_SiteDate
 sites_exp_ord_df <- sites_exp_ord_df %>% arrange(Order1, Order2)
+sites_exp_ord_df$site_name1_rename <- gsub("_", "-", sites_exp_ord_df$site_name1)
+sites_exp_ord_df$site_name2_rename <- gsub("_", "-", sites_exp_ord_df$site_name2)
 
 # add to fst data
 # seascape
@@ -184,27 +187,31 @@ sea_fst_ordered_exp <- sea_fst_long_exp %>%
 ```{r}
 # plot fst heatmap
 # seascape training
-sea_fst_ordered %>% 
+sea_fst_all <- sea_fst_ordered %>% 
   ggplot(aes(x = fct_reorder(ID_SiteDate1, Order1), y = fct_reorder(ID_SiteDate2, Order2), fill = fst)) + 
   geom_tile() + 
-  scale_fill_viridis_c(option = "magma", direction = -1, na.value = "white", limits = c(0,0.075)) +
+  coord_fixed() + 
+  scale_fill_viridis_c(option = "mako", direction = -1, na.value = "white", limits = c(0,0.075)) +
 #  geom_text(aes(label = round(fst, 3)), size = 2, color = ifelse(sea_fst_ordered$fst > 0.04, "white", "black")) +
   scale_x_discrete(labels = sites_keep_ordered$ID_Site) +
   scale_y_discrete(labels = sites_keep_ordered$ID_Site) +
   labs(title = "Fst of Seascape Training Sites", x = NULL, y = NULL) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) + 
   theme_classic()
+sea_fst_all
 
 # experimental pops
-sea_fst_ordered_exp %>% 
+sea_fst_exp <- sea_fst_ordered_exp %>% 
   ggplot(aes(x = fct_reorder(site_name1, Order1), y = fct_reorder(site_name2, Order2), fill = fst)) + 
   geom_tile() + 
+  coord_fixed() + 
   geom_text(aes(label = round(fst, 3)), size = 3, color = ifelse(sea_fst_ordered_exp$fst > 0.04, "white", "black")) +
-  scale_fill_viridis_c(option = "magma", direction = -1, na.value = "white", limits = c(0, 0.075)) +
-  scale_x_discrete(labels = sites_exp_ord_df$site_name) +
-  scale_y_discrete(labels = sites_exp_ord_df$site_name) +
-  labs(title = "Fst of Experimental Populations", x = NULL, y = NULL) +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) + 
-  theme_classic()
+  scale_fill_viridis_c(option = "mako", direction = -1, na.value = "white", limits = c(0, 0.075)) +
+  scale_x_discrete(labels = sites_exp_ord_df$site_name1_rename) +
+  scale_y_discrete(labels = sites_exp_ord_df$site_name2_rename) +
+  labs(title = "Fst of Wild Experimental Populations", x = NULL, y = NULL, fill = "Fst") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+sea_fst_exp
 ```
 
