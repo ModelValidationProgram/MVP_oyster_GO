@@ -83,12 +83,12 @@ maxLevel <- log2(0.368*nrow(env_sea_pop_red)/2)
 # run gradient forest
 # allele freq models
 start_time <- Sys.time() # time start
-gf_af <- gradientForest(cbind(env_sea_pop_red, freqs_thin), 
-                        predictor.vars = colnames(env_sea_pop_red), 
-                        response.vars = (colnames(freqs_thin)), 
-                        ntree = 500, 
-                        maxLevel = maxLevel, 
-                        trace = T, 
+gf_af <- gradientForest(cbind(env_sea_pop_red, freqs_thin),
+                        predictor.vars = colnames(env_sea_pop_red),
+                        response.vars = (colnames(freqs_thin)),
+                        ntree = 500,
+                        maxLevel = maxLevel,
+                        trace = T,
                         corr.threshold=0.50) # tons of warnings here, "response has five or fewer unique values. Are you sure you want to do regression?" - warning doesn't appear on the cluster
 end_time <- Sys.time() # time end
 (end_time - start_time) # about 1.5hrs
@@ -98,12 +98,12 @@ saveRDS(gf_af, paste0("results/lg_results/gf_af_",Sys.Date(),".RDS"))
 
 # geno models
 start_time <- Sys.time() # time start
-gf_geno <- gradientForest(cbind(env_sea_red, genoThinMat), 
-                          predictor.vars = colnames(env_sea_red), 
-                          response.vars=colnames(genoThinMat), 
-                          ntree=500, 
-                          maxLevel=maxLevel, 
-                          trace=T, 
+gf_geno <- gradientForest(cbind(env_sea_red, genoThinMat),
+                          predictor.vars = colnames(env_sea_red),
+                          response.vars=colnames(genoThinMat),
+                          ntree=500,
+                          maxLevel=maxLevel,
+                          trace=T,
                           corr.threshold=0.50)
 end_time <- Sys.time() # time end
 (end_time - start_time) # over 24 on cluster
