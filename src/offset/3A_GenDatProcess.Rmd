@@ -215,3 +215,17 @@ sea_fst_exp <- sea_fst_ordered_exp %>%
 sea_fst_exp
 ```
 
+## export figures
+
+```{r}
+# export figures
+doc <- read_pptx() %>% 
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = sea_fst_all), location = ph_location_type(type = "body")) %>%
+  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+  ph_with(value = dml(ggobj = sea_fst_exp), location = ph_location_type(type = "body")) %>% 
+  add_slide(layout = "Title and Content", master = "Office Theme")
+
+print(doc, target = "results/figures/oyster_fst.pptx")
+```
+
