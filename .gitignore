@@ -8,5 +8,6 @@ results/lg_results/*
 results/figures/*
 slims_test.sif
 slims_testing_SC/*
+results/gen/exp_pops_statistics_*
 
 *.DS_Store
