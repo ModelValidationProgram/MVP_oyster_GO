@@ -457,7 +457,7 @@ goFitLEA_lew_plot <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
     geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_lea_go_lew, y = surv), col = "slateblue", fill = "slateblue", fill = "slateblue", se = T, linetype = lty_set("lea","b","sel","Lewisetta",3)) +
     geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
     geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = surv), col = "purple4", fill = "purple4", fill = "purple4", se = T, linetype = lty_set("lea","b","sel","Lewisetta",4)) +
-    labs(title = expression(paste("(A) Predicted ", LEA[offset], " vs Survival at Lewisetta, with Selection Lines")), x = "LEA Offset", y = "Survival") +
+    labs(title = expression(paste("(A) Predicted ", LEA[offset], " vs Survival at Lewisetta")), x = "LEA Offset", y = "Survival") +
     scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
     theme_classic()
 goFitLEA_lew_plot
@@ -471,7 +471,7 @@ goFitLEA_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_lea_go_yrk, y = surv), col = "slateblue", fill = "slateblue", se = T, linetype = lty_set("lea","b","sel","YorkRiver",3)) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = surv), col = "purple4", fill = "purple4", se = T, linetype = lty_set("lea","b","sel","YorkRiver",4)) +
-  labs(title = expression(paste("(B) Predicted ", LEA[offset], " vs Survival at York River, with Selection Lines")), x = "LEA Offset", y = "Survival") +
+  labs(title = expression(paste("(B) Predicted ", LEA[offset], " vs Survival at York River")), x = "LEA Offset", y = "Survival") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitLEA_yrk_plot
@@ -482,7 +482,7 @@ goFitLEA_plotfinalTsurv <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = surv), col = "mediumspringgreen", fill = "darkseagreen2", linetype = lty_set("lea","b","sel","Lewisetta",4), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = surv), col = "dodgerblue", fill = "dodgerblue", linetype = lty_set("lea","b","sel","YorkRiver",4), se = T) +
-  labs(title = expression(paste("(A) Predicted ", LEA[offset], " vs Final Survival, with Selection Lines")), x = "LEA Offset", y = "Survival") +
+  labs(title = expression(paste("(A) Predicted ", LEA[offset], " vs Final Survival")), x = "LEA Offset", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitLEA_plotfinalTsurv
@@ -501,7 +501,7 @@ goFitLEA_lew_plot_nosel <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta"
     geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_lea_go_lew, y = surv), col = "slateblue", fill = "slateblue", fill = "slateblue", se = T, linetype = lty_set("lea", "b", "ns", "Lewisetta", 3)) +
     geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_lea_go_lew, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
     geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_lea_go_lew, y = surv), col = "purple4", fill = "purple4", fill = "purple4", se = T, linetype = lty_set("lea", "b", "ns", "Lewisetta", 4)) +
-    labs(title = expression(paste("(A) Predicted ", LEA[offset], " vs Survival at Lewisetta")), x = "LEA Offset", y = "Survival") +
+    labs(title = expression(paste("(A) Predicted ", LEA[offset], " vs Survival at Lewisetta, without Selection Lines")), x = "LEA Offset", y = "Survival") +
     scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
     theme_classic()
 goFitLEA_lew_plot_nosel
@@ -515,7 +515,7 @@ goFitLEA_yrk_plot_nosel <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_lea_go_yrk, y = surv), col = "slateblue", fill = "slateblue", se = T, linetype = lty_set("lea", "b", "ns", "YorkRiver", 3)) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_lea_go_yrk, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_lea_go_yrk, y = surv), col = "purple4", fill = "purple4", se = T, linetype = lty_set("lea", "b", "ns", "YorkRiver", 4)) +
-  labs(title = expression(paste("(B) Predicted ", LEA[offset], " vs Survival at York River")), x = "LEA Offset", y = "Survival") +
+  labs(title = expression(paste("(B) Predicted ", LEA[offset], " vs Survival at York River, without Selection Lines")), x = "LEA Offset", y = "Survival") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitLEA_yrk_plot_nosel
@@ -526,7 +526,7 @@ goFitLEA_plotfinalTsurv_nosel <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_lea_go_lew, y = surv), col = "mediumspringgreen", fill = "darkseagreen2", linetype = lty_set("lea", "b", "ns", "Lewisetta", 4), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_lea_go_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_lea_go_yrk, y = surv), col = "dodgerblue", fill = "dodgerblue", linetype = lty_set("lea", "b", "ns", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(A) Predicted ", LEA[offset], " vs Final Survival")), x = "LEA Offset", y = "Survival") +
+  labs(title = expression(paste("(A) Predicted ", LEA[offset], " vs Final Survival, without Selection Lines")), x = "LEA Offset", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitLEA_plotfinalTsurv_nosel
@@ -548,7 +548,7 @@ goFitRDA_lew_plot <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
     geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_rda_lew, y = surv), col = "slateblue", fill = "slateblue", fill = "slateblue", se = T, linetype = lty_set("rda", "b", "sel", "Lewisetta", 3)) +
     geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
     geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = surv), col = "purple4", fill = "purple4", fill = "purple4", se = T, linetype = lty_set("rda", "b", "sel", "Lewisetta", 4)) +
-    labs(title = expression(paste("(C) Predicted ", RDA[offset], " vs Survival at Lewisetta, with Selection Lines")), x = "RDA Offset", y = "Survival") +
+    labs(title = expression(paste("(C) Predicted ", RDA[offset], " vs Survival at Lewisetta")), x = "RDA Offset", y = "Survival") +
     scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
     theme_classic()
 goFitRDA_lew_plot
@@ -562,7 +562,7 @@ goFitRDA_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_rda_yrk, y = surv), col = "slateblue", fill = "slateblue", se = T, linetype = lty_set("rda", "b", "sel", "YorkRiver", 3)) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = surv), col = "purple4", fill = "purple4", se = T, linetype = lty_set("rda", "b", "sel", "YorkRiver", 4)) +
-  labs(title = expression(paste("(D) Predicted ", RDA[offset], " vs Survival at York River, with Selection Lines")), x = "RDA Offset", y = "Survival") +
+  labs(title = expression(paste("(D) Predicted ", RDA[offset], " vs Survival at York River")), x = "RDA Offset", y = "Survival") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitRDA_yrk_plot
@@ -573,7 +573,7 @@ goFitRDA_plotfinalTsurv <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = surv), col = "mediumspringgreen", fill = "darkseagreen2", linetype = lty_set("rda", "b", "sel", "Lewisetta", 4), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = surv), col = "dodgerblue", fill = "dodgerblue", linetype = lty_set("rda", "b", "sel", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(B) Predicted ", RDA[offset], " vs Final Survival, with Selection Lines")), x = "RDA Offset", y = "Survival") +
+  labs(title = expression(paste("(B) Predicted ", RDA[offset], " vs Final Survival")), x = "RDA Offset", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitRDA_plotfinalTsurv
@@ -592,7 +592,7 @@ goFitRDA_lew_plot_nosel <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta"
     geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_lew, y = surv), col = "slateblue", fill = "slateblue", fill = "slateblue", se = T, linetype = lty_set("rda", "b", "ns", "Lewisetta", 3)) +
     geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_lew, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
     geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_lew, y = surv), col = "purple4", fill = "purple4", fill = "purple4", se = T, linetype = lty_set("rda", "b", "ns", "Lewisetta", 4)) +
-    labs(title = expression(paste("(A) Predicted ", RDA[offset], " vs Survival at Lewisetta")), x = "RDA Offset", y = "Survival") +
+    labs(title = expression(paste("(A) Predicted ", RDA[offset], " vs Survival at Lewisetta, without Selection Lines")), x = "RDA Offset", y = "Survival") +
     scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
     theme_classic()
 goFitRDA_lew_plot_nosel
@@ -606,7 +606,7 @@ goFitRDA_yrk_plot_nosel <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_yrk, y = surv), col = "slateblue", fill = "slateblue", se = T, linetype = lty_set("rda", "b", "ns", "YorkRiver", 3)) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_yrk, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_yrk, y = surv), col = "purple4", fill = "purple4", se = T, linetype = lty_set("rda", "b", "ns", "YorkRiver", 4)) +
-  labs(title = expression(paste("(B) Predicted ", RDA[offset], " vs Survival at York River")), x = "RDA Offset", y = "Survival") +
+  labs(title = expression(paste("(B) Predicted ", RDA[offset], " vs Survival at York River, without Selection Lines")), x = "RDA Offset", y = "Survival") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitRDA_yrk_plot_nosel
@@ -617,7 +617,7 @@ goFitRDA_plotfinalTsurv_nosel <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_lew, y = surv), col = "mediumspringgreen", fill = "darkseagreen2", linetype = lty_set("rda", "b", "ns", "Lewisetta", 4), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_rda_yrk, y = surv), col = "dodgerblue", fill = "dodgerblue", linetype = lty_set("rda", "b", "ns", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(A) Predicted ", RDA[offset], " vs Final Survival")), x = "RDA Offset", y = "Survival") +
+  labs(title = expression(paste("(A) Predicted ", RDA[offset], " vs Final Survival, without Selection Lines")), x = "RDA Offset", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitRDA_plotfinalTsurv_nosel
@@ -639,7 +639,7 @@ goFitGF_lew_plot <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta" & !(fu
     geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_gf_geno_lew, y = surv), col = "slateblue", fill = "slateblue", fill = "slateblue", se = T, linetype = lty_set("rda", "b", "sel", "Lewisetta", 3)) +
     geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_gf_geno_lew, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
     geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_gf_geno_lew, y = surv), col = "purple4", fill = "purple4", fill = "purple4", se = T, linetype = lty_set("rda", "b", "sel", "Lewisetta", 4)) +
-    labs(title = expression(paste("(A) Predicted ", GF[offset], " vs Survival at Lewisetta, with Selection Lines")), x = "GF Offset", y = "Survival") +
+    labs(title = expression(paste("(A) Predicted ", GF[offset], " vs Survival at Lewisetta")), x = "GF Offset", y = "Survival") +
     scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
     theme_classic()
 goFitGF_lew_plot
@@ -653,7 +653,7 @@ goFitGF_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver"  & !(
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_gf_geno_yrk, y = surv), col = "slateblue", fill = "slateblue", se = T, linetype = lty_set("rda", "b", "sel", "YorkRiver", 3)) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_gf_geno_yrk, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_gf_geno_yrk, y = surv), col = "purple4", fill = "purple4", se = T, linetype = lty_set("rda", "b", "sel", "YorkRiver", 4)) +
-  labs(title = expression(paste("(B) Predicted ", GF[offset], " vs Survival at York River, with Selection Lines")), x = "GF Offset", y = "Survival") +
+  labs(title = expression(paste("(B) Predicted ", GF[offset], " vs Survival at York River")), x = "GF Offset", y = "Survival") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitGF_yrk_plot
@@ -664,7 +664,7 @@ goFitGF_plotfinalTsurv <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_gf_geno_lew, y = surv), col = "mediumspringgreen", fill = "darkseagreen2", linetype = lty_set("rda", "b", "sel", "Lewisetta", 4), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_gf_geno_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_gf_geno_yrk, y = surv), col = "dodgerblue", fill = "dodgerblue", linetype = lty_set("rda", "b", "sel", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(A) Predicted ", GF[offset], " vs Final Survival, with Selection Lines")), x = "GF Offset", y = "Survival") +
+  labs(title = expression(paste("(A) Predicted ", GF[offset], " vs Final Survival")), x = "GF Offset", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitGF_plotfinalTsurv
@@ -683,7 +683,7 @@ goFitGF_lew_plot_nosel <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta" 
     geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_gf_geno_lew, y = surv), col = "slateblue", fill = "slateblue", fill = "slateblue", se = T, linetype = lty_set("rda", "b", "ns", "Lewisetta", 3)) +
     geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_gf_geno_lew, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
     geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_gf_geno_lew, y = surv), col = "purple4", fill = "purple4", fill = "purple4", se = T, linetype = lty_set("rda", "b", "ns", "Lewisetta", 4)) +
-    labs(title = expression(paste("(A) Predicted ", GF[offset], " vs Survival at Lewisetta")), x = "GF Offset", y = "Survival") +
+    labs(title = expression(paste("(A) Predicted ", GF[offset], " vs Survival at Lewisetta, without Selection Lines")), x = "GF Offset", y = "Survival") +
     scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
     theme_classic()
 goFitGF_lew_plot_nosel
@@ -697,7 +697,7 @@ goFitGF_yrk_plot_nosel <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver"
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_gf_geno_yrk, y = surv), col = "slateblue", fill = "slateblue", se = T, linetype = lty_set("rda", "b", "ns", "YorkRiver", 3)) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_gf_geno_yrk, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_gf_geno_yrk, y = surv), col = "purple4", fill = "purple4", se = T, linetype = lty_set("rda", "b", "ns", "YorkRiver", 4)) +
-  labs(title = expression(paste("(B) Predicted ", GF[offset], " vs Survival at York River")), x = "GF Offset", y = "Survival") +
+  labs(title = expression(paste("(B) Predicted ", GF[offset], " vs Survival at York River, without Selection Lines")), x = "GF Offset", y = "Survival") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitGF_yrk_plot_nosel
@@ -708,7 +708,7 @@ goFitGF_plotfinalTsurv_nosel <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_gf_geno_lew, y = surv), col = "mediumspringgreen", fill = "darkseagreen2", linetype = lty_set("rda", "b", "ns", "Lewisetta", 4), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_gf_geno_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = offset_gf_geno_yrk, y = surv), col = "dodgerblue", fill = "dodgerblue", linetype = lty_set("rda", "b", "ns", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(A) Predicted ", GF[offset], " vs Final Survival")), x = "GF Offset", y = "Survival") +
+  labs(title = expression(paste("(A) Predicted ", GF[offset], " vs Final Survival, without Selection Lines")), x = "GF Offset", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitGF_plotfinalTsurv_nosel
@@ -729,7 +729,7 @@ goFitEnvDist_lew_plot <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta" &
     geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = env_dist_lew, y = surv), col = "slateblue", fill = "slateblue", fill = "slateblue", se = T, linetype = lty_set("rda", "b", "sel", "Lewisetta", 3)) +
     geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = env_dist_lew, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
     geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = env_dist_lew, y = surv), col = "purple4", fill = "purple4", fill = "purple4", se = T, linetype = lty_set("rda", "b", "sel", "Lewisetta", 4)) +
-    labs(title = expression(paste("(A) Environmental Distance vs Survival at \nLewisetta, with Selection Lines")), x = "Environmental Distance", y = "Survival") +
+    labs(title = expression(paste("(A) Environmental Distance vs Survival at \nLewisetta")), x = "Environmental Distance", y = "Survival") +
     scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
     theme_classic()
 goFitEnvDist_lew_plot
@@ -743,7 +743,7 @@ goFitEnvDist_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver" 
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = env_dist_yrk, y = surv), col = "slateblue", fill = "slateblue", se = T, linetype = lty_set("rda", "b", "sel", "YorkRiver", 3)) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = env_dist_yrk, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = env_dist_yrk, y = surv), col = "purple4", fill = "purple4", se = T, linetype = lty_set("rda", "b", "sel", "YorkRiver", 4)) +
-  labs(title = expression(paste("(B) Environmental Distance vs Survival at \nYork River, with Selection Lines")), x = "Environmental Distance", y = "Survival") +
+  labs(title = expression(paste("(B) Environmental Distance vs Survival at \nYork River")), x = "Environmental Distance", y = "Survival") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitEnvDist_yrk_plot
@@ -754,7 +754,7 @@ goFitEnvDist_plotfinalTsurv <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = env_dist_lew, y = surv), col = "mediumspringgreen", fill = "darkseagreen2", linetype = lty_set("rda", "b", "sel", "Lewisetta", 4), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = env_dist_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = env_dist_yrk, y = surv), col = "dodgerblue", fill = "dodgerblue", linetype = lty_set("rda", "b", "sel", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(A) Environmental Distance vs Final Survival, with Selection Lines")), x = "Environmental Distance", y = "Survival") +
+  labs(title = expression(paste("(A) Environmental Distance vs Final Survival")), x = "Environmental Distance", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitEnvDist_plotfinalTsurv
@@ -773,7 +773,7 @@ goFitEnvDist_lew_plot_nosel <- ggplot(data = fullfit[fullfit$bag_site == "Lewise
     geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = env_dist_lew, y = surv), col = "slateblue", fill = "slateblue", fill = "slateblue", se = T, linetype = lty_set("rda", "b", "ns", "Lewisetta", 3)) +
     geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = env_dist_lew, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
     geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = env_dist_lew, y = surv), col = "purple4", fill = "purple4", fill = "purple4", se = T, linetype = lty_set("rda", "b", "ns", "Lewisetta", 4)) +
-    labs(title = expression(paste("(A) Environmental Distance vs Survival at Lewisetta")), x = "GF Offset", y = "Survival") +
+    labs(title = expression(paste("(A) Environmental Distance vs Survival at Lewisetta, without Selection Lines")), x = "GF Offset", y = "Survival") +
     scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
     theme_classic()
 goFitEnvDist_lew_plot_nosel
@@ -787,7 +787,7 @@ goFitEnvDist_yrk_plot_nosel <-  ggplot(data = fullfit[fullfit$bag_site == "YorkR
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = env_dist_yrk, y = surv), col = "slateblue", fill = "slateblue", se = T, linetype = lty_set("rda", "b", "ns", "YorkRiver", 3)) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = env_dist_yrk, y = surv, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = env_dist_yrk, y = surv), col = "purple4", fill = "purple4", se = T, linetype = lty_set("rda", "b", "ns", "YorkRiver", 4)) +
-  labs(title = expression(paste("(B) Environmental Distance vs Survival at York River")), x = "GF Offset", y = "Survival") +
+  labs(title = expression(paste("(B) Environmental Distance vs Survival at York River, without Selection Lines")), x = "GF Offset", y = "Survival") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitEnvDist_yrk_plot_nosel
@@ -798,7 +798,7 @@ goFitEnvDist_plotfinalTsurv_nosel <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = env_dist_lew, y = surv), col = "mediumspringgreen", fill = "darkseagreen2", linetype = lty_set("rda", "b", "ns", "Lewisetta", 4), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = env_dist_yrk, y = surv, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4 & !(fullfit$site_name %in% c("S1_LOLA", "S2_DEBY")),], aes(x = env_dist_yrk, y = surv), col = "dodgerblue", fill = "dodgerblue", linetype = lty_set("rda", "b", "ns", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(A) Environmental Distance vs Final Survival")), x = "GF Offset", y = "Survival") +
+  labs(title = expression(paste("(A) Environmental Distance vs Final Survival, without Selection Lines")), x = "GF Offset", y = "Survival") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitEnvDist_plotfinalTsurv_nosel
@@ -827,7 +827,7 @@ goFitLEA_lew_len <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_lea_go_lew, y = length), col = "slateblue", fill = "slateblue", linetype = lty_set("lea", "b", "sel", "Lewisetta", 3), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = length, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = length), col = "purple4", fill = "purple4", linetype = lty_set("lea", "b", "sel", "Lewisetta", 4), se = T) +
-  labs(title = expression(paste("(A) Predicted ", LEA[offset], " vs Length at Lewisetta, with Selection Lines")), x = "LEA Offset", y = "Length (mm)") +
+  labs(title = expression(paste("(A) Predicted ", LEA[offset], " vs Length at Lewisetta")), x = "LEA Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitLEA_lew_len
@@ -841,7 +841,7 @@ goFitLEA_yrk_len <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_lea_go_yrk, y = length), col = "slateblue", fill = "slateblue", linetype = lty_set("lea", "b", "sel", "YorkRiver", 3), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = length, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = length), col = "purple4", fill = "purple4", linetype = lty_set("lea", "b", "sel", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(B) Predicted ", LEA[offset], " vs Length at York River, with Selection Lines")), x = "LEA Offset", y = "Length (mm)") +
+  labs(title = expression(paste("(B) Predicted ", LEA[offset], " vs Length at York River")), x = "LEA Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitLEA_yrk_len
@@ -852,7 +852,7 @@ goFitLEA_plotfinalTlen <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = length), col = "mediumspringgreen", fill = "darkseagreen2", linetype = lty_set("lea", "b", "sel", "Lewisetta", 4), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = length), col = "dodgerblue", fill = "dodgerblue", linetype = lty_set("lea", "b", "sel", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(A) Predicted ", LEA[offset], " vs Final Length, with Selection Lines")), x = "LEA Offset", y = "Length (mm)") +
+  labs(title = expression(paste("(A) Predicted ", LEA[offset], " vs Final Length")), x = "LEA Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitLEA_plotfinalTlen
@@ -871,7 +871,7 @@ goFitLEA_lew_len_nosel <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_lea_go_lew, y = length), col = "slateblue", fill = "slateblue", linetype = lty_set("lea", "b", "ns", "Lewisetta", 3), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = length, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = length), col = "purple4", fill = "purple4", linetype = lty_set("lea", "b", "ns", "Lewisetta", 4), se = T) +
-  labs(title = expression(paste("(A) Predicted ", LEA[offset], " vs Length at Lewisetta")), x = "LEA Offset", y = "Length (mm)") +
+  labs(title = expression(paste("(A) Predicted ", LEA[offset], " vs Length at Lewisetta, without Selection Lines")), x = "LEA Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitLEA_lew_len_nosel
@@ -885,7 +885,7 @@ goFitLEA_yrk_len_nosel <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver"
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_lea_go_yrk, y = length), col = "slateblue", fill = "slateblue", linetype = lty_set("lea", "b", "ns", "YorkRiver", 3), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = length, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = length), col = "purple4", fill = "purple4", linetype = lty_set("lea", "b", "ns", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(B) Predicted ", LEA[offset], " vs Length at York River")), x = "LEA Offset", y = "Length (mm)") +
+  labs(title = expression(paste("(B) Predicted ", LEA[offset], " vs Length at York River, without Selection Lines")), x = "LEA Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitLEA_yrk_len_nosel
@@ -896,7 +896,7 @@ goFitLEA_plotfinalTlen_nosel <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_lea_go_lew, y = length), col = "mediumspringgreen", fill = "darkseagreen2", linetype = lty_set("lea", "b", "ns", "Lewisetta", 4), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_lea_go_yrk, y = length), col = "dodgerblue", fill = "dodgerblue", linetype = lty_set("lea", "b", "ns", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(A) Predicted ", LEA[offset], " vs Final Length")), x = "LEA Offset", y = "Length (mm)") +
+  labs(title = expression(paste("(A) Predicted ", LEA[offset], " vs Final Length, without Selection Lines")), x = "LEA Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitLEA_plotfinalTlen_nosel
@@ -918,7 +918,7 @@ goFitRDA_lew_len <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_rda_lew, y = length), col = "slateblue", fill = "slateblue", linetype = lty_set("rda", "b", "sel", "Lewisetta", 3), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = length, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = length), col = "purple4", fill = "purple4", linetype = lty_set("rda", "b", "sel", "Lewisetta", 4), se = T) +
-  labs(title = expression(paste("(C) Predicted ", RDA[offset], " vs Length at Lewisetta, with Selection Lines")), x = "RDA Offset", y = "Length (mm)") +
+  labs(title = expression(paste("(C) Predicted ", RDA[offset], " vs Length at Lewisetta")), x = "RDA Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitRDA_lew_len
@@ -932,7 +932,7 @@ goFitRDA_yrk_len <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_rda_yrk, y = length), col = "slateblue", fill = "slateblue", linetype = lty_set("rda", "b", "sel", "YorkRiver", 3), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = length, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = length), col = "purple4", fill = "purple4", linetype = lty_set("rda", "b", "sel", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(D) Predicted ", RDA[offset], " vs Length at York River, with Selection Lines")), x = "RDA Offset", y = "Length (mm)") +
+  labs(title = expression(paste("(D) Predicted ", RDA[offset], " vs Length at York River")), x = "RDA Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitRDA_yrk_len
@@ -943,7 +943,7 @@ goFitRDA_plotfinalTlen <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = length), col = "mediumspringgreen", fill = "darkseagreen2", linetype = lty_set("rda", "b", "sel", "Lewisetta", 4), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = length), col = "dodgerblue", fill = "dodgerblue", linetype = lty_set("rda", "b", "sel", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(B) Predicted ", RDA[offset], " vs Final Length, with Selection Lines")), x = "RDA Offset", y = "Length (mm)") +
+  labs(title = expression(paste("(B) Predicted ", RDA[offset], " vs Final Length")), x = "RDA Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitRDA_plotfinalTlen
@@ -962,7 +962,7 @@ goFitRDA_lew_len_nosel <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_rda_lew, y = length), col = "slateblue", fill = "slateblue", linetype = lty_set("rda", "b", "ns", "Lewisetta", 3), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = length, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = length), col = "purple4", fill = "purple4", linetype = lty_set("rda", "b", "ns", "Lewisetta", 4), se = T) +
-  labs(title = expression(paste("(C) Predicted ", RDA[offset], " vs Length at Lewisetta")), x = "RDA Offset", y = "Length (mm)") +
+  labs(title = expression(paste("(C) Predicted ", RDA[offset], " vs Length at Lewisetta, without Selection Lines")), x = "RDA Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitRDA_lew_len_nosel
@@ -976,7 +976,7 @@ goFitRDA_yrk_len_nosel <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver"
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_rda_yrk, y = length), col = "slateblue", fill = "slateblue", linetype = lty_set("rda", "b", "ns", "YorkRiver", 3), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = length, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = length), col = "purple4", fill = "purple4", linetype = lty_set("rda", "b", "ns", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(D) Predicted ", RDA[offset], " vs Length at York River")), x = "RDA Offset", y = "Length (mm)") +
+  labs(title = expression(paste("(D) Predicted ", RDA[offset], " vs Length at York River, without Selection Lines")), x = "RDA Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitRDA_yrk_len_nosel
@@ -987,7 +987,7 @@ goFitRDA_plotfinalTlen_nosel <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_rda_lew, y = length), col = "mediumspringgreen", fill = "darkseagreen2", linetype = lty_set("rda", "b", "ns", "Lewisetta", 4), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_rda_yrk, y = length), col = "dodgerblue", fill = "dodgerblue", linetype = lty_set("rda", "b", "ns", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(B) Predicted ", RDA[offset], " vs Final Length")), x = "RDA Offset", y = "Length (mm)") +
+  labs(title = expression(paste("(B) Predicted ", RDA[offset], " vs Final Length, without Selection Lines")), x = "RDA Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitRDA_plotfinalTlen_nosel
@@ -1009,7 +1009,7 @@ goFitGF_lew_len <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_geno_lew, y = length), col = "slateblue", fill = "slateblue", linetype = lty_set("gf_geno", "b", "sel", "Lewisetta", 3), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = length, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = length), col = "purple4", fill = "purple4", linetype = lty_set("gf_geno", "b", "sel", "Lewisetta", 4), se = T) +
-  labs(title = expression(paste("(E) Predicted ", GF[offset], " vs Length at Lewisetta, with Selection Lines")), x = "GF Offset", y = "Length (mm)") +
+  labs(title = expression(paste("(E) Predicted ", GF[offset], " vs Length at Lewisetta")), x = "GF Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitGF_lew_len
@@ -1023,7 +1023,7 @@ goFitGF_yrk_len <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",]) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_geno_yrk, y = length), col = "slateblue", fill = "slateblue", linetype = lty_set("gf_geno", "b", "sel", "YorkRiver", 3), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length), col = "purple4", fill = "purple4", linetype = lty_set("gf_geno", "b", "sel", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(F) Predicted ", GF[offset], " vs Length at York River, with Selection Lines")), x = "GF Offset", y = "Length (mm)") +
+  labs(title = expression(paste("(F) Predicted ", GF[offset], " vs Length at York River")), x = "GF Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitGF_yrk_len
@@ -1034,7 +1034,7 @@ goFitGF_plotfinalTlen <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = length), col = "mediumspringgreen", fill = "darkseagreen2", linetype = lty_set("gf_geno", "b", "sel", "Lewisetta", 4), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length), col = "dodgerblue", fill = "dodgerblue", linetype = lty_set("gf_geno", "b", "sel", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(C) Predicted ", GF[offset], " vs Final Length, with Selection Lines")), x = "GF Offset", y = "Length (mm)") +
+  labs(title = expression(paste("(C) Predicted ", GF[offset], " vs Final Length")), x = "GF Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitGF_plotfinalTlen
@@ -1053,7 +1053,7 @@ goFitGF_lew_len_nosel <- ggplot(data = fullfit[fullfit$bag_site == "Lewisetta",]
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = offset_gf_geno_lew, y = length), col = "slateblue", fill = "slateblue", linetype = lty_set("gf_geno", "b", "ns", "Lewisetta", 3), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = length, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = length), col = "purple4", fill = "purple4", linetype = lty_set("gf_geno", "b", "ns", "Lewisetta", 4), se = T) +
-  labs(title = expression(paste("(E) Predicted ", GF[offset], " vs Length at Lewisetta")), x = "GF Offset", y = "Length (mm)") +
+  labs(title = expression(paste("(E) Predicted ", GF[offset], " vs Length at Lewisetta, without Selection Lines")), x = "GF Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4")) +
   theme_classic()
 goFitGF_lew_len_nosel
@@ -1067,7 +1067,7 @@ goFitGF_yrk_len_nosel <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiver",
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = offset_gf_geno_yrk, y = length), col = "slateblue", fill = "slateblue", linetype = lty_set("gf_geno", "b", "ns", "YorkRiver", 3), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length), col = "purple4", fill = "purple4", linetype = lty_set("gf_geno", "b", "ns", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(F) Predicted ", GF[offset], " vs Length at York River")), x = "GF Offset", y = "Length (mm)") +
+  labs(title = expression(paste("(F) Predicted ", GF[offset], " vs Length at York River, without Selection Lines")), x = "GF Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitGF_yrk_len_nosel
@@ -1078,7 +1078,7 @@ goFitGF_plotfinalTlen_nosel <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = offset_gf_geno_lew, y = length), col = "mediumspringgreen", fill = "darkseagreen2", linetype = lty_set("gf_geno", "b", "ns", "Lewisetta", 4), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = offset_gf_geno_yrk, y = length), col = "dodgerblue", fill = "dodgerblue", linetype = lty_set("gf_geno", "b", "ns", "YorkRiver", 4), se = T) +
-  labs(title = expression(paste("(C) Predicted ", GF[offset], " vs Final Length")), x = "GF Offset", y = "Length (mm)") +
+  labs(title = expression(paste("(C) Predicted ", GF[offset], " vs Final Length, without Selection Lines")), x = "GF Offset", y = "Length (mm)") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitGF_plotfinalTlen_nosel
@@ -1100,7 +1100,7 @@ goFitEnvDist_len_lew_plot <- ggplot(data = fullfit[fullfit$bag_site == "Lewisett
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = env_dist_lew, y = length), col = "slateblue", fill = "slateblue", linetype = lty_set("env_dist", "b", "sel", "Lewisetta", 3), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length), col = "purple4", fill = "purple4", linetype = lty_set("env_dist", "b", "sel", "Lewisetta", 4), se = T) +
-  labs(title = "(G) Environmental Distance vs Length at Lewisetta, with Selection Lines", x = "Environmental Distance", y = "Length (mm)") +
+  labs(title = "(G) Environmental Distance vs Length at Lewisetta", x = "Environmental Distance", y = "Length (mm)") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitEnvDist_len_lew_plot
@@ -1114,7 +1114,7 @@ goFitEnvDist_len_yrk_plot <-  ggplot(data = fullfit[fullfit$bag_site == "YorkRiv
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = env_dist_yrk, y = length), col = "slateblue", fill = "slateblue", linetype = lty_set("env_dist", "b", "sel", "YorkRiver", 3), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length), col = "purple4", fill = "purple4", linetype = lty_set("env_dist", "b", "sel", "YorkRiver", 4), se = T) +
-  labs(title = "(H) Environmental Distance vs Length at York River, with Selection Lines", x = "Environmental Distance", y = "Length (mm)") +
+  labs(title = "(H) Environmental Distance vs Length at York River", x = "Environmental Distance", y = "Length (mm)") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitEnvDist_len_yrk_plot
@@ -1125,7 +1125,7 @@ goFitEnvDist_plotfinalTlen <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length), col = "mediumspringgreen", fill = "darkseagreen2", linetype = lty_set("env_dist", "b", "sel", "Lewisetta", 4), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length), col = "dodgerblue", fill = "dodgerblue", linetype = lty_set("env_dist", "b", "sel", "YorkRiver", 4), se = T) +
-  labs(title = "(D) Environmental Distance vs Final Length, with Selection Lines", x = "Environmental Distance", y = "Length (mm)") +
+  labs(title = "(D) Environmental Distance vs Final Length", x = "Environmental Distance", y = "Length (mm)") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitEnvDist_plotfinalTlen
@@ -1144,7 +1144,7 @@ goFitEnvDist_len_lew_plot_nosel <- ggplot(data = fullfit[fullfit$bag_site == "Le
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 3,], aes(x = env_dist_lew, y = length), col = "slateblue", fill = "slateblue", linetype = lty_set("env_dist", "b", "ns", "Lewisetta", 3), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length), col = "purple4", fill = "purple4", linetype = lty_set("env_dist", "b", "ns", "Lewisetta", 4), se = T) +
-  labs(title = "(G) Environmental Distance vs Length at Lewisetta", x = "Environmental Distance", y = "Length (mm)") +
+  labs(title = "(G) Environmental Distance vs Length at Lewisetta", x = "Environmental Distance, without Selection Lines", y = "Length (mm)") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitEnvDist_len_lew_plot_nosel
@@ -1158,7 +1158,7 @@ goFitEnvDist_len_yrk_plot_nosel <-  ggplot(data = fullfit[fullfit$bag_site == "Y
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 3,], aes(x = env_dist_yrk, y = length), col = "slateblue", fill = "slateblue", linetype = lty_set("env_dist", "b", "ns", "YorkRiver", 3), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length, fill = "Spring'25"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length), col = "purple4", fill = "purple4", linetype = lty_set("env_dist", "b", "ns", "YorkRiver", 4), se = T) +
-  labs(title = "(H) Environmental Distance vs Length at York River", x = "Environmental Distance", y = "Length (mm)") +
+  labs(title = "(H) Environmental Distance vs Length at York River, without Selection Lines", x = "Environmental Distance", y = "Length (mm)") +
   scale_fill_manual(name = "Monitoring Events", breaks = c("Fall'23", "Spring'24", "Fall'24","Spring'25"), values = c("Fall'23"="cadetblue3","Spring'24"="cornflowerblue","Fall'24"="slateblue","Spring'25"="purple4"))+
   theme_classic()
 goFitEnvDist_len_yrk_plot_nosel
@@ -1169,7 +1169,7 @@ goFitEnvDist_plotfinalTlen_nosel <- ggplot(data = fullfit) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "Lewisetta" & fullfit$event == 4,], aes(x = env_dist_lew, y = length), col = "mediumspringgreen", fill = "darkseagreen2", linetype = lty_set("env_dist", "b", "ns", "Lewisetta", 4), se = T) +
   geom_point(data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length, fill = "YorkRiver"), shape = 21, size = 4) +
   geom_smooth(method = "lm", data = fullfit[fullfit$bag_site == "YorkRiver" & fullfit$event == 4,], aes(x = env_dist_yrk, y = length), col = "dodgerblue", fill = "dodgerblue", linetype = lty_set("env_dist", "b", "ns", "YorkRiver", 4), se = T) +
-  labs(title = "(D) Environmental Distance vs Final Length", x = "Environmental Distance", y = "Length (mm)") +
+  labs(title = "(D) Environmental Distance vs Final Length, without Selection Lines", x = "Environmental Distance", y = "Length (mm)") +
   scale_fill_manual(name = "Experimental Site", breaks = c("Lewisetta", "YorkRiver"), values = c("Lewisetta"="mediumspringgreen", "YorkRiver"="dodgerblue"))+
   theme_classic()
 goFitEnvDist_plotfinalTlen_nosel
