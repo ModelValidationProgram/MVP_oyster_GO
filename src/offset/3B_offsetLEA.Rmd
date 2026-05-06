@@ -166,7 +166,7 @@ gap_df$lew_go_nb <- gg_lew_nb
 gap_df$yrk_go_nb <- gg_yrk_nb
 
 # output results
-write.csv(gap_df, paste0("results/GO_results/offsets_LEA_expsites_noPea_",Sys.Date(),".csv", sep = ""))
+write.csv(gap_df, paste0("results/GO_results/offsets_LEA_expsites_",Sys.Date(),".csv", sep = ""))
 
 # change colnames for env_sea_forgo2 to match models
 colnames(env_sea_forgo2)[colnames(env_sea_forgo2) == "salinity_quantile_10_scaled"] <- "sal_quant10_scaled"
