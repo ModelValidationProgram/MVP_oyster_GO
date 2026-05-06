@@ -36,14 +36,14 @@ gf_interpolated <- readRDS("results/GO_results/gf_interpolated_go.RDS")
 envdist_interpolated <- readRDS("results/GO_results/envdist_interpolated.RDS")
 
 # experimental
-lea_go <- read.csv("results/GO_results/offsets_LEA_expsites_2026-01-29.csv")[,-1]
-rda_go <- read.csv("results/GO_results/offsets_RDA_expSites_2026-01-29.csv")[,-1]
-gf_go <- read.csv("results/GO_results/offsets_GF_expSites_2026-02-03.csv")[,-1]
+lea_go <- read.csv("results/GO_results/offsets_LEA_expsites_2026-04-06.csv")[,-1]
+rda_go <- read.csv("results/GO_results/offsets_RDA_expSites_2026-04-07.csv")[,-1]
+gf_go <- read.csv("results/GO_results/offsets_GF_expSites_2026-04-23.csv")[,-1]
 
 # seascape
-lea_sea <- read.csv("results/GO_results/offsets_LEA_fullseascape_2026-01-29.csv")[,-1]
-rda_sea <- read.csv("results/GO_results/offsets_RDA_fullseascape_2026-01-29.csv")[,-1]
-gf_sea <- read.csv("results/GO_results/offsets_GF_fullseascape_2026-02-03.csv")[,-1]
+lea_sea <- read.csv("results/GO_results/offsets_LEA_fullseascape_2026-04-06.csv")[,-1]
+rda_sea <- read.csv("results/GO_results/offsets_RDA_fullseascape_2026-04-07.csv")[,-1]
+gf_sea <- read.csv("results/GO_results/offsets_GF_fullseascape_2026-04-23.csv")[,-1]
 envdist <- read.csv("data/EnvDat/exp/distance_matrix_2026-01-30.csv")[,c("X","Lewisetta","YorkRiver")] # this has both the seascape sites and the experimental sites
 envdist_abiotic <- read.csv("data/EnvDat/exp/distance_matrix_abiotic_2026-01-30.csv")[,c("X","Lewisetta","YorkRiver")] # this has both the seascape sites and the experimental sites
 ```
@@ -112,12 +112,13 @@ world <- ne_countries(scale = "medium", returnclass = "sf")
 world_crop <- sf::st_crop(world, c(xmin =-102, xmax = -65, ymin = 24, ymax = 47.05))
 coast <- ne_coastline(scale = "medium", returnclass = "sf")
 coast_crop <- sf::st_crop(coast, c(xmin =-102, xmax = -65, ymin = 24, ymax = 47.05))
+map_bounds <- data.frame(xmin =-102, xmax = -65, ymin = 24, ymax = 47.05)
 
 # chesapeake extent
 ches_ext <- st_bbox(c(xmin =-77.856476 , xmax = -72.762787, ymin = 36.019557, ymax = 39.939163),
                     crs = st_crs(world))
-#world_chesapeake <- sf::st_crop(world, c(xmin =-77.856476 , xmax = -72.762787, ymin = 36.019557, ymax = 39.939163))
 world_chesapeake <- sf::st_crop(world, ches_ext)
+ches_bounds <- data.frame(xmin =-77.856476 , xmax = -72.762787, ymin = 36.019557, ymax = 39.939163)
 
 # crop the GO objects as well
 lea_interpolated_chesapeake <- lapply(lea_interpolated, function(x) {st_crop(x, ches_ext)})
@@ -127,16 +128,16 @@ envdist_interpolated_chesapeake <- lapply(envdist_interpolated, function(x) {st_
 
 # and the GO dataframes
 # exp
-lea_go_chesapeake <- lea_go[lea_go$Latitude_manual <= 39.939163 & lea_go$Latitude_manual >= 36.019557 & lea_go$Longitude_manual <= -72.762787 & lea_go$Longitude_manual >= -77.856476,]
-rda_go_chesapeake <- rda_go[rda_go$lat <= 39.939163 & rda_go$lat >= 36.019557 & rda_go$lon <= -72.762787 & rda_go$lon >= -77.856476,]
-gf_go_chesapeake <- gf_go[gf_go$lat <= 39.939163 & gf_go$lat >= 36.019557 & gf_go$lon <= -72.762787 & gf_go$lon >= -77.856476,]
-envdist_exp_chesapeake <- envdist_exp2[envdist_exp2$latitude <= 39.939163 & envdist_exp2$latitude >= 36.019557 & envdist_exp2$longitude <= -72.762787 & envdist_exp2$longitude >= -77.856476,]
+lea_go_chesapeake <- lea_go[lea_go$Latitude_manual <= ches_bounds$ymax & lea_go$Latitude_manual >= ches_bounds$ymin & lea_go$Longitude_manual <= ches_bounds$xmax & lea_go$Longitude_manual >= ches_bounds$xmin,]
+rda_go_chesapeake <- rda_go[rda_go$lat <= ches_bounds$ymax & rda_go$lat >= ches_bounds$ymin & rda_go$lon <= ches_bounds$xmax & rda_go$lon >= ches_bounds$xmin,]
+gf_go_chesapeake <- gf_go[gf_go$lat <= ches_bounds$ymax & gf_go$lat >= ches_bounds$ymin & gf_go$lon <= ches_bounds$xmax & gf_go$lon >= ches_bounds$xmin,]
+envdist_exp_chesapeake <- envdist_exp2[envdist_exp2$latitude <= ches_bounds$ymax & envdist_exp2$latitude >= ches_bounds$ymin & envdist_exp2$longitude <= ches_bounds$xmax & envdist_exp2$longitude >= ches_bounds$xmin,]
 
 # seascape
-lea_sea_chesapeake <- lea_sea[lea_sea$Latitude_manual <= 39.939163 & lea_sea$Latitude_manual >= 36.019557 & lea_sea$Longitude_manual <= -72.762787 & lea_sea$Longitude_manual >= -77.856476,]
-rda_sea_chesapeake <- rda_sea2[rda_sea2$Latitude_manual <= 39.939163 & rda_sea2$Latitude_manual >= 36.019557 & rda_sea2$Longitude_manual <= -72.762787 & rda_sea2$Longitude_manual >= -77.856476,]
-gf_sea_chesapeake <- gf_sea[gf_sea$lat <= 39.939163 & gf_sea$lat >= 36.019557 & gf_sea$lon <= -72.762787 & gf_sea$lon >= -77.856476,]
-envdist_sea_chesapeake <- envdist_sea2[envdist_sea2$latitude <= 39.939163 & envdist_sea2$latitude >= 36.019557 & envdist_sea2$longitude <= -72.762787 & envdist_sea2$longitude >= -77.856476,]
+lea_sea_chesapeake <- lea_sea[lea_sea$Latitude_manual <= ches_bounds$ymax & lea_sea$Latitude_manual >= ches_bounds$ymin & lea_sea$Longitude_manual <= ches_bounds$xmax & lea_sea$Longitude_manual >= ches_bounds$xmin,]
+rda_sea_chesapeake <- rda_sea2[rda_sea2$Latitude_manual <= ches_bounds$ymax & rda_sea2$Latitude_manual >= ches_bounds$ymin & rda_sea2$Longitude_manual <= ches_bounds$xmax & rda_sea2$Longitude_manual >= ches_bounds$xmin,]
+gf_sea_chesapeake <- gf_sea[gf_sea$lat <= ches_bounds$ymax & gf_sea$lat >= ches_bounds$ymin & gf_sea$lon <= ches_bounds$xmax & gf_sea$lon >= ches_bounds$xmin,]
+envdist_sea_chesapeake <- envdist_sea2[envdist_sea2$Latitude_manual <= ches_bounds$ymax & envdist_sea2$Latitude_manual >= ches_bounds$ymin & envdist_sea2$Longitude_manual <= ches_bounds$xmax & envdist_sea2$Longitude_manual >= ches_bounds$xmin,]
 ```
 
 ## Plotting
@@ -163,39 +164,54 @@ map_lew_int_lea <- ggplot(data = world) +
                   nudge_x = -3,
                   nudge_y = 1,
                   fill = "white")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+  theme(plot.title = element_text(size = 18), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Genomic Offset to \nLewisetta (LEA)", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
-(map_lew_int_lea)
+  labs(title = expression(paste("(A) Predicted ", LEA[offset], " to Lewisetta")), x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
 
 map_lew_int_lea_inset <- ggplot(data = world_chesapeake) +
-  theme_bw()+
   geom_sf(data = st_as_sf(lea_interpolated_chesapeake$interpolated_lew_go), mapping = aes(fill = var1.pred, col = var1.pred)) +
   scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.06)) +
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.06)) +
   geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
   geom_point(data = lea_sea_chesapeake, 
              aes(x = Longitude_manual, y = Latitude_manual, fill = lew_go), 
-             shape = 21, size = 5) +
+             shape = 21, size = 2) +
   geom_point(data = lea_go_chesapeake, 
              aes(x = Longitude_manual, y = Latitude_manual, fill = lew_go), 
-             shape = 21, size = 7)+
+             shape = 21, size = 4)+
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 0.08)) +
   geom_point(data = popsdf[popsdf$site_name == "LEWISETTA",], 
-             aes(x = longitude-0.2, y = latitude), fill = "deeppink", shape = 24, size = 7)+
+             aes(x = longitude-0.2, y = latitude), fill = "deeppink", shape = 24, size = 4)+
   geom_label_repel(data = lea_go_chesapeake,
                   aes(x = Longitude_manual, y = Latitude_manual, label = site_name),
                   nudge_x = 2.5,
                   nudge_y = 0.4,
                   fill = "white",
-                  size = 9)+
+                  size = 4)+
   guides(fill = "none")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
-        xlim(-77.856476, -72.762787) +
-        ylim(36.019557, 39.939163)
-map_lew_int_lea_inset
+  theme_void() +
+  xlim(ches_bounds$xmin, ches_bounds$xmax) +
+  ylim(ches_bounds$ymin, ches_bounds$ymax) +
+  theme(legend.position = "none", 
+        panel.border = element_rect(colour = "black", fill = NA, size = 1),
+        panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"))
 
+# plot panel
+map_lew_lea <- map_lew_int_lea + 
+  annotate("rect", xmin = ches_bounds$xmin, xmax = ches_bounds$xmax, 
+           ymin = ches_bounds$ymin, ymax = ches_bounds$ymax, 
+           fill = NA, color = "black", size = 0.5) +
+  annotate("segment", x = -87.4, xend = ches_bounds$xmin, y = 47.05, yend = ches_bounds$ymax, color = "black", linetype = "solid") +
+  annotate("segment", x = -87.4, xend = ches_bounds$xmin, y = 35.6, yend = ches_bounds$ymin, color = "black", linetype = "solid") +
+  inset_element(map_lew_int_lea_inset, 
+    left = -0.05,
+    bottom = 0.5,
+    right = 0.5,
+    top = 0.95)
+map_lew_lea
+
+# yrk
 map_yrk_int_lea <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = st_as_sf(lea_interpolated$interpolated_yrk_go), mapping = aes(fill = var1.pred, col = var1.pred)) +
@@ -212,10 +228,9 @@ map_yrk_int_lea <- ggplot(data = world) +
                   nudge_x = -3,
                   nudge_y = 1,
                   fill = "white")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+  theme(plot.title = element_text(size = 18), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = "right")+
-  labs(title = "Genomic Offset to \nYork River (LEA)", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
-(map_yrk_int_lea)
+  labs(title = expression(paste("(B) Predicted ", LEA[offset], " to York River")), x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
 
 map_yrk_int_lea_inset <- ggplot(data = world_chesapeake) +
   theme_bw()+
@@ -225,25 +240,41 @@ map_yrk_int_lea_inset <- ggplot(data = world_chesapeake) +
   geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
   geom_point(data = lea_sea_chesapeake, 
              aes(x = Longitude_manual, y = Latitude_manual, fill = yrk_go), 
-             shape = 21, size = 5) +
+             shape = 21, size = 2) +
   geom_point(data = lea_go_chesapeake, 
              aes(x = Longitude_manual, y = Latitude_manual, fill = yrk_go), 
-             shape = 21, size = 9)+
+             shape = 21, size = 4)+
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 0.08)) +
   geom_point(data = popsdf[popsdf$site_name == "YORKRIVER",], 
-             aes(x = longitude-0.1, y = latitude+0.1), fill = "deeppink", shape = 24, size = 7)+
+             aes(x = longitude-0.1, y = latitude+0.1), fill = "deeppink", shape = 24, size = 4)+
   geom_label_repel(data = lea_go_chesapeake, 
                   aes(x = Longitude_manual, y = Latitude_manual, label = site_name),
                   nudge_x = 2.5,
-                  nudge_y = 0.5,
+                  nudge_y = 0.75,
                   fill = "white",
-                  size = 9)+
-  guides(fill = "none")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
-        xlim(-77.856476, -72.762787) +
-        ylim(36.019557, 39.939163)
-map_yrk_int_lea_inset
+                  size = 4)+
+guides(fill = "none")+
+  theme_void() +
+  xlim(ches_bounds$xmin, ches_bounds$xmax) +
+  ylim(ches_bounds$ymin, ches_bounds$ymax) +
+  theme(legend.position = "none", 
+        panel.border = element_rect(colour = "black", fill = NA, size = 1),
+        panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"))
+
+# plot panel
+map_yrk_lea <- map_yrk_int_lea + 
+  annotate("rect", xmin = ches_bounds$xmin, xmax = ches_bounds$xmax, 
+           ymin = ches_bounds$ymin, ymax = ches_bounds$ymax, 
+           fill = NA, color = "black", size = 0.5) +
+  annotate("segment", x = -87.4, xend = ches_bounds$xmin, y = 47.05, yend = ches_bounds$ymax, color = "black", linetype = "solid") +
+  annotate("segment", x = -87.4, xend = ches_bounds$xmin, y = 35.6, yend = ches_bounds$ymin, color = "black", linetype = "solid") +
+  inset_element(map_yrk_int_lea_inset, 
+    left = -0.05,
+    bottom = 0.5,
+    right = 0.5,
+    top = 0.95)
+map_yrk_lea
 ```
 
 ### RDA
@@ -266,39 +297,54 @@ map_lew_int_rda <- ggplot(data = world) +
                   nudge_x = -3,
                   nudge_y = 1,
                   fill = "white")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+  theme(plot.title = element_text(size = 18), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Genomic Offset to \nLewisetta (RDA)", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
-(map_lew_int_rda)
+  labs(title = expression(paste("(C) Predicted ", RDA[offset], " to Lewisetta")), x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
 
 map_lew_int_rda_inset <- ggplot(data = world_chesapeake) +
-  theme_bw()+
   geom_sf(data = st_as_sf(rda_interpolated_chesapeake$interpolated_lew_go), mapping = aes(fill = var1.pred, col = var1.pred)) +
   scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,4)) +
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,4)) +
   geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
   geom_point(data = rda_sea_chesapeake, 
              aes(x = Longitude_manual, y = Latitude_manual, fill = offset_lew_sea), 
-             shape = 21, size = 5) +
+             shape = 21, size = 2) +
   geom_point(data = rda_go_chesapeake, 
              aes(x = lon, y = lat, fill = offset_lew), 
-             shape = 21, size = 9)+
+             shape = 21, size = 4)+
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 3.5)) +
   geom_point(data = popsdf[popsdf$site_name == "LEWISETTA",], 
-             aes(x = longitude-0.2, y = latitude), fill = "deeppink", shape = 24, size = 7)+
+             aes(x = longitude-0.2, y = latitude), fill = "deeppink", shape = 24, size = 4)+
   geom_label_repel(data = rda_go_chesapeake, 
                   aes(x = lon, y = lat, label = site_name),
                   nudge_x = 2.5,
-                  nudge_y = 0.5,
+                  nudge_y = 0.75,
                   fill = "white",
-                  size = 9)+
+                  size = 4)+
   guides(fill = "none")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
-        xlim(-77.856476, -72.762787) +
-        ylim(36.019557, 39.939163)
-map_lew_int_rda_inset
+  theme_void() +
+  xlim(ches_bounds$xmin, ches_bounds$xmax) +
+  ylim(ches_bounds$ymin, ches_bounds$ymax) +
+  theme(legend.position = "none", 
+        panel.border = element_rect(colour = "black", fill = NA, size = 1),
+        panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"))
 
+# plot panel
+map_lew_rda <- map_lew_int_rda + 
+  annotate("rect", xmin = ches_bounds$xmin, xmax = ches_bounds$xmax, 
+           ymin = ches_bounds$ymin, ymax = ches_bounds$ymax, 
+           fill = NA, color = "black", size = 0.5) +
+  annotate("segment", x = -87.4, xend = ches_bounds$xmin, y = 47.05, yend = ches_bounds$ymax, color = "black", linetype = "solid") +
+  annotate("segment", x = -87.4, xend = ches_bounds$xmin, y = 35.6, yend = ches_bounds$ymin, color = "black", linetype = "solid") +
+  inset_element(map_lew_int_rda_inset, 
+    left = -0.05,
+    bottom = 0.5,
+    right = 0.5,
+    top = 0.95)
+map_lew_rda
+
+# yrk
 map_yrk_int_rda <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = st_as_sf(rda_interpolated$interpolated_yrk_go), mapping = aes(col = var1.pred, fill = var1.pred)) +
@@ -316,43 +362,58 @@ map_yrk_int_rda <- ggplot(data = world) +
                   nudge_x = -3,
                   nudge_y = 1,
                   fill = "white")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+  theme(plot.title = element_text(size = 18), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = "right")+
-  labs(title = "Genomic Offset to \nYork River (RDA)", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
-(map_yrk_int_rda)
+  labs(title = expression(paste("(D) Predicted ", RDA[offset], " to York River")), x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
 
 map_yrk_int_rda_inset <- ggplot(data = world_chesapeake) +
-  theme_bw()+
   geom_sf(data = st_as_sf(rda_interpolated_chesapeake$interpolated_yrk_go), mapping = aes(fill = var1.pred, col = var1.pred)) +
   scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,4)) +
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,4)) +
   geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
   geom_point(data = rda_sea_chesapeake, 
              aes(x = Longitude_manual, y = Latitude_manual, fill = offset_yrk_sea), 
-             shape = 21, size = 5) +
+             shape = 21, size = 2) +
   geom_point(data = rda_go_chesapeake, 
              aes(x = lon, y = lat, fill = offset_yrk), 
-             shape = 21, size = 9)+
+             shape = 21, size = 4)+
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 3.5)) +
   geom_point(data = popsdf[popsdf$site_name == "YORKRIVER",], 
-             aes(x = longitude-0.1, y = latitude+0.1), fill = "deeppink", shape = 24, size = 7)+
+             aes(x = longitude-0.1, y = latitude+0.1), fill = "deeppink", shape = 24, size = 4)+
   geom_label_repel(data = rda_go_chesapeake, 
                   aes(x = lon, y = lat, label = site_name),
                   nudge_x = 2.5,
                   nudge_y = 0.7,
                   fill = "white",
-                  size = 9)+
+                  size = 4)+
   guides(fill = "none")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
-        xlim(-77.856476, -72.762787) +
-        ylim(36.019557, 39.939163)
-map_yrk_int_rda_inset
+  theme_void() +
+  xlim(ches_bounds$xmin, ches_bounds$xmax) +
+  ylim(ches_bounds$ymin, ches_bounds$ymax) +
+  theme(legend.position = "none", 
+        panel.border = element_rect(colour = "black", fill = NA, size = 1),
+        panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"))
+
+# put together plot panel
+map_yrk_rda <- map_yrk_int_rda + 
+  annotate("rect", xmin = ches_bounds$xmin, xmax = ches_bounds$xmax, 
+           ymin = ches_bounds$ymin, ymax = ches_bounds$ymax, 
+           fill = NA, color = "black", size = 0.5) +
+  annotate("segment", x = -87.4, xend = ches_bounds$xmin, y = 47.05, yend = ches_bounds$ymax, color = "black", linetype = "solid") +
+  annotate("segment", x = -87.4, xend = ches_bounds$xmin, y = 35.6, yend = ches_bounds$ymin, color = "black", linetype = "solid") +
+  inset_element(map_yrk_int_rda_inset, 
+    left = -0.05,
+    bottom = 0.5,
+    right = 0.5,
+    top = 0.95)
+map_yrk_rda
 ```
 
 ### GF
 
 ```{r}
+# lew
 map_lew_int_gf_geno <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = st_as_sf(gf_interpolated$interpolated_lew_go_geno), mapping = aes(fill = var1.pred, col = var1.pred)) +
@@ -370,38 +431,53 @@ map_lew_int_gf_geno <- ggplot(data = world) +
                   nudge_x = -3,
                   nudge_y = 1,
                   fill = "white")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+  theme(plot.title = element_text(size = 18), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Genomic Offset to \nLewisetta (GF)", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
-(map_lew_int_gf_geno)
+  labs(title = expression(paste("(E) Predicted ", GF[offset], " to Lewisetta")), x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
 
 map_lew_int_gf_geno_inset <- ggplot(data = world_chesapeake) +
-  theme_bw()+
   geom_sf(data = st_as_sf(gf_interpolated_chesapeake$interpolated_lew_go_geno), mapping = aes(fill = var1.pred, col = var1.pred)) +
   scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.04)) +
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.04)) +
   geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
   geom_point(data = gf_sea_chesapeake, aes(x = lon, y = lat, fill = offset_gf_geno_lew), 
-             shape = 21, size = 5) +
+             shape = 21, size = 2) +
   geom_point(data = gf_go_chesapeake, 
              aes(x = lon, y = lat, fill = offset_gf_geno_lew), 
-             shape = 21, size = 7)+
+             shape = 21, size = 4)+
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 0.04)) +
   geom_point(data = popsdf[popsdf$site_name == "LEWISETTA",], 
-             aes(x = longitude-0.2, y = latitude), fill = "deeppink", shape = 24, size = 7)+
+             aes(x = longitude-0.2, y = latitude), fill = "deeppink", shape = 24, size = 4)+
   geom_label_repel(data = gf_go_chesapeake, 
                   aes(x = lon, y = lat, label = site_name),
                   nudge_x = 2.5,
                   nudge_y = 0.4,
                   fill = "white",
-                  size = 9)+
+                  size = 4)+
   guides(fill = "none")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
-        xlim(-77.856476, -72.762787) +
-        ylim(36.019557, 39.939163)
-map_lew_int_gf_geno_inset
+  theme_void() +
+  xlim(ches_bounds$xmin, ches_bounds$xmax) +
+  ylim(ches_bounds$ymin, ches_bounds$ymax) +
+  theme(legend.position = "none", 
+        panel.border = element_rect(colour = "black", fill = NA, size = 1),
+        panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"))
 
+# put together plot panel
+map_lew_gf <- map_lew_int_gf_geno + 
+  annotate("rect", xmin = ches_bounds$xmin, xmax = ches_bounds$xmax, 
+           ymin = ches_bounds$ymin, ymax = ches_bounds$ymax, 
+           fill = NA, color = "black", size = 0.5) +
+  annotate("segment", x = -87.4, xend = ches_bounds$xmin, y = 47.05, yend = ches_bounds$ymax, color = "black", linetype = "solid") +
+  annotate("segment", x = -87.4, xend = ches_bounds$xmin, y = 35.6, yend = ches_bounds$ymin, color = "black", linetype = "solid") +
+  inset_element(map_lew_int_gf_geno_inset, 
+    left = -0.05,
+    bottom = 0.5,
+    right = 0.5,
+    top = 0.95)
+map_lew_gf
+
+# yrk 
 map_yrk_int_gf_geno <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = st_as_sf(gf_interpolated$interpolated_yrk_go_geno), mapping = aes(fill = var1.pred, col = var1.pred)) +
@@ -418,43 +494,58 @@ map_yrk_int_gf_geno <- ggplot(data = world) +
                   nudge_x = -3,
                   nudge_y = 1,
                   fill = "white")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+  theme(plot.title = element_text(size = 18), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Genomic Offset to \nYork River (GF)", x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
-(map_yrk_int_gf_geno)
+  labs(title = expression(paste("(F) Predicted ", GF[offset], " to York River")), x = "Longitude", y = "Latitude", col = "Genomic \nOffset", fill = "Genomic \nOffset")
 
 map_yrk_int_gf_geno_inset <- ggplot(data = world_chesapeake) +
-  theme_bw()+
   geom_sf(data = st_as_sf(gf_interpolated_chesapeake$interpolated_yrk_go_geno), mapping = aes(fill = var1.pred, col = var1.pred)) +
   scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,0.04)) +
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,0.04)) +
   geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
   geom_point(data = gf_sea_chesapeake, 
              aes(x = lon, y = lat, fill = offset_gf_geno_yrk), 
-             shape = 21, size = 5) +
+             shape = 21, size = 2) +
   geom_point(data = gf_go_chesapeake, 
              aes(x = lon, y = lat, fill = offset_gf_geno_yrk), 
-             shape = 21, size = 7)+
+             shape = 21, size = 4)+
   scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 0.04)) +
   geom_point(data = popsdf[popsdf$site_name == "YORKRIVER",], 
-             aes(x = longitude-0.1, y = latitude+0.1), fill = "deeppink", shape = 24, size = 7)+
+             aes(x = longitude-0.1, y = latitude+0.1), fill = "deeppink", shape = 24, size = 4)+
   geom_label_repel(data = gf_go_chesapeake, 
                    aes(x = lon, y = lat, label = site_name),
                   nudge_x = 2.5,
                   nudge_y = 0.4,
                   fill = "white",
-                  size = 9)+
+                  size = 4)+
   guides(fill = "none")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
-        xlim(-77.856476, -72.762787) +
-        ylim(36.019557, 39.939163)
-map_yrk_int_gf_geno_inset
+  theme_void() +
+  xlim(ches_bounds$xmin, ches_bounds$xmax) +
+  ylim(ches_bounds$ymin, ches_bounds$ymax) +
+  theme(legend.position = "none", 
+        panel.border = element_rect(colour = "black", fill = NA, size = 1),
+        panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"))
+
+# put together plot panel
+map_yrk_gf <- map_yrk_int_gf_geno + 
+  annotate("rect", xmin = ches_bounds$xmin, xmax = ches_bounds$xmax, 
+           ymin = ches_bounds$ymin, ymax = ches_bounds$ymax, 
+           fill = NA, color = "black", size = 0.5) +
+  annotate("segment", x = -87.4, xend = ches_bounds$xmin, y = 47.05, yend = ches_bounds$ymax, color = "black", linetype = "solid") +
+  annotate("segment", x = -87.4, xend = ches_bounds$xmin, y = 35.6, yend = ches_bounds$ymin, color = "black", linetype = "solid") +
+  inset_element(map_yrk_int_gf_geno_inset, 
+    left = -0.05,
+    bottom = 0.5,
+    right = 0.5,
+    top = 0.95)
+map_yrk_gf
 ```
 
 ### Environmental Distance
 
 ```{r}
+# lew
 map_lew_int_envdist <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = st_as_sf(envdist_interpolated$interpolated_lew_envdist), mapping = aes(fill = var1.pred, col = var1.pred)) +
@@ -465,47 +556,61 @@ map_lew_int_envdist <- ggplot(data = world) +
   geom_point(data = envdist_exp2[envdist_exp2$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], 
              aes(x = longitude, y = latitude, fill = dist_lew), 
              shape = 21, size = 4)+
-  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,5)) +
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,5)) +
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,6)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,6)) +
   geom_label_repel(data = envdist_exp2[envdist_exp2$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], 
                   aes(x = longitude, y = latitude, label = site_name),
                   nudge_x = -3,
                   nudge_y = 1,
                   fill = "white")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+  theme(plot.title = element_text(size = 18), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = 'right')+
-  labs(title = "Environmental Distance to \nLewisetta", x = "Longitude", y = "Latitude", col = "Environmental \nDistance", fill = "Environmental \nDistance")
-(map_lew_int_envdist)
+  labs(title = "(G) Environmental Distance to \nLewisetta", x = "Longitude", y = "Latitude", col = "Environmental \nDistance", fill = "Environmental \nDistance")
 
 map_lew_int_envdist_inset <- ggplot(data = world_chesapeake) +
-  theme_bw()+
   geom_sf(data = st_as_sf(envdist_interpolated_chesapeake$interpolated_lew_envdist), mapping = aes(fill = var1.pred, col = var1.pred)) +
-  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,5)) +
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,5)) +
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,6)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,6)) +
   geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
   geom_point(data = envdist_sea_chesapeake, 
              aes(x = Longitude_manual, y = Latitude_manual, fill = dist_lew), 
-             shape = 21, size = 5) +
+             shape = 21, size = 2) +
   geom_point(data = envdist_exp_chesapeake, 
              aes(x = longitude, y = latitude, fill = dist_lew), 
-             shape = 21, size = 9)+
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 5)) +
-  geom_point(data = popsdf[popsdf$site_name == "Lewisetta",], 
+             shape = 21, size = 4)+
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 6)) +
+  geom_point(data = popsdf[popsdf$site_name == "LEWISETTA",], 
              aes(x = longitude-0.2, y = latitude), fill = "deeppink", 
-             shape = 24, size = 7)+
+             shape = 24, size = 4)+
   geom_label_repel(data = envdist_exp_chesapeake, 
                   aes(x = longitude, y = latitude, label = site_name),
                   nudge_x = 2.5,
-                  nudge_y = 0.5,
-                  fill = "white",
-                  size = 9)+
+                  nudge_y = 0.75,
+                  fill = "white")+
   guides(fill = "none")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
-        xlim(-77.856476, -72.762787) +
-        ylim(36.019557, 39.939163)
-map_lew_int_envdist_inset
+  theme_void() +
+  xlim(ches_bounds$xmin, ches_bounds$xmax) +
+  ylim(ches_bounds$ymin, ches_bounds$ymax) +
+  theme(legend.position = "none", 
+        panel.border = element_rect(colour = "black", fill = NA, size = 1),
+        panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"))
 
+# put together plot panel
+map_lew_envdist <- map_lew_int_envdist + 
+  annotate("rect", xmin = ches_bounds$xmin, xmax = ches_bounds$xmax, 
+           ymin = ches_bounds$ymin, ymax = ches_bounds$ymax, 
+           fill = NA, color = "black", size = 0.5) +
+  annotate("segment", x = -87.4, xend = ches_bounds$xmin, y = 47.05, yend = ches_bounds$ymax, color = "black", linetype = "solid") +
+  annotate("segment", x = -87.4, xend = ches_bounds$xmin, y = 35.6, yend = ches_bounds$ymin, color = "black", linetype = "solid") +
+  inset_element(map_lew_int_envdist_inset, 
+    left = -0.05,
+    bottom = 0.5,
+    right = 0.5,
+    top = 0.95)
+map_lew_envdist
+
+# yrk
 map_yrk_int_envdist <- ggplot(data = world) +
   theme_bw()+
   geom_sf(data = st_as_sf(envdist_interpolated$interpolated_yrk_envdist), mapping = aes(col = var1.pred, fill = var1.pred)) +
@@ -516,44 +621,58 @@ map_yrk_int_envdist <- ggplot(data = world) +
   geom_point(data = envdist_exp2[envdist_exp2$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], 
              aes(x = longitude, y = latitude, fill = dist_yrk), 
              shape = 21, size = 4)+
-  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,5)) +
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,5)) +
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,6)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,6)) +
   geom_label_repel(data = envdist_exp2[envdist_exp2$site_name %in% c("W1_TX", "W2_LA", "W3_FL", "W5_NH", "W6_ME"),], aes(x = longitude, y = latitude, label = site_name),
                   nudge_x = -3,
                   nudge_y = 1,
                   fill = "white")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
+  theme(plot.title = element_text(size = 18), panel.grid.major = element_line(color = "aliceblue"),
         panel.background = element_rect(fill = "aliceblue"), legend.position = "right")+
-  labs(title = "Environmental Distance to \nYork River", x = "Longitude", y = "Latitude", col = "Environmental \nDistance", fill = "Environmental \nDistance")
-(map_yrk_int_envdist)
+  labs(title = "(H) Environmental Distance to \nYork River", x = "Longitude", y = "Latitude", col = "Environmental \nDistance", fill = "Environmental \nDistance")
 
 map_yrk_int_envdist_inset <- ggplot(data = world_chesapeake) +
-  theme_bw()+
   geom_sf(data = st_as_sf(envdist_interpolated_chesapeake$interpolated_yrk_envdist), mapping = aes(fill = var1.pred, col = var1.pred)) +
-  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,5)) +
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,5)) +
+  scale_colour_viridis_c(option = "mako", direction = -1, limits = c(0,6)) +
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0,6)) +
   geom_sf(data = world_chesapeake, fill = 'antiquewhite1') +
   geom_point(data = envdist_sea_chesapeake, 
              aes(x = Longitude_manual, y = Latitude_manual, fill = dist_yrk), 
-             shape = 21, size = 5) +
+             shape = 21, size = 2) +
   geom_point(data = envdist_exp_chesapeake, 
              aes(x=longitude, y=latitude, fill = dist_yrk), 
-             shape = 21, size = 9)+
-  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 5)) +
+             shape = 21, size = 4)+
+  scale_fill_viridis_c(option = "mako", direction = -1, limits = c(0, 6)) +
   geom_point(data = popsdf[popsdf$site_name == "YORKRIVER",], 
-             aes(x = longitude-0.1, y = latitude+0.1), fill = "deeppink", shape = 24, size = 7)+
+             aes(x = longitude-0.1, y = latitude+0.1), fill = "deeppink", shape = 24, size = 4)+
   geom_label_repel(data = envdist_exp_chesapeake, 
                   aes(x = longitude, y = latitude, label = site_name),
                   nudge_x = 2.5,
                   nudge_y = 0.7,
                   fill = "white",
-                  size = 9)+
+                  size = 4)+
   guides(fill = "none")+
-  theme(plot.title = element_text(size = 24), panel.grid.major = element_line(color = "aliceblue"),
-        panel.background = element_rect(fill = "aliceblue"), legend.position = 'right') +
-        xlim(-77.856476, -72.762787) +
-        ylim(36.019557, 39.939163)
-map_yrk_int_envdist_inset
+  theme_void() +
+  xlim(ches_bounds$xmin, ches_bounds$xmax) +
+  ylim(ches_bounds$ymin, ches_bounds$ymax) +
+  theme(legend.position = "none", 
+        panel.border = element_rect(colour = "black", fill = NA, size = 1),
+        panel.grid.major = element_line(color = "aliceblue"),
+        panel.background = element_rect(fill = "aliceblue"))
+
+# put together plot panel
+map_yrk_envdist <- map_yrk_int_envdist + 
+  annotate("rect", xmin = ches_bounds$xmin, xmax = ches_bounds$xmax, 
+           ymin = ches_bounds$ymin, ymax = ches_bounds$ymax, 
+           fill = NA, color = "black", size = 0.5) +
+  annotate("segment", x = -87.4, xend = ches_bounds$xmin, y = 47.05, yend = ches_bounds$ymax, color = "black", linetype = "solid") +
+  annotate("segment", x = -87.4, xend = ches_bounds$xmin, y = 35.6, yend = ches_bounds$ymin, color = "black", linetype = "solid") +
+  inset_element(map_yrk_int_envdist_inset, 
+    left = -0.05,
+    bottom = 0.5,
+    right = 0.5,
+    top = 0.95)
+map_yrk_envdist
 ```
 
 
@@ -561,40 +680,58 @@ map_yrk_int_envdist_inset
 
 ```{r}
 # export to ppt as editable vector graphic
+# doc <- read_pptx() %>% 
+#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+#   ph_with(value = dml(ggobj = map_lew_int_lea), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>%
+#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+#   ph_with(value = dml(ggobj = map_lew_int_lea_inset), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
+#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+#   ph_with(value = dml(ggobj = map_yrk_int_lea), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
+#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+#   ph_with(value = dml(ggobj = map_yrk_int_lea_inset), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
+#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+#   ph_with(value = dml(ggobj = map_lew_int_rda), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
+#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+#   ph_with(value = dml(ggobj = map_lew_int_rda_inset), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>%
+#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+#   ph_with(value = dml(ggobj = map_yrk_int_rda), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
+#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+#   ph_with(value = dml(ggobj = map_yrk_int_rda_inset), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
+#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+#   ph_with(value = dml(ggobj = map_lew_int_gf_geno), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
+#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+#   ph_with(value = dml(ggobj = map_lew_int_gf_geno_inset), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
+#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+#   ph_with(value = dml(ggobj = map_yrk_int_gf_geno), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
+#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+#   ph_with(value = dml(ggobj = map_yrk_int_gf_geno_inset), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
+#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+#   ph_with(value = dml(ggobj = map_lew_int_envdist), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
+#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+#   ph_with(value = dml(ggobj = map_lew_int_envdist_inset), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
+#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+#   ph_with(value = dml(ggobj = map_yrk_int_envdist), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
+#   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
+#   ph_with(value = dml(ggobj = map_yrk_int_envdist_inset), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
+#   add_slide(layout = "Title and Content", master = "Office Theme")
+
 doc <- read_pptx() %>% 
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = map_lew_int_lea), location = ph_location_type(type = "body")) %>%
+  ph_with(value = dml(ggobj = map_lew_lea), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>%
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = map_lew_int_lea_inset), location = ph_location_type(type = "body")) %>% 
+  ph_with(value = dml(ggobj = map_yrk_lea), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = map_yrk_int_lea), location = ph_location_type(type = "body")) %>% 
+  ph_with(value = dml(ggobj = map_lew_rda), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = map_yrk_int_lea_inset), location = ph_location_type(type = "body")) %>% 
+  ph_with(value = dml(ggobj = map_yrk_rda), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = map_lew_int_rda), location = ph_location_type(type = "body")) %>% 
+  ph_with(value = dml(ggobj = map_lew_gf), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = map_lew_int_rda_inset), location = ph_location_type(type = "body")) %>%
+  ph_with(value = dml(ggobj = map_yrk_gf), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>%
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = map_yrk_int_rda), location = ph_location_type(type = "body")) %>% 
+  ph_with(value = dml(ggobj = map_lew_envdist), location = ph_location(left = 1, top = 1, width = 6.5, height = 4)) %>% 
   add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = map_yrk_int_rda_inset), location = ph_location_type(type = "body")) %>% 
-  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = map_lew_int_gf_geno), location = ph_location_type(type = "body")) %>% 
-  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = map_lew_int_gf_geno_inset), location = ph_location_type(type = "body")) %>% 
-  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = map_yrk_int_gf_geno), location = ph_location_type(type = "body")) %>% 
-  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = map_yrk_int_gf_geno_inset), location = ph_location_type(type = "body")) %>% 
-  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = map_lew_int_envdist), location = ph_location_type(type = "body")) %>% 
-  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = map_lew_int_envdist_inset), location = ph_location_type(type = "body")) %>% 
-  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = map_yrk_int_envdist), location = ph_location_type(type = "body")) %>% 
-  add_slide(layout = "Title and Content", master = "Office Theme") %>% 
-  ph_with(value = dml(ggobj = map_yrk_int_envdist_inset), location = ph_location_type(type = "body")) %>% 
-  add_slide(layout = "Title and Content", master = "Office Theme")
+  ph_with(value = dml(ggobj = map_yrk_envdist), location = ph_location(left = 1, top = 1, width = 6.5, height = 4))
 
 print(doc, target = "results/figures/GO_maps.pptx")
 ```
