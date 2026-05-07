@@ -1,248 +1,248 @@
-mortality_key,mortality_label,bags_key,alive_count,dead_count,mortality_timestamp,mortality_notes,username,dead_bag,alive_returned
-d96f7e66,2023-11-7_MVP-FL-1,815e1dab,1210,87,11/7/2023 8:30:21,"3 med blue crabs,",k.lotterhos@gmail.com,TRUE,1210
-27171934,2023-11-7_MVP-DEBY-1,24d5645e,1444,118,11/7/2023 8:54:42,1 blue crab,k.lotterhos@gmail.com,TRUE,1444
-8fc8ba73,2023-11-7_MVP-JR-3,6981f952,673,310,11/7/2023 9:22:21,2 large blue crabs,k.lotterhos@gmail.com,TRUE,673
-2a93a4ae,2023-11-7_MVP-TX-1,2b6a3191,1266,154,11/7/2023 9:23:59,2 big blue crabs,k.lotterhos@gmail.com,TRUE,1266
-b923d1fa,2023-11-6_MVP-TX-3,885f1c3e,1270,168,11/6/2023 15:25:50,"1 large blue crab. The count for this one might be off. The clicker read 1505, so it was not properly reset. We entered it as 505. If the clicker was 1111, then the total count would have been 1159 (505-111). We think this is a lower limit, and the entered count is an upper limit.",k.lotterhos@gmail.com,FALSE,1270
-d85b71f0,2023-11-6_MVP-ME-1,29b9493b,530,451,11/6/2023 15:50:58,2 large blue crabs,k.lotterhos@gmail.com,FALSE,530
-61d0775c,2023-11-6_MVP-DEBY-3,fd1a768b,1034,291,11/6/2023 16:00:53,1 large blue crab,k.lotterhos@gmail.com,FALSE,1034
-b8efee4e,2023-11-6_MVP-JR-1,3460d069,1057,146,11/6/2023 16:56:44,"No crabs, but lots of large tunicates inside bag",k.lotterhos@gmail.com,FALSE,1057
-94206e4d,2023-11-6_MVP-FL-2,230dcc38,965,317,11/6/2023 5:09:35,1 blue crab,k.lotterhos@gmail.com,FALSE,965
-b0b7f59d,2023-11-7_MVP-LA-1,7e8856d8,1406,88,11/6/2023 5:24:21,"1 blue crab, no tunicates",k.lotterhos@gmail.com,FALSE,1406
-63e40e80,2023-11-6_MVP-JR-2,58cf91df,524,460,11/6/2023 17:44:05,2 blue crabs,k.lotterhos@gmail.com,FALSE,524
-2282560a,2023-11-6_MVP-FL-3,e91a188c,1049,194,11/6/2023 19:15:36,no crabs in bag,k.lotterhos@gmail.com,FALSE,1049
-20bb0fbf,2023-11-6_MVP-ME-2,98db6a1d,372,639,11/6/2023 19:36:58,3 large blue crabs,k.lotterhos@gmail.com,TRUE,372
-6466d412,2023-11-7_MVP-LA-3,bbec9cf8,1187,168,11/7/2023 9:52:00,1 big crab,eppley.madeline@gmail.com,,1187
-8b9a8f1d,2023-11-7_MVP-DEBY-2,f280e828,969,532,11/7/2023 9:53:00,3-4 crabs,k.lotterhos@gmail.com,TRUE,969
-784f6253,2023-11-8_MVP-LOLA-3,ab553cef,1049,59,11/8/2023 15:08:08,No large crabs in bag,eppley.madeline@gmail.com,TRUE,1049
-010ff3a0,2023-11-8_MVP-ME-3,f312af3f,1086,211,11/8/2023 15:17:55,No large crabs in bag,eppley.madeline@gmail.com,TRUE,1086
-6eaa870f,2023-11-8_MVP-LOLA-1,40d460cc,1069,91,11/8/2023 15:52:15,No large crabs in bag,eppley.madeline@gmail.com,TRUE,1069
-1cb354d4,2023-11-8_MVP-NH-3,6ab7c081,688,413,11/8/2023 15:45:00,Small bags nested in large bags,k.lotterhos@gmail.com,TRUE,688
-81c44cfa,2023-11-8_MVP-SEEDMIX-1,7239feb5,1114,291,11/8/2023 16:41:39,,eppley.madeline@gmail.com,TRUE,1114
-8f7aee47,2023-11-8_MVP-NH-2,957bbb17,591,501,11/8/2023 16:47:28,small bags nested in larger bag,k.lotterhos@gmail.com,TRUE,591
-6bca2ae9,2023-11-8_MVP-NH-1,09dc7811,646,502,11/8/2023 17:28:36,small bags in larger bag,k.lotterhos@gmail.com,,646
-3b2637de,2023-11-8_MVP-LOLA-2,953be50c,991,85,11/8/2023 17:57:16,,k.lotterhos@gmail.com,,991
-c4cfde01,2023-11-8_MVP-LARMIX-2,aa3c244b,1107,67,11/8/2023 18:13:10,,k.lotterhos@gmail.com,,1107
-7be850ec,2023-11-9_MVP-LA-2,689525dd,1256,51,11/9/2023 8:08:46,One medium crab in bag,eppley.madeline@gmail.com,TRUE,1256
-51a5b6df,2023-11-9_MVP-LARMIX-3,ef48c3c3,1002,115,11/9/2023 8:23:45,,eppley.madeline@gmail.com,TRUE,1002
-e55a0161,2023-11-9_MVP-TX-2,8fd17a9e,1360,53,11/9/2023 8:47:52,1 blue crab,eppley.madeline@gmail.com,,1360
-1551ff3e,2023-11-9_MVP-LARMIX-1,4ca2c33a,993,150,11/9/2023 9:01:10,,eppley.madeline@gmail.com,TRUE,993
-baed1f9f,2023-11-9_MVP-SEEDMIX-3,0f94ce30,856,243,11/9/2023 9:06:38,No crabs,eppley.madeline@gmail.com,TRUE,856
-dca6962f,2023-11-9_MVP-SEEDMIX-2,05d8a409,1072,157,11/9/2023 9:27:53,No large crabs,eppley.madeline@gmail.com,TRUE,1072
-cc2d2674,2023-11-10_MVP-NH-4,b2afd5ee,454,361,11/10/2023 8:51:43,,eppley.madeline@gmail.com,TRUE,454
-dac89666,2023-11-10_MVP-SEEDMIX-5,1a026d5b,1010,175,11/10/2023 9:21:38,,eppley.madeline@gmail.com,TRUE,1010
-4de8a923,2023-11-10_MVP-LARMIX-4,36a7a874,1060,130,11/10/2023 9:43:01,,eppley.madeline@gmail.com,TRUE,1060
-53de19d7,2023-11-10_MVP-LARMIX-6,5fb1d274,1022,71,11/10/2023 10:15:32,,eppley.madeline@gmail.com,TRUE,1022
-38265d3a,2023-11-10_MVP-LA-4,100369ae,1336,121,11/10/2023 10:37:18,,eppley.madeline@gmail.com,TRUE,1336
-cbf1b666,2023-11-10_MVP-FL-4,214a10fd,1250,26,11/10/2023 10:54:27,,eppley.madeline@gmail.com,TRUE,1250
-93274ee2,2023-11-13_MVP-DEBY-5,15161707,1560,181,11/13/2023 8:52:29,,eppley.madeline@gmail.com,TRUE,1560
-089f8c22,2023-11-13_MVP-TX-5,459cb517,1405,69,11/13/2023 8:57:54,,eppley.madeline@gmail.com,TRUE,1405
-d461bf2b,2023-11-13_MVP-LOLA-6,a5917655,966,96,11/13/2023 9:15:20,,eppley.madeline@gmail.com,TRUE,966
-7604b2b5,2023-11-13_MVP-NH-5,d5555913,599,415,11/13/2023 9:45:17,,eppley.madeline@gmail.com,TRUE,599
-af1509f6,2023-11-13_MVP-NH-6,26bf3141,292,84,11/13/2023 10:19:04,,eppley.madeline@gmail.com,TRUE,292
-78d0eb4a,2023-11-13_MVP-ME-6,f0b7aeea,840,347,11/13/2023 10:24:25,,eppley.madeline@gmail.com,TRUE,840
-9314c96b,2023-11-13_MVP-JR-5,8b476356,793,306,11/13/2023 10:57:46,,eppley.madeline@gmail.com,TRUE,793
-22221c1e,2023-11-13_MVP-FL-5,78b3b60a,1299,48,11/13/2023 11:04:05,,eppley.madeline@gmail.com,TRUE,1299
-6cd71eea,2023-11-14_MVP-JR-4,ab963807,1123,150,11/14/2023 8:58:03,,eppley.madeline@gmail.com,TRUE,1123
-70246bd2,2023-11-14_MVP-LOLA-5,b8b043b2,1011,172,11/14/2023 9:05:32,,eppley.madeline@gmail.com,TRUE,1011
-21abeab6,2023-11-14_MVP-TX-4,eb43e468,1313,121,11/14/2023 9:36:07,,eppley.madeline@gmail.com,TRUE,1313
-643a870f,2023-11-14_MVP-ME-4,12bc8d82,783,181,11/14/2023 9:58:54,,eppley.madeline@gmail.com,TRUE,783
-4756893d,2023-11-14_MVP-LA-5,a9458a4a,1173,205,11/14/2023 10:04:29,,eppley.madeline@gmail.com,TRUE,1173
-ac69c3fb,2023-11-14_MVP-DEBY-6,c1ccef3e,1267,193,11/14/2023 10:41:33,,eppley.madeline@gmail.com,TRUE,1267
-4d8e8437,2023-11-14_MVP-SEEDMIX-4,8940e43d,1034,253,11/14/2023 10:46:45,,eppley.madeline@gmail.com,TRUE,1034
-43b5bf9e,2023-11-14_MVP-LARMIX-5,a222be71,797,398,11/14/2023 11:00:36,,eppley.madeline@gmail.com,TRUE,797
-aa006602,2023-11-14_MVP-ME-5,ca40eea6,989,339,11/14/2023 11:09:32,,eppley.madeline@gmail.com,TRUE,989
-c7ee4db3,2023-11-14_MVP-JR-6,cac61fcc,985,130,11/14/2023 11:35:19,,eppley.madeline@gmail.com,TRUE,985
-08f42887,2023-11-15_MVP-DEBY-4,16543236,1481,350,11/15/2023 11:44:58,,eppley.madeline@gmail.com,TRUE,1481
-fad54de0,2023-11-15_MVP-FL-6,f5f69186,1269,51,11/15/2023 12:40:40,,eppley.madeline@gmail.com,TRUE,1269
-9efec6ce,2023-11-15_MVP-LA-6,6a4a5efe,1272,118,11/15/2023 12:57:34,,zeasegnitz@gmail.com,TRUE,1272
-f6ea9b22,2023-11-15_MVP-SEEDMIX-6,8894d982,966,292,11/15/2023 13:01:12,,eppley.madeline@gmail.com,TRUE,966
-6f2f94d6,2023-11-15_MVP-TX-6,2c1bf45d,1324,92,11/15/2023 13:31:37,,zeasegnitz@gmail.com,TRUE,1324
-caef2905,2023-11-15_MVP-LOLA-4,bd86970d,1069,129,11/15/2023 13:47:05,,zeasegnitz@gmail.com,TRUE,1069
-e5cf46ce,2024-3-13_Practice-LEW,234g212c,1,1,3/13/2024 14:13:38,,k.lotterhos@gmail.com,FALSE,1
-e4f46692,2024-4-29_MVP-LA-2,689525dd,1226,40,4/29/2024 14:04:32,"39 tot tagged recovered, 1 was dead",k.lotterhos@gmail.com,TRUE,235
-afa704d6,2024-4-29_MVP-NH-2,957bbb17,519,127,4/29/2024 14:47:10,"40 tot tagged recovered, 1 was dead",k.lotterhos@gmail.com,TRUE,235
-f452dde9,2024-4-29_MVP-LOLA-2,953be50c,932,30,4/29/2024 15:02:06,"40 tot tagged recovered
-A442 died overnight, found dead 2024-04-30 at 1:10 pm",k.lotterhos@gmail.com,TRUE,235
-716d46e9,2024-4-29_MVP-SEEDMIX-2,05d8a409,974,80,4/29/2024 15:16:25,38 tot tagged recovered,k.lotterhos@gmail.com,TRUE,235
-af659b47,2024-4-29_MVP-TX-2,8fd17a9e,1342,41,4/29/2024 15:32:28,40 tot tagged recovered,k.lotterhos@gmail.com,TRUE,235
-0f9f26ca,2024-4-29_MVP-LOLA-3,ab553cef,976,65,4/29/2024 15:57:47,"37 tagged recovered, 1 dead, 1 loose tag",k.lotterhos@gmail.com,TRUE,235
-b279eaa9,2024-4-29_MVP-NH-1,09dc7811,568,92,4/29/2024 16:13:59,"40 tagged recovered, 4 dead",k.lotterhos@gmail.com,TRUE,235
-31ef3989,2024-4-29_MVP-ME-3,f312af3f,880,163,4/29/2024 16:29:05,"35 total tagged recovered, 4 dead, 6 loose tags",k.lotterhos@gmail.com,TRUE,235
-5360ffc4,2024-4-29_MVP-LOLA-1,40d460cc,998,57,4/29/2024 16:46:03,"38 tagged recovered, 1 loose tag",k.lotterhos@gmail.com,TRUE,235
-6c54829c,2024-4-29_MVP-LARMIX-1,4ca2c33a,847,82,4/29/2024 16:59:27,39 total tagged recovered,k.lotterhos@gmail.com,TRUE,235
-9d255bda,2024-4-29_MVP-NH-3,6ab7c081,538,149,4/29/2024 17:39:03,"41 total tagged recovered, 4 dead",k.lotterhos@gmail.com,TRUE,235
-f7463f36,2024-4-29_MVP-SEEDMIX-3,0f94ce30,814,39,4/29/2024 17:49:41,38 total tagged recovered,k.lotterhos@gmail.com,TRUE,235
-7294abfd,2024-4-29_MVP-LARMIX-2,aa3c244b,983,98,4/29/2024 18:03:52,"39 total tagged recovered, 1 loose tag",k.lotterhos@gmail.com,TRUE,235
-779725cf,2024-4-29_MVP-SEEDMIX-1,7239feb5,1046,72,4/29/2024 18:17:01,41 total tagged recovered,k.lotterhos@gmail.com,TRUE,235
-a87d44f3,2024-4-29_MVP-LARMIX-3,ef48c3c3,933,84,4/29/2024 16:57:00,"41 tot tagged recovered, 1 dead",nicole.mongillo28@gmail.com,TRUE,235
-821b1a6f,2024-5-1_MVP-LA-1,7e8856d8,1366,32,5/1/2024 18:46:27,"36 total tagged recovered; originally put 235 into bag, but taking out 35 to account for tagged",camillerumberger11@gmail.com,TRUE,235
-1d809c9b,2024-5-1_MVP-DEBY-3,fd1a768b,1048,55,5/1/2024 18:47:43,"41 total tagged recovered, 1 dead; 195 put back in bag",camillerumberger11@gmail.com,TRUE,235
-dde6e6c4,2024-5-1_MVP-TX-1,2b6a3191,1249,40,5/1/2024 18:48:29,39 total tagged recovered; 196 put back in bag,camillerumberger11@gmail.com,TRUE,235
-0de820be,2024-5-1_MVP-DEBY-2,f280e828,934,38,5/1/2024 18:49:02,"41 total tagged recovered, 1 dead; 195 put back in bag",camillerumberger11@gmail.com,TRUE,235
-9303bb09,2024-5-1_MVP-FL-2,230dcc38,910,90,5/1/2024 18:49:40,40 total tagged recovered; 195 put back,camillerumberger11@gmail.com,TRUE,235
-16f22584,2024-5-1_MVP-DEBY-1,24d5645e,1253,152,5/1/2024 18:51:22,"43 total tagged recovered, 2 dead; 194 put back; should be 41 tagged in this pop, something is funky (CHECK TOMORROW)",camillerumberger11@gmail.com,TRUE,235
-41dc3418,2024-5-1_MVP-JR-2,58cf91df,493,24,5/1/2024 18:52:57,"41 total tagged recovered, 194 put back",camillerumberger11@gmail.com,TRUE,235
-a7dc3aba,2024-5-1_MVP-JR-3,6981f952,648,26,5/1/2024 18:53:56,"43 total tagged recovered, 2 dead; 1 oyster with epoxy but no tag; 194 put back",camillerumberger11@gmail.com,TRUE,235
-ac366e43,2024-5-1_MVP-LA-3,bbec9cf8,1385,15,5/1/2024 18:56:02,"39 total tagged recovered, 1 loose tag; 196 put back",camillerumberger11@gmail.com,TRUE,235
-1c70d8a3,2024-5-1_MVP-ME-1,29b9493b,491,41,5/1/2024 18:56:50,"43 total tagged recovered, 1 dead, 1 loose tag; 193 put back",camillerumberger11@gmail.com,TRUE,235
-dcfd9e02,2024-5-1_MVP-FL-3,e91a188c,924,139,5/1/2024 18:57:25,"50 total tagged recovered, 5 dead; 190 put back",camillerumberger11@gmail.com,TRUE,235
-f899f7d0,2024-5-1_MVP-ME-2,98db6a1d,334,40,5/1/2024 18:58:31,"40 total tagged recovered, 2 dead, 1 loose tag; 197 put back",camillerumberger11@gmail.com,TRUE,235
-05fcf351,2024-5-1_MVP-JR-1,3460d069,865,132,5/1/2024 18:59:07,"38 total tagged recovered, 4 loose tags; 197 put back",camillerumberger11@gmail.com,TRUE,235
-0e445e64,2024-5-1_MVP-FL-1,815e1dab,1137,114,5/1/2024 19:00:55,"40 tot tagged recovered, 1 dead; 196 put back",camillerumberger11@gmail.com,TRUE,196
-a7e16713,2024-5-1_MVP-TX-3,885f1c3e,1243,43,5/2/2024 14:09:39,41 tot tagged recovered,nicole.mongillo28@gmail.com,,235
-e6c9a840,2024-5-5_MVP-TX-4,eb43e468,1087,220,5/5/2024 11:59:54,"39 tot tagged recovered, 1 dead; 197 returned",annabelhughes18@gmail.com,TRUE,235
-02e6896c,2024-5-5_MVP-FL-6,f5f69186,1047,204,5/5/2024 12:17:09,"40 tot tagged recovered, 3 dead; 198 returned",annabelhughes18@gmail.com,TRUE,235
-d1e426ff,2024-5-5_MVP-SEEDMIX-6,8894d982,818,124,5/5/2024 13:20:54,"40 tot tagged recovered, 3 dead; 198 returned",annabelhughes18@gmail.com,TRUE,235
-2aad231e,2024-5-5_MVP-TX-6,2c1bf45d,1040,239,5/5/2024 13:38:21,"39 tot tagged recovered, 2 dead; 198 returned",annabelhughes18@gmail.com,TRUE,235
-45876242,2024-5-5_MVP-LARMIX-5,a222be71,742,43,5/5/2024 13:48:59,"37 tagged recovered, 1 dead; 3 loose tags; 199 returned",annabelhughes18@gmail.com,TRUE,235
-9844d318,2024-5-5_MVP-NH-5,d5555913,463,79,5/5/2024 14:02:20,37 tot tagged recovered; 3 loose tags; 198 returned,annabelhughes18@gmail.com,TRUE,235
-5f6fe26c,2024-5-5_MVP-LOLA-4,bd86970d,880,150,5/5/2024 14:15:23,"40 tot tagged recovered, 1 dead; 196 returned",annabelhughes18@gmail.com,TRUE,235
-ccbc0cc6,2024-5-5_MVP-ME-5,ca40eea6,701,118,5/5/2024 14:27:41,38 tot tagged recovered; 2 loose tags; 197 returned,annabelhughes18@gmail.com,TRUE,235
-4da75000,2024-5-5_MVP-LA-6,6a4a5efe,954,273,5/5/2024 14:55:22,"40 tot tagged recovered, 2 dead; 197 returned",annabelhughes18@gmail.com,TRUE,235
-3d7f6dac,2024-5-5_MVP-DEBY-4,16543236,1239,166,5/5/2024 15:14:09,40 tot tagged recovered; 195 returned; no extras left on tray,annabelhughes18@gmail.com,TRUE,235
-1e8e1a30,2024-5-5_MVP-LA-5,a9458a4a,978,180,5/5/2024 15:40:43,40 tot tagged recovered; 195 returned,annabelhughes18@gmail.com,TRUE,235
-5029d8d8,2024-5-5_MVP-ME-6,f0b7aeea,638,119,5/5/2024 15:52:16,"37 tot tagged recovered, 1 dead; 3 loose tags; 199 returned; no extras put on tray",annabelhughes18@gmail.com,TRUE,235
-7a01f565,2024-5-5_MVP-DEBY-5,15161707,1188,233,5/5/2024 16:36:44,36 tot tagged recovered; 4 loose tags;,annabelhughes18@gmail.com,TRUE,235
-7a978a16,2024-5-5_MVP-DEBY-6,c1ccef3e,903,68,5/5/2024 16:50:29,40 tot tagged recovered; 195 returned,annabelhughes18@gmail.com,TRUE,235
-9eccdd27,2024-5-5_MVP-JR-6,cac61fcc,784,114,5/5/2024 17:03:16,"40 tot tagged recovered, 1 dead; 196 returned",annabelhughes18@gmail.com,TRUE,234
-adc868b4,2024-5-7_MVP-LARMIX-6,5fb1d274,827,145,5/7/2024 14:37:13,39 tot tagged recovered; 1 loose tag; 196 returned,camillerumberger11@gmail.com,TRUE,235
-b4d3c464,2024-5-7_MVP-TX-5,459cb517,1100,301,5/7/2024 14:58:30,40 tot tagged recovered; 195 returned,lee.fenuccio@gmail.com,TRUE,235
-db1e491a,2024-5-7_MVP-LOLA-5,b8b043b2,736,201,5/7/2024 15:13:59,36 tot tagged recovered; 3 loose tags; 199 returned,lee.fenuccio@gmail.com,TRUE,235
-0d09ffe4,2024-5-7_MVP-SEEDMIX-4,8940e43d,769,204,5/7/2024 15:28:06,"40 tot tagged recovered, 3 dead; 198 returned",lee.fenuccio@gmail.com,TRUE,235
-138f0ca7,2024-5-7_MVP-NH-6,26bf3141,211,39,5/7/2024 15:39:30,"35 tot tagged recovered, 1 dead; 3 loose tags; 172 returned",lee.fenuccio@gmail.com,TRUE,207
-43828f81,2024-5-7_MVP-NH-4,b2afd5ee,246,16,5/7/2024 15:59:20,"36 tot tagged recovered, 2 dead; 2 loose tags; 201 returned",lee.fenuccio@gmail.com,TRUE,235
-9d5c8919,2024-5-7_MVP-ME-4,12bc8d82,546,119,5/7/2024 16:13:42,"39 tot tagged recovered, 1 dead; 2 loose tags; 197 returned",lee.fenuccio@gmail.com,TRUE,235
-e1652f16,2024-5-7_MVP-LA-4,100369ae,973,335,5/7/2024 16:29:25,40 tot tagged recovered; 195 returned,lee.fenuccio@gmail.com,TRUE,235
-8a615202,2024-5-7_MVP-JR-4,ab963807,891,175,5/7/2024 16:46:35,39 tot tagged recovered; 1 loose tag; 196 returned,lee.fenuccio@gmail.com,TRUE,235
-5d870523,2024-5-7_MVP-JR-5,8b476356,656,129,5/7/2024 17:00:22,40 tot tagged recovered; 195 returned,lee.fenuccio@gmail.com,TRUE,235
-1e790b9a,2024-5-7_MVP-FL-5,78b3b60a,1079,180,5/7/2024 17:15:04,"39 tot tagged recovered, 7 dead; 203 returned",lee.fenuccio@gmail.com,TRUE,235
-faffd408,2024-5-7_MVP-SEEDMIX-5,1a026d5b,796,185,5/7/2024 17:43:38,"40 tot tagged recovered, 3 dead; 199 returned",lee.fenuccio@gmail.com,TRUE,235
-a9bf6002,2024-5-7_MVP-LARMIX-4,36a7a874,817,113,5/7/2024 17:57:27,37 tot tagged recovered; 2 loose tags; 198 returned,lee.fenuccio@gmail.com,TRUE,235
-0c7f313c,2024-5-7_MVP-FL-4,214a10fd,1080,177,5/7/2024 18:14:28,"44 tot tagged recovered, 5 dead; 196 returned",lee.fenuccio@gmail.com,TRUE,235
-e94222eb,2024-5-7_MVP-LOLA-6,a5917655,798,140,5/7/2024 18:27:44,37 tot tagged recovered; 3 loose tags; 198 returned,lee.fenuccio@gmail.com,TRUE,235
-37a37e77,2024-11-6_MVP-LA-3,bbec9cf8,221,7,11/6/2024 13:59:25,"36 tagged oysters found, 0 loose tags, 4 missing tags",eppley.madeline@gmail.com,TRUE,216
-53b6f7c0,2024-11-6_MVP-SEEDMIX-2,05d8a409,195,17,11/6/2024 14:47:49,"26 tagged oysters found, 11 loose tags, 3 missing tags",eppley.madeline@gmail.com,TRUE,190
-163f48c3,2024-11-6_MVP-FL-3,e91a188c,214,13,11/6/2024 15:08:39,"39 tagged oysters found, 1 loose tag, 10 missing tags",eppley.madeline@gmail.com,TRUE,209
-1a65a1d6,2024-11-6_MVP-NH-1,09dc7811,86,107,11/6/2024 15:31:01,"27 tagged oysters found, 2 loose tags, 11 missing tags",eppley.madeline@gmail.com,TRUE,81
-dba36ebd,2024-11-6_MVP-JR-3,6981f952,213,25,11/6/2024 15:51:37,"29 tagged oysters found, 4 loose tags, 11 missing tags",eppley.madeline@gmail.com,TRUE,208
-eadad5f6,2024-11-6_MVP-LOLA-2,953be50c,211,14,11/6/2024 16:03:35,"33 tagged oysters found, 2 loose tags, 5 missing tags",eppley.madeline@gmail.com,TRUE,206
-fb6a7fb5,2024-11-6_MVP-JR-1,3460d069,187,14,11/6/2024 16:13:08,"35 tagged oysters found, 0 loose tags, 9 missing tags",eppley.madeline@gmail.com,TRUE,182
-28b4c740,2024-11-6_MVP-DEBY-3,fd1a768b,221,18,11/6/2024 16:23:36,"37 tagged oysters found, 0 loose tags, 4 missing tags",eppley.madeline@gmail.com,TRUE,216
-fefeea25,2024-11-6_MVP-TX-3,885f1c3e,210,26,11/6/2024 16:38:23,"37 tagged oysters found, 0 loose tags, 5 missing tags",eppley.madeline@gmail.com,TRUE,205
-ead283ab,2024-11-6_MVP-FL-1,815e1dab,189,25,11/6/2024 19:22:44,"28 tagged oysters found, 8 loose tags, 6 missing tags",eppley.madeline@gmail.com,TRUE,184
-bace7835,2024-11-6_MVP-FL-2,230dcc38,204,22,11/6/2024 19:26:32,"39 tagged oysters found, 0 loose tags, 2 missing tags",eppley.madeline@gmail.com,TRUE,199
-efb45701,2024-11-6_MVP-LARMIX-2,aa3c244b,188,33,11/6/2024 19:45:08,"33 tagged oysters found, 5 loose tags, 2 missing tags",eppley.madeline@gmail.com,TRUE,183
-4cd3d2d0,2024-11-6_MVP-ME-3,f312af3f,91,76,11/6/2024 20:01:03,"18 tagged oysters found, 7 loose tags, 16 missing tags",eppley.madeline@gmail.com,TRUE,86
-0d662b32,2024-11-6_MVP-DEBY-2,f280e828,207,21,11/6/2024 20:12:37,"32 tagged oysters found, 5 loose tags, 4 missing tags",eppley.madeline@gmail.com,TRUE,202
-2b351631,2024-11-6_MVP-LOLA-3,ab553cef,207,11,11/6/2024 20:24:05,"34 tagged oysters found, 1 loose tag, 5 missing tags",eppley.madeline@gmail.com,TRUE,202
-08d61e58,2024-11-6_MVP-NH-2,957bbb17,77,116,11/6/2024 20:35:12,"31 tagged oysters found, 3 loose tags, 6 missing tags",eppley.madeline@gmail.com,TRUE,72
-d2c962d0,2024-11-6_MVP-ME-2,98db6a1d,113,113,11/6/2024 20:49:24,"33 tagged oysters found, 3 loose tags, 8 missing tags",eppley.madeline@gmail.com,TRUE,108
-d751a04a,2024-11-6_MVP-LARMIX-3,ef48c3c3,169,57,11/6/2024 21:00:52,"32 tagged oysters found, 6 loose tags, 3 missing tags",eppley.madeline@gmail.com,TRUE,164
-03271b66,2024-11-6_MVP-TX-2,8fd17a9e,206,25,11/6/2024 21:11:07,"35 tagged oysters found, 2 loose tags, 3 missing tags",eppley.madeline@gmail.com,TRUE,201
-bdee5f8f,2024-11-6_MVP-SEEDMIX-3,0f94ce30,198,36,11/6/2024 21:25:18,"36 tagged oysters found, 1 loose tag, 3 missing tags",eppley.madeline@gmail.com,TRUE,193
-50425047,2024-11-7_MVP-SEEDMIX-1,7239feb5,172,39,11/7/2024 8:57:20,"18 tagged oysters found, 14 loose tags, 7 missing tags",eppley.madeline@gmail.com,TRUE,167
-d188d79c,2024-11-7_MVP-ME-1,29b9493b,43,167,11/7/2024 9:08:39,"39 tagged oysters found, 2 loose tags, 0 missing tags",eppley.madeline@gmail.com,TRUE,38
-dcf861f4,2024-11-7_MVP-JR-2,58cf91df,215,11,11/7/2024 9:22:28,"31 tagged oysters found, 3 loose tags, 7 missing tags",eppley.madeline@gmail.com,TRUE,210
-40e2d989,2024-11-7_MVP-LOLA-1,40d460cc,203,25,11/7/2024 9:33:46,"33 tagged oysters found, 3 loose tags, 4 missing tags",eppley.madeline@gmail.com,TRUE,198
-06fa3a5f,2024-11-7_MVP-TX-1,2b6a3191,174,58,11/7/2024 9:45:33,"34 tagged oysters found, 2 loose tags, 4 missing tags",eppley.madeline@gmail.com,TRUE,169
-8009d7df,2024-11-7_MVP-DEBY-1,24d5645e,199,25,11/7/2024 10:25:43,"34 tagged oysters found, 0 loose tags, 7 missing tags",eppley.madeline@gmail.com,TRUE,194
-ec7c0ba5,2024-11-7_MVP-LA-2,689525dd,229,5,11/7/2024 10:37:42,"35 tagged oysters found, 2 loose tags, 3 missing tags",eppley.madeline@gmail.com,TRUE,224
-c1302a65,2024-11-7_MVP-LA-1,7e8856d8,229,20,11/7/2024 10:55:18,"35 tagged oysters found, 0 loose tags, 5 missing tags",eppley.madeline@gmail.com,TRUE,224
-2d4acbbe,2024-11-7_MVP-LARMIX-1,4ca2c33a,166,61,11/7/2024 11:12:16,"37 tagged oysters found, 0 loose tags, 3 missing tags",eppley.madeline@gmail.com,TRUE,161
-34cfd1ad,2024-11-7_MVP-NH-3,6ab7c081,33,145,11/7/2024 11:22:30,"26 tagged oysters found, 9 loose tags, 8 missing tags
+mortality_key,mortality_label,bags_key,alive_count,dead_count,mortality_timestamp,mortality_notes,dead_bag,alive_returned
+d96f7e66,2023-11-7_MVP-FL-1,815e1dab,1210,87,11/7/23 8:30,"3 med blue crabs,",TRUE,1210
+27171934,2023-11-7_MVP-DEBY-1,24d5645e,1444,118,11/7/23 8:54,1 blue crab,TRUE,1444
+8fc8ba73,2023-11-7_MVP-JR-3,6981f952,673,310,11/7/23 9:22,2 large blue crabs,TRUE,673
+2a93a4ae,2023-11-7_MVP-TX-1,2b6a3191,1266,154,11/7/23 9:23,2 big blue crabs,TRUE,1266
+b923d1fa,2023-11-6_MVP-TX-3,885f1c3e,1270,168,11/6/23 15:25,"1 large blue crab. The count for this one might be off. The clicker read 1505, so it was not properly reset. We entered it as 505. If the clicker was 1111, then the total count would have been 1159 (505-111). We think this is a lower limit, and the entered count is an upper limit.",FALSE,1270
+d85b71f0,2023-11-6_MVP-ME-1,29b9493b,530,451,11/6/23 15:50,2 large blue crabs,FALSE,530
+61d0775c,2023-11-6_MVP-DEBY-3,fd1a768b,1034,291,11/6/23 16:00,1 large blue crab,FALSE,1034
+b8efee4e,2023-11-6_MVP-JR-1,3460d069,1057,146,11/6/23 16:56,"No crabs, but lots of large tunicates inside bag",FALSE,1057
+94206e4d,2023-11-6_MVP-FL-2,230dcc38,965,317,11/6/23 5:09,1 blue crab,FALSE,965
+b0b7f59d,2023-11-7_MVP-LA-1,7e8856d8,1406,88,11/6/23 5:24,"1 blue crab, no tunicates",FALSE,1406
+63e40e80,2023-11-6_MVP-JR-2,58cf91df,524,460,11/6/23 17:44,2 blue crabs,FALSE,524
+2282560a,2023-11-6_MVP-FL-3,e91a188c,1049,194,11/6/23 19:15,no crabs in bag,FALSE,1049
+20bb0fbf,2023-11-6_MVP-ME-2,98db6a1d,372,639,11/6/23 19:36,3 large blue crabs,TRUE,372
+6466d412,2023-11-7_MVP-LA-3,bbec9cf8,1187,168,11/7/23 9:52,1 big crab,,1187
+8b9a8f1d,2023-11-7_MVP-DEBY-2,f280e828,969,532,11/7/23 9:53,3-4 crabs,TRUE,969
+784f6253,2023-11-8_MVP-LOLA-3,ab553cef,1049,59,11/8/23 15:08,No large crabs in bag,TRUE,1049
+010ff3a0,2023-11-8_MVP-ME-3,f312af3f,1086,211,11/8/23 15:17,No large crabs in bag,TRUE,1086
+6eaa870f,2023-11-8_MVP-LOLA-1,40d460cc,1069,91,11/8/23 15:52,No large crabs in bag,TRUE,1069
+1cb354d4,2023-11-8_MVP-NH-3,6ab7c081,688,413,11/8/23 15:45,Small bags nested in large bags,TRUE,688
+81c44cfa,2023-11-8_MVP-SEEDMIX-1,7239feb5,1114,291,11/8/23 16:41,,TRUE,1114
+8f7aee47,2023-11-8_MVP-NH-2,957bbb17,591,501,11/8/23 16:47,small bags nested in larger bag,TRUE,591
+6bca2ae9,2023-11-8_MVP-NH-1,09dc7811,646,502,11/8/23 17:28,small bags in larger bag,,646
+3b2637de,2023-11-8_MVP-LOLA-2,953be50c,991,85,11/8/23 17:57,,,991
+c4cfde01,2023-11-8_MVP-LARMIX-2,aa3c244b,1107,67,11/8/23 18:13,,,1107
+7be850ec,2023-11-9_MVP-LA-2,689525dd,1256,51,11/9/23 8:08,One medium crab in bag,TRUE,1256
+51a5b6df,2023-11-9_MVP-LARMIX-3,ef48c3c3,1002,115,11/9/23 8:23,,TRUE,1002
+e55a0161,2023-11-9_MVP-TX-2,8fd17a9e,1360,53,11/9/23 8:47,1 blue crab,,1360
+1551ff3e,2023-11-9_MVP-LARMIX-1,4ca2c33a,993,150,11/9/23 9:01,,TRUE,993
+baed1f9f,2023-11-9_MVP-SEEDMIX-3,0f94ce30,856,243,11/9/23 9:06,No crabs,TRUE,856
+dca6962f,2023-11-9_MVP-SEEDMIX-2,05d8a409,1072,157,11/9/23 9:27,No large crabs,TRUE,1072
+cc2d2674,2023-11-10_MVP-NH-4,b2afd5ee,454,361,11/10/23 8:51,,TRUE,454
+dac89666,2023-11-10_MVP-SEEDMIX-5,1a026d5b,1010,175,11/10/23 9:21,,TRUE,1010
+4de8a923,2023-11-10_MVP-LARMIX-4,36a7a874,1060,130,11/10/23 9:43,,TRUE,1060
+53de19d7,2023-11-10_MVP-LARMIX-6,5fb1d274,1022,71,11/10/23 10:15,,TRUE,1022
+38265d3a,2023-11-10_MVP-LA-4,100369ae,1336,121,11/10/23 10:37,,TRUE,1336
+cbf1b666,2023-11-10_MVP-FL-4,214a10fd,1250,26,11/10/23 10:54,,TRUE,1250
+93274ee2,2023-11-13_MVP-DEBY-5,15161707,1560,181,11/13/23 8:52,,TRUE,1560
+089f8c22,2023-11-13_MVP-TX-5,459cb517,1405,69,11/13/23 8:57,,TRUE,1405
+d461bf2b,2023-11-13_MVP-LOLA-6,a5917655,966,96,11/13/23 9:15,,TRUE,966
+7604b2b5,2023-11-13_MVP-NH-5,d5555913,599,415,11/13/23 9:45,,TRUE,599
+af1509f6,2023-11-13_MVP-NH-6,26bf3141,292,84,11/13/23 10:19,,TRUE,292
+78d0eb4a,2023-11-13_MVP-ME-6,f0b7aeea,840,347,11/13/23 10:24,,TRUE,840
+9314c96b,2023-11-13_MVP-JR-5,8b476356,793,306,11/13/23 10:57,,TRUE,793
+22221c1e,2023-11-13_MVP-FL-5,78b3b60a,1299,48,11/13/23 11:04,,TRUE,1299
+6cd71eea,2023-11-14_MVP-JR-4,ab963807,1123,150,11/14/23 8:58,,TRUE,1123
+70246bd2,2023-11-14_MVP-LOLA-5,b8b043b2,1011,172,11/14/23 9:05,,TRUE,1011
+21abeab6,2023-11-14_MVP-TX-4,eb43e468,1313,121,11/14/23 9:36,,TRUE,1313
+643a870f,2023-11-14_MVP-ME-4,12bc8d82,783,181,11/14/23 9:58,,TRUE,783
+4756893d,2023-11-14_MVP-LA-5,a9458a4a,1173,205,11/14/23 10:04,,TRUE,1173
+ac69c3fb,2023-11-14_MVP-DEBY-6,c1ccef3e,1267,193,11/14/23 10:41,,TRUE,1267
+4d8e8437,2023-11-14_MVP-SEEDMIX-4,8940e43d,1034,253,11/14/23 10:46,,TRUE,1034
+43b5bf9e,2023-11-14_MVP-LARMIX-5,a222be71,797,398,11/14/23 11:00,,TRUE,797
+aa006602,2023-11-14_MVP-ME-5,ca40eea6,989,339,11/14/23 11:09,,TRUE,989
+c7ee4db3,2023-11-14_MVP-JR-6,cac61fcc,985,130,11/14/23 11:35,,TRUE,985
+08f42887,2023-11-15_MVP-DEBY-4,16543236,1481,350,11/15/23 11:44,,TRUE,1481
+fad54de0,2023-11-15_MVP-FL-6,f5f69186,1269,51,11/15/23 12:40,,TRUE,1269
+9efec6ce,2023-11-15_MVP-LA-6,6a4a5efe,1272,118,11/15/23 12:57,,TRUE,1272
+f6ea9b22,2023-11-15_MVP-SEEDMIX-6,8894d982,966,292,11/15/23 13:01,,TRUE,966
+6f2f94d6,2023-11-15_MVP-TX-6,2c1bf45d,1324,92,11/15/23 13:31,,TRUE,1324
+caef2905,2023-11-15_MVP-LOLA-4,bd86970d,1069,129,11/15/23 13:47,,TRUE,1069
+e5cf46ce,2024-3-13_Practice-LEW,234g212c,1,1,3/13/24 14:13,,FALSE,1
+e4f46692,2024-4-29_MVP-LA-2,689525dd,1226,40,4/29/24 14:04,"39 tot tagged recovered, 1 was dead",TRUE,235
+afa704d6,2024-4-29_MVP-NH-2,957bbb17,519,127,4/29/24 14:47,"40 tot tagged recovered, 1 was dead",TRUE,235
+f452dde9,2024-4-29_MVP-LOLA-2,953be50c,932,30,4/29/24 15:02,"40 tot tagged recovered
+A442 died overnight, found dead 2024-04-30 at 1:10 pm",TRUE,235
+716d46e9,2024-4-29_MVP-SEEDMIX-2,05d8a409,974,80,4/29/24 15:16,38 tot tagged recovered,TRUE,235
+af659b47,2024-4-29_MVP-TX-2,8fd17a9e,1342,41,4/29/24 15:32,40 tot tagged recovered,TRUE,235
+0f9f26ca,2024-4-29_MVP-LOLA-3,ab553cef,976,65,4/29/24 15:57,"37 tagged recovered, 1 dead, 1 loose tag",TRUE,235
+b279eaa9,2024-4-29_MVP-NH-1,09dc7811,568,92,4/29/24 16:13,"40 tagged recovered, 4 dead",TRUE,235
+31ef3989,2024-4-29_MVP-ME-3,f312af3f,880,163,4/29/24 16:29,"35 total tagged recovered, 4 dead, 6 loose tags",TRUE,235
+5360ffc4,2024-4-29_MVP-LOLA-1,40d460cc,998,57,4/29/24 16:46,"38 tagged recovered, 1 loose tag",TRUE,235
+6c54829c,2024-4-29_MVP-LARMIX-1,4ca2c33a,847,82,4/29/24 16:59,39 total tagged recovered,TRUE,235
+9d255bda,2024-4-29_MVP-NH-3,6ab7c081,538,149,4/29/24 17:39,"41 total tagged recovered, 4 dead",TRUE,235
+f7463f36,2024-4-29_MVP-SEEDMIX-3,0f94ce30,814,39,4/29/24 17:49,38 total tagged recovered,TRUE,235
+7294abfd,2024-4-29_MVP-LARMIX-2,aa3c244b,983,98,4/29/24 18:03,"39 total tagged recovered, 1 loose tag",TRUE,235
+779725cf,2024-4-29_MVP-SEEDMIX-1,7239feb5,1046,72,4/29/24 18:17,41 total tagged recovered,TRUE,235
+a87d44f3,2024-4-29_MVP-LARMIX-3,ef48c3c3,933,84,4/29/24 16:57,"41 tot tagged recovered, 1 dead",TRUE,235
+821b1a6f,2024-5-1_MVP-LA-1,7e8856d8,1366,32,5/1/24 18:46,"36 total tagged recovered; originally put 235 into bag, but taking out 35 to account for tagged",TRUE,235
+1d809c9b,2024-5-1_MVP-DEBY-3,fd1a768b,1048,55,5/1/24 18:47,"41 total tagged recovered, 1 dead; 195 put back in bag",TRUE,235
+dde6e6c4,2024-5-1_MVP-TX-1,2b6a3191,1249,40,5/1/24 18:48,39 total tagged recovered; 196 put back in bag,TRUE,235
+0de820be,2024-5-1_MVP-DEBY-2,f280e828,934,38,5/1/24 18:49,"41 total tagged recovered, 1 dead; 195 put back in bag",TRUE,235
+9303bb09,2024-5-1_MVP-FL-2,230dcc38,910,90,5/1/24 18:49,40 total tagged recovered; 195 put back,TRUE,235
+16f22584,2024-5-1_MVP-DEBY-1,24d5645e,1253,152,5/1/24 18:51,"43 total tagged recovered, 2 dead; 194 put back; should be 41 tagged in this pop, something is funky (CHECK TOMORROW)",TRUE,235
+41dc3418,2024-5-1_MVP-JR-2,58cf91df,493,24,5/1/24 18:52,"41 total tagged recovered, 194 put back",TRUE,235
+a7dc3aba,2024-5-1_MVP-JR-3,6981f952,648,26,5/1/24 18:53,"43 total tagged recovered, 2 dead; 1 oyster with epoxy but no tag; 194 put back",TRUE,235
+ac366e43,2024-5-1_MVP-LA-3,bbec9cf8,1385,15,5/1/24 18:56,"39 total tagged recovered, 1 loose tag; 196 put back",TRUE,235
+1c70d8a3,2024-5-1_MVP-ME-1,29b9493b,491,41,5/1/24 18:56,"43 total tagged recovered, 1 dead, 1 loose tag; 193 put back",TRUE,235
+dcfd9e02,2024-5-1_MVP-FL-3,e91a188c,924,139,5/1/24 18:57,"50 total tagged recovered, 5 dead; 190 put back",TRUE,235
+f899f7d0,2024-5-1_MVP-ME-2,98db6a1d,334,40,5/1/24 18:58,"40 total tagged recovered, 2 dead, 1 loose tag; 197 put back",TRUE,235
+05fcf351,2024-5-1_MVP-JR-1,3460d069,865,132,5/1/24 18:59,"38 total tagged recovered, 4 loose tags; 197 put back",TRUE,235
+0e445e64,2024-5-1_MVP-FL-1,815e1dab,1137,114,5/1/24 19:00,"40 tot tagged recovered, 1 dead; 196 put back",TRUE,196
+a7e16713,2024-5-1_MVP-TX-3,885f1c3e,1243,43,5/2/24 14:09,41 tot tagged recovered,,235
+e6c9a840,2024-5-5_MVP-TX-4,eb43e468,1087,220,5/5/24 11:59,"39 tot tagged recovered, 1 dead; 197 returned",TRUE,235
+02e6896c,2024-5-5_MVP-FL-6,f5f69186,1047,204,5/5/24 12:17,"40 tot tagged recovered, 3 dead; 198 returned",TRUE,235
+d1e426ff,2024-5-5_MVP-SEEDMIX-6,8894d982,818,124,5/5/24 13:20,"40 tot tagged recovered, 3 dead; 198 returned",TRUE,235
+2aad231e,2024-5-5_MVP-TX-6,2c1bf45d,1040,239,5/5/24 13:38,"39 tot tagged recovered, 2 dead; 198 returned",TRUE,235
+45876242,2024-5-5_MVP-LARMIX-5,a222be71,742,43,5/5/24 13:48,"37 tagged recovered, 1 dead; 3 loose tags; 199 returned",TRUE,235
+9844d318,2024-5-5_MVP-NH-5,d5555913,463,79,5/5/24 14:02,37 tot tagged recovered; 3 loose tags; 198 returned,TRUE,235
+5f6fe26c,2024-5-5_MVP-LOLA-4,bd86970d,880,150,5/5/24 14:15,"40 tot tagged recovered, 1 dead; 196 returned",TRUE,235
+ccbc0cc6,2024-5-5_MVP-ME-5,ca40eea6,701,118,5/5/24 14:27,38 tot tagged recovered; 2 loose tags; 197 returned,TRUE,235
+4da75000,2024-5-5_MVP-LA-6,6a4a5efe,954,273,5/5/24 14:55,"40 tot tagged recovered, 2 dead; 197 returned",TRUE,235
+3d7f6dac,2024-5-5_MVP-DEBY-4,16543236,1239,166,5/5/24 15:14,40 tot tagged recovered; 195 returned; no extras left on tray,TRUE,235
+1e8e1a30,2024-5-5_MVP-LA-5,a9458a4a,978,180,5/5/24 15:40,40 tot tagged recovered; 195 returned,TRUE,235
+5029d8d8,2024-5-5_MVP-ME-6,f0b7aeea,638,119,5/5/24 15:52,"37 tot tagged recovered, 1 dead; 3 loose tags; 199 returned; no extras put on tray",TRUE,235
+7a01f565,2024-5-5_MVP-DEBY-5,15161707,1188,233,5/5/24 16:36,36 tot tagged recovered; 4 loose tags;,TRUE,235
+7a978a16,2024-5-5_MVP-DEBY-6,c1ccef3e,903,68,5/5/24 16:50,40 tot tagged recovered; 195 returned,TRUE,235
+9eccdd27,2024-5-5_MVP-JR-6,cac61fcc,784,114,5/5/24 17:03,"40 tot tagged recovered, 1 dead; 196 returned",TRUE,234
+adc868b4,2024-5-7_MVP-LARMIX-6,5fb1d274,827,145,5/7/24 14:37,39 tot tagged recovered; 1 loose tag; 196 returned,TRUE,235
+b4d3c464,2024-5-7_MVP-TX-5,459cb517,1100,301,5/7/24 14:58,40 tot tagged recovered; 195 returned,TRUE,235
+db1e491a,2024-5-7_MVP-LOLA-5,b8b043b2,736,201,5/7/24 15:13,36 tot tagged recovered; 3 loose tags; 199 returned,TRUE,235
+0d09ffe4,2024-5-7_MVP-SEEDMIX-4,8940e43d,769,204,5/7/24 15:28,"40 tot tagged recovered, 3 dead; 198 returned",TRUE,235
+138f0ca7,2024-5-7_MVP-NH-6,26bf3141,211,39,5/7/24 15:39,"35 tot tagged recovered, 1 dead; 3 loose tags; 172 returned",TRUE,207
+43828f81,2024-5-7_MVP-NH-4,b2afd5ee,246,16,5/7/24 15:59,"36 tot tagged recovered, 2 dead; 2 loose tags; 201 returned",TRUE,235
+9d5c8919,2024-5-7_MVP-ME-4,12bc8d82,546,119,5/7/24 16:13,"39 tot tagged recovered, 1 dead; 2 loose tags; 197 returned",TRUE,235
+e1652f16,2024-5-7_MVP-LA-4,100369ae,973,335,5/7/24 16:29,40 tot tagged recovered; 195 returned,TRUE,235
+8a615202,2024-5-7_MVP-JR-4,ab963807,891,175,5/7/24 16:46,39 tot tagged recovered; 1 loose tag; 196 returned,TRUE,235
+5d870523,2024-5-7_MVP-JR-5,8b476356,656,129,5/7/24 17:00,40 tot tagged recovered; 195 returned,TRUE,235
+1e790b9a,2024-5-7_MVP-FL-5,78b3b60a,1079,180,5/7/24 17:15,"39 tot tagged recovered, 7 dead; 203 returned",TRUE,235
+faffd408,2024-5-7_MVP-SEEDMIX-5,1a026d5b,796,185,5/7/24 17:43,"40 tot tagged recovered, 3 dead; 199 returned",TRUE,235
+a9bf6002,2024-5-7_MVP-LARMIX-4,36a7a874,817,113,5/7/24 17:57,37 tot tagged recovered; 2 loose tags; 198 returned,TRUE,235
+0c7f313c,2024-5-7_MVP-FL-4,214a10fd,1080,177,5/7/24 18:14,"44 tot tagged recovered, 5 dead; 196 returned",TRUE,235
+e94222eb,2024-5-7_MVP-LOLA-6,a5917655,798,140,5/7/24 18:27,37 tot tagged recovered; 3 loose tags; 198 returned,TRUE,235
+37a37e77,2024-11-6_MVP-LA-3,bbec9cf8,221,7,11/6/24 13:59,"36 tagged oysters found, 0 loose tags, 4 missing tags",TRUE,216
+53b6f7c0,2024-11-6_MVP-SEEDMIX-2,05d8a409,195,17,11/6/24 14:47,"26 tagged oysters found, 11 loose tags, 3 missing tags",TRUE,190
+163f48c3,2024-11-6_MVP-FL-3,e91a188c,214,13,11/6/24 15:08,"39 tagged oysters found, 1 loose tag, 10 missing tags",TRUE,209
+1a65a1d6,2024-11-6_MVP-NH-1,09dc7811,86,107,11/6/24 15:31,"27 tagged oysters found, 2 loose tags, 11 missing tags",TRUE,81
+dba36ebd,2024-11-6_MVP-JR-3,6981f952,213,25,11/6/24 15:51,"29 tagged oysters found, 4 loose tags, 11 missing tags",TRUE,208
+eadad5f6,2024-11-6_MVP-LOLA-2,953be50c,211,14,11/6/24 16:03,"33 tagged oysters found, 2 loose tags, 5 missing tags",TRUE,206
+fb6a7fb5,2024-11-6_MVP-JR-1,3460d069,187,14,11/6/24 16:13,"35 tagged oysters found, 0 loose tags, 9 missing tags",TRUE,182
+28b4c740,2024-11-6_MVP-DEBY-3,fd1a768b,221,18,11/6/24 16:23,"37 tagged oysters found, 0 loose tags, 4 missing tags",TRUE,216
+fefeea25,2024-11-6_MVP-TX-3,885f1c3e,210,26,11/6/24 16:38,"37 tagged oysters found, 0 loose tags, 5 missing tags",TRUE,205
+ead283ab,2024-11-6_MVP-FL-1,815e1dab,189,25,11/6/24 19:22,"28 tagged oysters found, 8 loose tags, 6 missing tags",TRUE,184
+bace7835,2024-11-6_MVP-FL-2,230dcc38,204,22,11/6/24 19:26,"39 tagged oysters found, 0 loose tags, 2 missing tags",TRUE,199
+efb45701,2024-11-6_MVP-LARMIX-2,aa3c244b,188,33,11/6/24 19:45,"33 tagged oysters found, 5 loose tags, 2 missing tags",TRUE,183
+4cd3d2d0,2024-11-6_MVP-ME-3,f312af3f,91,76,11/6/24 20:01,"18 tagged oysters found, 7 loose tags, 16 missing tags",TRUE,86
+0d662b32,2024-11-6_MVP-DEBY-2,f280e828,207,21,11/6/24 20:12,"32 tagged oysters found, 5 loose tags, 4 missing tags",TRUE,202
+2b351631,2024-11-6_MVP-LOLA-3,ab553cef,207,11,11/6/24 20:24,"34 tagged oysters found, 1 loose tag, 5 missing tags",TRUE,202
+08d61e58,2024-11-6_MVP-NH-2,957bbb17,77,116,11/6/24 20:35,"31 tagged oysters found, 3 loose tags, 6 missing tags",TRUE,72
+d2c962d0,2024-11-6_MVP-ME-2,98db6a1d,113,113,11/6/24 20:49,"33 tagged oysters found, 3 loose tags, 8 missing tags",TRUE,108
+d751a04a,2024-11-6_MVP-LARMIX-3,ef48c3c3,169,57,11/6/24 21:00,"32 tagged oysters found, 6 loose tags, 3 missing tags",TRUE,164
+03271b66,2024-11-6_MVP-TX-2,8fd17a9e,206,25,11/6/24 21:11,"35 tagged oysters found, 2 loose tags, 3 missing tags",TRUE,201
+bdee5f8f,2024-11-6_MVP-SEEDMIX-3,0f94ce30,198,36,11/6/24 21:25,"36 tagged oysters found, 1 loose tag, 3 missing tags",TRUE,193
+50425047,2024-11-7_MVP-SEEDMIX-1,7239feb5,172,39,11/7/24 8:57,"18 tagged oysters found, 14 loose tags, 7 missing tags",TRUE,167
+d188d79c,2024-11-7_MVP-ME-1,29b9493b,43,167,11/7/24 9:08,"39 tagged oysters found, 2 loose tags, 0 missing tags",TRUE,38
+dcf861f4,2024-11-7_MVP-JR-2,58cf91df,215,11,11/7/24 9:22,"31 tagged oysters found, 3 loose tags, 7 missing tags",TRUE,210
+40e2d989,2024-11-7_MVP-LOLA-1,40d460cc,203,25,11/7/24 9:33,"33 tagged oysters found, 3 loose tags, 4 missing tags",TRUE,198
+06fa3a5f,2024-11-7_MVP-TX-1,2b6a3191,174,58,11/7/24 9:45,"34 tagged oysters found, 2 loose tags, 4 missing tags",TRUE,169
+8009d7df,2024-11-7_MVP-DEBY-1,24d5645e,199,25,11/7/24 10:25,"34 tagged oysters found, 0 loose tags, 7 missing tags",TRUE,194
+ec7c0ba5,2024-11-7_MVP-LA-2,689525dd,229,5,11/7/24 10:37,"35 tagged oysters found, 2 loose tags, 3 missing tags",TRUE,224
+c1302a65,2024-11-7_MVP-LA-1,7e8856d8,229,20,11/7/24 10:55,"35 tagged oysters found, 0 loose tags, 5 missing tags",TRUE,224
+2d4acbbe,2024-11-7_MVP-LARMIX-1,4ca2c33a,166,61,11/7/24 11:12,"37 tagged oysters found, 0 loose tags, 3 missing tags",TRUE,161
+34cfd1ad,2024-11-7_MVP-NH-3,6ab7c081,33,145,11/7/24 11:22,"26 tagged oysters found, 9 loose tags, 8 missing tags
 
-we counted all shells but are well under the expected count of 235 for this bag, i think some valves may have been small enough to fall through the mesh bag if they died and split into 2 valves",eppley.madeline@gmail.com,TRUE,28
-439a8d78,2024-11-8_MVP-LARMIX-5,a222be71,127,100,11/8/2024 9:06:03,"12 tagged oysters found, 8 loose tags, 20 missing tags",eppley.madeline@gmail.com,TRUE,122
-bc8ab3db,2024-11-8_MVP-TX-6,2c1bf45d,141,93,11/8/2024 9:29:05,"20 tagged oysters found, 2 loose tags, 18 missing tags",eppley.madeline@gmail.com,TRUE,136
-ca82628a,2024-11-8_MVP-FL-6,f5f69186,158,73,11/8/2024 9:38:41,"27 tagged oysters found, 0 loose tags, 13 missing tags",eppley.madeline@gmail.com,TRUE,153
-d437c857,2024-11-8_MVP-LA-6,6a4a5efe,99,117,11/8/2024 9:50:01,"15 tagged oysters found, 5 loose tags, 20 missing tags",eppley.madeline@gmail.com,TRUE,94
-c27d3172,2024-11-8_MVP-ME-5,ca40eea6,23,172,11/8/2024 10:03:17,"17 tagged oysters found, 3 loose tags, 20 missing tags",eppley.madeline@gmail.com,TRUE,18
-fd6b0448,2024-11-8_MVP-NH-6,26bf3141,19,148,11/8/2024 10:12:34,"18 tagged oysters found, 2 loose tags, 20 missing tags",eppley.madeline@gmail.com,TRUE,14
-7ca60670,2024-11-11_MVP-LARMIX-4,36a7a874,114,115,11/11/2024 10:15:49,"19 tagged oysters found, 9 loose tags, 12 missing tags",eppley.madeline@gmail.com,TRUE,109
-27640454,2024-11-11_MVP-SEEDMIX-6,8894d982,139,80,11/11/2024 10:36:27,"24 tagged oysters found, 2 loose tags, 14 missing tags",eppley.madeline@gmail.com,TRUE,134
-d613ec2d,2024-11-11_MVP-LOLA-6,a5917655,106,109,11/11/2024 10:46:35,"22 tagged oysters found, 4 loose tags, 14 missing tags",eppley.madeline@gmail.com,TRUE,101
-4fce78ad,2024-11-11_MVP-NH-5,d5555913,32,159,11/11/2024 10:55:59,"15 tagged oysters found, 1 loose tag, 24 missing tags",eppley.madeline@gmail.com,TRUE,27
-195ba253,2024-11-11_MVP-DEBY-4,16543236,171,42,11/11/2024 11:06:27,"24 tagged oysters found, 4 loose tags, 12 missing tags",eppley.madeline@gmail.com,TRUE,166
-daff4652,2024-11-11_MVP-DEBY-5,15161707,165,56,11/11/2024 11:14:33,"26 tagged oysters found, 0 loose tags, 14 missing tags",eppley.madeline@gmail.com,TRUE,160
-ddbf273a,2024-11-11_MVP-SEEDMIX-5,1a026d5b,137,81,11/11/2024 11:21:24,"28 tagged oysters found, 3 loose tags, 9 missing tags",eppley.madeline@gmail.com,TRUE,132
-eeb28253,2024-11-11_MVP-TX-4,eb43e468,113,88,11/11/2024 11:33:50,"26 tagged oysters found, 2 loose tags, 10 missing tags",eppley.madeline@gmail.com,TRUE,108
-c265c12f,2024-11-11_MVP-LARMIX-6,5fb1d274,103,127,11/11/2024 12:55:42,"25 tagged oysters found, 7 loose tags, 8 missing tags",eppley.madeline@gmail.com,TRUE,98
-43768870,2024-11-11_MVP-FL-4,214a10fd,169,56,11/11/2024 13:07:31,"28 tagged oysters found, 0 loose tags, 16 missing tags (44 total)",eppley.madeline@gmail.com,TRUE,164
-4b3ba2d4,2024-11-11_MVP-LA-5,a9458a4a,127,88,11/11/2024 13:18:48,"25 found tags, 2 loose tags, 13 missing tags",eppley.madeline@gmail.com,TRUE,122
-4a03dd4f,2024-11-11_MVP-JR-5,8b476356,170,57,11/11/2024 13:29:27,"27 tagged oysters found, 4 loose tags, 9 missing tags",eppley.madeline@gmail.com,TRUE,165
-64e61f14,2024-11-11_MVP-LOLA-5,b8b043b2,128,99,11/11/2024 13:41:44,"23 tagged oysters found, 3 loose tags, 14 missing tags",eppley.madeline@gmail.com,TRUE,123
-337b513f,2024-11-11_MVP-TX-5,459cb517,164,36,11/11/2024 14:01:37,"19 tagged oysters found, 6 loose tags, 15 missing tags",eppley.madeline@gmail.com,TRUE,159
-6d739d8d,2024-11-11_MVP-ME-6,f0b7aeea,11,198,11/11/2024 14:10:43,"16 tagged oysters found, 2 loose tags, 22 missing tags",eppley.madeline@gmail.com,TRUE,6
-b1b4b8db,2024-11-11_MVP-LOLA-4,bd86970d,90,95,11/11/2024 14:19:31,"26 tagged oysters found, 10 loose tags, 4 missing tags",eppley.madeline@gmail.com,TRUE,85
-4fd4a9e8,2024-11-11_MVP-NH-4,b2afd5ee,4,34,11/11/2024 14:25:22,"5 tagged oysters found, 1 loose tag, 34 missing tags. 
+we counted all shells but are well under the expected count of 235 for this bag, i think some valves may have been small enough to fall through the mesh bag if they died and split into 2 valves",TRUE,28
+439a8d78,2024-11-8_MVP-LARMIX-5,a222be71,127,100,11/8/24 9:06,"12 tagged oysters found, 8 loose tags, 20 missing tags",TRUE,122
+bc8ab3db,2024-11-8_MVP-TX-6,2c1bf45d,141,93,11/8/24 9:29,"20 tagged oysters found, 2 loose tags, 18 missing tags",TRUE,136
+ca82628a,2024-11-8_MVP-FL-6,f5f69186,158,73,11/8/24 9:38,"27 tagged oysters found, 0 loose tags, 13 missing tags",TRUE,153
+d437c857,2024-11-8_MVP-LA-6,6a4a5efe,99,117,11/8/24 9:50,"15 tagged oysters found, 5 loose tags, 20 missing tags",TRUE,94
+c27d3172,2024-11-8_MVP-ME-5,ca40eea6,23,172,11/8/24 10:03,"17 tagged oysters found, 3 loose tags, 20 missing tags",TRUE,18
+fd6b0448,2024-11-8_MVP-NH-6,26bf3141,19,148,11/8/24 10:12,"18 tagged oysters found, 2 loose tags, 20 missing tags",TRUE,14
+7ca60670,2024-11-11_MVP-LARMIX-4,36a7a874,114,115,11/11/24 10:15,"19 tagged oysters found, 9 loose tags, 12 missing tags",TRUE,109
+27640454,2024-11-11_MVP-SEEDMIX-6,8894d982,139,80,11/11/24 10:36,"24 tagged oysters found, 2 loose tags, 14 missing tags",TRUE,134
+d613ec2d,2024-11-11_MVP-LOLA-6,a5917655,106,109,11/11/24 10:46,"22 tagged oysters found, 4 loose tags, 14 missing tags",TRUE,101
+4fce78ad,2024-11-11_MVP-NH-5,d5555913,32,159,11/11/24 10:55,"15 tagged oysters found, 1 loose tag, 24 missing tags",TRUE,27
+195ba253,2024-11-11_MVP-DEBY-4,16543236,171,42,11/11/24 11:06,"24 tagged oysters found, 4 loose tags, 12 missing tags",TRUE,166
+daff4652,2024-11-11_MVP-DEBY-5,15161707,165,56,11/11/24 11:14,"26 tagged oysters found, 0 loose tags, 14 missing tags",TRUE,160
+ddbf273a,2024-11-11_MVP-SEEDMIX-5,1a026d5b,137,81,11/11/24 11:21,"28 tagged oysters found, 3 loose tags, 9 missing tags",TRUE,132
+eeb28253,2024-11-11_MVP-TX-4,eb43e468,113,88,11/11/24 11:33,"26 tagged oysters found, 2 loose tags, 10 missing tags",TRUE,108
+c265c12f,2024-11-11_MVP-LARMIX-6,5fb1d274,103,127,11/11/24 12:55,"25 tagged oysters found, 7 loose tags, 8 missing tags",TRUE,98
+43768870,2024-11-11_MVP-FL-4,214a10fd,169,56,11/11/24 13:07,"28 tagged oysters found, 0 loose tags, 16 missing tags (44 total)",TRUE,164
+4b3ba2d4,2024-11-11_MVP-LA-5,a9458a4a,127,88,11/11/24 13:18,"25 found tags, 2 loose tags, 13 missing tags",TRUE,122
+4a03dd4f,2024-11-11_MVP-JR-5,8b476356,170,57,11/11/24 13:29,"27 tagged oysters found, 4 loose tags, 9 missing tags",TRUE,165
+64e61f14,2024-11-11_MVP-LOLA-5,b8b043b2,128,99,11/11/24 13:41,"23 tagged oysters found, 3 loose tags, 14 missing tags",TRUE,123
+337b513f,2024-11-11_MVP-TX-5,459cb517,164,36,11/11/24 14:01,"19 tagged oysters found, 6 loose tags, 15 missing tags",TRUE,159
+6d739d8d,2024-11-11_MVP-ME-6,f0b7aeea,11,198,11/11/24 14:10,"16 tagged oysters found, 2 loose tags, 22 missing tags",TRUE,6
+b1b4b8db,2024-11-11_MVP-LOLA-4,bd86970d,90,95,11/11/24 14:19,"26 tagged oysters found, 10 loose tags, 4 missing tags",TRUE,85
+4fd4a9e8,2024-11-11_MVP-NH-4,b2afd5ee,4,34,11/11/24 14:25,"5 tagged oysters found, 1 loose tag, 34 missing tags. 
 
-All live oysters taken for CI - bag completely crashed, not returned to the water",eppley.madeline@gmail.com,TRUE,0
-1e2c2bf0,2024-11-11_MVP-DEBY-6,c1ccef3e,192,40,11/11/2024 14:32:08,"8 missing, 2 loose, 30 found",eppley.madeline@gmail.com,TRUE,187
-05bc4524,2024-11-11_MVP-LA-4,100369ae,90,110,11/11/2024 14:40:27,"30 tagged oysters found, 5 loose tags, 5 missing tags",eppley.madeline@gmail.com,TRUE,85
-aa379cfa,2024-11-11_MVP-SEEDMIX-4,8940e43d,134,77,11/11/2024 14:49:10,"27 tagged oysters found, 2 loose tags, 11 missing tags",eppley.madeline@gmail.com,TRUE,129
-d5553dd6,2024-11-11_MVP-FL-5,78b3b60a,153,82,11/11/2024 14:59:20,"19 tagged oysters found, 2 loose tags, 18 missing tags (only 39 expected)",eppley.madeline@gmail.com,TRUE,148
-bc154017,2024-11-11_MVP-ME-4,12bc8d82,11,65,11/11/2024 15:05:03,"10 tagged oysters found, 2 loose tags, 28 missing tags",eppley.madeline@gmail.com,TRUE,6
-6935e8a3,2024-11-11_MVP-JR-4,ab963807,179,41,11/11/2024 15:07:29,"27 tagged oysters found, 5 loose tags, 8 missing tags",eppley.madeline@gmail.com,TRUE,174
-b08ac5ae,2024-11-11_MVP-JR-6,cac61fcc,155,53,11/11/2024 15:18:41,"25 tagged oysters found, 0 loose tags, 15 missing tags",eppley.madeline@gmail.com,TRUE,150
-7bfc4629,2025-5-19_MVP-LA-1,7e8856d8,,,5/19/2025 10:16:33,Practice,k.lotterhos@gmail.com,,0
-44322799,2025-5-19_MVP-FL-3,e91a188c,182,18,5/19/2025 14:33:55,"22 or 31 tags recovered, 28 tagged and 72 not tagged oysters returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js)",k.lotterhos@gmail.com,,100
-d06863a5,2025-5-19_MVP-NH-3,6ab7c081,23,8,5/19/2025 14:57:06,"5 alive tags found, 15 set aside for genotyping, bag dumped (decided by kl and js)",k.lotterhos@gmail.com,TRUE,0
-e2feb93e,2025-5-19_MVP-DEBY-2,f280e828,229,5,5/19/2025 15:08:38,"29 alive tags found, bag dumped (decided by kl and js)",k.lotterhos@gmail.com,TRUE,0
-46b0b9a7,2025-5-19_MVP-FL-1,815e1dab,182,8,5/19/2025 15:20:55,"24 tags alive, 25 tagged and 75 not tagged oysters returned tge rest were dumped to strip bags down to 100 oysters (decided by kl and js)",k.lotterhos@gmail.com,TRUE,100
-15204bea,2025-5-19_MVP-ME-2,98db6a1d,84,19,5/19/2025 15:24:26,"8 alive tags + 2 dead tags recovered, bag dumped (decided by kl and js)",k.lotterhos@gmail.com,TRUE,0
-3adc7c2b,2025-5-19_MVP-LOLA-1,40d460cc,172,25,5/19/2025 15:44:31,25 alive + 3 loose tags found. Bag was dumped (decided by kl and js),k.lotterhos@gmail.com,TRUE,0
-45320ed2,2025-5-19_MVP-DEBY-3,fd1a768b,202,14,5/19/2025 16:01:13,"22 alive + 3 dead tags, bag dumped (decided by kl and js)",k.lotterhos@gmail.com,TRUE,0
-8952da42,2025-5-19_MVP-SEEDMIX-2,05d8a409,184,5,5/19/2025 16:12:20,"24 alive tags + 0 dead tags, bag dumped (decided by kl and js)",k.lotterhos@gmail.com,TRUE,0
-f4949c48,2025-5-19_MVP-TX-3,885f1c3e,185,24,5/19/2025 16:26:03,"24 alive + 2 dead tags, 25 tagged and 75 not tagged oysters returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js)",k.lotterhos@gmail.com,TRUE,100
-ac337078,2025-5-19_MVP-JR-2,58cf91df,202,2,5/19/2025 16:43:04,"We initially mixed up this bag with larmix1 - but fixed it. 27 alive + 0 dead tags, 27 tagged and 73 not tagged oysters returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js)",k.lotterhos@gmail.com,TRUE,100
-e6cf95f9,2025-5-19_MVP-LARMIX-1,4ca2c33a,154,9,5/19/2025 16:49:57,Initially mixed up with JR 2 but fixed it. 24 alive + 2 dead tags. 24 tagged and 76 not tagged oysters returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js),k.lotterhos@gmail.com,TRUE,100
-0b080cb4,2025-5-19_MVP-FL-2,230dcc38,160,14,5/19/2025 17:23:49,"30 alive + 2 dead tags, 30 tagged and 70 not tagged oysters returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js)",k.lotterhos@gmail.com,TRUE,100
-e7c09280,2025-5-19_MVP-SEEDMIX-3,0f94ce30,165,22,5/19/2025 17:33:58,"found 23 alive + 1 dead tag + 4 loose tags, bag dumped (decided by kl and js)",k.lotterhos@gmail.com,TRUE,0
-997619cf,2025-5-19_MVP-LOLA-2,953be50c,194,4,5/19/2025 17:44:13,"found 28 alive + 0 dead tags, bag dumped (decided by kl and js)",k.lotterhos@gmail.com,TRUE,0
-66cce39c,2025-5-19_MVP-NH-2,957bbb17,46,3,5/19/2025 17:56:43,"found 9 alive + 3 dead tags, bag was dumped (decided by kl and js)",k.lotterhos@gmail.com,TRUE,0
-ac55f391,2025-5-20_MVP-ME-3,f312af3f,66,19,5/20/2025 7:51:20,"found 7 alive + 0 dead tags, bag was dumped (decided by kl and js)",k.lotterhos@gmail.com,TRUE,0
-3ac8cecf,2025-5-20_MVP-LARMIX-2,aa3c244b,162,19,5/20/2025 9:07:11,"25 alive + 2 dead tags found, 25 tagged and 75 not tagged oysters returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js)",k.lotterhos@gmail.com,TRUE,100
-2c97f9b2,2025-5-20_MVP-SEEDMIX-1,7239feb5,145,20,5/20/2025 9:25:54,"14 alive + 1 dead tags found, bag dumped (decided by kl and js)",k.lotterhos@gmail.com,TRUE,0
-c93f91db,2025-5-20_MVP-DEBY-1,24d5645e,188,8,5/20/2025 9:37:12,"31 alive tags found, bag dumped (decided by kl and js)",k.lotterhos@gmail.com,TRUE,0
-6f76c3c3,2025-5-20_MVP-LARMIX-3,ef48c3c3,149,11,5/20/2025 9:47:09,"22 alive + 2 dead tags found, 23 tagged and 72 not tagged oysters returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js)",k.lotterhos@gmail.com,TRUE,100
-ede54a18,2025-5-20_MVP-LA-1,7e8856d8,190,34,5/20/2025 10:08:57,"29 alive tags found, 29 tagged and 71 not tagged oysters returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js)",k.lotterhos@gmail.com,TRUE,100
-606997b4,2025-5-20_MVP-LA-3,bbec9cf8,212,6,5/20/2025 10:25:54,"41 alive tags found, 35 tagged and 65 not tagged oysters returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js)",k.lotterhos@gmail.com,TRUE,100
-6e731a7e,2025-5-20_MVP-TX-1,2b6a3191,150,27,5/20/2025 10:37:31,"22 alive + 4 dead tags found, 21 tagged and 79 not tagged oysters were returned the rest were dumped to strip bags down to 100 (decided by kl and js)",k.lotterhos@gmail.com,TRUE,100
-f999683c,2025-5-20_MVP-TX-2,8fd17a9e,175,21,5/20/2025 10:50:09,"29 alive + 1 loose tag found, 30 tagged and 70 not tagged oysters were returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js)",k.lotterhos@gmail.com,TRUE,100
-dd818b35,2025-5-20_MVP-ME-1,29b9493b,38,9,5/20/2025 11:04:29,"9 alive + 1 dead + 1 loose tag found, bag dumped (decided by kl and js)",k.lotterhos@gmail.com,TRUE,0
-9a44405b,2025-5-20_MVP-LA-2,689525dd,220,4,5/20/2025 11:48:33,"31 alive + 1 dead + 1 loose tag found, 31 tagged and 70 not tagged oysters returned the rest are dumped to strip bags down to 100 oysters (decided by kl and js)",k.lotterhos@gmail.com,TRUE,100
-d3d84120,2025-5-20_MVP-LOLA-3,ab553cef,194,12,5/20/2025 12:01:53,"29 alive + 1 dead + 1 loose tag found, bag dumped (decided by kl and js)",k.lotterhos@gmail.com,TRUE,0
-f95e2158,2025-5-20_MVP-JR-3,6981f952,185,20,5/20/2025 12:13:45,"27 alive + 1 dead tags found, 27 tagged and 73 not tagged oysters returned the rest were dumped to strip the bag down to 100 oysters (decided by kl and js)",k.lotterhos@gmail.com,TRUE,100
-bbed824d,2025-5-20_MVP-JR-1,3460d069,178,3,5/20/2025 12:23:34,"30 alive tags found, 70 not tagged oysters were returned rest were not to strip bags down to 100 oysters (decided by kl and js)",k.lotterhos@gmail.com,TRUE,100
-2e3a5626,2025-5-20_MVP-NH-1,09dc7811,15,56,5/20/2025 12:33:04,"1 alive + 2 dead + 1 loose tags found, bag was dumped (decided by kl and js). Alive count updated by MGE on 5/23/25 after shucking genotyping tray, which had an additional 10 dead oysters. Only 10 alive oysters were available for genotyping",k.lotterhos@gmail.com,TRUE,0
-762fbab2,2025-5-24_MVP-FL-6,f5f69186,126,46,5/24/2025 9:16:14,"13 alive + 3 dead tags found, all available 91 alive oysters returned",eppley.madeline@gmail.com,TRUE,91
-ac96e813,2025-5-24_MVP-DEBY-6,c1ccef3e,161,21,5/24/2025 9:30:25,23 alive + 2 dead  tags found,eppley.madeline@gmail.com,TRUE,0
-01d916f2,2025-5-24_MVP-TX-6,2c1bf45d,114,32,5/24/2025 9:38:41,"5 alive + 5 dead tags found, all available 79 alive oysters returned",eppley.madeline@gmail.com,TRUE,79
-89bc524e,2025-5-24_MVP-TX-5,459cb517,142,22,5/24/2025 9:49:06,"12 alive tags + 2 dead tags found, bag thinned to 100 oysters",eppley.madeline@gmail.com,TRUE,100
-7de67a57,2025-5-24_MVP-SEEDMIX-5,1a026d5b,113,30,5/24/2025 9:57:14,13 alive tags + 2 dead tags + 1 loose tag found,eppley.madeline@gmail.com,TRUE,0
-29d75224,2025-5-24_MVP-LA-4,100369ae,59,39,5/24/2025 10:09:35,5 alive + 5 dead tags found,eppley.madeline@gmail.com,TRUE,24
-427b79ba,2025-5-24_MVP-LARMIX-5,a222be71,102,67,5/24/2025 10:17:09,3 alive tags + 2 dead tags + 1 loose tag found,eppley.madeline@gmail.com,TRUE,67
-42fe9d8e,2025-5-24_MVP-LOLA-6,a5917655,75,24,5/24/2025 10:22:53,7 alive + 4 dead tags found,eppley.madeline@gmail.com,TRUE,0
-9dbbfec2,2025-5-24_MVP-LA-5,a9458a4a,90,34,5/24/2025 10:27:48,,eppley.madeline@gmail.com,TRUE,55
-3dd393ec,2025-5-24_MVP-NH-5,d5555913,17,10,5/24/2025 10:38:43,"2 alive + 1 dead tag found, the 2 tagged oysters have not been biopsied before and will be pulled for genotyping MGE",eppley.madeline@gmail.com,TRUE,0
-db056240,2025-5-24_MVP-FL-4,214a10fd,134,31,5/24/2025 10:43:57,17 alive + 3 dead tags found,eppley.madeline@gmail.com,TRUE,99
-b04d65d8,2025-5-24_MVP-SEEDMIX-4,8940e43d,106,28,5/24/2025 10:50:51,9 alive + 6 dead tags found,eppley.madeline@gmail.com,TRUE,0
-25c701e4,2025-5-24_MVP-DEBY-5,15161707,136,23,5/24/2025 10:57:40,17 alive + 3 dead tags found,eppley.madeline@gmail.com,TRUE,0
-45a4401e,2025-5-24_MVP-ME-4,12bc8d82,2,5,5/24/2025 10:58:36,"2 oysters alive in entire bag, 2 dead tags found",eppley.madeline@gmail.com,TRUE,0
-a66ca884,2025-5-24_MVP-LOLA-5,b8b043b2,104,30,5/24/2025 11:09:37,9 alive tags + 1 dead tag found,eppley.madeline@gmail.com,TRUE,0
-1e9567f5,2025-5-24_MVP-LARMIX-6,5fb1d274,83,15,5/24/2025 11:17:07,9 alive + 0 dead tags found,eppley.madeline@gmail.com,TRUE,48
-ff37d301,2025-5-24_MVP-LA-6,6a4a5efe,61,33,5/24/2025 11:23:07,3 alive tags plus 1 dead tag found,eppley.madeline@gmail.com,TRUE,19
-7b9a8d7f,2025-5-24_MVP-ME-5,ca40eea6,14,6,5/24/2025 11:26:35,"1 dead tag, 14 alive 3 taken for phenotyping and 11 taken for genotyping",eppley.madeline@gmail.com,TRUE,0
-c769b4d4,2025-5-24_MVP-JR-6,cac61fcc,132,20,5/24/2025 11:34:36,14 alive tags plus 3 dead tags found,eppley.madeline@gmail.com,TRUE,97
-82d62851,2025-5-24_MVP-SEEDMIX-6,8894d982,120,25,5/24/2025 11:41:24,11 alive plus 2 dead tags found,eppley.madeline@gmail.com,TRUE,0
-17ef6d87,2025-5-24_MVP-DEBY-4,16543236,110,29,5/24/2025 11:48:09,12 alive + 2 dead tags found,eppley.madeline@gmail.com,TRUE,0
-aa2353f3,2025-5-24_MVP-ME-6,f0b7aeea,5,0,5/24/2025 11:51:23,"All 5 taken for genotyping, no tags recovered",eppley.madeline@gmail.com,FALSE,0
-a3b62817,2025-5-24_MVP-JR-4,ab963807,156,19,5/24/2025 13:11:32,"16 alive tags plus 2 dead tags found, bag thinned to 100 oysters",eppley.madeline@gmail.com,TRUE,100
-1627dbc0,2025-5-24_MVP-FL-5,78b3b60a,112,32,5/24/2025 13:19:09,11 alive plus 3 dead tags found,eppley.madeline@gmail.com,TRUE,77
-9a476dd7,2025-5-24_MVP-JR-5,8b476356,156,19,5/24/2025 13:24:48,"13 alive tags plus 3 dead tags found, bag thinned to 100 oysters",eppley.madeline@gmail.com,TRUE,100
-1d1ab555,2025-5-24_MVP-TX-4,eb43e468,105,14,5/24/2025 13:31:07,7 alive tags found,eppley.madeline@gmail.com,TRUE,70
-990f6b05,2025-5-24_MVP-LOLA-4,bd86970d,69,22,5/24/2025 13:35:43,5 dead plus 5 alive tags found,eppley.madeline@gmail.com,TRUE,0
-cec97655,2025-5-24_MVP-LARMIX-4,36a7a874,89,22,5/24/2025 13:40:40,8 alive plus 4 dead tags found,eppley.madeline@gmail.com,TRUE,0
-af624eb0,2025-5-24_MVP-NH-6,26bf3141,8,4,5/24/2025 13:45:39,"All 10 alive taken for genotyping, 2 tags found 1 alive 1 dead",eppley.madeline@gmail.com,TRUE,0
-0ba25c37,2025-5-29_MVP-NH-4,b2afd5ee,0,0,5/29/2025 12:49:44,"adding entry for analysis purposes, this bag crashed in november '24",camillerumberger11@gmail.com,FALSE,0
+All live oysters taken for CI - bag completely crashed, not returned to the water",TRUE,0
+1e2c2bf0,2024-11-11_MVP-DEBY-6,c1ccef3e,192,40,11/11/24 14:32,"8 missing, 2 loose, 30 found",TRUE,187
+05bc4524,2024-11-11_MVP-LA-4,100369ae,90,110,11/11/24 14:40,"30 tagged oysters found, 5 loose tags, 5 missing tags",TRUE,85
+aa379cfa,2024-11-11_MVP-SEEDMIX-4,8940e43d,134,77,11/11/24 14:49,"27 tagged oysters found, 2 loose tags, 11 missing tags",TRUE,129
+d5553dd6,2024-11-11_MVP-FL-5,78b3b60a,153,82,11/11/24 14:59,"19 tagged oysters found, 2 loose tags, 18 missing tags (only 39 expected)",TRUE,148
+bc154017,2024-11-11_MVP-ME-4,12bc8d82,11,65,11/11/24 15:05,"10 tagged oysters found, 2 loose tags, 28 missing tags",TRUE,6
+6935e8a3,2024-11-11_MVP-JR-4,ab963807,179,41,11/11/24 15:07,"27 tagged oysters found, 5 loose tags, 8 missing tags",TRUE,174
+b08ac5ae,2024-11-11_MVP-JR-6,cac61fcc,155,53,11/11/24 15:18,"25 tagged oysters found, 0 loose tags, 15 missing tags",TRUE,150
+7bfc4629,2025-5-19_MVP-LA-1,7e8856d8,,,5/19/25 10:16,Practice,,0
+44322799,2025-5-19_MVP-FL-3,e91a188c,182,18,5/19/25 14:33,"22 or 31 tags recovered, 28 tagged and 72 not tagged oysters returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js)",,100
+d06863a5,2025-5-19_MVP-NH-3,6ab7c081,23,8,5/19/25 14:57,"5 alive tags found, 15 set aside for genotyping, bag dumped (decided by kl and js)",TRUE,0
+e2feb93e,2025-5-19_MVP-DEBY-2,f280e828,229,5,5/19/25 15:08,"29 alive tags found, bag dumped (decided by kl and js)",TRUE,0
+46b0b9a7,2025-5-19_MVP-FL-1,815e1dab,182,8,5/19/25 15:20,"24 tags alive, 25 tagged and 75 not tagged oysters returned tge rest were dumped to strip bags down to 100 oysters (decided by kl and js)",TRUE,100
+15204bea,2025-5-19_MVP-ME-2,98db6a1d,84,19,5/19/25 15:24,"8 alive tags + 2 dead tags recovered, bag dumped (decided by kl and js)",TRUE,0
+3adc7c2b,2025-5-19_MVP-LOLA-1,40d460cc,172,25,5/19/25 15:44,25 alive + 3 loose tags found. Bag was dumped (decided by kl and js),TRUE,0
+45320ed2,2025-5-19_MVP-DEBY-3,fd1a768b,202,14,5/19/25 16:01,"22 alive + 3 dead tags, bag dumped (decided by kl and js)",TRUE,0
+8952da42,2025-5-19_MVP-SEEDMIX-2,05d8a409,184,5,5/19/25 16:12,"24 alive tags + 0 dead tags, bag dumped (decided by kl and js)",TRUE,0
+f4949c48,2025-5-19_MVP-TX-3,885f1c3e,185,24,5/19/25 16:26,"24 alive + 2 dead tags, 25 tagged and 75 not tagged oysters returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js)",TRUE,100
+ac337078,2025-5-19_MVP-JR-2,58cf91df,202,2,5/19/25 16:43,"We initially mixed up this bag with larmix1 - but fixed it. 27 alive + 0 dead tags, 27 tagged and 73 not tagged oysters returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js)",TRUE,100
+e6cf95f9,2025-5-19_MVP-LARMIX-1,4ca2c33a,154,9,5/19/25 16:49,Initially mixed up with JR 2 but fixed it. 24 alive + 2 dead tags. 24 tagged and 76 not tagged oysters returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js),TRUE,100
+0b080cb4,2025-5-19_MVP-FL-2,230dcc38,160,14,5/19/25 17:23,"30 alive + 2 dead tags, 30 tagged and 70 not tagged oysters returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js)",TRUE,100
+e7c09280,2025-5-19_MVP-SEEDMIX-3,0f94ce30,165,22,5/19/25 17:33,"found 23 alive + 1 dead tag + 4 loose tags, bag dumped (decided by kl and js)",TRUE,0
+997619cf,2025-5-19_MVP-LOLA-2,953be50c,194,4,5/19/25 17:44,"found 28 alive + 0 dead tags, bag dumped (decided by kl and js)",TRUE,0
+66cce39c,2025-5-19_MVP-NH-2,957bbb17,46,3,5/19/25 17:56,"found 9 alive + 3 dead tags, bag was dumped (decided by kl and js)",TRUE,0
+ac55f391,2025-5-20_MVP-ME-3,f312af3f,66,19,5/20/25 7:51,"found 7 alive + 0 dead tags, bag was dumped (decided by kl and js)",TRUE,0
+3ac8cecf,2025-5-20_MVP-LARMIX-2,aa3c244b,162,19,5/20/25 9:07,"25 alive + 2 dead tags found, 25 tagged and 75 not tagged oysters returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js)",TRUE,100
+2c97f9b2,2025-5-20_MVP-SEEDMIX-1,7239feb5,145,20,5/20/25 9:25,"14 alive + 1 dead tags found, bag dumped (decided by kl and js)",TRUE,0
+c93f91db,2025-5-20_MVP-DEBY-1,24d5645e,188,8,5/20/25 9:37,"31 alive tags found, bag dumped (decided by kl and js)",TRUE,0
+6f76c3c3,2025-5-20_MVP-LARMIX-3,ef48c3c3,149,11,5/20/25 9:47,"22 alive + 2 dead tags found, 23 tagged and 72 not tagged oysters returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js)",TRUE,100
+ede54a18,2025-5-20_MVP-LA-1,7e8856d8,190,34,5/20/25 10:08,"29 alive tags found, 29 tagged and 71 not tagged oysters returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js)",TRUE,100
+606997b4,2025-5-20_MVP-LA-3,bbec9cf8,212,6,5/20/25 10:25,"41 alive tags found, 35 tagged and 65 not tagged oysters returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js)",TRUE,100
+6e731a7e,2025-5-20_MVP-TX-1,2b6a3191,150,27,5/20/25 10:37,"22 alive + 4 dead tags found, 21 tagged and 79 not tagged oysters were returned the rest were dumped to strip bags down to 100 (decided by kl and js)",TRUE,100
+f999683c,2025-5-20_MVP-TX-2,8fd17a9e,175,21,5/20/25 10:50,"29 alive + 1 loose tag found, 30 tagged and 70 not tagged oysters were returned the rest were dumped to strip bags down to 100 oysters (decided by kl and js)",TRUE,100
+dd818b35,2025-5-20_MVP-ME-1,29b9493b,38,9,5/20/25 11:04,"9 alive + 1 dead + 1 loose tag found, bag dumped (decided by kl and js)",TRUE,0
+9a44405b,2025-5-20_MVP-LA-2,689525dd,220,4,5/20/25 11:48,"31 alive + 1 dead + 1 loose tag found, 31 tagged and 70 not tagged oysters returned the rest are dumped to strip bags down to 100 oysters (decided by kl and js)",TRUE,100
+d3d84120,2025-5-20_MVP-LOLA-3,ab553cef,194,12,5/20/25 12:01,"29 alive + 1 dead + 1 loose tag found, bag dumped (decided by kl and js)",TRUE,0
+f95e2158,2025-5-20_MVP-JR-3,6981f952,185,20,5/20/25 12:13,"27 alive + 1 dead tags found, 27 tagged and 73 not tagged oysters returned the rest were dumped to strip the bag down to 100 oysters (decided by kl and js)",TRUE,100
+bbed824d,2025-5-20_MVP-JR-1,3460d069,178,3,5/20/25 12:23,"30 alive tags found, 70 not tagged oysters were returned rest were not to strip bags down to 100 oysters (decided by kl and js)",TRUE,100
+2e3a5626,2025-5-20_MVP-NH-1,09dc7811,15,56,5/20/25 12:33,"1 alive + 2 dead + 1 loose tags found, bag was dumped (decided by kl and js). Alive count updated by MGE on 5/23/25 after shucking genotyping tray, which had an additional 10 dead oysters. Only 10 alive oysters were available for genotyping",TRUE,0
+762fbab2,2025-5-24_MVP-FL-6,f5f69186,126,46,5/24/25 9:16,"13 alive + 3 dead tags found, all available 91 alive oysters returned",TRUE,91
+ac96e813,2025-5-24_MVP-DEBY-6,c1ccef3e,161,21,5/24/25 9:30,23 alive + 2 dead  tags found,TRUE,0
+01d916f2,2025-5-24_MVP-TX-6,2c1bf45d,114,32,5/24/25 9:38,"5 alive + 5 dead tags found, all available 79 alive oysters returned",TRUE,79
+89bc524e,2025-5-24_MVP-TX-5,459cb517,142,22,5/24/25 9:49,"12 alive tags + 2 dead tags found, bag thinned to 100 oysters",TRUE,100
+7de67a57,2025-5-24_MVP-SEEDMIX-5,1a026d5b,113,30,5/24/25 9:57,13 alive tags + 2 dead tags + 1 loose tag found,TRUE,0
+29d75224,2025-5-24_MVP-LA-4,100369ae,59,39,5/24/25 10:09,5 alive + 5 dead tags found,TRUE,24
+427b79ba,2025-5-24_MVP-LARMIX-5,a222be71,102,67,5/24/25 10:17,3 alive tags + 2 dead tags + 1 loose tag found,TRUE,67
+42fe9d8e,2025-5-24_MVP-LOLA-6,a5917655,75,24,5/24/25 10:22,7 alive + 4 dead tags found,TRUE,0
+9dbbfec2,2025-5-24_MVP-LA-5,a9458a4a,90,34,5/24/25 10:27,,TRUE,55
+3dd393ec,2025-5-24_MVP-NH-5,d5555913,17,10,5/24/25 10:38,"2 alive + 1 dead tag found, the 2 tagged oysters have not been biopsied before and will be pulled for genotyping MGE",TRUE,0
+db056240,2025-5-24_MVP-FL-4,214a10fd,134,31,5/24/25 10:43,17 alive + 3 dead tags found,TRUE,99
+b04d65d8,2025-5-24_MVP-SEEDMIX-4,8940e43d,106,28,5/24/25 10:50,9 alive + 6 dead tags found,TRUE,0
+25c701e4,2025-5-24_MVP-DEBY-5,15161707,136,23,5/24/25 10:57,17 alive + 3 dead tags found,TRUE,0
+45a4401e,2025-5-24_MVP-ME-4,12bc8d82,2,5,5/24/25 10:58,"2 oysters alive in entire bag, 2 dead tags found",TRUE,0
+a66ca884,2025-5-24_MVP-LOLA-5,b8b043b2,104,30,5/24/25 11:09,9 alive tags + 1 dead tag found,TRUE,0
+1e9567f5,2025-5-24_MVP-LARMIX-6,5fb1d274,83,15,5/24/25 11:17,9 alive + 0 dead tags found,TRUE,48
+ff37d301,2025-5-24_MVP-LA-6,6a4a5efe,61,33,5/24/25 11:23,3 alive tags plus 1 dead tag found,TRUE,19
+7b9a8d7f,2025-5-24_MVP-ME-5,ca40eea6,14,6,5/24/25 11:26,"1 dead tag, 14 alive 3 taken for phenotyping and 11 taken for genotyping",TRUE,0
+c769b4d4,2025-5-24_MVP-JR-6,cac61fcc,132,20,5/24/25 11:34,14 alive tags plus 3 dead tags found,TRUE,97
+82d62851,2025-5-24_MVP-SEEDMIX-6,8894d982,120,25,5/24/25 11:41,11 alive plus 2 dead tags found,TRUE,0
+17ef6d87,2025-5-24_MVP-DEBY-4,16543236,110,29,5/24/25 11:48,12 alive + 2 dead tags found,TRUE,0
+aa2353f3,2025-5-24_MVP-ME-6,f0b7aeea,5,0,5/24/25 11:51,"All 5 taken for genotyping, no tags recovered",FALSE,0
+a3b62817,2025-5-24_MVP-JR-4,ab963807,156,19,5/24/25 13:11,"16 alive tags plus 2 dead tags found, bag thinned to 100 oysters",TRUE,100
+1627dbc0,2025-5-24_MVP-FL-5,78b3b60a,112,32,5/24/25 13:19,11 alive plus 3 dead tags found,TRUE,77
+9a476dd7,2025-5-24_MVP-JR-5,8b476356,156,19,5/24/25 13:24,"13 alive tags plus 3 dead tags found, bag thinned to 100 oysters",TRUE,100
+1d1ab555,2025-5-24_MVP-TX-4,eb43e468,105,14,5/24/25 13:31,7 alive tags found,TRUE,70
+990f6b05,2025-5-24_MVP-LOLA-4,bd86970d,69,22,5/24/25 13:35,5 dead plus 5 alive tags found,TRUE,0
+cec97655,2025-5-24_MVP-LARMIX-4,36a7a874,89,22,5/24/25 13:40,8 alive plus 4 dead tags found,TRUE,0
+af624eb0,2025-5-24_MVP-NH-6,26bf3141,8,4,5/24/25 13:45,"All 10 alive taken for genotyping, 2 tags found 1 alive 1 dead",TRUE,0
+0ba25c37,2025-5-29_MVP-NH-4,b2afd5ee,0,0,5/29/25 12:49,"adding entry for analysis purposes, this bag crashed in november '24",FALSE,0
