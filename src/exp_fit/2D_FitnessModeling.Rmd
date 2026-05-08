@@ -19,6 +19,7 @@ library(plotrix) # for std error
 library(MASS) # for ordinal regression
 library(lme4) # for lmm
 library(performance) # for lmm
+library(pbkrtest) # for lmm
 library(lmerTest) # for lmm
 library(car) # for avPlots(), Anova()
 library(emmeans) # for significance letters
@@ -155,7 +156,7 @@ surv_final_time_plotting$pop.x <- NULL
 names(surv_final_time_plotting)[names(surv_final_time_plotting) == "pop.y"] <- "pop"
 
 # y-axis location for letters
-letters_loc <- surv_final_time_plotting %>% group_by(popsite) %>% summarise(across(surv, max))
+letters_loc <- surv_final_time_plotting %>% group_by(popsite) %>% dplyr::summarise(across(surv, max))
 colnames(letters_loc) <- c("popsite", "max_surv")
 surv_final_time_plotting_letters <- merge(surv_final_time_plotting, letters_loc, by = "popsite")
 
@@ -221,21 +222,28 @@ Anova(length_lm, type = "III") # all significant
 boxplot(residuals(length_lm) ~ lengths_mod_narm_nodead$bags_label)
 
 # with interactions
-# using REML
-length_lmm <- lmer(length ~ bag_site * pop * t + (1|bags_label), data = lengths_mod_narm_nodead)
+# using ML
+length_lmm <- lmer(length ~ bag_site * pop * t + (1|bags_label), data = lengths_mod_narm_nodead, REML = TRUE)
 Anova(length_lmm, type = "III", test.statistic = "F") # all signif
-lmerTest::summary(length_lmm)
-
-# start with full model, then subtract each interaction, then subtract two of the interaction
+summary(length_lmm)
 drop1(length_lmm) # keep all
 
 # one more model on final time point only
-length_lmm_final <- lmer(length ~ bag_site * pop + (1|bags_label), data = lengths_mod_narm_nodead[lengths_mod_narm_nodead$t == 4,])
+length_lmm_final <- lmer(length ~ bag_site * pop + (1|bags_label), data = lengths_mod_narm_nodead[lengths_mod_narm_nodead$t == 4,], REML = TRUE)
 plot(length_lmm_final)
 Anova(length_lmm_final, type = "III", test.statistic = "F") # all signif
 sum(residuals(length_lmm_final)^2)
 df.residual(length_lmm_final)
 drop1(length_lmm_final)
+
+# kenward rogers
+# null models
+length_lmm_null <- lmer(length ~ (1|bags_label), data = lengths_mod_narm_nodead, REML = TRUE)
+length_lmm_final_null <- lmer(length ~ (1|bags_label), data = lengths_mod_narm_nodead[lengths_mod_narm_nodead$t == 4,], REML = TRUE)
+
+# test kr
+kr_length_lmm <- pbkrtest::KRmodcomp(length_lmm, length_lmm_null)
+kr_length_lmm_final <- pbkrtest::KRmodcomp(length_lmm_final, length_lmm_final_null)
 
 # can paste pops with sites to do a traditional Tukey
 lengths_final_time <- lengths_mod_narm_nodead[lengths_mod_narm_nodead$t == 4,]
@@ -266,7 +274,9 @@ summary_len_t4 <- lengths_final_time_rename_mg %>%
 # save all this 
 sink(paste0("results/exp_results/length_model_results_", Sys.Date(), ".txt"))
 Anova(length_lmm, type = "III")
+kr_length_lmm
 Anova(length_lmm_final, type = "III")
+kr_length_lmm_final
 anova_len_t4
 letters_len_t4
 sink()

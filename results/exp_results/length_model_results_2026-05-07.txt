@@ -1,0 +1,54 @@
+Analysis of Deviance Table (Type III Wald chisquare tests)
+
+Response: length
+                   Chisq Df Pr(>Chisq)    
+(Intercept)    1127.0252  1  < 2.2e-16 ***
+bag_site          8.9459  1   0.002781 ** 
+pop             124.8803  7  < 2.2e-16 ***
+t              2415.6269  3  < 2.2e-16 ***
+bag_site:pop     42.5636  7  4.049e-07 ***
+bag_site:t      174.0701  3  < 2.2e-16 ***
+pop:t           564.1725 21  < 2.2e-16 ***
+bag_site:pop:t  124.5785 21  < 2.2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+large : length ~ bag_site * pop * t + (1 | bags_label)
+small : length ~ (1 | bags_label)
+        stat    ndf    ddf F.scaling   p.value    
+Ftest 278.70  63.00 446.97   0.98926 < 2.2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Analysis of Deviance Table (Type III Wald chisquare tests)
+
+Response: length
+                Chisq Df Pr(>Chisq)    
+(Intercept)  2305.455  1  < 2.2e-16 ***
+bag_site       63.512  1  1.594e-15 ***
+pop           151.398  7  < 2.2e-16 ***
+bag_site:pop   27.779  7  0.0002411 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+large : length ~ bag_site * pop + (1 | bags_label)
+small : length ~ (1 | bags_label)
+        stat    ndf    ddf F.scaling   p.value    
+Ftest 31.322 15.000 34.090   0.99575 1.441e-15 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Anova Table (Type II tests)
+
+Response: length
+          Sum Sq  Df F value    Pr(>F)    
+popsite   120676  15  49.557 < 2.2e-16 ***
+Residuals 130520 804                      
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+$popsite
+S1_LOLA_Lewisetta   W2_LA_Lewisetta S2_DEBY_Lewisetta   W1_TX_Lewisetta 
+              "a"              "ab"              "bc"              "cd" 
+  W4_VA_Lewisetta   W3_FL_Lewisetta   W6_ME_Lewisetta S2_DEBY_YorkRiver 
+            "cde"             "def"            "defg"              "fg" 
+S1_LOLA_YorkRiver   W3_FL_YorkRiver   W4_VA_YorkRiver   W2_LA_YorkRiver 
+             "gh"              "hi"              "hi"              "hi" 
+  W6_ME_YorkRiver   W1_TX_YorkRiver   W5_NH_Lewisetta   W5_NH_YorkRiver 
+          "efghi"               "i"               "i"               "i" 
+
