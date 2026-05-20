@@ -53,7 +53,6 @@ gf_go
 rda_go
 mort
 len
-cond
 
 # trim mort
 mort_popsite <- mort[!(mort$event == 0), c("bag_site","pop","mean_surv","sd","event")]
@@ -82,30 +81,26 @@ len_bags$site <- ifelse(len_bags$bagnum > 3, "YorkRiver", "Lewisetta")
 len_all <- merge(len_bags[,c("bag","pop","site")], len, by = c("bag"))
 colnames(len_all) <- c("bag","pop","site","event","length")
 
-len_t1 <- len_all[len_all$event == 1,]
-t1_lens <- aggregate(length ~ pop + site, data = len_t1, FUN = mean)
-t1_sd <- aggregate(length ~ pop + site, data = len_t1, FUN = sd)
-colnames(t1_sd) <- c("pop", "site", "len_sd")
-t1_lens_popsite <- merge(t1_lens, t1_sd, by = c("pop", "site"))
-t1_lens_popsite$event <- 1
-len_t2 <- len_all[len_all$event == 2,]
-t2_lens <- aggregate(length ~ pop + site, data = len_t2, FUN = mean)
-t2_sd <- aggregate(length ~ pop + site, data = len_t2, FUN = sd)
-colnames(t2_sd) <- c("pop", "site", "len_sd")
-t2_lens_popsite <- merge(t2_lens, t2_sd, by = c("pop", "site"))
-t2_lens_popsite$event <- 2
-len_t3 <- len_all[len_all$event == 3,]
-t3_lens <- aggregate(length ~ pop + site, data = len_t3, FUN = mean)
-t3_sd <- aggregate(length ~ pop + site, data = len_t3, FUN = sd)
-colnames(t3_sd) <- c("pop", "site", "len_sd")
-t3_lens_popsite <- merge(t3_lens, t3_sd, by = c("pop", "site"))
-t3_lens_popsite$event <- 3
-len_t4 <- len_all[len_all$event == 4,]
-t4_lens <- aggregate(length ~ pop + site, data = len_t4, FUN = mean)
-t4_sd <- aggregate(length ~ pop + site, data = len_t4, FUN = sd)
-colnames(t4_sd) <- c("pop", "site", "len_sd")
-t4_lens_popsite <- merge(t4_lens, t4_sd, by = c("pop", "site"))
-t4_lens_popsite$event <- 4
+t1_lens_popsite_test <- len_all %>% filter(event == 1) %>% 
+  group_by(pop, site) %>%
+  summarise(len_mean = mean(length),
+            len_sd = sd(length)) %>%
+  mutate(event = 1)
+t2_lens_popsite_test <- len_all %>% filter(event == 2) %>% 
+  group_by(pop, site) %>%
+  summarise(len_mean = mean(length),
+            len_sd = sd(length)) %>%
+  mutate(event = 2)
+t3_lens_popsite_test <- len_all %>% filter(event == 3) %>% 
+  group_by(pop, site) %>%
+  summarise(len_mean = mean(length),
+            len_sd = sd(length)) %>%
+  mutate(event = 3)
+t4_lens_popsite_test <- len_all %>% filter(event == 4) %>% 
+  group_by(pop, site) %>%
+  summarise(len_mean = mean(length),
+            len_sd = sd(length)) %>%
+  mutate(event = 4)
 
 lens_popsite <- rbind(t1_lens_popsite, t2_lens_popsite, t3_lens_popsite, t4_lens_popsite)
 colnames(lens_popsite) <- c("pop","bag_site","mean_len","sd_len","event")
