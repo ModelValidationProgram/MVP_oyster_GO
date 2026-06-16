@@ -12,12 +12,12 @@ geno_mat_hier <- readRDS("data/GenDat/geno_mat_hierfstat.RDS")
 geno_mat_hier_exp <- readRDS("data/GenDat/geno_mat_exp_hierfstat.RDS")
 
 # calc basic stats
-sea_stats <- hierfstat::basic.stats(geno_mat_hier)
-exp_stats <- hierfstat::basic.stats(geno_mat_hier_exp)
+sea_stats <- hierfstat::basic.stats(geno_mat_hier, diploid = T)
+exp_stats <- hierfstat::basic.stats(geno_mat_hier_exp, diploid = T)
 
 # calc pairwise fst
-sea_fst <- hierfstat::pairwise.WCfst(geno_mat_hier)
-exp_fst <- hierfstat::pairwise.WCfst(geno_mat_hier_exp)
+sea_fst <- hierfstat::pairwise.WCfst(geno_mat_hier, diploid = T)
+exp_fst <- hierfstat::pairwise.WCfst(geno_mat_hier_exp, diploid = T)
 
 # save
 saveRDS(sea_stats, paste0("results/gen/seascape_statistics_", Sys.Date(), ".RDS"))
