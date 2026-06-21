@@ -105,18 +105,28 @@ write.csv(inds_genomat, "data/GenDat/inds_genomat.csv")
 ## Calculate Basic Genetic Summary Statistics
 
 ```{r}
-# create genind object
-geno_mat_genind <- df2genind(geno_mat_ld_keep_filtered, sep = "", ncode = 1, ploidy = 2, pop = as.factor(sea_inds_order$ID_SiteDate))
+# Remap all values simultaneously
+map_snps <- c("0" = 11, "1" = 12, "2" = 22)
+geno_mat_ld_keep_filtered_remap <- as.matrix(geno_mat_ld_keep_filtered)
+geno_mat_ld_keep_filtered_remap[] <- map_snps[as.character(as.matrix(geno_mat_ld_keep_filtered))]
+pop <- as.factor(sea_inds_order$ID_SiteDate)
+geno_mat_ld_keep_filtered_remap_df <- as.data.frame(cbind(pop, as.data.frame(geno_mat_ld_keep_filtered_remap)))
 
-geno_mat_genind_exp <- geno_mat_genind[geno_mat_genind@pop %in% c("CB_TX_2022-6-9", "Sister_Lk_LA_2022-8-9", "KP_FGR_FL_2022-8-23", "DWS_CB_VA_2022-10-7", "SR_GB_NH_2022-8-12", "DC_DR_ME_2022-10-25"),]
+# save remapped
+saveRDS(geno_mat_ld_keep_filtered_remap_df, "data/GenDat/geno_mat_remapped.RDS")
 
-# format for hierfstat
-geno_mat_hier <- genind2hierfstat(geno_mat_genind)
-geno_mat_hier[1:10, 1:10]
-geno_mat_hier_exp <- genind2hierfstat(geno_mat_genind_exp)
-
-saveRDS(geno_mat_hier, "data/GenDat/geno_mat_hierfstat.RDS")
-saveRDS(geno_mat_hier_exp, "data/GenDat/geno_mat_exp_hierfstat.RDS")
+# # create genind object
+# geno_mat_genind <- df2genind(geno_mat_ld_keep_filtered, sep = "", ncode = 1, ploidy = 2, pop = as.factor(sea_inds_order$ID_SiteDate))
+# 
+# geno_mat_genind_exp <- geno_mat_genind[geno_mat_genind@pop %in% c("CB_TX_2022-6-9", "Sister_Lk_LA_2022-8-9", "KP_FGR_FL_2022-8-23", "DWS_CB_VA_2022-10-7", "SR_GB_NH_2022-8-12", "DC_DR_ME_2022-10-25"),]
+# 
+# # format for hierfstat
+# geno_mat_hier <- genind2hierfstat(geno_mat_genind, pop = geno_mat_genind@pop)
+# geno_mat_hier[1:10, 1:10]
+# geno_mat_hier_exp <- genind2hierfstat(geno_mat_genind_exp, pop = geno_mat_genind_exp@pop)
+# 
+# saveRDS(geno_mat_hier, "data/GenDat/geno_mat_hierfstat.RDS")
+# saveRDS(geno_mat_hier_exp, "data/GenDat/geno_mat_exp_hierfstat.RDS")
 
 # read back in fst & stats
 sea_fst <- readRDS("results/gen/seascape_pairwise_2026-04-15.RDS")
